@@ -3,6 +3,6 @@ Form:<br>
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <input type="submit" name="prev" value="Previous"/>
-    <input type="submit" name="next" value="Next"/>
+    {% if has_prev_page %}<input type="submit" name="prev" value="Previous"/>{% endif %}
+    {% if has_next_page %}<input type="submit" name="next" value="Next"/>{% endif %}
 </form>
