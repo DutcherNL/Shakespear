@@ -4,6 +4,10 @@ from django.db import models
 
 
 class Question(models.Model):
+    """
+    A model for a question, can be of multiple types
+    """
+
     name = models.SlugField(max_length=10)
     description = models.CharField(max_length=256)
     question_text = models.CharField(max_length=64)
@@ -23,6 +27,9 @@ class Question(models.Model):
 
 
 class Page(models.Model):
+    """
+    A page containing multiple questions
+    """
     name = models.CharField(max_length=50)
     position = models.PositiveIntegerField()
     questions = models.ManyToManyField(Question, through='PageEntry',
@@ -33,6 +40,9 @@ class Page(models.Model):
 
 
 class PageEntry(models.Model):
+    """
+    A model detailing the questions that are on a page in a given order
+    """
     page = models.ForeignKey(Page, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     position = models.PositiveIntegerField(default=999)
