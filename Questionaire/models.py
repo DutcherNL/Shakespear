@@ -36,6 +36,7 @@ class PageEntry(models.Model):
     page = models.ForeignKey(Page, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     position = models.PositiveIntegerField(default=999)
+    required = models.BooleanField(default=False)
 
     unique_together = ("page", "question")
 
