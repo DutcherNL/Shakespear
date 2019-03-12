@@ -43,6 +43,7 @@ class QuestionPageForm(forms.Form):
 
     def __init__(self, page, *args, **kwargs):
         super(QuestionPageForm, self).__init__(*args, **kwargs)
+        self.page = page
 
         for entry in PageEntry.objects.filter(page=page).order_by('position'):
             question = entry.question
