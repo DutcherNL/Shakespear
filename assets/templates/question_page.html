@@ -2,7 +2,7 @@
 Form:<br>
 <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
+    {% include "snippets/bootstrap_form.html" %}
     {% if has_prev_page %}<input type="submit" name="prev" value="Previous"/>{% endif %}
     {% if has_next_page %}<input type="submit" name="next" value="Next"/>{% endif %}
 </form>

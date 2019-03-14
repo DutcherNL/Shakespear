@@ -76,3 +76,6 @@ class InquiryQuestionAnswer(models.Model):
 
     unique_together = ("inquiry", "question")
 
+    def __str__(self):
+        return "{0} {1}: {2}".format(self.question.name, self.inquiry.id, self.answer)
+

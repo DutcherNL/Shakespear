@@ -18,7 +18,7 @@ class QPageView(TemplateView):
         self.page = get_object_or_404(Page, id=self.kwargs['page'])
         self.inquiry = get_object_or_404(Inquiry, id=self.kwargs['inquiry'])
 
-        context['form'] = QuestionPageForm(self.page)
+        context['form'] = QuestionPageForm(self.page, self.inquiry)
 
         context['has_prev_page'] = self.get_page(get_next=False) is not None
         context['has_next_page'] = self.get_page(get_next=True) is not None
@@ -26,12 +26,11 @@ class QPageView(TemplateView):
         return context
 
     def post(self, request, *args, **kwargs):
-        print(request.POST)
-
         context = self.get_context_data()
+        context['form'] = QuestionPageForm(self.page, self.inquiry, request.POST)
 
-        if context['form'].is_valid() or True:
-            # Todo: save form
+        if context['form'].is_valid():
+            context['form'].save(self.inquiry)
 
             if 'prev' in request.POST:
                 print("PREV")
