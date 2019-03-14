@@ -52,7 +52,7 @@ class QuestionFieldMixin:
                 self.initial = answer_obj.first().answer
 
     def save(self, value, inquiry):
-        if is_empty_value(value):
+        if not self.is_empty_value(value):
             answer = InquiryQuestionAnswer.objects.get_or_create(question=self.question, inquiry=inquiry)[0]
             answer.answer = value
             answer.save()
@@ -66,7 +66,19 @@ class QuestionFieldMixin:
         :param value: the given answer
         :return: whether the given entry is empty for this parameter
         """
-        return value is None or value != 0
+        return value is None or value == 0
+
+    def forward(self):
+        """
+        Computes the effects on the inquiry in a forwards motion
+        :return:
+        """
+
+    def backwards(self):
+        """
+        Reverts the effects on the inquiry in a forwards motion
+        :return:
+        """
 
 
 class CharQuestionField(QuestionFieldMixin, CharField):

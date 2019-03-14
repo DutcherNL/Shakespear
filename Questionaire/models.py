@@ -73,6 +73,7 @@ class InquiryQuestionAnswer(models.Model):
     inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     answer = models.CharField(max_length=256)
+    processed = models.BooleanField(default=False)
 
     unique_together = ("inquiry", "question")
 
