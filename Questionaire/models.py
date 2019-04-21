@@ -55,7 +55,11 @@ class PageEntry(models.Model):
 
 
 class AnswerOption(models.Model):
-    pass
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    answer = models.CharField(max_length=64)
+
+    def __str__(self):
+        return "{question}: {answer}".format(question=self.question.name, answer=self.answer)
 
 
 class Inquiry(models.Model):
@@ -80,3 +84,26 @@ class InquiryQuestionAnswer(models.Model):
     def __str__(self):
         return "{0} {1}: {2}".format(self.question.name, self.inquiry.id, self.answer)
 
+
+class Technology(models.Model):
+    name = models.CharField(max_length=32)
+    start_value = models.DecimalField(default=0.5, decimal_places=2, max_digits=5)
+    threshold_approve = models.DecimalField(default=1, decimal_places=2, max_digits=5)
+    threshold_deny = models.DecimalField(default=0, decimal_places=2, max_digits=5)
+
+    def __str__(self):
+        return self.name
+
+
+class TechnologyScore(models.Model):
+    technology = models.ForeignKey(Technology, on_delete=models.CASCADE)
+    inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE)
+    usefulness_score = models.DecimalField(decimal_places=2, max_digits=5)
+    importance_score = models.DecimalField(decimal_places=2, max_digits=5)
+
+
+class AnswerScoring(models.Model):
+    answer_option = models.ForeignKey(AnswerOption, on_delete=models.CASCADE)
+    technology = models.ForeignKey(Technology, on_delete=models.CASCADE)
+    usefulness_change = models.DecimalField(decimal_places=2, max_digits=5)
+    importance_change = models.DecimalField(decimal_places=2, max_digits=5)

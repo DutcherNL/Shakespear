@@ -27,6 +27,8 @@ class QuestionFieldFactory:
             # Double question
             return DecimalQuestionField(question, inquiry)
         if q_type == 3:
+
+
             # Choice question
             choices = (
                 (1, 'A'),
