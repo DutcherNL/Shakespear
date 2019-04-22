@@ -1,4 +1,5 @@
 from django.forms import CharField, IntegerField, DecimalField, ChoiceField
+from django.core.exceptions import ObjectDoesNotExist
 import ast
 
 from .models import InquiryQuestionAnswer, AnswerOption, TechnologyScore
@@ -105,8 +106,11 @@ class QuestionFieldMixin:
         :return:
         """
         print("BACKWARD")
+        try:
+            inquiry_answer = InquiryQuestionAnswer.objects.get(inquiry=inquiry, question=self.question)
+        except ObjectDoesNotExist:
+            return
 
-        inquiry_answer = InquiryQuestionAnswer.objects.get(inquiry=inquiry, question=self.question)
         if not inquiry_answer.processed:
             return
 

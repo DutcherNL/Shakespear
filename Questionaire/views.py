@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.views import View
 from django.views.generic import TemplateView
 from .models import Page, Inquiry, TechnologyScore
 from django.shortcuts import get_object_or_404
@@ -55,3 +56,22 @@ class QPageView(TemplateView):
             return Page.objects.filter(position__gt=self.page.position).order_by('position').first()
         else:
             return Page.objects.filter(position__lt=self.page.position).order_by('position').last()
+
+
+class QueryIndexView(TemplateView):
+    template_name = "front_page.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['inquiries'] = Inquiry.objects.all()
+
+        return context
+
+
+class CreateNewInquiryView(View):
+
+    def post(self, request):
+        inquiry = Inquiry()
+        inquiry.save()
+        return HttpResponseRedirect(reverse('q_page', kwargs={'inquiry': self.inquiry.id, 'page': 1}))

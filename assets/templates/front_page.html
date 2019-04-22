@@ -1,0 +1,10 @@
+<h2>Filled in questionaires</h2>
+
+{% for entry in inquiries %}
+    <a href="{% url "q_page" inquiry=entry.id page=1 %}">Inquiry {{ entry.id }}</a><br>
+{% endfor %}
+<br>
+<form method="post" action="{% url 'new_query' %}">
+    {% csrf_token %}
+    <input type="submit" name="next" value="Create new"/>
+</form>
