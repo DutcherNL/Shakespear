@@ -57,6 +57,7 @@ class PageEntry(models.Model):
 class AnswerOption(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     answer = models.CharField(max_length=64)
+    value = models.IntegerField()
 
     def __str__(self):
         return "{question}: {answer}".format(question=self.question.name, answer=self.answer)
@@ -78,6 +79,7 @@ class InquiryQuestionAnswer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     answer = models.CharField(max_length=256)
     processed = models.BooleanField(default=False)
+    processed_answer = models.ForeignKey(AnswerOption, null=True, blank=True, on_delete=models.SET_NULL)
 
     unique_together = ("inquiry", "question")
 
@@ -87,9 +89,13 @@ class InquiryQuestionAnswer(models.Model):
 
 class Technology(models.Model):
     name = models.CharField(max_length=32)
-    start_value = models.DecimalField(default=0.5, decimal_places=2, max_digits=5)
-    threshold_approve = models.DecimalField(default=1, decimal_places=2, max_digits=5)
-    threshold_deny = models.DecimalField(default=0, decimal_places=2, max_digits=5)
+    usefulness_start_value = models.DecimalField(default=0.5, decimal_places=2, max_digits=5)
+    usefulness_threshold_approve = models.DecimalField(default=1, decimal_places=2, max_digits=5)
+    usefulness_threshold_deny = models.DecimalField(default=0, decimal_places=2, max_digits=5)
+
+    importance_start_value = models.DecimalField(default=0.5, decimal_places=2, max_digits=5)
+    importance_threshold_approve = models.DecimalField(default=1, decimal_places=2, max_digits=5)
+    importance_threshold_deny = models.DecimalField(default=0, decimal_places=2, max_digits=5)
 
     def __str__(self):
         return self.name
@@ -100,6 +106,22 @@ class TechnologyScore(models.Model):
     inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE)
     usefulness_score = models.DecimalField(decimal_places=2, max_digits=5)
     importance_score = models.DecimalField(decimal_places=2, max_digits=5)
+
+    def save(self, *args, **kwargs):
+        print(self.usefulness_score)
+        super().save(*args, **kwargs)
+        print(self.usefulness_score)
+        self.refresh_from_db()
+        print(self.usefulness_score)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.id is None:
+            self.usefulness_score = self.technology.usefulness_start_value
+            self.importance_score = self.technology.importance_start_value
+
+    def __str__(self):
+        return "{inquiry}: {technology}".format(inquiry=self.inquiry.id, technology=self.technology)
 
 
 class AnswerScoring(models.Model):

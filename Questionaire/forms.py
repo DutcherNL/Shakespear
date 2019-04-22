@@ -18,18 +18,40 @@ class QuestionPageForm(forms.Form):
             field = QuestionFieldFactory.get_field_by_model(question, inquiry=inquiry)
 
             self.fields[question.name] = field
-
-    def clean(self):
-        cleaned_data = super(QuestionPageForm, self).clean()
-        return cleaned_data
+            field.backward(inquiry)
 
     def save(self, inquiry):
-        self.clean()
 
         if inquiry is int:
             inquiry = Inquiry.objects.get(id=inquiry)
 
         for key, value in self.cleaned_data.items():
             self.fields[key].save(value, inquiry)
+
+    def forward(self, inquiry):
+        """
+        Compute the effects of the form, works in the assumption it is not yet completed.
+        :return:
+        """
+        # For each question in this form
+        # Process the anwers
+
+        # Loop over all questions in this form
+        for field in self.fields.values():
+            field.forward(inquiry)
+            pass
+
+    def backward(self, inquiry):
+        """
+        Compute the effects of the form, works in the assumption it is not yet completed.
+        :return:
+        """
+        # For each question in this form
+        # Process the anwers
+
+        # Loop over all questions in this form
+        for field in self.fields.values():
+            field.backward(inquiry)
+            pass
 
 

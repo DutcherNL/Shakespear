@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from .models import Page, Inquiry
+from .models import Page, Inquiry, TechnologyScore
 from django.shortcuts import get_object_or_404
 from .forms import QuestionPageForm
 from django.http import HttpResponseRedirect, HttpResponse
@@ -23,6 +23,8 @@ class QPageView(TemplateView):
         context['has_prev_page'] = self.get_page(get_next=False) is not None
         context['has_next_page'] = self.get_page(get_next=True) is not None
 
+        context['tech_scores'] = TechnologyScore.objects.filter(inquiry=self.inquiry)
+
         return context
 
     def post(self, request, *args, **kwargs):
@@ -34,10 +36,12 @@ class QPageView(TemplateView):
 
             if 'prev' in request.POST:
                 print("PREV")
+                context['form'].backward(self.inquiry)
                 rev = self.get_reverse(self.get_page(get_next=False))
                 return HttpResponseRedirect(rev)
             else:
                 print("NEXT")
+                context['form'].forward(self.inquiry)
                 rev = self.get_reverse(self.get_page(get_next=True))
                 return HttpResponseRedirect(rev)
 
