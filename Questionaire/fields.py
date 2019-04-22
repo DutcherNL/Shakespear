@@ -84,8 +84,13 @@ class QuestionFieldMixin:
         :return:
         """
         print("FORWARD")
+        try:
+            inquiry_answer = InquiryQuestionAnswer.objects.get(inquiry=inquiry, question=self.question)
+        except ObjectDoesNotExist:
+            # If the object does not exist yet, which can happen when no answer is given
+            return
 
-        inquiry_answer = InquiryQuestionAnswer.objects.get(inquiry=inquiry, question=self.question)
+
         if inquiry_answer.processed:
             return
         answer_option = inquiry_answer.processed_answer
@@ -109,6 +114,7 @@ class QuestionFieldMixin:
         try:
             inquiry_answer = InquiryQuestionAnswer.objects.get(inquiry=inquiry, question=self.question)
         except ObjectDoesNotExist:
+            # If the object does not exist yet, which is the case on empty answers
             return
 
         if not inquiry_answer.processed:

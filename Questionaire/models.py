@@ -89,6 +89,7 @@ class InquiryQuestionAnswer(models.Model):
 
 class Technology(models.Model):
     name = models.CharField(max_length=32)
+
     usefulness_start_value = models.DecimalField(default=0.5, decimal_places=2, max_digits=5)
     usefulness_threshold_approve = models.DecimalField(default=1, decimal_places=2, max_digits=5)
     usefulness_threshold_deny = models.DecimalField(default=0, decimal_places=2, max_digits=5)
@@ -96,6 +97,9 @@ class Technology(models.Model):
     importance_start_value = models.DecimalField(default=0.5, decimal_places=2, max_digits=5)
     importance_threshold_approve = models.DecimalField(default=1, decimal_places=2, max_digits=5)
     importance_threshold_deny = models.DecimalField(default=0, decimal_places=2, max_digits=5)
+
+    short_text = models.CharField(max_length=256)
+    long_text = models.TextField()
 
     def __str__(self):
         return self.name

@@ -18,10 +18,12 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from .index import index
+from Questionaire import views as q_views
 
 
 urlpatterns = [
     path('', index, name='index'),
     path('admin/', admin.site.urls),
-    path('Q/', include('Questionaire.urls'))
+    path('Q/', include('Questionaire.urls')),
+    path('techs/<int:tech_id>', q_views.TechDetailsView.as_view(), name='tech_details')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

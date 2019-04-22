@@ -1,10 +1,9 @@
-from django.shortcuts import render
 from django.views import View
 from django.views.generic import TemplateView
-from .models import Page, Inquiry, TechnologyScore
+from .models import Page, Inquiry, TechnologyScore, Technology
 from django.shortcuts import get_object_or_404
 from .forms import QuestionPageForm
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 
@@ -75,3 +74,15 @@ class CreateNewInquiryView(View):
         inquiry = Inquiry()
         inquiry.save()
         return HttpResponseRedirect(reverse('q_page', kwargs={'inquiry': self.inquiry.id, 'page': 1}))
+
+
+class TechDetailsView(TemplateView):
+    template_name = "technology_info.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        self.technology = get_object_or_404(Technology, id=self.kwargs['tech_id'])
+        context['technology'] = self.technology
+
+        return context
