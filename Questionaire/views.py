@@ -73,7 +73,7 @@ class CreateNewInquiryView(View):
     def post(self, request):
         inquiry = Inquiry()
         inquiry.save()
-        return HttpResponseRedirect(reverse('q_page', kwargs={'inquiry': self.inquiry.id, 'page': 1}))
+        return HttpResponseRedirect(reverse('q_page', kwargs={'inquiry': inquiry.id, 'page': 1}))
 
 
 class TechDetailsView(TemplateView):

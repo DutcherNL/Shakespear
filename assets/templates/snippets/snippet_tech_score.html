@@ -1,5 +1,9 @@
 <p>
-    <b><big>{{ tech_score.technology }}</big></b><br>
+    <b><big>{{ tech_score.technology }}</big></b>
+    {{ tech_score.get_useful_state }}
+    {{ tech_score.get_importance_state }}
+
+    <br>
     Score/importance: {{ tech_score.usefulness_score }} / {{ tech_score.importance_score }}<br>
 {{ tech_score.technology.short_text }}
 <a target="_blank" rel="noopener noreferrer" href="{% url 'tech_details' tech_id=tech_score.technology.id %}" > (learn more) </a>

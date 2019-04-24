@@ -118,6 +118,22 @@ class TechnologyScore(models.Model):
         self.refresh_from_db()
         print(self.usefulness_score)
 
+    def get_useful_state(self):
+        if self.usefulness_score >= self.technology.usefulness_threshold_approve:
+            return "Beneficial"
+        elif self.usefulness_score > self.technology.usefulness_threshold_deny:
+            return ""
+        else:
+            return "Not needed"
+
+    def get_importance_state(self):
+        if self.importance_score >= self.technology.importance_threshold_approve:
+            return "Important"
+        elif self.importance_score > self.technology.importance_threshold_deny:
+            return ""
+        else:
+            return "Not important"
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.id is None:
