@@ -158,7 +158,7 @@ class TechnologyScore(models.Model):
         return "{inquiry}: {technology}".format(inquiry=self.inquiry.id, technology=self.technology)
 
 
-class AnswerScoring(models.Model):
+class AnswerScoringTechnology(models.Model):
     answer_option = models.ForeignKey(AnswerOption, on_delete=models.CASCADE)
     technology = models.ForeignKey(Technology, on_delete=models.CASCADE)
     usefulness_change = models.DecimalField(decimal_places=2, max_digits=5)
@@ -174,6 +174,11 @@ class StoredInquiryValue(models.Model):
     value_info = models.ForeignKey(StoredValueDeclaration, on_delete=models.CASCADE)
     value = models.DecimalField(decimal_places=2, max_digits=8)
     inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE)
+
+
+class AnswerScoringValue(models.Model):
+    answer_option = models.ForeignKey(AnswerOption, on_delete=models.CASCADE)
+    stored_value = models.ForeignKey(StoredValueDeclaration, on_delete=models.CASCADE)
 
 
 class PageRequirement(models.Model):

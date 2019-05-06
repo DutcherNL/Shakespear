@@ -14,7 +14,7 @@ class QuestionAdmin(admin.ModelAdmin):
 
 
 class AnswerScoringInlines(admin.TabularInline):
-    model = AnswerScoring
+    model = AnswerScoringTechnology
     extra = 0
 
 
