@@ -88,7 +88,6 @@ class QuestionFieldMixin:
         Computes the effects on the inquiry in a forwards motion
         :return:
         """
-        print("FORWARD")
         try:
             inquiry_answer = InquiryQuestionAnswer.objects.get(inquiry=inquiry, question=self.question)
         except ObjectDoesNotExist:
@@ -115,7 +114,6 @@ class QuestionFieldMixin:
         Reverts the effects on the inquiry in a forwards motion
         :return:
         """
-        print("BACKWARD")
         try:
             inquiry_answer = InquiryQuestionAnswer.objects.get(inquiry=inquiry, question=self.question)
         except ObjectDoesNotExist:

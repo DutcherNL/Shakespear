@@ -48,12 +48,10 @@ class QPageView(TemplateView):
             context['form'].save(self.inquiry)
 
             if 'prev' in request.POST:
-                print("PREV")
                 context['form'].backward(self.inquiry)
                 rev = self.get_reverse(self.get_page(get_next=False))
                 return HttpResponseRedirect(rev)
             else:
-                print("NEXT")
                 context['form'].forward(self.inquiry)
                 rev = self.get_reverse(self.get_page(get_next=True))
                 return HttpResponseRedirect(rev)
