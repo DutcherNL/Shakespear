@@ -51,6 +51,10 @@ class Page(models.Model):
                 return False
         return True
 
+    def get_inquiry_url(self, inquiry):
+        from django.shortcuts import reverse
+        return reverse('q_page', kwargs={'inquiry': self.inquiry.id, 'page': self.id})
+
 
 class PageEntry(models.Model):
     """
@@ -80,8 +84,12 @@ class Inquiry(models.Model):
     """
     Combines the result of a single question set added by the user
     """
+    current_page = models.ForeignKey(Page, null=True, blank=True, on_delete=models.SET_NULL)
     # Todo: Enter unique address information
-    pass
+
+    def set_current_page(self, page):
+        self.current_page = page
+        self.save()
 
 
 class InquiryQuestionAnswer(models.Model):

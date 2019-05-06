@@ -12,23 +12,24 @@ from django.urls import reverse
 class QPageView(TemplateView):
     template_name = "question_page.html"
 
-    def setup(self, *args, **kwargs):
-        super(QPageView, self).setup(*args, **kwargs)
-
-        self.page = get_object_or_404(Page, id=self.kwargs['page'])
-        self.inquiry = get_object_or_404(Inquiry, id=self.kwargs['inquiry'])
-
     def dispatch(self, request, *args, **kwargs):
         response = super().dispatch(request, *args, **kwargs)
 
-        if not self.page.is_valid_for_inquiry(self.inquiry):
-            nextid = self.get_page(get_next=True).id
+        if self.page.is_valid_for_inquiry(self.inquiry):
+            self.inquiry.set_current_page(self.page)
+            return response
+        else:
+            if self.inquiry.current_page.position < self.page.position:
+                nextid = self.get_page(get_next=True).id
+            else:
+                nextid = self.get_page(get_next=False).id
             return HttpResponseRedirect(reverse('q_page', kwargs={'inquiry': self.inquiry.id, 'page': nextid}))
-
-        return response
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        self.page = get_object_or_404(Page, id=self.kwargs['page'])
+        self.inquiry = get_object_or_404(Inquiry, id=self.kwargs['inquiry'])
 
         context['form'] = QuestionPageForm(self.page, self.inquiry)
 
