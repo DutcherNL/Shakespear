@@ -59,7 +59,7 @@ class QuestionFieldMixin:
                 inquiry_question_answer_obj.processed_answer = self.get_answer_option(value)
                 inquiry_question_answer_obj.save()
 
-            for stored_variable in self.question.answervariable_set:
+            for stored_variable in self.question.answervariable_set.all():
                 # Todo, processing according to processing input
                 StoredVariable.objects.get_or_create(name=stored_variable.name, value=value)
 

@@ -44,6 +44,13 @@ class Page(models.Model):
     def __str__(self):
         return "{0}: {1}".format(self.position, self.name)
 
+    def is_valid_for_inquiry(self, inquiry):
+
+        for requirement in self.pagerequirements_set.all():
+            if not requirement.is_met_for_inquiry(inquiry):
+                return False
+        return True
+
 
 class PageEntry(models.Model):
     """
