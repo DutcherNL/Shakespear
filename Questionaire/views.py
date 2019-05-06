@@ -18,6 +18,8 @@ class QPageView(TemplateView):
         self.page = get_object_or_404(Page, id=self.kwargs['page'])
         self.inquiry = get_object_or_404(Inquiry, id=self.kwargs['inquiry'])
 
+
+
         context['form'] = QuestionPageForm(self.page, self.inquiry)
 
         context['has_prev_page'] = self.get_page(get_next=False) is not None

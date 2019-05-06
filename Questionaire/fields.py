@@ -2,7 +2,7 @@ from django.forms import CharField, IntegerField, DecimalField, ChoiceField
 from django.core.exceptions import ObjectDoesNotExist
 import ast
 
-from .models import InquiryQuestionAnswer, AnswerOption, TechnologyScore
+from .models import InquiryQuestionAnswer, AnswerOption, TechnologyScore, StoredVariable
 
 
 class QuestionFieldFactory:
@@ -58,6 +58,11 @@ class QuestionFieldMixin:
                 inquiry_question_answer_obj.answer = value
                 inquiry_question_answer_obj.processed_answer = self.get_answer_option(value)
                 inquiry_question_answer_obj.save()
+
+            for stored_variable in self.question.answervariable_set:
+                # Todo, processing according to processing input
+                StoredVariable.objects.get_or_create(name=stored_variable.name, value=value)
+
         else:
             inquiry_question_answer_obj_query = InquiryQuestionAnswer.objects.filter(question=self.question, inquiry=inquiry)
             if inquiry_question_answer_obj_query.exists():

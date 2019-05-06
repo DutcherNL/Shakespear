@@ -35,6 +35,12 @@ class Page(models.Model):
     questions = models.ManyToManyField(Question, through='PageEntry',
                                        through_fields=('page', 'question'))
 
+    def meets_requirements(self, inquiry):
+        for requirement in self.page_requirements_set:
+            if not requirement.is_met(inquiry):
+                return False
+        return True
+
     def __str__(self):
         return "{0}: {1}".format(self.position, self.name)
 
@@ -149,3 +155,50 @@ class AnswerScoring(models.Model):
     technology = models.ForeignKey(Technology, on_delete=models.CASCADE)
     usefulness_change = models.DecimalField(decimal_places=2, max_digits=5)
     importance_change = models.DecimalField(decimal_places=2, max_digits=5)
+
+
+class AnswerVariable(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    name = models.SlugField(max_length=16)
+    processing = models.CharField(max_length=128)
+
+
+class StoredVariable(models.Model):
+    name = AnswerVariable.name
+    value = models.DecimalField(decimal_places=2, max_digits=8)
+
+
+class PageRequirements(models.Model):
+    """
+    Illustrates a requirement for the page to be shown
+    """
+    page = models.ForeignKey(Page, on_delete=models.CASCADE)
+    technology = models.ForeignKey(Technology, on_delete=models.CASCADE)
+    score = models.DecimalField(decimal_places=2, max_digits=5)
+    # Define the question types
+    COMPRARISON_OPTIONS = (
+        (0, 'Higher'),
+        (1, 'Higher or equal'),
+        (2, 'Equal'),
+        (3, 'Lower or Equal'),
+        (4, 'Lower'),
+    )
+    comparison = models.PositiveIntegerField(choices=COMPRARISON_OPTIONS)
+
+    def is_met_for_inquiry(self, inquiry):
+        tech_score = TechnologyScore.objects.get_or_create(technology=self.technology, inquiry=inquiry)[0]
+        return self.is_met(tech_score.usefulness_score)
+
+    def is_met(self, value):
+        if self.comparison == 0:
+            return value > self.score
+        elif self.comparison == 1:
+            return value >= self.score
+        elif self.comparison == 2:
+            return value == self.score
+        elif self.comparison == 3:
+            return value <= self.score
+        elif self.comparison == 4:
+            return value < self.score
+        else:
+            raise RuntimeError("Comparison options resulted in unset option")
