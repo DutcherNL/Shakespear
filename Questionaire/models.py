@@ -46,7 +46,7 @@ class Page(models.Model):
 
     def is_valid_for_inquiry(self, inquiry):
 
-        for requirement in self.pagerequirements_set.all():
+        for requirement in self.pagerequirement_set.all():
             if not requirement.is_met_for_inquiry(inquiry):
                 return False
         return True
@@ -165,23 +165,22 @@ class AnswerScoring(models.Model):
     importance_change = models.DecimalField(decimal_places=2, max_digits=5)
 
 
-class AnswerVariable(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+class StoredValueDeclaration(models.Model):
     name = models.SlugField(max_length=16)
-    processing = models.CharField(max_length=128)
+    start_value = models.DecimalField(default=0, decimal_places=2, max_digits=5)
 
 
-class StoredVariable(models.Model):
-    name = AnswerVariable.name
+class StoredInquiryValue(models.Model):
+    value_info = models.ForeignKey(StoredValueDeclaration, on_delete=models.CASCADE)
     value = models.DecimalField(decimal_places=2, max_digits=8)
+    inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE)
 
 
-class PageRequirements(models.Model):
+class PageRequirement(models.Model):
     """
     Illustrates a requirement for the page to be shown
     """
     page = models.ForeignKey(Page, on_delete=models.CASCADE)
-    technology = models.ForeignKey(Technology, on_delete=models.CASCADE)
     score = models.DecimalField(decimal_places=2, max_digits=5)
     # Define the question types
     COMPRARISON_OPTIONS = (
@@ -194,8 +193,12 @@ class PageRequirements(models.Model):
     comparison = models.PositiveIntegerField(choices=COMPRARISON_OPTIONS)
 
     def is_met_for_inquiry(self, inquiry):
-        tech_score = TechnologyScore.objects.get_or_create(technology=self.technology, inquiry=inquiry)[0]
-        return self.is_met(tech_score.usefulness_score)
+        if self.pagerequirementtechusefulness:
+            return self.pagerequirementtechusefulness.is_met_for_inquiry(inquiry)
+        elif self.pagerequirementtechimportance:
+            return self.pagerequirementtechimportance.is_met_for_inquiry(inquiry)
+        else:
+            return True
 
     def is_met(self, value):
         if self.comparison == 0:
@@ -210,3 +213,36 @@ class PageRequirements(models.Model):
             return value < self.score
         else:
             raise RuntimeError("Comparison options resulted in unset option")
+
+
+class PageRequirementTechUsefulness(PageRequirement):
+    """
+    Illustrates a requirement for the page to be shown
+    """
+    technology = models.ForeignKey(Technology, on_delete=models.CASCADE)
+
+    def is_met_for_inquiry(self, inquiry):
+        tech_score = TechnologyScore.objects.get_or_create(technology=self.technology, inquiry=inquiry)[0]
+        return self.is_met(tech_score.usefulness_score)
+
+
+class PageRequirementTechImportance(PageRequirement):
+    """
+    Illustrates a requirement for the page to be shown
+    """
+    technology = models.ForeignKey(Technology, on_delete=models.CASCADE)
+
+    def is_met_for_inquiry(self, inquiry):
+        tech_score = TechnologyScore.objects.get_or_create(technology=self.technology, inquiry=inquiry)[0]
+        return self.is_met(tech_score.importance_score)
+
+
+class PageRequirementStoredValue(PageRequirement):
+    """
+    Illustrates a requirement for the page to be shown
+    """
+    value_info = models.ForeignKey(StoredValueDeclaration, on_delete=models.CASCADE)
+
+    def is_met_for_inquiry(self, inquiry):
+        value = StoredInquiryValue.objects.get_or_create(value_info=self.value_info, inquiry=inquiry)[0]
+        return self.is_met(value.value)
