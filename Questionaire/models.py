@@ -51,10 +51,6 @@ class Page(models.Model):
                 return False
         return True
 
-    def get_inquiry_url(self, inquiry):
-        from django.shortcuts import reverse
-        return reverse('q_page', kwargs={'inquiry': self.inquiry.id, 'page': self.id})
-
 
 class PageEntry(models.Model):
     """
@@ -90,6 +86,10 @@ class Inquiry(models.Model):
     def set_current_page(self, page):
         self.current_page = page
         self.save()
+
+    def get_url(self):
+        from django.shortcuts import reverse
+        return reverse('q_page', kwargs={'inquiry': self.id, 'page': self.current_page.id})
 
 
 class InquiryQuestionAnswer(models.Model):
@@ -131,13 +131,6 @@ class TechnologyScore(models.Model):
     inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE)
     usefulness_score = models.DecimalField(decimal_places=2, max_digits=5)
     importance_score = models.DecimalField(decimal_places=2, max_digits=5)
-
-    def save(self, *args, **kwargs):
-        print(self.usefulness_score)
-        super().save(*args, **kwargs)
-        print(self.usefulness_score)
-        self.refresh_from_db()
-        print(self.usefulness_score)
 
     def get_useful_state(self):
         if self.usefulness_score >= self.technology.usefulness_threshold_approve:
