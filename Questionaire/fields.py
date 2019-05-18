@@ -96,7 +96,7 @@ class QuestionFieldMixin:
         answer_option = inquiry_answer.processed_answer
 
         if answer_option is not None:
-            for adjustment in answer_option.answerscoring_set.all():
+            for adjustment in answer_option.answerscoringyechnology_set.all():
                 tech_score = TechnologyScore.objects.get_or_create(technology=adjustment.technology, inquiry=inquiry)[0]
                 tech_score.usefulness_score += adjustment.usefulness_change
                 tech_score.importance_score += adjustment.importance_change
@@ -122,7 +122,7 @@ class QuestionFieldMixin:
         answer_option = inquiry_answer.processed_answer
 
         if answer_option is not None:
-            for adjustment in answer_option.answerscoring_set.all():
+            for adjustment in answer_option.answerscoringtechnology_set.all():
                 tech_score = TechnologyScore.objects.get_or_create(technology=adjustment.technology, inquiry=inquiry)[0]
                 tech_score.usefulness_score -= adjustment.usefulness_change
                 tech_score.importance_score -= adjustment.importance_change
