@@ -1,0 +1,25 @@
+{% load score_result_tags %}
+
+<h1>Technologies</h1>
+{% for technology, scores in technology_results %}
+
+    <h2>{{ technology.name }}</h2>
+    <p>
+        {{ technology.short_text }}
+    </p>
+    <h3>Scores</h3>
+    {% for tech_score in technology|get_tech_scores:inquiry %}
+        <p>
+            <b>{{ tech_score.declaration.name }}</b>: {{ tech_score.score }}
+
+            {% for note in tech_score|get_score_notes:technology %}
+                <p>
+                    {{ note.text }}
+                </p>
+            {% endfor %}
+        </p>
+    {% endfor %}
+    <hr>
+{% endfor %}
+
+

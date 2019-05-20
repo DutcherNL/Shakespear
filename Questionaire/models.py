@@ -137,6 +137,9 @@ class Technology(models.Model):
                                                 through='TechScoreLink',
                                                 through_fields=('technology', 'score_declaration'))
 
+    def __str__(self):
+        return self.name
+
 
 class TechScoreLink(models.Model):
     """
@@ -184,6 +187,9 @@ class AnswerScoring(models.Model):
         else:
             score_obj.score = score_obj.score + self.score_change_value
 
+    def __str__(self):
+        return "{0}:{1} - {2}".format(self.answer_option.question.name, self.answer_option.answer, self.declaration.name)
+
 
 class PageRequirement(models.Model):
     """
@@ -216,3 +222,9 @@ class PageRequirement(models.Model):
             return inquiry_score < self.threshold
         else:
             raise RuntimeError("Comparison options resulted in unset option")
+
+
+class AnswerScoringNote(models.Model):
+    scoring = models.ForeignKey(AnswerScoring, on_delete=models.CASCADE)
+    technology = models.ForeignKey(Technology, blank=True, null=True, on_delete=models.CASCADE)
+    text = models.TextField(blank=True, null=True, default="Nothing defined")

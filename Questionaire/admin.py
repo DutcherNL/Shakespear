@@ -29,6 +29,14 @@ class TechnologyAdmin(admin.ModelAdmin):
     inlines = [TechScoreLinkInlines]
 
 
+class AnswerScoringAdmin(admin.ModelAdmin):
+    class AnswerScoreNoteInlines(admin.TabularInline):
+        model = AnswerScoringNote
+        extra = 0
+
+    inlines = [AnswerScoreNoteInlines]
+
+
 class PageAdmin(admin.ModelAdmin):
     class PageQuestionsInlines(admin.TabularInline):
         model = PageEntry
@@ -48,5 +56,6 @@ admin.site.register(PageEntry)
 admin.site.register(Inquiry)
 admin.site.register(InquiryQuestionAnswer)
 admin.site.register(Technology, TechnologyAdmin)
+admin.site.register(AnswerScoring, AnswerScoringAdmin)
 admin.site.register(ScoringDeclaration)
 admin.site.register(Score)

@@ -1,6 +1,6 @@
 from django.views import View
 from django.views.generic import TemplateView
-from .models import Page, Inquiry, Technology
+from .models import Page, Inquiry, Technology, Score
 from django.shortcuts import get_object_or_404
 from .forms import QuestionPageForm
 from django.http import HttpResponseRedirect
@@ -97,5 +97,32 @@ class TechDetailsView(TemplateView):
 
         self.technology = get_object_or_404(Technology, id=self.kwargs['tech_id'])
         context['technology'] = self.technology
+
+        return context
+
+
+class InquiryScoresView(TemplateView):
+    template_name = 'inquiry_scores.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        self.inquiry = get_object_or_404(Inquiry, id=self.kwargs['inquiry'])
+
+        context['inquiry'] = self.inquiry
+        context['scores'] = Score.objects.filter(inquiry=self.inquiry)
+        context['techs'] = Technology.objects.all()
+        tech_list = []
+
+        for technology in Technology.objects.all():
+            # get the scores of teh technology
+            tech_scores = Score.objects.filter(inquiry=self.inquiry,
+                                               declaration__in=technology.score_declarations.all())
+            print(tech_scores)
+
+
+            tech_list.append((technology, tech_scores))
+
+        context['technology_results'] = tech_list
 
         return context
