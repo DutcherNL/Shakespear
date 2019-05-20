@@ -1,9 +1,11 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 
 
 class Question(models.Model):
+
     """
     A model for a question, can be of multiple types
     """
@@ -31,7 +33,7 @@ class Page(models.Model):
     A page containing multiple questions
     """
     name = models.CharField(max_length=50)
-    position = models.PositiveIntegerField()
+    position = models.PositiveIntegerField(unique=True)
     questions = models.ManyToManyField(Question, through='PageEntry',
                                        through_fields=('page', 'question'))
 
@@ -68,6 +70,9 @@ class PageEntry(models.Model):
 
 
 class AnswerOption(models.Model):
+    """
+    An option for a multiple choice answer
+    """
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     answer = models.CharField(max_length=64)
     value = models.IntegerField()
@@ -108,77 +113,82 @@ class InquiryQuestionAnswer(models.Model):
         return "{0} {1}: {2}".format(self.question.name, self.inquiry.id, self.answer)
 
 
-class Technology(models.Model):
+class ScoringDeclaration(models.Model):
+    """
+    Declares a score that should be tracked
+    """
     name = models.CharField(max_length=32)
-
-    usefulness_start_value = models.DecimalField(default=0.5, decimal_places=2, max_digits=5)
-    usefulness_threshold_approve = models.DecimalField(default=1, decimal_places=2, max_digits=5)
-    usefulness_threshold_deny = models.DecimalField(default=0, decimal_places=2, max_digits=5)
-
-    importance_start_value = models.DecimalField(default=0.5, decimal_places=2, max_digits=5)
-    importance_threshold_approve = models.DecimalField(default=1, decimal_places=2, max_digits=5)
-    importance_threshold_deny = models.DecimalField(default=0, decimal_places=2, max_digits=5)
-
-    short_text = models.CharField(max_length=256)
-    long_text = models.TextField()
+    description = models.CharField(max_length=256)
+    score_start_value = models.DecimalField(default=0.5, decimal_places=2, max_digits=5)
 
     def __str__(self):
         return self.name
 
 
-class TechnologyScore(models.Model):
-    technology = models.ForeignKey(Technology, on_delete=models.CASCADE)
+class Technology(models.Model):
+    """
+    Gives all information related to a technology
+    """
+    name = models.CharField(max_length=32)
+    short_text = models.CharField(max_length=256)
+    long_text = models.TextField()
+    icon = models.ImageField(blank=True, null=True)
+    score_declarations = models.ManyToManyField(ScoringDeclaration,
+                                                through='TechScoreLink',
+                                                through_fields=('technology', 'score_declaration'))
+
+    def __str__(self):
+        return self.name
+
+
+class TechScoreLink(models.Model):
+    """
+    Defines a link between a technology and score declaration and set the thresholds for that declaration
+    """
+    score_declaration = models.ForeignKey(ScoringDeclaration, on_delete=models.PROTECT)
+    technology = models.ForeignKey(Technology, on_delete=models.PROTECT)
+    score_threshold_approve = models.DecimalField(default=1, decimal_places=2, max_digits=5)
+    score_threshold_deny = models.DecimalField(default=0, decimal_places=2, max_digits=5)
+
+
+class Score(models.Model):
+    """
+    Tracks the score of a specific Scoretype for a specific inquiry
+    """
+    declaration = models.ForeignKey(ScoringDeclaration, on_delete=models.CASCADE)
     inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE)
-    usefulness_score = models.DecimalField(decimal_places=2, max_digits=5)
-    importance_score = models.DecimalField(decimal_places=2, max_digits=5)
-
-    def get_useful_state(self):
-        if self.usefulness_score >= self.technology.usefulness_threshold_approve:
-            return "Beneficial"
-        elif self.usefulness_score > self.technology.usefulness_threshold_deny:
-            return ""
-        else:
-            return "Not needed"
-
-    def get_importance_state(self):
-        if self.importance_score >= self.technology.importance_threshold_approve:
-            return "Important"
-        elif self.importance_score > self.technology.importance_threshold_deny:
-            return ""
-        else:
-            return "Not important"
+    score = models.DecimalField(decimal_places=2, max_digits=5)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.id is None:
-            self.usefulness_score = self.technology.usefulness_start_value
-            self.importance_score = self.technology.importance_start_value
+            self.score = self.declaration.score_start_value
 
     def __str__(self):
-        return "{inquiry}: {technology}".format(inquiry=self.inquiry.id, technology=self.technology)
+        return "{scorename}: {inquiry}".format(scorename=self.declaration.name, inquiry=self.inquiry.id)
 
 
-class AnswerScoringTechnology(models.Model):
+class AnswerScoring(models.Model):
+    """
+    Contains information on scores to be altered for a selected answer
+    """
     answer_option = models.ForeignKey(AnswerOption, on_delete=models.CASCADE)
-    technology = models.ForeignKey(Technology, on_delete=models.CASCADE)
-    usefulness_change = models.DecimalField(decimal_places=2, max_digits=5)
-    importance_change = models.DecimalField(decimal_places=2, max_digits=5)
+    declaration = models.ForeignKey(ScoringDeclaration, on_delete=models.CASCADE)
+    score_change_value = models.DecimalField(decimal_places=2, max_digits=5)
+    take_answer_value = models.BooleanField(default=False)
 
+    def adjust_score(self, score_obj, revert=False):
+        if self.take_answer_value:
+            # Todo: get the value of the given answer
+            pass
 
-class StoredValueDeclaration(models.Model):
-    name = models.SlugField(max_length=16)
-    start_value = models.DecimalField(default=0, decimal_places=2, max_digits=5)
+        if revert:
+            score_obj.score = score_obj.score - self.score_change_value
+        else:
+            score_obj.score = score_obj.score + self.score_change_value
 
-
-class StoredInquiryValue(models.Model):
-    value_info = models.ForeignKey(StoredValueDeclaration, on_delete=models.CASCADE)
-    value = models.DecimalField(decimal_places=2, max_digits=8)
-    inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE)
-
-
-class AnswerScoringValue(models.Model):
-    answer_option = models.ForeignKey(AnswerOption, on_delete=models.CASCADE)
-    stored_value = models.ForeignKey(StoredValueDeclaration, on_delete=models.CASCADE)
+    def __str__(self):
+        return "{0}:{1} - {2}".format(self.answer_option.question.name, self.answer_option.answer, self.declaration.name)
 
 
 class PageRequirement(models.Model):
@@ -186,7 +196,8 @@ class PageRequirement(models.Model):
     Illustrates a requirement for the page to be shown
     """
     page = models.ForeignKey(Page, on_delete=models.CASCADE)
-    score = models.DecimalField(decimal_places=2, max_digits=5)
+    score_declaration = models.ForeignKey(ScoringDeclaration, on_delete=models.CASCADE)
+    threshold = models.DecimalField(decimal_places=2, max_digits=5)
     # Define the question types
     COMPRARISON_OPTIONS = (
         (0, 'Higher'),
@@ -198,56 +209,22 @@ class PageRequirement(models.Model):
     comparison = models.PositiveIntegerField(choices=COMPRARISON_OPTIONS)
 
     def is_met_for_inquiry(self, inquiry):
-        if self.pagerequirementtechusefulness:
-            return self.pagerequirementtechusefulness.is_met_for_inquiry(inquiry)
-        elif self.pagerequirementtechimportance:
-            return self.pagerequirementtechimportance.is_met_for_inquiry(inquiry)
-        else:
-            return True
-
-    def is_met(self, value):
+        inquiry_score = Score.objects.get_or_create(declaration=self.score_declaration, inquiry=inquiry)[0].score
         if self.comparison == 0:
-            return value > self.score
+            return inquiry_score > self.threshold
         elif self.comparison == 1:
-            return value >= self.score
+            return inquiry_score >= self.threshold
         elif self.comparison == 2:
-            return value == self.score
+            return inquiry_score == self.threshold
         elif self.comparison == 3:
-            return value <= self.score
+            return inquiry_score <= self.threshold
         elif self.comparison == 4:
-            return value < self.score
+            return inquiry_score < self.threshold
         else:
             raise RuntimeError("Comparison options resulted in unset option")
 
 
-class PageRequirementTechUsefulness(PageRequirement):
-    """
-    Illustrates a requirement for the page to be shown
-    """
-    technology = models.ForeignKey(Technology, on_delete=models.CASCADE)
-
-    def is_met_for_inquiry(self, inquiry):
-        tech_score = TechnologyScore.objects.get_or_create(technology=self.technology, inquiry=inquiry)[0]
-        return self.is_met(tech_score.usefulness_score)
-
-
-class PageRequirementTechImportance(PageRequirement):
-    """
-    Illustrates a requirement for the page to be shown
-    """
-    technology = models.ForeignKey(Technology, on_delete=models.CASCADE)
-
-    def is_met_for_inquiry(self, inquiry):
-        tech_score = TechnologyScore.objects.get_or_create(technology=self.technology, inquiry=inquiry)[0]
-        return self.is_met(tech_score.importance_score)
-
-
-class PageRequirementStoredValue(PageRequirement):
-    """
-    Illustrates a requirement for the page to be shown
-    """
-    value_info = models.ForeignKey(StoredValueDeclaration, on_delete=models.CASCADE)
-
-    def is_met_for_inquiry(self, inquiry):
-        value = StoredInquiryValue.objects.get_or_create(value_info=self.value_info, inquiry=inquiry)[0]
-        return self.is_met(value.value)
+class AnswerScoringNote(models.Model):
+    scoring = models.ForeignKey(AnswerScoring, on_delete=models.CASCADE)
+    technology = models.ForeignKey(Technology, blank=True, null=True, on_delete=models.CASCADE)
+    text = models.TextField(blank=True, null=True, default="Nothing defined")
