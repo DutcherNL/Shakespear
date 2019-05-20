@@ -1,6 +1,6 @@
 from django.views import View
 from django.views.generic import TemplateView
-from .models import Page, Inquiry, TechnologyScore, Technology
+from .models import Page, Inquiry, Technology
 from django.shortcuts import get_object_or_404
 from .forms import QuestionPageForm
 from django.http import HttpResponseRedirect
@@ -36,7 +36,7 @@ class QPageView(TemplateView):
         context['has_prev_page'] = self.get_page(get_next=False) is not None
         context['has_next_page'] = self.get_page(get_next=True) is not None
 
-        context['tech_scores'] = TechnologyScore.objects.filter(inquiry=self.inquiry)
+        # context['tech_scores'] = TechnologyScore.objects.filter(inquiry=self.inquiry)
 
         return context
 
@@ -84,7 +84,9 @@ class CreateNewInquiryView(View):
     def post(self, request):
         inquiry = Inquiry()
         inquiry.save()
-        return HttpResponseRedirect(reverse('q_page', kwargs={'inquiry': inquiry.id, 'page': 1}))
+        first_page = Page.objects.order_by('position').first()
+
+        return HttpResponseRedirect(reverse('q_page', kwargs={'inquiry': inquiry.id, 'page': first_page.id}))
 
 
 class TechDetailsView(TemplateView):
