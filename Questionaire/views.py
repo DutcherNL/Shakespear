@@ -36,6 +36,9 @@ class QPageView(TemplateView):
         context['has_prev_page'] = self.get_page(get_next=False) is not None
         context['has_next_page'] = self.get_page(get_next=True) is not None
 
+        context['inquiry'] = self.inquiry
+        context['techs'] = Technology.objects.all()
+
         # context['tech_scores'] = TechnologyScore.objects.filter(inquiry=self.inquiry)
 
         return context
@@ -110,19 +113,6 @@ class InquiryScoresView(TemplateView):
         self.inquiry = get_object_or_404(Inquiry, id=self.kwargs['inquiry'])
 
         context['inquiry'] = self.inquiry
-        context['scores'] = Score.objects.filter(inquiry=self.inquiry)
         context['techs'] = Technology.objects.all()
-        tech_list = []
-
-        for technology in Technology.objects.all():
-            # get the scores of teh technology
-            tech_scores = Score.objects.filter(inquiry=self.inquiry,
-                                               declaration__in=technology.score_declarations.all())
-            print(tech_scores)
-
-
-            tech_list.append((technology, tech_scores))
-
-        context['technology_results'] = tech_list
 
         return context
