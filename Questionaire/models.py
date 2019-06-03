@@ -147,7 +147,7 @@ class Technology(models.Model):
         :return: 0 is not met, 1 if met, 0.5 if unsure
         """
         score = 1
-        for scorelink in self.techscorelink_set:
+        for scorelink in self.techscorelink_set.all():
             score = scorelink.get_score(inquiry=inquiry) * score
 
         return score

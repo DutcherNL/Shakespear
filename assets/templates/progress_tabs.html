@@ -3,7 +3,15 @@
 
 <div class="tab">
     {% for technology in techs %}
-        <button class="tablinks" onclick="toggleTab(event, 'tech_{{ technology.id }}')">{{ technology.name }}</button>
+        <button onclick="toggleTab(event, 'tech_{{ technology.id }}')" class="tablinks
+        {% with technology|get_tech_score:inquiry as score %}
+            {% if score == 1 %} accept
+            {% elif score == 0 %} deny
+            {% endif %}
+        {% endwith %}
+        ">
+            <img src="{{ technology.icon.url }}" width="50" height="50">
+        </button>
     {% endfor %}
 </div>
 
@@ -15,7 +23,7 @@
             <a target="_blank" rel="noopener noreferrer" href="{% url 'tech_details' tech_id=technology.id %}" > (learn more) </a>
         </p>
 
-        <h4>Our advise:</h4>
+        <h4>Our advise: {{ technology|get_tech_score:inquiry }}</h4>
         {% for tech_score in technology|get_tech_scores:inquiry %}
             {% for note in tech_score|get_score_notes:technology %}
                 <p>

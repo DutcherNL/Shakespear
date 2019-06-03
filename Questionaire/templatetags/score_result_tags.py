@@ -3,6 +3,15 @@ from Questionaire.models import Score, AnswerScoringNote, AnswerOption, InquiryQ
 
 register = template.Library()
 
+@register.filter
+def get_tech_score(technology, inquiry):
+    """
+    Get the total technology score
+    :param technology:
+    :param inquiry:
+    :return:
+    """
+    return technology.get_score(inquiry=inquiry)
 
 @register.filter
 def get_tech_scores(technology, inquiry):
