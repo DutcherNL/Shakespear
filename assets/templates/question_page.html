@@ -1,34 +1,43 @@
+{% extends 'base.html' %}
 {% load score_result_tags %}
 
-<h1>Form</h1>
-<form method="post">
-    {% csrf_token %}
-    {% include "snippets/bootstrap_form.html" %}
-    {% if has_prev_page %}<input type="submit" name="prev" value="Previous"/>{% endif %}
-    {% if has_next_page %}<input type="submit" name="next" value="Next"/>{% endif %}
-</form>
+{% block body %}
+    <h1 class="row col-12">Form</h1>
+    <form method="post" class="row">
+        {% csrf_token %}
+        <div class="col-12">
+        {% include "snippets/bootstrap_form.html" %}
+        </div>
+        {% if has_prev_page %}
+            <input type="submit" name="prev" value="Previous" class="btn col-6 btn-outline-primary"/>
+        {% endif %}
+        {% if has_next_page %}
+            <input type="submit" name="next" value="Next" class="btn col-6 btn-primary"/>
+        {% endif %}
+    </form>
 
 
-<h1>Technologies</h1>
-{% for technology in techs %}
+    <h1>Technologies</h1>
+    {% for technology in techs %}
 
-    <h2>{{ technology.name }}</h2>
-    <p>
-        {{ technology.short_text }}
-    </p>
-    <a target="_blank" rel="noopener noreferrer" href="{% url 'tech_details' tech_id=technology.id %}" > (learn more) </a>
-    <h3>Scores</h3>
-    {% for tech_score in technology|get_tech_scores:inquiry %}
+        <h2>{{ technology.name }}</h2>
         <p>
-            <b>{{ tech_score.declaration.name }}</b>: {{ tech_score.score }}
-
-            {% for note in tech_score|get_score_notes:technology %}
-                <p>
-                    {{ note.text }}
-                </p>
-            {% endfor %}
+            {{ technology.short_text }}
         </p>
+        <a target="_blank" rel="noopener noreferrer" href="{% url 'tech_details' tech_id=technology.id %}" > (learn more) </a>
+        <h3>Scores</h3>
+        {% for tech_score in technology|get_tech_scores:inquiry %}
+            <p>
+                <b>{{ tech_score.declaration.name }}</b>: {{ tech_score.score }}
+
+                {% for note in tech_score|get_score_notes:technology %}
+                    <p>
+                        {{ note.text }}
+                    </p>
+                {% endfor %}
+            </p>
+        {% endfor %}
+        <hr>
     {% endfor %}
-    <hr>
-{% endfor %}
+{% endblock %}
 
