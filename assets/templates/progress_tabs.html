@@ -1,0 +1,30 @@
+{% load score_result_tags %}
+{% load static %}
+
+<div class="tab">
+    {% for technology in techs %}
+        <button class="tablinks" onclick="toggleTab(event, 'tech_{{ technology.id }}')">{{ technology.name }}</button>
+    {% endfor %}
+</div>
+
+{% for technology in techs %}
+    <div id="tech_{{ technology.id }}" class="tabcontent">
+        <h3>{{ technology.name }}</h3>
+        <p>
+            {{ technology.short_text }}
+            <a target="_blank" rel="noopener noreferrer" href="{% url 'tech_details' tech_id=technology.id %}" > (learn more) </a>
+        </p>
+
+        <h4>Our advise:</h4>
+        {% for tech_score in technology|get_tech_scores:inquiry %}
+            {% for note in tech_score|get_score_notes:technology %}
+                <p>
+                    {{ note.text }}
+                </p>
+            {% endfor %}
+        {% endfor %}
+
+    </div>
+{% endfor %}
+
+<script src="{% static "javascript/tabs_script.js" %}"></script>

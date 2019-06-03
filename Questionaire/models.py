@@ -140,6 +140,18 @@ class Technology(models.Model):
     def __str__(self):
         return self.name
 
+    def get_score(self, inquiry=None):
+        """
+        Returns the resulting score for the specefic technology
+        :param inquiry: the inquiry model
+        :return: 0 is not met, 1 if met, 0.5 if unsure
+        """
+        score = 1
+        for scorelink in self.techscorelink_set:
+            score = scorelink.get_score(inquiry=inquiry) * score
+
+        return score
+
 
 class TechScoreLink(models.Model):
     """
@@ -149,6 +161,20 @@ class TechScoreLink(models.Model):
     technology = models.ForeignKey(Technology, on_delete=models.PROTECT)
     score_threshold_approve = models.DecimalField(default=1, decimal_places=2, max_digits=5)
     score_threshold_deny = models.DecimalField(default=0, decimal_places=2, max_digits=5)
+
+    def get_score(self, inquiry=None):
+        """
+        Returns the resulting score for the specefic link
+        :param inquiry:
+        :return: 0 is not met, 1 if met, 0.5 if unsure
+        """
+        score_obj = Score.objects.get_or_create(inquiry=inquiry, declaration=self.score_declaration)[0]
+
+        if score_obj.score > self.score_threshold_approve:
+            return 1
+        if score_obj.score < self.score_threshold_deny:
+            return 0
+        return 0.5
 
 
 class Score(models.Model):
