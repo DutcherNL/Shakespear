@@ -1,4 +1,6 @@
 from django.forms import CharField, IntegerField, DecimalField, ChoiceField
+from django.forms.widgets import RadioSelect, NumberInput
+from .widgets import CustomRadioSelect
 from django.core.exceptions import ObjectDoesNotExist
 import ast
 
@@ -144,6 +146,7 @@ class DecimalQuestionField(QuestionFieldMixin, DecimalField):
 
 
 class ChoiceQuestionField(QuestionFieldMixin, ChoiceField):
+    widget = CustomRadioSelect
 
     def get_answer_option(self, value):
         """
@@ -155,7 +158,3 @@ class ChoiceQuestionField(QuestionFieldMixin, ChoiceField):
             return None
         else:
             return AnswerOption.objects.get(question=self.question, value=int(value))
-
-
-
-
