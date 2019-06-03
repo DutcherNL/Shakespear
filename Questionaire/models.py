@@ -254,3 +254,5 @@ class AnswerScoringNote(models.Model):
     scoring = models.ForeignKey(AnswerScoring, on_delete=models.CASCADE)
     technology = models.ForeignKey(Technology, blank=True, null=True, on_delete=models.CASCADE)
     text = models.TextField(blank=True, null=True, default="Nothing defined")
+    exclude_on = models.ManyToManyField(AnswerOption, related_name="Answer_excludes", null=True, blank=True)
+    include_on = models.ManyToManyField(AnswerOption, related_name="Answer_includes", null=True, blank=True)

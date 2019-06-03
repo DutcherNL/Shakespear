@@ -1,4 +1,5 @@
 from django import template
+from django.db.models import Q
 from Questionaire.models import Score, AnswerScoringNote, AnswerOption, InquiryQuestionAnswer
 
 register = template.Library()
@@ -38,6 +39,10 @@ def get_score_notes(score, technology):
 
     selected_answers = AnswerOption.objects.filter(inquiryquestionanswer__in=inq_question_answ)
 
-    return AnswerScoringNote.objects.filter(technology=technology,
+    answerNotes = AnswerScoringNote.objects.filter(technology=technology,
                                             scoring__declaration=score.declaration,
-                                            scoring__answer_option__in=selected_answers)
+                                            scoring__answer_option__in=selected_answers,
+                                            include_on__in=selected_answers).\
+                                            exclude(exclude_on__in=selected_answers)
+
+    return answerNotes
