@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block body %}
-    <h1 class="row col-12">Form</h1>
+    <h1 class="row col-12">Questions</h1>
     <form method="post" class="row">
         {% csrf_token %}
         <div class="col-12">
@@ -25,7 +25,7 @@
     </form>
 
 
-    <h1>Technologies</h1>
+    <h1 class="mt-4">Progress</h1>
     {% include "progress_tabs.html" %}
 {% endblock %}
 
