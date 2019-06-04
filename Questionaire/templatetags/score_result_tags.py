@@ -68,7 +68,7 @@ def get_prepped_text(note, inquiry):
 def get_text_base_score(value):
     if value == 1:
         return "recommanded"
-    if value == -1:
+    if value == 0:
         return "not recommanded"
     return "unknown"
 
