@@ -30,7 +30,7 @@ def get_tech_scores(technology, inquiry):
 @register.filter
 def get_score_notes(score, technology):
     """
-
+    Get the notes for the given score in the given technology
     :param technology: The technology
     :param score: The score object
     :return: A queryobject of notes
@@ -48,15 +48,17 @@ def get_score_notes(score, technology):
     incomplete_entries = []
     for answerNote in answerNotes.annotate(
             num_includes=Count('include_on')).filter(num_includes__gt=0):
-        print(answerNote)
         # Loop over all include items and check if it is in there
         for includer in answerNote.include_on.all():
-            print(includer)
             if includer not in selected_answers:
-                print("Not in")
                 incomplete_entries.append(answerNote.id)
                 break
 
     answerNotes = answerNotes.exclude(id__in=incomplete_entries)
 
     return answerNotes
+
+
+@register.filter
+def get_prepped_text(note, inquiry):
+    return note.get_prepped_text(inquiry=inquiry)

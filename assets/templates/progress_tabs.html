@@ -27,7 +27,7 @@
         {% for tech_score in technology|get_tech_scores:inquiry %}
             {% for note in tech_score|get_score_notes:technology %}
                 <p>
-                    {{ note.text }}
+                    {{ note|get_prepped_text:inquiry }}
                 </p>
             {% endfor %}
         {% endfor %}

@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from string import Formatter
 
 # Create your models here.
 
@@ -112,12 +113,26 @@ class InquiryQuestionAnswer(models.Model):
     def __str__(self):
         return "{0} {1}: {2}".format(self.question.name, self.inquiry.id, self.answer)
 
+    def get_readable_answer(self):
+        """
+        Returns a human readable answer, as given
+        :return: a human readable string
+        """
+        if self.question.question_type == 3:
+            if self.answer == "0":
+                # The answer has not been given
+                return "not given"
+            return AnswerOption.objects.get(question=self.question, value=self.answer).answer
+
+        return self.answer
+
 
 class ScoringDeclaration(models.Model):
     """
     Declares a score that should be tracked
     """
-    name = models.CharField(max_length=32)
+    name = models.SlugField(max_length=32)
+    display_name = models.CharField(max_length=64, blank=True, null=True)
     description = models.CharField(max_length=256)
     score_start_value = models.DecimalField(default=0.5, decimal_places=2, max_digits=5)
 
@@ -254,8 +269,30 @@ class AnswerScoringNote(models.Model):
     scoring = models.ForeignKey(AnswerScoring, on_delete=models.CASCADE)
     technology = models.ForeignKey(Technology, blank=True, null=True, on_delete=models.CASCADE)
     text = models.TextField(blank=True, null=True, default="Nothing defined")
-    exclude_on = models.ManyToManyField(AnswerOption, related_name="Answer_excludes", null=True, blank=True)
-    include_on = models.ManyToManyField(AnswerOption, related_name="Answer_includes", null=True, blank=True)
+    exclude_on = models.ManyToManyField(AnswerOption, related_name="Answer_excludes", blank=True)
+    include_on = models.ManyToManyField(AnswerOption, related_name="Answer_includes", blank=True)
 
     def __str__(self):
         return "{tech}: {answer}".format(tech=self.technology, answer=self.scoring.answer_option)
+
+    def get_prepped_text(self, inquiry=None):
+        formatter = Formatter()
+        iter_obj = formatter.parse(self.text)
+        keys = []
+        for literal, key, format, conversion in iter_obj:
+            keys.append(key)
+
+        format_dict = {}
+        for key in keys:
+            if key is None:
+                continue
+
+            if key.startswith('q_'):
+                iqa_obj = InquiryQuestionAnswer.objects.get(question__name=key[2:], inquiry=inquiry)
+                format_dict[key] = iqa_obj.get_readable_answer()
+            elif key.startswith('v_'):
+                score_obj = Score.objects.get(declaration__name=key[2:], inquiry=inquiry)
+                format_dict[key] = score_obj.score
+
+        return self.text.format(**format_dict)
+
