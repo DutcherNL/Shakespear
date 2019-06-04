@@ -1,5 +1,5 @@
 from django import template
-from django.db.models import Q
+from django.db.models import Q, Count
 from Questionaire.models import Score, AnswerScoringNote, AnswerOption, InquiryQuestionAnswer
 
 register = template.Library()
@@ -41,8 +41,22 @@ def get_score_notes(score, technology):
 
     answerNotes = AnswerScoringNote.objects.filter(technology=technology,
                                             scoring__declaration=score.declaration,
-                                            scoring__answer_option__in=selected_answers,
-                                            include_on__in=selected_answers).\
+                                            scoring__answer_option__in=selected_answers).\
                                             exclude(exclude_on__in=selected_answers)
+
+    # Get all items in the queryset with include_on restrictions
+    incomplete_entries = []
+    for answerNote in answerNotes.annotate(
+            num_includes=Count('include_on')).filter(num_includes__gt=0):
+        print(answerNote)
+        # Loop over all include items and check if it is in there
+        for includer in answerNote.include_on.all():
+            print(includer)
+            if includer not in selected_answers:
+                print("Not in")
+                incomplete_entries.append(answerNote.id)
+                break
+
+    answerNotes = answerNotes.exclude(id__in=incomplete_entries)
 
     return answerNotes

@@ -33,6 +33,7 @@ class AnswerScoringAdmin(admin.ModelAdmin):
     class AnswerScoreNoteInlines(admin.TabularInline):
         model = AnswerScoringNote
         extra = 0
+        filter_horizontal = ('exclude_on','include_on',)
 
     inlines = [AnswerScoreNoteInlines]
 
@@ -49,6 +50,10 @@ class PageAdmin(admin.ModelAdmin):
     inlines = [PageQuestionsInlines, PageReqTechUsefulnessInlines]
 
 
+class AnswerNoteAdmin(admin.ModelAdmin):
+    filter_horizontal = ('exclude_on', 'include_on',)
+
+
 admin.site.register(Page, PageAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(AnswerOption, AnswerOptionAdmin)
@@ -59,3 +64,4 @@ admin.site.register(Technology, TechnologyAdmin)
 admin.site.register(AnswerScoring, AnswerScoringAdmin)
 admin.site.register(ScoringDeclaration)
 admin.site.register(Score)
+admin.site.register(AnswerScoringNote, AnswerNoteAdmin)

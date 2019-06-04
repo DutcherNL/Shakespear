@@ -256,3 +256,6 @@ class AnswerScoringNote(models.Model):
     text = models.TextField(blank=True, null=True, default="Nothing defined")
     exclude_on = models.ManyToManyField(AnswerOption, related_name="Answer_excludes", null=True, blank=True)
     include_on = models.ManyToManyField(AnswerOption, related_name="Answer_includes", null=True, blank=True)
+
+    def __str__(self):
+        return "{tech}: {answer}".format(tech=self.technology, answer=self.scoring.answer_option)
