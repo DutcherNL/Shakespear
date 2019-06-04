@@ -1,22 +1,18 @@
 <div class="btn-group-horizontal-md btn-group-toggle" data-toggle="buttons">
 {% for group, options, index in widget.optgroups %}
     {% for widget in options %}
-        {% if widget.wrap_label %}
-            <label{% if widget.attrs.id %} for="{{ widget.attrs.id }}"{% endif %} class="btn btn-outline-primary
-            {% if widget.attrs.checked %}
-                active
-            {% endif %}
-            ">
+        <label{% if widget.attrs.id %} for="{{ widget.attrs.id }}"{% endif %} class="btn btn-outline-primary
+        {% if widget.attrs.checked %}
+            active
         {% endif %}
+        ">
 
         <input type="{{ widget.type }}" name="{{ widget.name }}"
                 {% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}
                 {% include "django/forms/widgets/attrs.html" %}>
 
-        {% if widget.wrap_label %}
-            {{ widget.label }}
-            </label>
-        {% endif %}
+        {{ widget.label }}
+        </label>
     {% endfor %}
 {% endfor %}
 </div>
