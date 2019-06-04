@@ -23,7 +23,7 @@
             <a target="_blank" rel="noopener noreferrer" href="{% url 'tech_details' tech_id=technology.id %}" > (learn more) </a>
         </p>
 
-        <h4>Our advise: {{ technology|get_tech_score:inquiry }}</h4>
+        <h4>Our advise: {{ technology|get_tech_score:inquiry|get_text_base_score }}</h4>
         {% for tech_score in technology|get_tech_scores:inquiry %}
             {% for note in tech_score|get_score_notes:technology %}
                 <p>

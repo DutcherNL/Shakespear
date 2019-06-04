@@ -39,14 +39,14 @@ def get_score_notes(score, technology):
 
     selected_answers = AnswerOption.objects.filter(inquiryquestionanswer__in=inq_question_answ)
 
-    answerNotes = AnswerScoringNote.objects.filter(technology=technology,
+    answer_notes = AnswerScoringNote.objects.filter(technology=technology,
                                             scoring__declaration=score.declaration,
                                             scoring__answer_option__in=selected_answers).\
                                             exclude(exclude_on__in=selected_answers)
 
     # Get all items in the queryset with include_on restrictions
     incomplete_entries = []
-    for answerNote in answerNotes.annotate(
+    for answerNote in answer_notes.annotate(
             num_includes=Count('include_on')).filter(num_includes__gt=0):
         # Loop over all include items and check if it is in there
         for includer in answerNote.include_on.all():
@@ -54,11 +54,21 @@ def get_score_notes(score, technology):
                 incomplete_entries.append(answerNote.id)
                 break
 
-    answerNotes = answerNotes.exclude(id__in=incomplete_entries)
+    answer_notes = answer_notes.exclude(id__in=incomplete_entries)
 
-    return answerNotes
+    return answer_notes
 
 
 @register.filter
 def get_prepped_text(note, inquiry):
     return note.get_prepped_text(inquiry=inquiry)
+
+
+@register.filter
+def get_text_base_score(value):
+    if value == 1:
+        return "recommanded"
+    if value == -1:
+        return "not recommanded"
+    return "unknown"
+
