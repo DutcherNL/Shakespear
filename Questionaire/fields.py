@@ -30,12 +30,8 @@ class QuestionFieldFactory:
             # Double question
             return DecimalQuestionField(question, inquiry)
         if q_type == 3:
-            choices = [(0, '---')]
-
-            for answer in question.answeroption_set.order_by("value"):
-                choices.append((answer.value, answer.answer))
-
-            return ChoiceQuestionField(question, inquiry, choices=choices)
+            # Multiple choice question
+            return ChoiceQuestionField(question, inquiry)
 
         raise ValueError("q_type is beyond expected range")
 
@@ -148,13 +144,24 @@ class DecimalQuestionField(QuestionFieldMixin, DecimalField):
 class ChoiceQuestionField(QuestionFieldMixin, ChoiceField):
     widget = CustomRadioSelect
 
+    def __init__(self, question, inquiry, *args, **kwargs):
+        super(ChoiceQuestionField, self).__init__(question, inquiry, *args, **kwargs)
+
+        choices = []
+
+        for answer in question.answeroption_set.order_by("value"):
+            choices.append((answer.value, answer.answer))
+
+        self.choices = choices
+        self.required = False
+
     def get_answer_option(self, value):
         """
         Returns the answer_option for the given value
         :param value: The value of the answer
         :return:
         """
-        if int(value) is 0:
+        if value is None or value == '':
             return None
         else:
             return AnswerOption.objects.get(question=self.question, value=int(value))

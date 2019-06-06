@@ -1,18 +1,36 @@
-<div class="btn-group-horizontal-md btn-group-toggle" data-toggle="buttons">
-{% for group, options, index in widget.optgroups %}
-    {% for widget in options %}
-        <label{% if widget.attrs.id %} for="{{ widget.attrs.id }}"{% endif %} class="btn btn-outline-primary
-        {% if widget.attrs.checked %}
-            active
-        {% endif %}
-        ">
+<div data-toggle="buttons">
+    <div class="btn-group-horizontal-md btn-group-toggle" >
+    {% for group, options, index in widget.optgroups %}
+        {% for widget in options %}
+            <label{% if widget.attrs.id %} for="{{ widget.attrs.id }}"{% endif %} class="btn btn-outline-primary
+            {% if widget.attrs.checked %}
+                active
+            {% endif %}
+            ">
 
-        <input type="{{ widget.type }}" name="{{ widget.name }}"
-                {% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}
-                {% include "django/forms/widgets/attrs.html" %}>
+            <input type="{{ widget.type }}" name="{{ widget.name }}"
+                    {% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}
+                    {% include "django/forms/widgets/attrs.html" %}>
 
-        {{ widget.label }}
-        </label>
+            {{ widget.label }}
+            </label>
+        {% endfor %}
+
     {% endfor %}
-{% endfor %}
+
+    </div>
+    {% if not required %}
+        <label for="{{ widget.attrs.id }}" class="btn btn-outline-secondary float-right
+            {% if widget.none_selected %}
+                active
+            {% endif %}">
+
+            <input type="{{ widget.type }}" name="{{ widget.name }}"
+                   class="d-none"
+                   value="{{ widget.none_value }}" id="{{ widget.attrs.id }}"
+                    {% if widget.none_selected %} checked {% endif %}>
+
+            Leave empty
+        </label>
+    {% endif %}
 </div>
