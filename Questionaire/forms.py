@@ -14,11 +14,12 @@ class QuestionPageForm(forms.Form):
         self.page = page
 
         for entry in PageEntry.objects.filter(page=page).order_by('position'):
-            question = entry.question
-            field = QuestionFieldFactory.get_field_by_model(question, inquiry=inquiry)
+            if entry.entry_type == 2:
+                question = entry.pageentryquestion.question
+                field = QuestionFieldFactory.get_field_by_model(question, inquiry=inquiry)
 
-            self.fields[question.name] = field
-            field.backward(inquiry)
+                self.fields[question.name] = field
+                field.backward(inquiry)
 
     def save(self, inquiry):
 
