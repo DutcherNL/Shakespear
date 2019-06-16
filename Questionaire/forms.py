@@ -1,7 +1,7 @@
 from django import forms
 from .models import PageEntry, Inquiry
 
-from .fields import QuestionFieldFactory
+from .fields import FieldFactory, QuestionFieldMixin
 
 
 class QuestionPageForm(forms.Form):
@@ -14,12 +14,12 @@ class QuestionPageForm(forms.Form):
         self.page = page
 
         for entry in PageEntry.objects.filter(page=page).order_by('position'):
-            if entry.entry_type == 2:
-                question = entry.pageentryquestion.question
-                field = QuestionFieldFactory.get_field_by_model(question, inquiry=inquiry)
-
-                self.fields[question.name] = field
+            field = FieldFactory.get_field_by_entrymodel(entry, inquiry=inquiry)
+            if isinstance(field, QuestionFieldMixin):
                 field.backward(inquiry)
+
+            self.fields[field.name] = field
+
 
     def save(self, inquiry):
 
