@@ -55,3 +55,8 @@ class QuestionPageForm(forms.Form):
             pass
 
 
+class EmailForm(forms.Form):
+    email = forms.EmailField()
+
+    def __init__(self, *args, **kwargs):
+        return super(EmailForm, self).__init__(*args, **kwargs)

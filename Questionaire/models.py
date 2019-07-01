@@ -95,10 +95,11 @@ class Inquiry(models.Model):
 
     def get_url(self):
         from django.shortcuts import reverse
-        return reverse('q_page', kwargs={'inquiry': self.id, 'page': self.current_page.id})
-
-
-
+        if self.current_page is None:
+            first_page = Page.objects.order_by('position').first()
+            return reverse('q_page', kwargs={'inquiry': self.id, 'page': first_page.id})
+        else:
+            return reverse('q_page', kwargs={'inquiry': self.id, 'page': self.current_page.id})
 
     # DO NOT ADJUST THE FOLLOWING PARAMETERS AFTER DEPLOYMENT!
     length = 6
@@ -116,8 +117,6 @@ class Inquiry(models.Model):
         value = (model.pk * cls.steps) % (len(cls.allowed_chars) ** cls.length)
         string = ''
 
-        print("Checkpoint 1")
-
         # Translate the reformed number to its letterform
         for i in range(cls.length-1, 0 -1, -1):
             base = len(cls.allowed_chars) ** i
@@ -128,8 +127,6 @@ class Inquiry(models.Model):
             string += cls.allowed_chars[char_pos]
             # Remove the processed value from the string
             value -= (base * char_pos)
-
-        print("Checkpoint 2 {0}".format(string))
 
         return string
 
@@ -146,8 +143,6 @@ class Inquiry(models.Model):
         :param code: The 6-letter code
         :return: The inquiry-model TODO: return inquiry model instead of pk number
         """
-
-        print("Checkpoint 3")
 
         def egcd(a, b):
             """
@@ -177,13 +172,9 @@ class Inquiry(models.Model):
             else:
                 value += char_pos * (len(cls.allowed_chars) ** (cls.length - i - 1))
 
-        print("Checkpoint 4")
-
         # Recompute the reformed number to its original number
         gcd, x, y = egcd(cls.steps, max_combos)
         value = (value * x) % max_combos
-
-        print("Checkpoint 5")
 
         # Return the result
         return value
