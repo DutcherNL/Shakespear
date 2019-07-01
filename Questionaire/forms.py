@@ -1,7 +1,7 @@
 from django import forms
 from .models import PageEntry, Inquiry
 
-from .fields import FieldFactory, QuestionFieldMixin
+from .fields import QuestionFieldFactory
 
 
 class QuestionPageForm(forms.Form):
@@ -56,3 +56,17 @@ class QuestionPageForm(forms.Form):
             pass
 
 
+class EmailForm(forms.Form):
+    email = forms.EmailField(widget=IgnorableInput, required=False)
+
+    def __init__(self, *args, inquiry=None, **kwargs):
+        if inquiry is None:
+            raise KeyError("inquiry is missing or is None")
+
+        self.inquiry = inquiry
+
+        return super(EmailForm, self).__init__(*args, **kwargs)
+
+    def save(self):
+        # TODO save email in inquiry
+        pass

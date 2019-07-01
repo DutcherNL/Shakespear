@@ -1,5 +1,7 @@
 {# Bootstrap 4 horizontal form #}
 
+{% load widget_tweaks %}
+
 {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
 
 {# Non field errors #}
@@ -26,22 +28,22 @@
             {% if form.is_bound %}
                 {% if field.errors %}
                     {# Errors present #}
-                    {{ field }}
+                    {% render_field field class="form-control" placeholder=field.label %}
                     {% for error in field.errors %}
-                        <div class="invalid-feedback">
+                        <div class="alert alert-danger">
                             {{ error }}
                         </div>
                     {% endfor %}
                 {% else %}
                     {# No errors #}
-                    {{ field }}
+                    {% render_field field class="form-control" placeholder=field.label %}
                 {% endif %}
             {% else %}
                 {# Not submitted yet #}
                 {% if field.field.disabled %}
-                    {{ field }}
+                    {% render_field field class="form-control" placeholder=field.label %}
                 {% else %}
-                    {{ field }}
+                    {% render_field field class="form-control" placeholder=field.label %}
                 {% endif %}
             {% endif %}
             {# Help text #}
