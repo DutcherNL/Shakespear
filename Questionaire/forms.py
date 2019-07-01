@@ -1,8 +1,9 @@
 from django import forms
 from .models import PageEntry, Inquiry
+from django.forms import ValidationError
 
 from .fields import QuestionFieldFactory
-from .widgets import IgnorableEmailInput
+from .widgets import IgnorableInput
 
 
 class QuestionPageForm(forms.Form):
@@ -57,7 +58,16 @@ class QuestionPageForm(forms.Form):
 
 
 class EmailForm(forms.Form):
-    email = forms.EmailField(widget=IgnorableEmailInput)
+    email = forms.EmailField(widget=IgnorableInput, required=False)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, inquiry=None, **kwargs):
+        if inquiry is None:
+            raise KeyError("inquiry is missing or is None")
+
+        self.inquiry = inquiry
+
         return super(EmailForm, self).__init__(*args, **kwargs)
+
+    def save(self):
+        # TODO save email in inquiry
+        pass

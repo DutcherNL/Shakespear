@@ -54,12 +54,12 @@ class IgnorableInput(Input):
         Given a dictionary of data and this widget's name, return the value
         of this widget or None if it's not provided.
         """
-        value = super(CustomRadioSelect, self).value_from_datadict(data, files, name)
+        value = super(IgnorableInput, self).value_from_datadict(data, files, name)
 
         ignore = data.get(name + self.none_name_appendix, False)
         if ignore:
             return None
-        
+
         return value
 
 

@@ -99,11 +99,27 @@ class InquiryStartScreen(TemplateView):
         context = super(InquiryStartScreen, self).get_context_data(**kwargs)
 
         context['inquiry'] = get_object_or_404(Inquiry, id=self.kwargs['inquiry'])
-        context['form'] = EmailForm()
+        context['form'] = EmailForm(inquiry=context['inquiry'])
 
         return context
 
     # return HttpResponseRedirect(reverse('q_page', kwargs={'inquiry': inquiry.id, 'page': first_page.id}))
+
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+
+        print(request.POST)
+
+        # Add the comment
+        form = EmailForm(inquiry=context['inquiry'], data=request.POST)
+
+        if form.is_valid():
+            form.save()
+            first_page = Page.objects.order_by('position').first()
+            return HttpResponseRedirect(reverse('q_page', kwargs={'inquiry': context['inquiry'].id, 'page': first_page.id}))
+        else:
+            context['form'] = form
+            return self.render_to_response(context)
 
 
 class TechDetailsView(TemplateView):

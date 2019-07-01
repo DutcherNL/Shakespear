@@ -1,54 +1,38 @@
 {% extends 'base.html' %}
 
 {% block body %}
-    <div class="row">
-        <h1 class="col-12">Welkom</h1>
-    </div>
-    <div class="row ">
-        <div class="col-12">
-            Welkom bij de vragenlijst. Uw unieke toegangscode is:
-        </div>
-        <p class="font-weight-bold col-12 h3 mt-0">
-            {{ inquiry.get_inquiry_code }}
-        </p>
-        <p class="col-12">
-            Onthoud deze code goed, of schrijf het ergens op. Het stelt u in staat op elk moment terug te komen bij uw antwoorden.
-        </p>
-    </div>
-
-    <div class="row">
-        <div class="col-12">
-            Wij gebruiken e-mail om contact met u te houden. Voor optimaal gebruik van onze mogelijkheden willen wij u vragen uw e-mail hieronder
-            achter te laten. U kunt dit, als u dat fijn vind, ook leeg laten.
-        </div>
-        <div class="col-12">
-            {% include "snippets/bootstrap_form.html" %}
-        </div>
-
-
-
-    </div>
-
-
-
-
-
-    <div class="row">
-        <a href="{{ inquiry.get_url }}" class="btn btn-block btn-secondary">
-            Continue without mail
-        </a>
-    </div>
-
-
-
-
-    <form method="post" class="row">
+    <form method="post">
         {% csrf_token %}
-        <div class="col-12">
-            <div class="row">
 
+        <div class="row">
+            <h1 class="col-12">Welkom</h1>
+        </div>
+        <div class="row ">
+            <div class="col-12">
+                Welkom bij de vragenlijst. Uw unieke toegangscode is:
+            </div>
+            <p class="font-weight-bold col-12 h3 mt-0">
+                {{ inquiry.get_inquiry_code }}
+            </p>
+            <p class="col-12">
+                Onthoud deze code goed, of schrijf het ergens op. Het stelt u in staat op elk moment terug te komen bij uw antwoorden.
+            </p>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                Wij gebruiken e-mail om contact met u te houden. Voor optimaal gebruik van onze mogelijkheden willen wij u vragen uw e-mail hieronder
+                achter te laten. U kunt dit, als u dat fijn vind, ook leeg laten.
+            </div>
+            <div class="col-12">
+                {% include "snippets/bootstrap_form.html" %}
             </div>
         </div>
+
+        <div class="row">
+            <input type="submit" class="btn btn-block btn-secondary" value="Continue without mail">
+        </div>
+
     </form>
 
 
