@@ -56,8 +56,10 @@ class IgnorableInput(Input):
         """
         value = super(CustomRadioSelect, self).value_from_datadict(data, files, name)
 
-        if value == self.none_value_string:
+        ignore = data.get(name + self.none_name_appendix, False)
+        if ignore:
             return None
+        
         return value
 
 
