@@ -1,0 +1,31 @@
+<div data-toggle="buttons">
+    <input type="{{ widget.type }}"
+           name="{{ widget.name }}"
+           {% if widget.value != None %}
+            value="{{ widget.value|stringformat:'s' }}"
+           {% endif %}
+           {% include "django/forms/widgets/attrs.html" %}
+
+           onclick="
+                   c = document.getElementById('{{ widget.none_name }}');
+                   if (c.checked == true) {
+                       c.parentElement.click()
+                   }
+
+                   ">
+
+
+    {% if not required %}
+        <label for="{{ widget.none_name }}" class="btn btn-outline-secondary float-right
+                {% if widget.none_selected %}
+                    active
+                {% endif %}">
+
+            <input type="checkbox" name="{{ widget.name }}"
+                   class="d-none" id="{{ widget.none_name }}"
+                    {% if widget.none_selected %} checked {% endif %}>
+
+            Leave empty
+        </label>
+    {% endif %}
+</div>

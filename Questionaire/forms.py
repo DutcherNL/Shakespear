@@ -2,6 +2,7 @@ from django import forms
 from .models import PageEntry, Inquiry
 
 from .fields import QuestionFieldFactory
+from .widgets import IgnorableEmailInput
 
 
 class QuestionPageForm(forms.Form):
@@ -56,7 +57,7 @@ class QuestionPageForm(forms.Form):
 
 
 class EmailForm(forms.Form):
-    email = forms.EmailField()
+    email = forms.EmailField(widget=IgnorableEmailInput)
 
     def __init__(self, *args, **kwargs):
         return super(EmailForm, self).__init__(*args, **kwargs)
