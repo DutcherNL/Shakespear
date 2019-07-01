@@ -1,7 +1,7 @@
 <h2>Filled in questionaires</h2>
 
 {% for inquiry in inquiries %}
-    <a href="{{ inquiry.get_url }}">Inquiry {{ inquiry.id }}</a><br>
+    <a href="{{ inquiry.get_url }}">Inquiry {{ inquiry.id }} - {{ inquiry.get_inquiry_code }} - {{ inquiry.get_rev_key }}</a><br>
 {% endfor %}
 <br>
 <form method="post" action="{% url 'new_query' %}">

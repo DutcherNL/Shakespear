@@ -98,6 +98,116 @@ class Inquiry(models.Model):
         return reverse('q_page', kwargs={'inquiry': self.id, 'page': self.current_page.id})
 
 
+
+
+    # DO NOT ADJUST THE FOLLOWING PARAMETERS AFTER DEPLOYMENT!
+    length = 6
+    allowed_chars = 'QZXSWDCVFRTGBYHNMJKLP'
+    steps = 2766917
+    # DO NOT ADJUST THE ABOVE PARAMETERS AFTER DEPLOYMENT!
+
+    @classmethod
+    def get_inquiry_code_from_model(cls, model):
+        """
+        Get the lettercode for this inquiry object
+        :return: Returns the lettercode for the given inquiry object
+        """
+        # New value is the key multiplied by the steps mod the total number of possibilities
+        value = (model.pk * cls.steps) % (len(cls.allowed_chars) ** cls.length)
+        string = ''
+
+        print("Checkpoint 1")
+
+        # Translate the reformed number to its letterform
+        for i in range(cls.length-1, 0 -1, -1):
+            base = len(cls.allowed_chars) ** i
+
+            # Compute the position of the character (devide by base rounded down)
+            char_pos = int(value / base)
+            # Add the new character to the string
+            string += cls.allowed_chars[char_pos]
+            # Remove the processed value from the string
+            value -= (base * char_pos)
+
+        print("Checkpoint 2 {0}".format(string))
+
+        return string
+
+    def get_inquiry_code(self):
+        return Inquiry.get_inquiry_code_from_model(self)
+
+    def get_rev_key(self):
+        return Inquiry.get_inquiry_model_from_code(self.get_inquiry_code_from_model(self))
+
+    @classmethod
+    def get_inquiry_model_from_code(cls, code):
+        """
+        Retrieves the inquiry model based on a given letter-code
+        :param code: The 6-letter code
+        :return: The inquiry-model TODO: return inquiry model instead of pk number
+        """
+
+        print("Checkpoint 3")
+
+        def egcd(a, b):
+            """
+            Extended Euclidean Algorithm
+            :param a: Int number 1
+            :param b: Int number 2
+            :return: the greatest common division (gcd) and the x and y values according to ax +by = gcd
+            """
+            x,y, u,v = 0,1, 1,0
+            while a != 0:
+                q, r = b//a, b%a
+                m, n = x-u*q, y-v*q
+                b,a, x,y, u,v = a,r, u,v, m,n
+            gcd = b
+            return gcd, x, y
+
+        # Define base variables
+        value = 0
+        max_combos = (len(cls.allowed_chars) ** cls.length)
+
+        # Translate the code to the reformed number
+        for i in range(0, len(code)):
+            char_pos = cls.allowed_chars.find(code[i])
+
+            if char_pos == -1:
+                raise ValueError("Character was not the possible characters")
+            else:
+                value += char_pos * (len(cls.allowed_chars) ** (cls.length - i - 1))
+
+        print("Checkpoint 4")
+
+        # Recompute the reformed number to its original number
+        gcd, x, y = egcd(cls.steps, max_combos)
+        value = (value * x) % max_combos
+
+        print("Checkpoint 5")
+
+        # Return the result
+        return value
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class InquiryQuestionAnswer(models.Model):
     """
     Contains the answer for a single question in the enquiry
