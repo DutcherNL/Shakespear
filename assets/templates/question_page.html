@@ -9,17 +9,16 @@
         </div>
         <div class="col-12">
             <div class="row">
-            {% if has_prev_page %}
                 <div class="col-6">
-                    <input type="submit" name="prev" value="Previous" class="btn btn-block btn-outline-primary"/>
+                    {% if has_prev_page %}
+                        <input type="submit" name="prev" value="Previous" class="btn btn-block btn-outline-primary"/>
+                    {% endif %}
                 </div>
-
-            {% endif %}
-            {% if has_next_page %}
                 <div class="col-6">
-                    <input type="submit" name="next" value="Next" class="btn btn-block btn-primary"/>
+                    {% if has_next_page %}
+                        <input type="submit" name="next" value="Next" class="btn btn-block btn-primary"/>
+                    {% endif %}
                 </div>
-            {% endif %}
             </div>
         </div>
     </form>
