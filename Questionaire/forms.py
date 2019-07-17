@@ -71,3 +71,27 @@ class EmailForm(forms.Form):
     def save(self):
         # TODO save email in inquiry
         pass
+
+
+class InquiryLoadForm(forms.Form):
+    code = forms.CharField(max_length=6)
+    inquiry_model = None
+
+    def clean(self):
+        cleaned_data = super(InquiryLoadForm, self).clean()
+
+        code = cleaned_data.get('code')
+
+        if code is not None:
+            try:
+                self.inquiry_model = Inquiry.get_inquiry_model_from_code(code)
+            except Inquiry.DoesNotExist:
+                raise ValidationError("Code is incorrect. Inquiry is not known")
+
+        return cleaned_data
+
+    def get_inquiry(self):
+        if self.inquiry_model is None:
+            raise ValueError("No inquiry model computed yet")
+
+        return self.inquiry_model

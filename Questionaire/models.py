@@ -134,7 +134,7 @@ class Inquiry(models.Model):
         return Inquiry.get_inquiry_code_from_model(self)
 
     def get_rev_key(self):
-        return Inquiry.get_inquiry_model_from_code(self.get_inquiry_code_from_model(self))
+        return Inquiry.get_inquiry_model_from_code(self.get_inquiry_code_from_model(self)).id
 
     @classmethod
     def get_inquiry_model_from_code(cls, code):
@@ -168,16 +168,16 @@ class Inquiry(models.Model):
             char_pos = cls.allowed_chars.find(code[i])
 
             if char_pos == -1:
-                raise ValueError("Character was not the possible characters")
+                raise ValidationError("Character was not the possible characters")
             else:
                 value += char_pos * (len(cls.allowed_chars) ** (cls.length - i - 1))
 
         # Recompute the reformed number to its original number
         gcd, x, y = egcd(cls.steps, max_combos)
-        value = (value * x) % max_combos
+        id = (value * x) % max_combos
 
         # Return the result
-        return value
+        return cls.objects.get(id=id)
 
 
 

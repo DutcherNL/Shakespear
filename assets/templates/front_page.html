@@ -8,3 +8,11 @@
     {% csrf_token %}
     <input type="submit" name="next" value="Create new"/>
 </form>
+
+<form method="get">
+    {% csrf_token %}
+    {% with inquiry_entry_form as form %}
+        {% include "snippets/bootstrap_form.html" %}
+    {% endwith %}
+    <input type="submit" name="next" value="Load"/>
+</form>

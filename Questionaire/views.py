@@ -2,7 +2,7 @@ from django.views import View
 from django.views.generic import TemplateView
 from .models import Page, Inquiry, Technology, Score
 from django.shortcuts import get_object_or_404
-from .forms import QuestionPageForm, EmailForm
+from .forms import QuestionPageForm, EmailForm, InquiryLoadForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
@@ -73,11 +73,24 @@ class QPageView(TemplateView):
 
 class QueryIndexView(TemplateView):
     template_name = "front_page.html"
+    redirect_to = None
+
+    def dispatch(self, request, *args, **kwargs):
+        result = super(QueryIndexView, self).dispatch(request, *args, **kwargs)
+
+        if self.redirect_to is not None:
+            return HttpResponseRedirect(self.redirect_to)
+
+        return result
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         context['inquiries'] = Inquiry.objects.all()
+        context['inquiry_entry_form'] = InquiryLoadForm(self.request.GET)
+
+        if context['inquiry_entry_form'].is_valid():
+            self.redirect_to = context['inquiry_entry_form'].get_inquiry().get_url()
 
         return context
 
