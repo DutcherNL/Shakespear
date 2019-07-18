@@ -1,9 +1,7 @@
 from django import forms
 from .models import PageEntry, Inquiry
-from django.forms import ValidationError
 
 from .fields import QuestionFieldFactory
-from .widgets import IgnorableInput
 
 
 class QuestionPageForm(forms.Form):
@@ -16,11 +14,12 @@ class QuestionPageForm(forms.Form):
         self.page = page
 
         for entry in PageEntry.objects.filter(page=page).order_by('position'):
-            question = entry.question
-            field = QuestionFieldFactory.get_field_by_model(question, inquiry=inquiry)
+            field = FieldFactory.get_field_by_entrymodel(entry, inquiry=inquiry)
+            if isinstance(field, QuestionFieldMixin):
+                field.backward(inquiry)
 
-            self.fields[question.name] = field
-            field.backward(inquiry)
+            self.fields[field.name] = field
+
 
     def save(self, inquiry):
 

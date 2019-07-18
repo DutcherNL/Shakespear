@@ -1,19 +1,27 @@
-from django.forms import CharField, IntegerField, DecimalField, ChoiceField
+from django.forms import CharField, IntegerField, DecimalField, ChoiceField, Field
 from django.forms.widgets import RadioSelect, NumberInput
-from .widgets import CustomRadioSelect
+from .widgets import CustomRadioSelect, InformationDisplayWidget
 from django.core.exceptions import ObjectDoesNotExist
 import ast
 
 from .models import InquiryQuestionAnswer, AnswerOption, Score
 
 
-class QuestionFieldFactory:
+class FieldFactory:
     """
     Factory class generating fields from Question model instances
     """
 
     @staticmethod
-    def get_field_by_model(question, inquiry=None):
+    def get_field_by_entrymodel(entry, inquiry=None):
+        if entry.entry_type == 1:
+            return InformationField(entry.pageentrytext)
+        elif entry.entry_type == 2:
+            peq = entry.pageentryquestion
+            return FieldFactory.get_field_by_questionmodel(peq.question, inquiry=inquiry, required=peq.required)
+
+    @staticmethod
+    def get_field_by_questionmodel(question, inquiry=None, required=False):
         q_type = question.question_type
 
         # Todo: implement validators with field.validators
@@ -31,7 +39,7 @@ class QuestionFieldFactory:
             return DecimalQuestionField(question, inquiry)
         if q_type == 3:
             # Multiple choice question
-            return ChoiceQuestionField(question, inquiry)
+            return ChoiceQuestionField(question, inquiry, required=required)
 
         raise ValueError("q_type is beyond expected range")
 
@@ -41,12 +49,16 @@ class QuestionFieldMixin:
     def __init__(self, question, inquiry, *args, required=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.question = question
+        self.name = question.name
         self.label = question.question_text
         self.required = required
+        print("Init QFM")
         if inquiry is not None:
             answer_obj = InquiryQuestionAnswer.objects.filter(question=question, inquiry=inquiry)
+            print("Set initial?")
             if answer_obj.exists():
                 self.initial = answer_obj.first().answer
+                print("Initial set: {0}".format(self.initial))
 
     def save(self, value, inquiry):
         if not self.is_empty_value(value):
@@ -165,3 +177,24 @@ class ChoiceQuestionField(QuestionFieldMixin, ChoiceField):
             return None
         else:
             return AnswerOption.objects.get(question=self.question, value=int(value))
+
+
+class InformationField(Field):
+    widget = InformationDisplayWidget
+
+    def __init__(self, page_entry_obj, *args, **kwargs):
+        super(InformationField, self).__init__(*args, **kwargs)
+        self.name = "-- sample_name --"
+        self.text = page_entry_obj.text
+        self.label = ""
+        self.required = False
+        self.initial = self.text
+
+    def save(self, *args, **kwargs):
+        pass
+
+    def forward(self, *args, **kwargs):
+        pass
+
+    def backward(self, *args, **kwargs):
+        pass

@@ -1,4 +1,4 @@
-from django.forms.widgets import RadioSelect, Input
+from django.forms.widgets import RadioSelect, Widget, Input
 
 
 class CustomRadioSelect(RadioSelect):
@@ -23,6 +23,18 @@ class CustomRadioSelect(RadioSelect):
         if value == self.none_value_string:
             return None
         return value
+
+
+class InformationDisplayWidget(Widget):
+    template_name = 'snippets/widget_text_display.html'
+
+    def get_context(self, name, value, attrs):
+        context = super(InformationDisplayWidget, self).get_context(name, value, attrs)
+        context['widget']['type'] = "none"
+        context['widget']['text'] = value
+
+        return context
+
 
 
 class IgnorableInput(Input):

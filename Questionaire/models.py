@@ -35,7 +35,7 @@ class Page(models.Model):
     """
     name = models.CharField(max_length=50)
     position = models.PositiveIntegerField(unique=True)
-    questions = models.ManyToManyField(Question, through='PageEntry',
+    questions = models.ManyToManyField(Question, through='PageEntryQuestion',
                                        through_fields=('page', 'question'))
 
     def meets_requirements(self, inquiry):
@@ -60,14 +60,43 @@ class PageEntry(models.Model):
     A model detailing the questions that are on a page in a given order
     """
     page = models.ForeignKey(Page, on_delete=models.CASCADE)
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
     position = models.PositiveIntegerField(default=999)
+    # Define the entry types, saved here for database use optimisation
+    ENTRY_TYPE_OPTIONS = (
+        (1, 'General information'),
+        (2, 'Question'),
+    )
+    entry_type = models.PositiveIntegerField(choices=ENTRY_TYPE_OPTIONS)
+
+    def __str__(self):
+        i = self.ENTRY_TYPE_OPTIONS[self.entry_type-1][1]
+
+        return "{page} - {pos}: {q}".format(page=self.page, q = i, pos = self.position)
+
+
+class PageEntryText(PageEntry):
+    """
+    Represents a textual entry on a page
+    """
+    text = models.TextField(default="")
+
+    def __init__(self, *args, **kwargs):
+        super(PageEntryText, self).__init__(*args, **kwargs)
+        self.entry_type = 1
+
+
+class PageEntryQuestion(PageEntry):
+    """
+    Represents a question entry on a page
+    """
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
     required = models.BooleanField(default=False)
 
     unique_together = ("page", "question")
 
-    def __str__(self):
-        return "{page} - {pos}: {q}".format(page=self.page, q = self.question, pos = self.position)
+    def __init__(self, *args, **kwargs):
+        super(PageEntryQuestion, self).__init__(*args, **kwargs)
+        self.entry_type = 2
 
 
 class AnswerOption(models.Model):

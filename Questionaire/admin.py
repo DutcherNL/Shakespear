@@ -40,14 +40,18 @@ class AnswerScoringAdmin(admin.ModelAdmin):
 
 class PageAdmin(admin.ModelAdmin):
     class PageQuestionsInlines(admin.TabularInline):
-        model = PageEntry
-        extra = 1
+        model = PageEntryQuestion
+        extra = 0
+
+    class PageTextsInlines(admin.TabularInline):
+        model = PageEntryText
+        extra = 0
 
     class PageReqTechUsefulnessInlines(admin.TabularInline):
         model = PageRequirement
         extra = 0
 
-    inlines = [PageQuestionsInlines, PageReqTechUsefulnessInlines]
+    inlines = [PageTextsInlines, PageQuestionsInlines, PageReqTechUsefulnessInlines]
 
 
 class AnswerNoteAdmin(admin.ModelAdmin):
@@ -58,6 +62,7 @@ admin.site.register(Page, PageAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(AnswerOption, AnswerOptionAdmin)
 admin.site.register(PageEntry)
+admin.site.register(PageEntryQuestion)
 admin.site.register(Inquiry)
 admin.site.register(InquiryQuestionAnswer)
 admin.site.register(Technology, TechnologyAdmin)
