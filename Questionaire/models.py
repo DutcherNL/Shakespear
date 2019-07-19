@@ -209,25 +209,6 @@ class Inquiry(models.Model):
         return cls.objects.get(id=id)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class InquiryQuestionAnswer(models.Model):
     """
     Contains the answer for a single question in the enquiry
@@ -425,4 +406,3 @@ class AnswerScoringNote(models.Model):
                 format_dict[key] = score_obj.score
 
         return self.text.format(**format_dict)
-

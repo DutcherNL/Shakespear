@@ -1,7 +1,8 @@
 from django import forms
 from .models import PageEntry, Inquiry
 
-from .fields import QuestionFieldFactory
+from .fields import FieldFactory, QuestionFieldMixin
+from .widgets import IgnorableInput
 
 
 class QuestionPageForm(forms.Form):
@@ -85,7 +86,7 @@ class InquiryLoadForm(forms.Form):
             try:
                 self.inquiry_model = Inquiry.get_inquiry_model_from_code(code)
             except Inquiry.DoesNotExist:
-                raise ValidationError("Code is incorrect. Inquiry is not known")
+                raise forms.ValidationError("Code is incorrect. Inquiry is not known")
 
         return cleaned_data
 
