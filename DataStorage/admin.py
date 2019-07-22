@@ -12,6 +12,13 @@ class StoredDataAdmin(admin.ModelAdmin):
     inlines = [ContentInline]
 
 
-admin.site.register(StoredDataCodeDeclaration)
+class StoredDataCodeAdmin(admin.ModelAdmin):
+    class ContentDeclarationInline(admin.TabularInline):
+        model = StoredDataDeclaration
+        extra = 0
+
+    inlines = [ContentDeclarationInline]
+
+
+admin.site.register(StoredDataCodeDeclaration, StoredDataCodeAdmin)
 admin.site.register(StoredDataCode, StoredDataAdmin)
-admin.site.register(StoredDataDeclaration)
