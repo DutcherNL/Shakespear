@@ -1,0 +1,7 @@
+<form method="get">
+    {% csrf_token %}
+    {% include "snippets/bootstrap_form.html" %}
+    <input type="submit" name="next" value="Load"/>
+</form>
+
+{{ form.get_data.content }}

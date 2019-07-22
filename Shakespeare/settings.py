@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
 
     'Questionaire.apps.QuestionaireConfig',
+    'DataStorage.apps.DataStorageConfig',
 
 
 
