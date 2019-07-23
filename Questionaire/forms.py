@@ -21,7 +21,6 @@ class QuestionPageForm(forms.Form):
 
             self.fields[field.name] = field
 
-
     def save(self, inquiry):
 
         if inquiry is int:

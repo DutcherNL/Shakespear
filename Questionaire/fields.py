@@ -1,7 +1,8 @@
 from django.forms import CharField, IntegerField, DecimalField, ChoiceField, Field
 from django.forms.widgets import RadioSelect, NumberInput
-from .widgets import CustomRadioSelect, InformationDisplayWidget
+from .widgets import CustomRadioSelect, InformationDisplayWidget, IgnorableInput
 from django.core.exceptions import ObjectDoesNotExist
+
 import ast
 
 from .models import InquiryQuestionAnswer, AnswerOption, Score
@@ -52,13 +53,11 @@ class QuestionFieldMixin:
         self.name = question.name
         self.label = question.question_text
         self.required = required
-        print("Init QFM")
+
         if inquiry is not None:
             answer_obj = InquiryQuestionAnswer.objects.filter(question=question, inquiry=inquiry)
-            print("Set initial?")
             if answer_obj.exists():
                 self.initial = answer_obj.first().answer
-                print("Initial set: {0}".format(self.initial))
 
     def save(self, value, inquiry):
         if not self.is_empty_value(value):
@@ -141,6 +140,8 @@ class QuestionFieldMixin:
 
 
 class CharQuestionField(QuestionFieldMixin, CharField):
+    widget = IgnorableInput
+
     def is_empty_value(self, value):
         return value is None or value == ""
 
