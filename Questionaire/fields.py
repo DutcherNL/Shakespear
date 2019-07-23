@@ -2,6 +2,7 @@ from django.forms import CharField, IntegerField, DecimalField, ChoiceField, Fie
 from django.forms.widgets import RadioSelect, NumberInput
 from .widgets import CustomRadioSelect, InformationDisplayWidget, IgnorableInput
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.validators import RegexValidator
 
 import ast
 
@@ -29,12 +30,10 @@ class FieldFactory:
 
         if q_type == 0:
             # Text question
-            limits = ast.literal_eval(question.validators)
-            return CharQuestionField(question, inquiry, **limits)
+            return CharQuestionField(question, inquiry)
         if q_type == 1:
             # Integer question
-            limits = ast.literal_eval(question.validators)
-            return IntegerQuestionField(question, inquiry, **limits)
+            return IntegerQuestionField(question, inquiry)
         if q_type == 2:
             # Double question
             return DecimalQuestionField(question, inquiry)
@@ -58,6 +57,23 @@ class QuestionFieldMixin:
             answer_obj = InquiryQuestionAnswer.objects.filter(question=question, inquiry=inquiry)
             if answer_obj.exists():
                 self.initial = answer_obj.first().answer
+
+        self.validators = [*self.validators, *self.construct_validators()]
+
+    def construct_validators(self):
+        validator_dict = ast.literal_eval(self.question.validators)
+        validators = []
+
+        keys = validator_dict.keys()
+
+        if 'regex' in keys:
+            regex = validator_dict.get('regex')
+            message = "Please type a normal value"
+            if 'regex_message':
+                message = validator_dict.get('regex_message')
+            validators.append(RegexValidator(regex=regex, message=message))
+
+        return validators
 
     def save(self, value, inquiry):
         if not self.is_empty_value(value):
