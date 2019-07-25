@@ -1,6 +1,5 @@
 from django.forms import CharField, IntegerField, DecimalField, ChoiceField, Field
-from django.forms.widgets import RadioSelect, NumberInput
-from .widgets import CustomRadioSelect, InformationDisplayWidget, IgnorableInput
+from .widgets import CustomRadioSelect, InformationDisplayWidget, IgnorableInput, ExternalDataInputLocal
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator
 
@@ -47,6 +46,10 @@ class FieldFactory:
 class QuestionFieldMixin:
 
     def __init__(self, question, inquiry, *args, required=False, **kwargs):
+        if question.externalquestionsource is not None:
+            self.widget = ExternalDataInputLocal(inquiry, question.externalquestionsource)
+            self.is_hidden = True
+
         super().__init__(*args, **kwargs)
         self.question = question
         self.name = question.name
@@ -61,7 +64,7 @@ class QuestionFieldMixin:
         self.validators = [*self.validators, *self.construct_validators()]
 
     def construct_validators(self):
-        validator_dict = ast.literal_eval(self.question.validators)
+        validator_dict = ast.literal_eval(self.question.options)
         validators = []
 
         keys = validator_dict.keys()
@@ -114,7 +117,6 @@ class QuestionFieldMixin:
         except ObjectDoesNotExist:
             # If the object does not exist yet, which can happen when no answer is given
             return
-
 
         if inquiry_answer.processed:
             return
@@ -194,6 +196,13 @@ class ChoiceQuestionField(QuestionFieldMixin, ChoiceField):
             return None
         else:
             return AnswerOption.objects.get(question=self.question, value=int(value))
+
+
+class LookUpQuestion(QuestionFieldMixin, CharField):
+    widget = CharField(required=False)
+
+    def __init__(self, question, inquiry, *args, **kwargs):
+        super(LookUpQuestion, self).__init__(question, inquiry, *args, **kwargs)
 
 
 class InformationField(Field):

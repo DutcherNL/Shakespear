@@ -1,7 +1,8 @@
 from django.db import models
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from string import Formatter
 
+from DataStorage.models import *
 # Create your models here.
 
 
@@ -23,7 +24,7 @@ class Question(models.Model):
         (3, 'Choice question'),
     )
     question_type = models.PositiveIntegerField(choices=QUESTION_TYPE_OPTIONS)
-    validators = models.TextField(blank=True, null=True, default="{}")
+    options = models.TextField(blank=True, null=True, default="{}")
 
     def __str__(self):
         return self.name
@@ -406,3 +407,55 @@ class AnswerScoringNote(models.Model):
                 format_dict[key] = score_obj.score
 
         return self.text.format(**format_dict)
+
+
+class ExternalQuestionSource(models.Model):
+    question = models.OneToOneField(Question, on_delete=models.CASCADE)
+    code_type = models.ForeignKey(StoredDataCodeDeclaration, on_delete=models.CASCADE)
+    content_type = models.ForeignKey(StoredDataDeclaration, on_delete=models.CASCADE)
+    code_source = models.CharField(max_length=256)
+
+    def get_code(self, inquiry=None):
+        formatter = Formatter()
+        iter_obj = formatter.parse(self.code_source)
+        keys = []
+        for literal, key, format, conversion in iter_obj:
+            keys.append(key)
+
+        format_dict = {}
+
+        try:
+            for key in keys:
+                if key is None:
+                    continue
+
+                if key.startswith('q_'):
+                    iqa_obj = InquiryQuestionAnswer.objects.get(question__name=key[2:], inquiry=inquiry)
+                    format_dict[key] = iqa_obj.get_readable_answer()
+                elif key.startswith('v_'):
+                    score_obj = Score.objects.get(declaration__name=key[2:], inquiry=inquiry)
+                    format_dict[key] = score_obj.score
+
+            return self.code_source.format(**format_dict)
+        except ObjectDoesNotExist:
+            return None
+
+    def get_content(self, inquiry=None):
+        code = self.get_code(inquiry=inquiry)
+        print("Get Content")
+        if code is None:
+            print("Code was None")
+            return None
+
+        try:
+            return StoredDataContent.objects.get(code__identification_code=code,
+                                                 code__code_type=self.code_type,
+                                                 data_declaration=self.content_type).content
+        except StoredDataContent.DoesNotExist:
+            print("Did not exist {0} (1)".format(code, self.datatype))
+            return None
+
+
+
+
+
