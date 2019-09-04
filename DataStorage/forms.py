@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import ValidationError
 
 from .models import StoredDataCode, StoredDataDeclaration, StoredDataCodeDeclaration, StoredDataContent
 
@@ -41,3 +42,26 @@ class DataLookupForm(forms.Form):
 
 
         return cleaned_data
+
+
+class DataUploadForm(forms.Form):
+    csv_file = forms.FileField(allow_empty_file=False)
+
+
+    def clean_csv_file(self):
+        csv_file = self.cleaned_data['csv_file']
+        if not csv_file.name.endswith('.csv'):
+            raise ValidationError("File is not a csv")
+
+
+    def process(self):
+        # analyse the top line and get the data declarations
+
+        # go over each line and create the proper models
+
+        with open('countries_continents.csv') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                p = Country(country=row['Country'], continent=row['Continent'])
+                p.save()
+

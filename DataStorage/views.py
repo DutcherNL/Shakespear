@@ -1,6 +1,6 @@
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, FormView
 
-from .forms import DataLookupForm
+from .forms import DataLookupForm, DataUploadForm
 
 # Create your views here.
 
@@ -12,3 +12,8 @@ class DataLookupView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['form'] = DataLookupForm(self.request.GET)
         return context
+
+
+class DataUploadFromCSVView(FormView):
+    template_name = 'contact.html'
+    form_class = DataUploadForm
