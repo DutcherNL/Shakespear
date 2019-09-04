@@ -79,10 +79,16 @@ class IgnorableEmailInput(IgnorableInput):
 
 
 class ExternalDataInput(Widget):
-    is_hidden = True
 
-    def __init__(self, Question, Inquiry, *args, **kwargs):
+
+    def __init__(self, Question, Inquiry, *args, is_hidden=False, **kwargs):
         super(ExternalDataInput, self).__init__(*args, **kwargs)
+        self.visible = not is_hidden
+        print(self.visible)
+
+    @property
+    def is_hidden(self):
+        return not self.visible
 
     def value_from_datadict(self, data, files, name):
         """
@@ -99,11 +105,17 @@ class ExternalDataInput(Widget):
         Therefore it should not be rendered and returns an empty string
         :return: an empty string
         """
-        return ""
+        if self.is_hidden:
+            return ""
+        else:
+            result = self.query_data()
+            if result is None:
+                return "Onbekend"
+            return result
 
 
 class ExternalDataInputLocal(ExternalDataInput):
-    is_hidden = True
+    visible = True
 
     def __init__(self, inquiry, external_source_obj, *args, **kwargs):
         super(ExternalDataInput, self).__init__(*args, **kwargs)
@@ -112,8 +124,6 @@ class ExternalDataInputLocal(ExternalDataInput):
         self.inquiry = inquiry
 
     def query_data(self):
-        print("Query")
         content = self.external_source.get_content(inquiry=self.inquiry)
-        print("content: {0}".format(content))
 
         return content

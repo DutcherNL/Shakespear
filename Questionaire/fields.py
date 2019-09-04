@@ -1,5 +1,6 @@
 from django.forms import CharField, IntegerField, DecimalField, ChoiceField, Field
 from .widgets import CustomRadioSelect, InformationDisplayWidget, IgnorableInput, ExternalDataInputLocal
+from .models import ExternalQuestionSource
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator
 
@@ -44,11 +45,9 @@ class FieldFactory:
 
 
 class QuestionFieldMixin:
-
     def __init__(self, question, inquiry, *args, required=False, **kwargs):
-        if question.externalquestionsource is not None:
+        if ExternalQuestionSource.objects.filter(question=question).exists():
             self.widget = ExternalDataInputLocal(inquiry, question.externalquestionsource)
-            self.is_hidden = True
 
         super().__init__(*args, **kwargs)
         self.question = question

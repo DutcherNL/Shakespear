@@ -442,9 +442,7 @@ class ExternalQuestionSource(models.Model):
 
     def get_content(self, inquiry=None):
         code = self.get_code(inquiry=inquiry)
-        print("Get Content")
         if code is None:
-            print("Code was None")
             return None
 
         try:
@@ -452,7 +450,6 @@ class ExternalQuestionSource(models.Model):
                                                  code__code_type=self.code_type,
                                                  data_declaration=self.content_type).content
         except StoredDataContent.DoesNotExist:
-            print("Did not exist {0} (1)".format(code, self.datatype))
             return None
 
 
