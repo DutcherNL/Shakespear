@@ -38,6 +38,7 @@ class Page(models.Model):
     position = models.PositiveIntegerField(unique=True)
     questions = models.ManyToManyField(Question, through='PageEntryQuestion',
                                        through_fields=('page', 'question'))
+    auto_process = models.BooleanField(default=False)
 
     def meets_requirements(self, inquiry):
         for requirement in self.page_requirements_set:
