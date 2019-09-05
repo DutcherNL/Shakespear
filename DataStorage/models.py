@@ -41,11 +41,16 @@ class StoredDataDeclaration(models.Model):
         return self.name
 
 
+class DataBatch(models.Model):
+    created_on = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=128, unique=True)
+
+
 class StoredDataContent(models.Model):
     code = models.ForeignKey(StoredDataCode, on_delete=models.PROTECT)
     data_declaration = models.ForeignKey(StoredDataDeclaration, on_delete=models.CASCADE)
     content = models.CharField(max_length=255)
-    batch = models.ForeignKey(DataBatch, on_delete=models.CASCADE)
+    batch = models.ForeignKey(DataBatch, on_delete=models.CASCADE, blank=True, null=True)
 
     def clean(self):
         # Do not allow entries where the code declaration does not allow the given content type
@@ -53,8 +58,5 @@ class StoredDataContent(models.Model):
             raise ValidationError("Given data declaration is not allowed for given code type")
 
 
-class DataBatch(models.Model):
-    created_on = models.DateTimeField(auto_now_add=True)
-    name = models.CharField(max_lenth=128)
 
 

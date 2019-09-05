@@ -15,5 +15,12 @@ class DataLookupView(TemplateView):
 
 
 class DataUploadFromCSVView(FormView):
-    template_name = 'contact.html'
+    template_name = 'data_upload_form.html'
     form_class = DataUploadForm
+    success_url = "/data/add/"
+
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        form.process()
+        return super(DataUploadFromCSVView, self).form_valid(form)
