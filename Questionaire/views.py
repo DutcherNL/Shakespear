@@ -17,7 +17,7 @@ class QPageView(TemplateView):
 
         if self.page.is_valid_for_inquiry(self.inquiry):
             if self.page.auto_process and self.inquiry.current_page.position != self.page.position:
-                form = QuestionPageForm(self.page, self.inquiry)
+                form = QuestionPageForm(self.page, self.inquiry, request.GET)
                 if form.is_valid():
                     # The form is valid, the page should not be displayed visibly
                     form.save(self.inquiry)
@@ -25,13 +25,13 @@ class QPageView(TemplateView):
                     # Determine whether the movement is forward or backward
                     if self.inquiry.current_page.position < self.page.position:
                         # Movement is forward
-                        form.backward(self.inquiry)
-                        rev = self.get_reverse(self.get_page(get_next=False))
+                        form.forward(self.inquiry)
+                        rev = self.get_reverse(self.get_page(get_next=True))
                         return HttpResponseRedirect(rev)
                     if self.inquiry.current_page.position > self.page.position:
                         # Movement is backward
-                        form.forward(self.inquiry)
-                        rev = self.get_reverse(self.get_page(get_next=True))
+                        form.backward(self.inquiry)
+                        rev = self.get_reverse(self.get_page(get_next=False))
                         return HttpResponseRedirect(rev)
 
             # The page should be displayed normally
