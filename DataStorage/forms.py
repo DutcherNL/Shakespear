@@ -15,8 +15,8 @@ class DataLookupForm(forms.Form):
             return None
 
         keys = self.cleaned_data.keys()
-        if      'code' not in keys and\
-                'data_type' not in keys and\
+        if 'code' not in keys and \
+                'data_type' not in keys and \
                 'content_type' not in keys:
             return None
 
@@ -39,7 +39,6 @@ class DataLookupForm(forms.Form):
                                                 data_declaration=cleaned_data['content_type']).exists():
             raise forms.ValidationError(
                 "The given code has no information on {0}".format(cleaned_data['content_type']))
-
 
         return cleaned_data
 
@@ -110,8 +109,8 @@ class DataUploadForm(forms.Form):
         data = read_as_csv(file)
         while data is not None:
             # Create the Data code root object
-            code = StoredDataCode(code_type=declarations[0],
-                                  identification_code=data[0])
+            code = StoredDataCode.objects.get_or_create(code_type=declarations[0],
+                                                        identification_code=data[0])
             code.save()
 
             # Create all data entries on the object
