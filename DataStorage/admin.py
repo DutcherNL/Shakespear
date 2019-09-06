@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import StoredDataContent, StoredDataCodeDeclaration, StoredDataDeclaration, StoredDataCode
+from .models import StoredDataContent, StoredDataCodeDeclaration, StoredDataDeclaration, StoredDataCode, DataBatch
 
 # Register your models here.
 
@@ -22,3 +22,4 @@ class StoredDataCodeAdmin(admin.ModelAdmin):
 
 admin.site.register(StoredDataCodeDeclaration, StoredDataCodeAdmin)
 admin.site.register(StoredDataCode, StoredDataAdmin)
+admin.site.register(DataBatch)
