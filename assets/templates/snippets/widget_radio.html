@@ -5,8 +5,18 @@
             <label{% if widget.attrs.id %} for="{{ widget.attrs.id }}"{% endif %} class="btn btn-outline-primary
             {% if widget.attrs.checked %}
                 active
+            {% endif %}"
+            style="{% if widget.answer_height %}height:{{ widget.answer_height }}{% endif %}">
+
+            {% if widget.image %}
+                <div class="w-100 h-75" style="
+                        background-image: url({{widget.image.url}});
+                        background-size: contain;
+                        background-repeat: no-repeat;
+                        background-position: center">
+
+                </div>
             {% endif %}
-            ">
 
             <input type="{{ widget.type }}" name="{{ widget.name }}"
                     {% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}

@@ -108,6 +108,7 @@ class AnswerOption(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     answer = models.CharField(max_length=64)
     value = models.IntegerField()
+    image = models.ImageField(null=True, blank=True)
 
     def __str__(self):
         return "{question}: {answer}".format(question=self.question.name, answer=self.answer)

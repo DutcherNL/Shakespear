@@ -4,6 +4,11 @@ from django.forms.widgets import RadioSelect, Widget, Input
 class CustomRadioSelect(RadioSelect):
     template_name = 'snippets/widget_radio.html'
     none_value_string = "None"
+    answer_height = None
+
+    def __init__(self, *args, images=None, **kwargs):
+        super(CustomRadioSelect, self).__init__(*args, **kwargs)
+        self.images = images or {}
 
     def get_context(self, name, value, attrs):
         context = super(CustomRadioSelect, self).get_context(name, value, attrs)
@@ -12,7 +17,16 @@ class CustomRadioSelect(RadioSelect):
         if context['widget']['value'] == ['']:
             context['widget']['none_selected'] = True
 
+        context['widget']['images'] = self.images
+        print("IsNone" if self.answer_height is None else "NotNone")
+
         return context
+
+    def create_option(self, name, value, *args, **kwargs):
+        option = super(CustomRadioSelect, self).create_option(name, value, *args, **kwargs)
+        option['image'] = self.images.get(value, None)
+        option['answer_height'] = self.answer_height
+        return option
 
     def value_from_datadict(self, data, files, name):
         """

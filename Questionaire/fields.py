@@ -63,7 +63,7 @@ class QuestionFieldMixin:
         self.validators = [*self.validators, *self.construct_validators()]
 
     def construct_validators(self):
-        validator_dict = ast.literal_eval(self.question.options)
+        validator_dict = self.get_question_options()
         validators = []
 
         keys = validator_dict.keys()
@@ -71,11 +71,14 @@ class QuestionFieldMixin:
         if 'regex' in keys:
             regex = validator_dict.get('regex')
             message = "Please type a normal value"
-            if 'regex_message':
+            if 'regex_message' in keys:
                 message = validator_dict.get('regex_message')
             validators.append(RegexValidator(regex=regex, message=message))
 
         return validators
+
+    def get_question_options(self):
+        return ast.literal_eval(self.question.options)
 
     def save(self, value, inquiry):
         if not self.is_empty_value(value):
@@ -178,12 +181,21 @@ class ChoiceQuestionField(QuestionFieldMixin, ChoiceField):
         super(ChoiceQuestionField, self).__init__(question, inquiry, *args, **kwargs)
 
         choices = []
+        images = {}
 
         for answer in question.answeroption_set.order_by("value"):
             choices.append((answer.value, answer.answer))
+            if answer.image:
+                images[answer.value] = answer.image
 
         self.choices = choices
         self.required = False
+        self.widget.images = images
+
+        question_options = self.get_question_options()
+        if 'height' in question_options.keys():
+            self.widget.answer_height = question_options['height']
+
 
     def get_answer_option(self, value):
         """
