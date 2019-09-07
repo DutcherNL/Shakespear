@@ -15,6 +15,7 @@ class Question(models.Model):
     name = models.SlugField(max_length=10)
     description = models.CharField(max_length=256)
     question_text = models.CharField(max_length=64)
+    help_text = models.CharField(max_length=255, default="")
 
     # Define the question types
     QUESTION_TYPE_OPTIONS = (

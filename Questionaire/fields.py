@@ -55,6 +55,9 @@ class QuestionFieldMixin:
         self.label = question.question_text
         self.required = required
 
+        if self.question.help_text:
+            self.help_text = self.question.help_text
+
         if inquiry is not None:
             answer_obj = InquiryQuestionAnswer.objects.filter(question=question, inquiry=inquiry)
             if answer_obj.exists():

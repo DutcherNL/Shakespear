@@ -17,13 +17,31 @@
         {# https://docs.djangoproject.com/en/2.1/ref/templates/builtins/#include #}
 
         {# Field label #}
-        <label for="{{ field.id_for_label }}" class="col-md-3 col-form-label q_question">
-            {{ field.label }}
-            {% if field.field.required %}
-                <span class="text-danger">*</span>
+        <div class="col-md-3 ">
+            <label for="{{ field.id_for_label }}" class="col-form-label q_question">
+                {{ field.label }}
+                {% if field.field.required %}
+                    <span class="text-danger">*</span>
+                {% endif %}
+            </label>
+            {% if field.field.help_text|length > 0 %}
+                <label for="{{ field.id_for_label }}_help_text" class="badge badge-pill badge-info noselect">
+                    ?
+                </label>
             {% endif %}
-        </label>
-        <div class="col-md-9 q_answer">
+        </div>
+        <div class="col-md-9 sksr_q_answer">
+            {# Help text #}
+            {% if field.field.help_text|length > 0 %}
+                <input type="checkbox" id="{{ field.id_for_label }}_help_text" class="d-none">
+                <div class="border border-info sksr_help_text">
+                    <p>
+                        Info:
+                    </p>
+                    <p>{{ field.field.help_text|linebreaks }}</p>
+                </div>
+            {% endif %}
+
             {# Field widget #}
             {% if form.is_bound %}
                 {% if field.errors %}
@@ -45,10 +63,6 @@
                 {% else %}
                     {% render_field field class="form-control" placeholder=field.label %}
                 {% endif %}
-            {% endif %}
-            {# Help text #}
-            {% if field.help_text %}
-                <small class="form-text text-muted">{{ field.help_text }}</small>
             {% endif %}
         </div>
     </div>

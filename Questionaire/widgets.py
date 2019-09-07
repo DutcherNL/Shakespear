@@ -18,7 +18,6 @@ class CustomRadioSelect(RadioSelect):
             context['widget']['none_selected'] = True
 
         context['widget']['images'] = self.images
-        print("IsNone" if self.answer_height is None else "NotNone")
 
         return context
 
@@ -98,7 +97,6 @@ class ExternalDataInput(Widget):
     def __init__(self, Question, Inquiry, *args, is_hidden=False, **kwargs):
         super(ExternalDataInput, self).__init__(*args, **kwargs)
         self.visible = not is_hidden
-        print(self.visible)
 
     @property
     def is_hidden(self):
