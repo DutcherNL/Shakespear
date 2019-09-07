@@ -1,8 +1,11 @@
 from django.db import models
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.urls import reverse
+
 from string import Formatter
 
 from DataStorage.models import *
+from PageDisplay.models import Information
 # Create your models here.
 
 
@@ -261,11 +264,11 @@ class Technology(models.Model):
     """
     name = models.CharField(max_length=32)
     short_text = models.CharField(max_length=256)
-    long_text = models.TextField()
     icon = models.ImageField(blank=True, null=True)
     score_declarations = models.ManyToManyField(ScoringDeclaration,
                                                 through='TechScoreLink',
                                                 through_fields=('technology', 'score_declaration'))
+    information_page = models.ForeignKey(Information, on_delete=models.PROTECT, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -281,6 +284,12 @@ class Technology(models.Model):
             score = scorelink.get_score(inquiry=inquiry) * score
 
         return score
+
+    def get_absolute_url(self):
+        if self.information_page:
+            return reverse('tech_details', kwargs={'tech_id': self.id})
+        else:
+            return None
 
 
 class TechScoreLink(models.Model):
