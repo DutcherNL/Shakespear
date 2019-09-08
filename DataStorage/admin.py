@@ -1,7 +1,12 @@
 from django.contrib import admin
 from .models import StoredDataContent, StoredDataCodeDeclaration, StoredDataDeclaration, StoredDataCode, DataBatch
+from .forms import DataUploadForm
 
 # Register your models here.
+
+class DataBatchAdmin(admin.ModelAdmin):
+
+    form = DataUploadForm
 
 
 class StoredDataAdmin(admin.ModelAdmin):
@@ -22,4 +27,5 @@ class StoredDataCodeAdmin(admin.ModelAdmin):
 
 admin.site.register(StoredDataCodeDeclaration, StoredDataCodeAdmin)
 admin.site.register(StoredDataCode, StoredDataAdmin)
-admin.site.register(DataBatch)
+admin.site.register(DataBatch, DataBatchAdmin)
+admin.site.register(StoredDataContent)

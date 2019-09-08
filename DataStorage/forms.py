@@ -65,21 +65,35 @@ def read_as_csv(file, deliminator=';'):
     return fields
 
 
-class DataUploadForm(forms.Form):
+class DataUploadForm(forms.ModelForm):
     """
     A form that allows for data to be uploaded to a database from CSV files
     """
-    batch_name = forms.CharField(max_length=20)
     csv_file = forms.FileField()
+
+    class Meta:
+        model = DataBatch
+        exclude = ()
 
     def clean_csv_file(self):
         csv_file = self.cleaned_data['csv_file']
+
+        if csv_file is None:
+            return None
+
         if not csv_file.name.endswith('.csv'):
             raise ValidationError("File is not a csv")
         return csv_file
 
-    def process(self):
+    def save(self, commit=True):
+        self.process_csv_file()
+        return super(DataUploadForm, self).save(commit=commit)
+
+    def process_csv_file(self):
         file = self.cleaned_data['csv_file']
+        if file is None:
+            return
+
         # Decrypt headers
         headers = read_as_csv(file)
         # First entry is Code Declaration Name
@@ -110,16 +124,18 @@ class DataUploadForm(forms.Form):
         while data is not None:
             # Create the Data code root object
             code = StoredDataCode.objects.get_or_create(code_type=declarations[0],
-                                                        identification_code=data[0])
+                                                        identification_code=data[0])[0]
             code.save()
 
             # Create all data entries on the object
             for data_entry, data_decl in zip(data[1:], declarations[1:]):
-                StoredDataContent(code=code,
-                                  data_declaration=data_decl,
-                                  content=data_entry,
-                                  batch=batch
-                                  ).save()
+                # If data_entry does not have content, do not save it
+                print(data_entry)
+                if len(data_entry) > 0:
+                    sdc = StoredDataContent.objects.get_or_create(code=code, data_declaration=data_decl)[0]
+                    sdc.content = data_entry
+                    sdc.batch = batch
+                    sdc.save()
 
             # Read the next line and loop
             data = read_as_csv(file)
