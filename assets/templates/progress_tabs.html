@@ -20,7 +20,11 @@
         <h3>{{ technology.name }}</h3>
         <p>
             {{ technology.short_text }}
-            <a target="_blank" rel="noopener noreferrer" href="{% url 'tech_details' tech_id=technology.id %}" > (learn more) </a>
+            {% with technology.get_absolute_url as url %}
+                {% if url %}
+                    <a target="_blank" rel="noopener noreferrer" href="{{ url }}" > (learn more) </a>
+                {% endif %}
+            {% endwith %}
         </p>
 
         <h4>Our advise: {{ technology|get_tech_score:inquiry|get_text_base_score }}</h4>

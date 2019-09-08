@@ -18,7 +18,7 @@ class Question(models.Model):
     name = models.SlugField(max_length=10)
     description = models.CharField(max_length=256)
     question_text = models.CharField(max_length=64)
-    help_text = models.CharField(max_length=255, default="")
+    help_text = models.CharField(max_length=255, default="", blank=True, null=True)
 
     # Define the question types
     QUESTION_TYPE_OPTIONS = (
@@ -287,7 +287,7 @@ class Technology(models.Model):
 
     def get_absolute_url(self):
         if self.information_page:
-            return reverse('tech_details', kwargs={'tech_id': self.id})
+            return reverse('info_page', kwargs={'inf_id': self.information_page.id})
         else:
             return None
 
