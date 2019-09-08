@@ -86,8 +86,9 @@ class DataUploadForm(forms.ModelForm):
         return csv_file
 
     def save(self, commit=True):
+        result = super(DataUploadForm, self).save(commit=commit)
         self.process_csv_file()
-        return super(DataUploadForm, self).save(commit=commit)
+        return result
 
     def process_csv_file(self):
         file = self.cleaned_data['csv_file']
@@ -116,11 +117,11 @@ class DataUploadForm(forms.ModelForm):
             raise KeyError("Data Declaration not defined properly")
 
         # Create a new batch identifier
-        batch = DataBatch()
-        batch.save()
+        batch = self.instance
 
         # Read all the data in the file
         data = read_as_csv(file)
+        i = 0
         while data is not None:
             # Create the Data code root object
             code = StoredDataCode.objects.get_or_create(code_type=declarations[0],
@@ -130,12 +131,15 @@ class DataUploadForm(forms.ModelForm):
             # Create all data entries on the object
             for data_entry, data_decl in zip(data[1:], declarations[1:]):
                 # If data_entry does not have content, do not save it
-                print(data_entry)
                 if len(data_entry) > 0:
                     sdc = StoredDataContent.objects.get_or_create(code=code, data_declaration=data_decl)[0]
                     sdc.content = data_entry
                     sdc.batch = batch
                     sdc.save()
+
+            if i % 5 == 0:
+                print(data[0][0])
+            i = i + 1
 
             # Read the next line and loop
             data = read_as_csv(file)

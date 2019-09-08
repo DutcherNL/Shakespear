@@ -57,6 +57,10 @@ class StoredDataContent(models.Model):
         if self.data_declaration.code_type != self.code.code_type:
             raise ValidationError("Given data declaration is not allowed for given code type")
 
+    def __str__(self):
+        return "{data_code}: {data_type}".format(data_code=self.code.identification_code,
+                                                 data_type=self.data_declaration.name)
+
 
 
 
