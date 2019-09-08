@@ -12,6 +12,9 @@ class Information(models.Model):
     def get_absolute_url(self):
         return reverse('tech_details', kwargs={'tech_id': self.id})
 
+    def __str__(self):
+        return self.name
+
 
 class BaseModule(models.Model):
     """
@@ -61,9 +64,13 @@ class TitleModule(BaseModule):
 
     def get_context(self):
         context = super(TitleModule, self).get_context()
-        context['title_size'] = 1
+        context['title_size'] = self.size
         context['title_text'] = self.title
         return context
+
+    def save(self, **kwargs):
+        self._type = 1
+        super(TitleModule, self).save(**kwargs)
 
 
 class TextModule(BaseModule):
@@ -82,6 +89,10 @@ class TextModule(BaseModule):
         context['text'] = self.text
         return context
 
+    def save(self, **kwargs):
+        self._type = 2
+        super(TextModule, self).save(**kwargs)
+
 
 class ImageModule(BaseModule):
     template_name = "modules/module_image.html"
@@ -96,3 +107,7 @@ class ImageModule(BaseModule):
         context['image'] = self.image
         context['height'] = 100
         return context
+
+    def save(self, **kwargs):
+        self._type = 3
+        super(ImageModule, self).save(**kwargs)
