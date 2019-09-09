@@ -4,6 +4,7 @@ from .models import ExternalQuestionSource
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator
 
+from string import Formatter
 import ast
 
 from .models import InquiryQuestionAnswer, AnswerOption, Score
@@ -17,7 +18,7 @@ class FieldFactory:
     @staticmethod
     def get_field_by_entrymodel(entry, inquiry=None):
         if entry.entry_type == 1:
-            return InformationField(entry.pageentrytext)
+            return InformationField(entry.pageentrytext, inquiry=inquiry)
         elif entry.entry_type == 2:
             peq = entry.pageentryquestion
             return FieldFactory.get_field_by_questionmodel(peq.question, inquiry=inquiry, required=peq.required)
@@ -168,9 +169,30 @@ class CharQuestionField(QuestionFieldMixin, CharField):
     def is_empty_value(self, value):
         return value is None or value == ""
 
+    def get_answer_option(self, value):
+        try:
+            if not self.is_empty_value(value):
+                return AnswerOption.objects.get(question=self.question, answer="NotNone")
+        except AnswerOption.DoesNotExist:
+            return None
+
 
 class IntegerQuestionField(QuestionFieldMixin, IntegerField):
-    pass
+    def get_answer_option(self, value):
+        if value is None:
+            return None
+
+        options = AnswerOption.objects.filter(question=self.question)
+
+        best_option = None
+        best_value = -9999999
+        for option in options:
+            answer_value = int(option.answer)
+            if best_value < answer_value <= value:
+                best_value = answer_value
+                best_option = option
+
+        return best_option
 
 
 class DecimalQuestionField(QuestionFieldMixin, DecimalField):
@@ -222,10 +244,10 @@ class LookUpQuestion(QuestionFieldMixin, CharField):
 class InformationField(Field):
     widget = InformationDisplayWidget
 
-    def __init__(self, page_entry_obj, *args, **kwargs):
+    def __init__(self, page_entry_obj, *args, inquiry=None, **kwargs):
         super(InformationField, self).__init__(*args, **kwargs)
         self.name = "-- sample_name --"
-        self.text = page_entry_obj.text
+        self.text = self.prep_text(page_entry_obj.text, inquiry=inquiry)
         self.label = ""
         self.required = False
         self.initial = self.text
@@ -238,3 +260,24 @@ class InformationField(Field):
 
     def backward(self, *args, **kwargs):
         pass
+
+    def prep_text(self, text, inquiry=None):
+        formatter = Formatter()
+        iter_obj = formatter.parse(text)
+        keys = []
+        for literal, key, format, conversion in iter_obj:
+            keys.append(key)
+
+        format_dict = {}
+        for key in keys:
+            if key is None:
+                continue
+
+            if key.startswith('q_'):
+                iqa_obj = InquiryQuestionAnswer.objects.get(question__name=key[2:], inquiry=inquiry)
+                format_dict[key] = iqa_obj.get_readable_answer()
+            elif key.startswith('v_'):
+                score_obj = Score.objects.get(declaration__name=key[2:], inquiry=inquiry)
+                format_dict[key] = score_obj.score
+
+        return text.format(**format_dict)

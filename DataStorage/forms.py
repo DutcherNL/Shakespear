@@ -118,6 +118,7 @@ class DataUploadForm(forms.ModelForm):
 
         # Create a new batch identifier
         batch = self.instance
+        batch.save()
 
         # Read all the data in the file
         data = read_as_csv(file)
@@ -138,7 +139,7 @@ class DataUploadForm(forms.ModelForm):
                     sdc.save()
 
             if i % 5 == 0:
-                print(data[0][0])
+                print(data[0])
             i = i + 1
 
             # Read the next line and loop

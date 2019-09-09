@@ -4,6 +4,8 @@ from django.urls import reverse
 
 from string import Formatter
 
+from decimal import *
+
 from DataStorage.models import *
 from PageDisplay.models import Information
 # Create your models here.
@@ -322,7 +324,7 @@ class Score(models.Model):
     """
     declaration = models.ForeignKey(ScoringDeclaration, on_delete=models.CASCADE)
     inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE)
-    score = models.DecimalField(decimal_places=2, max_digits=5)
+    score = models.DecimalField(decimal_places=2, max_digits=7)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -344,8 +346,13 @@ class AnswerScoring(models.Model):
 
     def adjust_score(self, score_obj, revert=False):
         if self.take_answer_value:
-            # Todo: get the value of the given answer
-            pass
+            question = self.answer_option.question
+            iqa = InquiryQuestionAnswer.objects.get(inquiry=score_obj.inquiry,
+                                                    question=question)
+            if revert:
+                score_obj.score = score_obj.score - Decimal(iqa.answer)
+            else:
+                score_obj.score = score_obj.score + Decimal(iqa.answer)
 
         if revert:
             score_obj.score = score_obj.score - self.score_change_value
