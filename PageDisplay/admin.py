@@ -25,7 +25,6 @@ class InformationAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Information, InformationAdmin)
-admin.site.register(BaseModule)
 admin.site.register(TitleModule)
 admin.site.register(TextModule)
 admin.site.register(ImageModule)

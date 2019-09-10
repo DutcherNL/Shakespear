@@ -28,4 +28,3 @@ class StoredDataCodeAdmin(admin.ModelAdmin):
 admin.site.register(StoredDataCodeDeclaration, StoredDataCodeAdmin)
 admin.site.register(StoredDataCode, StoredDataAdmin)
 admin.site.register(DataBatch, DataBatchAdmin)
-admin.site.register(StoredDataContent)
