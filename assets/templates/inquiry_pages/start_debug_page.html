@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-6">
+            Normale weergave met sessies
+            <a href="{% url 'index_screen' %}" class="btn btn-block btn-primary">
+                Realistische gebruiker
+            </a>
+        </div>
+
+        <div class="col-md-6">
+
+            Debug versie met extra ingrijpen
+
+
+            <a href="{% url 'debug_inquiries_overview' %}" class="btn btn-block btn-warning">
+                Debug versie
+            </a>
+        </div>
+    </div>
+
+
+{% endblock %}

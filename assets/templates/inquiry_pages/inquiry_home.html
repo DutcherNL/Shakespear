@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <div class="row">
+        <div class="col">
+            Value = {{ session_value }}
+
+            <form method="post" action="{% url 'new_query' %}">
+                {% csrf_token %}
+                <input type="submit" name="next" value="Create new"
+                    class="btn btn-primary"/>
+            </form>
+
+            <form method="get">
+                {% csrf_token %}
+                {% with inquiry_entry_form as form %}
+                    {% include "snippets/bootstrap_form.html" %}
+                {% endwith %}
+                <input type="submit" name="next" value="Load" class="btn btn-block btn-primary"/>
+            </form>
+        </div>
+    </div>
+{% endblock %}

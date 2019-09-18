@@ -72,12 +72,12 @@ class EmailForm(forms.Form):
         pass
 
 
-class InquiryLoadForm(forms.Form):
+class InquiryLoadDebugForm(forms.Form):
     code = forms.CharField(max_length=6)
     inquiry_model = None
 
     def clean(self):
-        cleaned_data = super(InquiryLoadForm, self).clean()
+        cleaned_data = super(InquiryLoadDebugForm, self).clean()
 
         code = cleaned_data.get('code')
 
@@ -94,3 +94,30 @@ class InquiryLoadForm(forms.Form):
             raise ValueError("No inquiry model computed yet")
 
         return self.inquiry_model
+
+class InquiryLoadForm(forms.Form):
+    code = forms.CharField(max_length=6)
+    inquiry_model = None
+
+    def clean(self):
+        cleaned_data = super(InquiryLoadForm, self).clean()
+
+        code = cleaned_data.get('code')
+
+        if code is not None:
+            try:
+                pass
+                # self.inquiry_model = Inquiry.get_inquiry_model_from_code(code)
+            except Inquiry.DoesNotExist:
+                raise forms.ValidationError("Code is incorrect. Inquiry is not known")
+
+        return cleaned_data
+
+    def get_inquiry(self):
+        if self.inquiry_model is None:
+            raise ValueError("No inquiry model computed yet")
+
+        return self.inquiry_model
+
+    def get_code_value(self):
+        return self.cleaned_data['code']

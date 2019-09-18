@@ -130,9 +130,9 @@ class Inquiry(models.Model):
         from django.shortcuts import reverse
         if self.current_page is None:
             first_page = Page.objects.order_by('position').first()
-            return reverse('q_page', kwargs={'inquiry': self.id, 'page': first_page.id})
+            return reverse('debug_q_page', kwargs={'inquiry': self.id, 'page': first_page.id})
         else:
-            return reverse('q_page', kwargs={'inquiry': self.id, 'page': self.current_page.id})
+            return reverse('debug_q_page', kwargs={'inquiry': self.id, 'page': self.current_page.id})
 
     # DO NOT ADJUST THE FOLLOWING PARAMETERS AFTER DEPLOYMENT!
     length = 6
