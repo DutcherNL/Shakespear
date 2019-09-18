@@ -2,7 +2,7 @@ from django.views import View
 from django.views.generic import TemplateView
 from .models import Page, Inquiry, Technology, Score
 from django.shortcuts import get_object_or_404
-from .forms import QuestionPageForm, EmailForm, InquiryLoadDebugForm, InquiryLoadForm
+from .forms import QuestionPageForm, EmailForm, InquiryLoadDebugForm, InquirerLoadForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
@@ -41,7 +41,7 @@ class QueryIndexViewDebug(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['inquiries'] = Inquiry.objects.all()
+        context['inquiries'] = Inquirer.objects.all()
         context['inquiry_entry_form'] = InquiryLoadDebugForm(self.request.GET)
 
         if context['inquiry_entry_form'].is_valid():

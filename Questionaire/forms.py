@@ -1,5 +1,5 @@
 from django import forms
-from .models import PageEntry, Inquiry
+from .models import PageEntry, Inquirer, Inquiry
 
 from .fields import FieldFactory, QuestionFieldMixin
 from .widgets import IgnorableInput
@@ -59,17 +59,17 @@ class QuestionPageForm(forms.Form):
 class EmailForm(forms.Form):
     email = forms.EmailField(widget=IgnorableInput, required=False)
 
-    def __init__(self, *args, inquiry=None, **kwargs):
-        if inquiry is None:
+    def __init__(self, *args, inquirer=None, **kwargs):
+        if inquirer is None:
             raise KeyError("inquiry is missing or is None")
 
-        self.inquiry = inquiry
+        self.inquirer = inquirer
 
         return super(EmailForm, self).__init__(*args, **kwargs)
 
     def save(self):
-        # TODO save email in inquiry
-        pass
+        self.inquirer.email = self.cleaned_data.get('email', None)
+        self.inquirer.save()
 
 
 class InquiryLoadDebugForm(forms.Form):
@@ -95,29 +95,42 @@ class InquiryLoadDebugForm(forms.Form):
 
         return self.inquiry_model
 
-class InquiryLoadForm(forms.Form):
-    code = forms.CharField(max_length=6)
-    inquiry_model = None
+
+class InquirerLoadForm(forms.Form):
+    code = forms.CharField(max_length=6, required=True)
+    email = forms.EmailField(required=False)
+    inquirer_model = None
+
+    def __init__(self, *args, exclude=[], **kwargs):
+        super(InquirerLoadForm, self).__init__(*args, **kwargs)
+        if 'email' in exclude:
+            print("email should be excluded")
+            self.fields.pop('email')
+
+
 
     def clean(self):
-        cleaned_data = super(InquiryLoadForm, self).clean()
+        cleaned_data = super(InquirerLoadForm, self).clean()
 
         code = cleaned_data.get('code')
 
         if code is not None:
             try:
-                pass
-                # self.inquiry_model = Inquiry.get_inquiry_model_from_code(code)
-            except Inquiry.DoesNotExist:
+                self.inquirer_model = Inquirer.get_inquiry_model_from_code(code)
+            except Inquirer.DoesNotExist:
                 raise forms.ValidationError("Code is incorrect. Inquiry is not known")
+
+            if self.inquirer_model.email is not None:
+                if self.cleaned_data.get('email', None) != self.inquirer_model.email:
+                    raise forms.ValidationError("E-mail komt niet overeen met {email}".format(email=self.inquirer_model.email))
 
         return cleaned_data
 
     def get_inquiry(self):
-        if self.inquiry_model is None:
-            raise ValueError("No inquiry model computed yet")
+        if self.inquirer_model is None:
+            raise ValueError("No inquirer model computed yet")
 
-        return self.inquiry_model
+        return self.inquirer_model.active_inquiry
 
     def get_code_value(self):
         return self.cleaned_data['code']
