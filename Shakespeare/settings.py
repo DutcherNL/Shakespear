@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 
     'Questionaire.apps.QuestionaireConfig',
     'DataStorage.apps.DataStorageConfig',
+    'PageDisplay.apps.PagedisplayConfig',
 
 
 

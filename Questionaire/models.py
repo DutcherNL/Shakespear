@@ -1,8 +1,13 @@
 from django.db import models
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.urls import reverse
+
 from string import Formatter
 
+from decimal import *
+
 from DataStorage.models import *
+from PageDisplay.models import Information
 # Create your models here.
 
 
@@ -15,7 +20,7 @@ class Question(models.Model):
     name = models.SlugField(max_length=10)
     description = models.CharField(max_length=256)
     question_text = models.CharField(max_length=64)
-    help_text = models.CharField(max_length=255, default="")
+    help_text = models.CharField(max_length=255, default="", blank=True, null=True)
 
     # Define the question types
     QUESTION_TYPE_OPTIONS = (
@@ -266,11 +271,11 @@ class Technology(models.Model):
     """
     name = models.CharField(max_length=32)
     short_text = models.CharField(max_length=256)
-    long_text = models.TextField()
     icon = models.ImageField(blank=True, null=True)
     score_declarations = models.ManyToManyField(ScoringDeclaration,
                                                 through='TechScoreLink',
                                                 through_fields=('technology', 'score_declaration'))
+    information_page = models.ForeignKey(Information, on_delete=models.PROTECT, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -286,6 +291,12 @@ class Technology(models.Model):
             score = scorelink.get_score(inquiry=inquiry) * score
 
         return score
+
+    def get_absolute_url(self):
+        if self.information_page:
+            return reverse('info_page', kwargs={'inf_id': self.information_page.id})
+        else:
+            return None
 
 
 class TechScoreLink(models.Model):
@@ -318,7 +329,7 @@ class Score(models.Model):
     """
     declaration = models.ForeignKey(ScoringDeclaration, on_delete=models.CASCADE)
     inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE)
-    score = models.DecimalField(decimal_places=2, max_digits=5)
+    score = models.DecimalField(decimal_places=2, max_digits=7)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -340,8 +351,13 @@ class AnswerScoring(models.Model):
 
     def adjust_score(self, score_obj, revert=False):
         if self.take_answer_value:
-            # Todo: get the value of the given answer
-            pass
+            question = self.answer_option.question
+            iqa = InquiryQuestionAnswer.objects.get(inquiry=score_obj.inquiry,
+                                                    question=question)
+            if revert:
+                score_obj.score = score_obj.score - Decimal(iqa.answer)
+            else:
+                score_obj.score = score_obj.score + Decimal(iqa.answer)
 
         if revert:
             score_obj.score = score_obj.score - self.score_change_value
