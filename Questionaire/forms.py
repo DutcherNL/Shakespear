@@ -104,7 +104,6 @@ class InquirerLoadForm(forms.Form):
     def __init__(self, *args, exclude=[], **kwargs):
         super(InquirerLoadForm, self).__init__(*args, **kwargs)
         if 'email' in exclude:
-            print("email should be excluded")
             self.fields.pop('email')
 
 

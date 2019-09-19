@@ -47,8 +47,6 @@ class InquiryStartScreen(TemplateView):
     def post(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
 
-        print(request.POST)
-
         # Add the comment
         form = EmailForm(inquirer=context['inquirer'], data=request.POST)
 
@@ -76,25 +74,19 @@ class QPageView(TemplateView):
 
         if self.page.is_valid_for_inquiry(self.inquiry):
             if self.page.auto_process and self.inquiry.current_page.position != self.page.position:
-                print("Autoprocess")
                 form = QuestionPageForm(self.page, self.inquiry, request.GET)
                 if form.is_valid():
                     # The form is valid, the page should not be displayed visibly
                     form.save(self.inquiry)
 
-                    print(self.page.position)
-                    print(self.inquiry.current_page.position)
-
                     # Determine whether the movement is forward or backward
                     if self.inquiry.current_page.position < self.page.position:
-                        print("Position")
                         # Movement is forward
                         form.forward(self.inquiry)
                         rev = self.get_redirect(get_next=True)
                         return HttpResponseRedirect(rev)
                     if self.inquiry.current_page.position > self.page.position:
                         # Movement is backward
-                        print("Backwards")
                         form.backward(self.inquiry)
                         rev = self.get_redirect(get_next=False)
                         return HttpResponseRedirect(rev)
@@ -102,11 +94,8 @@ class QPageView(TemplateView):
             # The page should be displayed normally
             self.inquiry.set_current_page(self.page)
 
-            print("I am here now")
-
             return response
         else:
-            print("Other process")
             if self.inquiry.current_page.position < self.page.position:
                 return HttpResponseRedirect(self.get_redirect(True))
             else:
