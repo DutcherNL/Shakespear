@@ -6,7 +6,7 @@ urlpatterns = [
     path('', views_debug.StartViewDebug.as_view(), name='home'),
     path('debug_overview', views_debug.QueryIndexViewDebug.as_view(), name='debug_inquiries_overview'),
     path('debug_new/', views_debug.CreateNewInquiryViewDebug.as_view(), name='debug_new_query'),
-    path('debug_start/<int:inquiry>', views_debug.InquiryStartScreenDebug.as_view(), name='debug_start_query'),
+    path('debug_start/<int:inquirer>', views_debug.InquiryStartScreenDebug.as_view(), name='debug_start_query'),
     path('debug_inq/<int:inquiry>/<int:page>/', views_debug.QPageViewDebug.as_view(), name='debug_q_page'),
     path('debug_inq/<int:inquiry>/progress/', views_debug.InquiryScoresViewDebug.as_view(), name='debug_inq_scores'),
 

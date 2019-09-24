@@ -14,16 +14,18 @@ from .views import *
 
 class CreateNewInquiryViewDebug(CreateNewInquiryView):
     def get_redirect(self, request):
-        return HttpResponseRedirect(reverse('debug_start_query', kwargs={'inquiry': self.inquiry.id}))
+        return HttpResponseRedirect(reverse('debug_start_query', kwargs={'inquirer': self.inquirer.id}))
 
 
 class InquiryStartScreenDebug(InquiryStartScreen):
     def init_base_properties(self):
-        self.inquiry = get_object_or_404(Inquiry, id=self.kwargs['inquiry'])
+        self.inquirer = get_object_or_404(Inquirer, id=self.kwargs['inquirer'])
 
     def redirect_to(self):
         first_page = Page.objects.order_by('position').first()
-        return HttpResponseRedirect(reverse('debug_q_page', kwargs={'inquiry': self.inquiry.id, 'page': first_page.id}))
+        return HttpResponseRedirect(reverse('debug_q_page',
+                                            kwargs={'inquiry': self.inquirer.active_inquiry.id,
+                                                    'page': first_page.id}))
 
 
 class QueryIndexViewDebug(TemplateView):
