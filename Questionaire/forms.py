@@ -21,13 +21,24 @@ class QuestionPageForm(forms.Form):
 
             self.fields[field.name] = field
 
-    def save(self, inquiry):
-
+    def save(self, inquiry, save_raw=False):
         if inquiry is int:
             inquiry = Inquiry.objects.get(id=inquiry)
 
-        for key, value in self.cleaned_data.items():
-            self.fields[key].save(value, inquiry)
+        if save_raw:
+            # Save the raw uncleaned data. Used when using the back button
+            for name, field in self.fields.items():
+                # value_from_datadict() gets the data from the data dictionaries.
+                # Each widget type knows how to retrieve its own data, because some
+                # widgets split data over several HTML fields.
+                value = field.widget.value_from_datadict(self.data, self.files, self.add_prefix(name))
+                print("Save {0} on {1}".format(value, field.name))
+                field.save(value, inquiry)
+
+        else:
+            if self.is_valid():
+                for key, value in self.cleaned_data.items():
+                    self.fields[key].save(value, inquiry)
 
     def forward(self, inquiry):
         """
@@ -52,6 +63,7 @@ class QuestionPageForm(forms.Form):
 
         # Loop over all questions in this form
         for field in self.fields.values():
+            print(field)
             field.backward(inquiry)
             pass
 

@@ -126,17 +126,17 @@ class QPageView(TemplateView):
         context = self.get_context_data()
         context['form'] = QuestionPageForm(self.page, self.inquiry, request.POST)
 
-        if context['form'].is_valid():
-            context['form'].save(self.inquiry)
-
-            if 'prev' in request.POST:
-                context['form'].backward(self.inquiry)
-                return HttpResponseRedirect(self.get_redirect(False))
-            else:
+        if 'prev' in request.POST:
+            # Backwards run for safety reasons, but should theoretically be useless here
+            context['form'].save(self.inquiry, True)
+            # context['form'].backward(self.inquiry)
+            return HttpResponseRedirect(self.get_redirect(False))
+        else:
+            if context['form'].is_valid():
+                context['form'].save(self.inquiry)
                 context['form'].forward(self.inquiry)
                 return HttpResponseRedirect(self.get_redirect(True))
-
-        return self.render_to_response(context)
+            return self.render_to_response(context)
 
     def get_redirect(self, get_next):
         page = self.get_page(get_next=get_next)

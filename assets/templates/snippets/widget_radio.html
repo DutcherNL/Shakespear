@@ -29,7 +29,7 @@
     {% endfor %}
 
     </div>
-    {% if not required %}
+    {% if not widget.required %}
         <label for="{{ widget.attrs.id }}" class="btn btn-outline-secondary float-right
             {% if widget.none_selected %}
                 active
