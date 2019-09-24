@@ -44,7 +44,7 @@ class IgnorableInput(Input):
     def build_attrs(self, *args, **kwargs):
         # Remove the required attribute from the html as that blocks going backward
         attrs = super(IgnorableInput, self).build_attrs(*args, **kwargs)
-        attrs.pop('required')
+        attrs.pop('required', None)
         return attrs
 
 

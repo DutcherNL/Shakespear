@@ -32,7 +32,6 @@ class QuestionPageForm(forms.Form):
                 # Each widget type knows how to retrieve its own data, because some
                 # widgets split data over several HTML fields.
                 value = field.widget.value_from_datadict(self.data, self.files, self.add_prefix(name))
-                print("Save {0} on {1}".format(value, field.name))
                 field.save(value, inquiry)
 
         else:
@@ -63,7 +62,6 @@ class QuestionPageForm(forms.Form):
 
         # Loop over all questions in this form
         for field in self.fields.values():
-            print(field)
             field.backward(inquiry)
             pass
 
