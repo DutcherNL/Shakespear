@@ -1,5 +1,6 @@
-from django.forms import CharField, IntegerField, DecimalField, ChoiceField, Field
-from .widgets import CustomRadioSelect, InformationDisplayWidget, IgnorableInput, ExternalDataInputLocal
+from django.forms import CharField, IntegerField, DecimalField, ChoiceField, Field, ValidationError
+from .widgets import CustomRadioSelect, InformationDisplayWidget,\
+    IgnorableInput, ExternalDataInputLocal, IgnorableInputMixin
 from .models import ExternalQuestionSource
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator
@@ -62,6 +63,8 @@ class QuestionFieldMixin:
             answer_obj = InquiryQuestionAnswer.objects.filter(question=question, inquiry=inquiry)
             if answer_obj.exists():
                 self.initial = answer_obj.first().answer
+            else:
+                self.widget.empty = True
 
         self.validators = [*self.validators, *self.construct_validators()]
 
@@ -103,6 +106,7 @@ class QuestionFieldMixin:
                 if inquiry_question_answer_obj_query[0].processed:
                     inquiry_question_answer_obj_query[0].backward(inquiry)
 
+                # Todo: remove next line
                 InquiryQuestionAnswer.objects.filter(question=self.question, inquiry=inquiry).delete()
 
     def get_answer_option(self, value):
@@ -164,6 +168,12 @@ class QuestionFieldMixin:
 
             inquiry_answer.processed = False
             inquiry_answer.save()
+
+    def validate(self, value):
+        super().validate(value)
+        if isinstance(self.widget, IgnorableInputMixin):
+            if (value is None or value == '') and not self.widget.is_answered:
+                    raise ValidationError("Deze vraag is nog niet beantwoord ", code='required')
 
 
 class CharQuestionField(QuestionFieldMixin, CharField):
