@@ -103,17 +103,17 @@ class DataUploadForm(forms.ModelForm):
                 raise ValidationError("The term '{data_code}' does not match any of the known data codes".
                                       format(data_code=headers[0]))
 
-            try:
-                for data_entry in headers[1:]:
+            for data_entry in headers[1:]:
+                try:
                     data_decl = StoredDataDeclaration.objects.get(name=data_entry)
                     # Check if this data type is allowed
                     if data_decl.code_type != declarations[0]:
                         raise ValidationError("{data} is not part of {code}".format(data=data_decl, code=declarations[0]))
                     declarations.append(data_decl)
 
-            except StoredDataDeclaration.DoesNotExist:
-                raise ValidationError("The term '{data_type}' does not match any of the known data codes".
-                                      format(data_type=headers[0]))
+                except StoredDataDeclaration.DoesNotExist:
+                    raise ValidationError("The term '{data_type}' does not match any of the known data types".
+                                          format(data_type=repr(data_entry)))
 
 
         return cleaned_data
