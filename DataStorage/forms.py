@@ -70,6 +70,7 @@ class DataUploadForm(forms.ModelForm):
     A form that allows for data to be uploaded to a database from CSV files
     """
     csv_file = forms.FileField()
+    deliminator = forms.CharField(max_length=1, initial=';')
 
     class Meta:
         model = DataBatch
@@ -92,11 +93,12 @@ class DataUploadForm(forms.ModelForm):
 
     def process_csv_file(self):
         file = self.cleaned_data['csv_file']
+        deliminator = self.cleaned_data['deliminator']
         if file is None:
             return
 
         # Decrypt headers
-        headers = read_as_csv(file)
+        headers = read_as_csv(file, deliminator=deliminator)
         # First entry is Code Declaration Name
         declarations = []
         try:
@@ -121,7 +123,7 @@ class DataUploadForm(forms.ModelForm):
         batch.save()
 
         # Read all the data in the file
-        data = read_as_csv(file)
+        data = read_as_csv(file, deliminator=deliminator)
         i = 0
         while data is not None:
             # Create the Data code root object
