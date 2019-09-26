@@ -69,7 +69,7 @@ class DataUploadForm(forms.ModelForm):
     """
     A form that allows for data to be uploaded to a database from CSV files
     """
-    csv_file = forms.FileField()
+    csv_file = forms.FileField(required=True)
     deliminator = forms.CharField(max_length=1, initial=';')
 
     class Meta:
@@ -84,7 +84,39 @@ class DataUploadForm(forms.ModelForm):
 
         if not csv_file.name.endswith('.csv'):
             raise ValidationError("File is not a csv")
+
         return csv_file
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # Clean the file itself (uses two fields and is therefore placed here)
+        file = self.cleaned_data.get('csv_file', None)
+        if file is not None:
+            # Decrypt headers
+            headers = read_as_csv(file, deliminator=self.cleaned_data['deliminator'])
+            # First entry is Code Declaration Name
+            declarations = []
+            try:
+                declarations.append(StoredDataCodeDeclaration.objects.get(name=headers[0]))
+            except StoredDataCodeDeclaration.DoesNotExist:
+                raise ValidationError("The term '{data_code}' does not match any of the known data codes".
+                                      format(data_code=headers[0]))
+
+            try:
+                for data_entry in headers[1:]:
+                    data_decl = StoredDataDeclaration.objects.get(name=data_entry)
+                    # Check if this data type is allowed
+                    if data_decl.code_type != declarations[0]:
+                        raise ValidationError("{data} is not part of {code}".format(data=data_decl, code=declarations[0]))
+                    declarations.append(data_decl)
+
+            except StoredDataDeclaration.DoesNotExist:
+                raise ValidationError("The term '{data_type}' does not match any of the known data codes".
+                                      format(data_type=headers[0]))
+
+
+        return cleaned_data
 
     def save(self, commit=True):
         result = super(DataUploadForm, self).save(commit=commit)
@@ -93,6 +125,7 @@ class DataUploadForm(forms.ModelForm):
 
     def process_csv_file(self):
         file = self.cleaned_data['csv_file']
+        file.seek(0, 0)
         deliminator = self.cleaned_data['deliminator']
         if file is None:
             return
