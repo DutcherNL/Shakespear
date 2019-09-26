@@ -19,7 +19,7 @@ class Question(models.Model):
 
     name = models.SlugField(max_length=10)
     description = models.CharField(max_length=256)
-    question_text = models.CharField(max_length=64)
+    question_text = models.CharField(max_length=128)
     help_text = models.CharField(max_length=255, default="", blank=True, null=True)
 
     # Define the question types
