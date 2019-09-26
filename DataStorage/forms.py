@@ -70,7 +70,7 @@ class DataUploadForm(forms.ModelForm):
     A form that allows for data to be uploaded to a database from CSV files
     """
     csv_file = forms.FileField(required=True)
-    deliminator = forms.CharField(max_length=1, initial=';')
+    deliminator = forms.CharField(max_length=1, initial=',')
 
     class Meta:
         model = DataBatch
