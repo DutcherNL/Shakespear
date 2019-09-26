@@ -46,12 +46,12 @@
             {% if form.is_bound %}
                 {% if field.errors %}
                     {# Errors present #}
-                    {% render_field field class="form-control" placeholder=field.label %}
                     {% for error in field.errors %}
-                        <div class="alert alert-danger">
+                        <div class="alert alert-danger mb-0">
                             {{ error }}
                         </div>
                     {% endfor %}
+                    {% render_field field class="form-control" placeholder=field.label %}
                 {% else %}
                     {# No errors #}
                     {% render_field field class="form-control" placeholder=field.label %}

@@ -1,18 +1,26 @@
-<h2>Filled in questionaires</h2>
+{% extends 'base.html' %}
 
-{% for inquiry in inquiries %}
-    <a href="{{ inquiry.get_url }}">Inquiry {{ inquiry.id }} - {{ inquiry.get_inquiry_code }} - {{ inquiry.get_rev_key }}</a><br>
-{% endfor %}
-<br>
-<form method="post" action="{% url 'new_query' %}">
-    {% csrf_token %}
-    <input type="submit" name="next" value="Create new"/>
-</form>
+{% block body %}
 
-<form method="get">
-    {% csrf_token %}
-    {% with inquiry_entry_form as form %}
-        {% include "snippets/bootstrap_form.html" %}
-    {% endwith %}
-    <input type="submit" name="next" value="Load"/>
-</form>
+    <h2>Filled in questionaires</h2>
+
+    {% for inquirer in inquiries %}
+        <a href="{{ inquirer.active_inquiry.get_url }}"
+           class="btn btn-info my-2"
+
+        >Inquirer {{ inquirer.id }} - {{ inquirer.get_inquiry_code }} - {{ inquirer.get_rev_key }}</a><br>
+    {% endfor %}
+    <br>
+    <form method="post" action="{% url 'debug_new_query' %}">
+        {% csrf_token %}
+        <input type="submit" name="next" value="Create new"/>
+    </form>
+
+    <form method="get">
+        {% csrf_token %}
+        {% with inquiry_entry_form as form %}
+            {% include "snippets/bootstrap_form.html" %}
+        {% endwith %}
+        <input type="submit" name="next" value="Load" class="btn btn-block btn-primary"/>
+    </form>
+{% endblock %}

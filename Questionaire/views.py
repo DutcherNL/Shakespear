@@ -1,13 +1,70 @@
 from django.views import View
 from django.views.generic import TemplateView
-from .models import Page, Inquiry, Technology, Score
+from .models import Page, Inquiry, Technology, Score, Inquirer
 from django.shortcuts import get_object_or_404
-from .forms import QuestionPageForm, EmailForm, InquiryLoadForm
+from .forms import QuestionPageForm, EmailForm, InquiryLoadDebugForm, InquirerLoadForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 
 # Create your views here.
+
+
+class CreateNewInquiryView(View):
+    def post(self, request):
+        self.inquirer = Inquirer()
+        self.inquirer.save()
+
+        return self.get_redirect(request)
+
+    def get_redirect(self, request):
+        request.session['inquirer_id'] = self.inquirer.id
+
+        return HttpResponseRedirect(reverse('start_query'))
+
+
+class InquiryStartScreen(TemplateView):
+    template_name = "inquiry_start.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(InquiryStartScreen, self).get_context_data(**kwargs)
+
+        self.init_base_properties()
+
+        context['inquirer'] = self.inquirer
+        context['form'] = EmailForm(inquirer=context['inquirer'])
+
+        return context
+
+    def init_base_properties(self):
+        self.inquirer = get_object_or_404(Inquirer, id=self.request.session.get('inquirer_id', None))
+
+    def redirect_to(self):
+        self.request.session['page_id'] = self.inquirer.active_inquiry.current_page.id
+        self.request.session['inquiry_id'] = self.inquirer.active_inquiry.id
+        return HttpResponseRedirect(reverse('run_query'))
+
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+
+        # Add the comment
+        form = EmailForm(inquirer=context['inquirer'], data=request.POST)
+
+        if form.is_valid():
+            form.save()
+
+            # Create the inquiry if needed
+            if self.inquirer.active_inquiry is None:
+                # Create the inquiry
+                page = Page.objects.order_by('position').first()
+                inquiry = Inquiry.objects.create(current_page=page)
+                self.inquirer.active_inquiry = inquiry
+                self.inquirer.save()
+            return self.redirect_to()
+        else:
+            context['form'] = form
+            return self.render_to_response(context)
+
 
 class QPageView(TemplateView):
     template_name = "question_page.html"
@@ -26,12 +83,12 @@ class QPageView(TemplateView):
                     if self.inquiry.current_page.position < self.page.position:
                         # Movement is forward
                         form.forward(self.inquiry)
-                        rev = self.get_reverse(self.get_page(get_next=True))
+                        rev = self.get_redirect(get_next=True)
                         return HttpResponseRedirect(rev)
                     if self.inquiry.current_page.position > self.page.position:
                         # Movement is backward
                         form.backward(self.inquiry)
-                        rev = self.get_reverse(self.get_page(get_next=False))
+                        rev = self.get_redirect(get_next=False)
                         return HttpResponseRedirect(rev)
 
             # The page should be displayed normally
@@ -40,16 +97,14 @@ class QPageView(TemplateView):
             return response
         else:
             if self.inquiry.current_page.position < self.page.position:
-                nextid = self.get_page(get_next=True).id
+                return HttpResponseRedirect(self.get_redirect(True))
             else:
-                nextid = self.get_page(get_next=False).id
-            return HttpResponseRedirect(reverse('q_page', kwargs={'inquiry': self.inquiry.id, 'page': nextid}))
+                return HttpResponseRedirect(self.get_redirect(False))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        self.page = get_object_or_404(Page, id=self.kwargs['page'])
-        self.inquiry = get_object_or_404(Inquiry, id=self.kwargs['inquiry'])
+        self.init_base_keys()
 
         context['form'] = QuestionPageForm(self.page, self.inquiry)
 
@@ -63,96 +118,38 @@ class QPageView(TemplateView):
 
         return context
 
+    def init_base_keys(self):
+        self.page = get_object_or_404(Page, id=self.request.session.get('page_id', None))
+        self.inquiry = get_object_or_404(Inquiry, id=self.request.session.get('inquiry_id', None))
+
     def post(self, request, *args, **kwargs):
         context = self.get_context_data()
         context['form'] = QuestionPageForm(self.page, self.inquiry, request.POST)
 
-        if context['form'].is_valid():
-            context['form'].save(self.inquiry)
-
-            if 'prev' in request.POST:
-                context['form'].backward(self.inquiry)
-                rev = self.get_reverse(self.get_page(get_next=False))
-                return HttpResponseRedirect(rev)
-            else:
+        if 'prev' in request.POST:
+            # Backwards run for safety reasons, but should theoretically be useless here
+            context['form'].save(self.inquiry, True)
+            # context['form'].backward(self.inquiry)
+            return HttpResponseRedirect(self.get_redirect(False))
+        else:
+            if context['form'].is_valid():
+                context['form'].save(self.inquiry)
                 context['form'].forward(self.inquiry)
-                rev = self.get_reverse(self.get_page(get_next=True))
-                return HttpResponseRedirect(rev)
+                return HttpResponseRedirect(self.get_redirect(True))
+            return self.render_to_response(context)
 
-        return self.render_to_response(context)
+    def get_redirect(self, get_next):
+        page = self.get_page(get_next=get_next)
 
-    def get_reverse(self, page):
-        return reverse('q_page', kwargs={'inquiry': self.inquiry.id, 'page': page.id})
+        self.request.session['page_id'] = page.id
+
+        return reverse('run_query')
 
     def get_page(self, get_next=True):
         if get_next:
             return Page.objects.filter(position__gt=self.page.position).order_by('position').first()
         else:
             return Page.objects.filter(position__lt=self.page.position).order_by('position').last()
-
-
-class QueryIndexView(TemplateView):
-    template_name = "front_page.html"
-    redirect_to = None
-
-    def dispatch(self, request, *args, **kwargs):
-        result = super(QueryIndexView, self).dispatch(request, *args, **kwargs)
-
-        if self.redirect_to is not None:
-            return HttpResponseRedirect(self.redirect_to)
-
-        return result
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['inquiries'] = Inquiry.objects.all()
-        context['inquiry_entry_form'] = InquiryLoadForm(self.request.GET)
-
-        if context['inquiry_entry_form'].is_valid():
-            self.redirect_to = context['inquiry_entry_form'].get_inquiry().get_url()
-
-        return context
-
-
-class CreateNewInquiryView(View):
-
-    def post(self, request):
-        inquiry = Inquiry()
-        inquiry.save()
-        first_page = Page.objects.order_by('position').first()
-
-        return HttpResponseRedirect(reverse('start_query', kwargs={'inquiry': inquiry.id}))
-
-
-class InquiryStartScreen(TemplateView):
-    template_name = "inquiry_start.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(InquiryStartScreen, self).get_context_data(**kwargs)
-
-        context['inquiry'] = get_object_or_404(Inquiry, id=self.kwargs['inquiry'])
-        context['form'] = EmailForm(inquiry=context['inquiry'])
-
-        return context
-
-    # return HttpResponseRedirect(reverse('q_page', kwargs={'inquiry': inquiry.id, 'page': first_page.id}))
-
-    def post(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
-
-        print(request.POST)
-
-        # Add the comment
-        form = EmailForm(inquiry=context['inquiry'], data=request.POST)
-
-        if form.is_valid():
-            form.save()
-            first_page = Page.objects.order_by('position').first()
-            return HttpResponseRedirect(reverse('q_page', kwargs={'inquiry': context['inquiry'].id, 'page': first_page.id}))
-        else:
-            context['form'] = form
-            return self.render_to_response(context)
 
 
 class TechDetailsView(TemplateView):
@@ -167,15 +164,56 @@ class TechDetailsView(TemplateView):
         return context
 
 
-class InquiryScoresView(TemplateView):
-    template_name = 'inquiry_scores.html'
+class QuesetionHomeScreenView(TemplateView):
+    template_name = "inquiry_pages/inquiry_home.html"
+
+    redirect_to = None
+
+    def dispatch(self, request, *args, **kwargs):
+        result = super().dispatch(request, *args, **kwargs)
+
+        if self.redirect_to is not None:
+            return HttpResponseRedirect(self.redirect_to)
+
+        return result
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        self.inquiry = get_object_or_404(Inquiry, id=self.kwargs['inquiry'])
+        context['inquiries'] = Inquiry.objects.all()
+        context['inquiry_entry_form'] = InquirerLoadForm(exclude=["email"])
 
-        context['inquiry'] = self.inquiry
-        context['techs'] = Technology.objects.all()
+        return context
+
+
+class UserConfirmationPage(TemplateView):
+    template_name = "inquiry_pages/mail_confirmation_page.html"
+    redirect_response = None
+
+    def dispatch(self, request, *args, **kwargs):
+        result = super().dispatch(request, *args, **kwargs)
+
+        if self.redirect_response is not None:
+            return HttpResponseRedirect(self.redirect_response)
+
+        return result
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['inquiries'] = Inquiry.objects.all()
+        context['form'] = InquirerLoadForm(self.request.GET)
+
+        if context['form'].is_valid():
+            inquirer = context['form'].inquirer_model
+            self.request.session['inquirer_id'] = inquirer.id
+
+            if context['form'].inquirer_model.email:
+                self.request.session['inquiry_id'] = inquirer.active_inquiry.id
+                self.request.session['page_id'] = inquirer.active_inquiry.current_page.id
+                self.redirect_response = reverse('run_query')
+            else:
+                # There is no email, urge to fill in the email
+                self.redirect_response = reverse('start_query')
 
         return context

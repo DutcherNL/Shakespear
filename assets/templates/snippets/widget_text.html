@@ -17,7 +17,7 @@
                        ">
     </div>
 
-    {% if not required %}
+    {% if not widget.required %}
         <div class="col-12">
         <label for="{{ widget.none_name }}" class="btn btn-outline-secondary float-right
                 {% if widget.none_selected %}
@@ -28,7 +28,7 @@
                    class="d-none" id="{{ widget.none_name }}"
                     {% if widget.none_selected %} checked {% endif %}>
 
-            Leave empty
+            Laat leeg
         </label></div>
     {% endif %}
 </div>

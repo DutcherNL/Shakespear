@@ -1,5 +1,6 @@
-from django.forms import CharField, IntegerField, DecimalField, ChoiceField, Field
-from .widgets import CustomRadioSelect, InformationDisplayWidget, IgnorableInput, ExternalDataInputLocal
+from django.forms import CharField, IntegerField, DecimalField, ChoiceField, Field, ValidationError
+from .widgets import CustomRadioSelect, InformationDisplayWidget,\
+    IgnorableInput, ExternalDataInputLocal, IgnorableInputMixin
 from .models import ExternalQuestionSource
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator
@@ -31,13 +32,13 @@ class FieldFactory:
 
         if q_type == 0:
             # Text question
-            return CharQuestionField(question, inquiry)
+            return CharQuestionField(question, inquiry, required=required)
         if q_type == 1:
             # Integer question
-            return IntegerQuestionField(question, inquiry)
+            return IntegerQuestionField(question, inquiry, required=required)
         if q_type == 2:
             # Double question
-            return DecimalQuestionField(question, inquiry)
+            return DecimalQuestionField(question, inquiry, required=required)
         if q_type == 3:
             # Multiple choice question
             return ChoiceQuestionField(question, inquiry, required=required)
@@ -46,7 +47,7 @@ class FieldFactory:
 
 
 class QuestionFieldMixin:
-    def __init__(self, question, inquiry, *args, required=False, **kwargs):
+    def __init__(self, question, inquiry, *args, **kwargs):
         if ExternalQuestionSource.objects.filter(question=question).exists():
             self.widget = ExternalDataInputLocal(inquiry, question.externalquestionsource)
 
@@ -54,7 +55,6 @@ class QuestionFieldMixin:
         self.question = question
         self.name = question.name
         self.label = question.question_text
-        self.required = required
 
         if self.question.help_text:
             self.help_text = self.question.help_text
@@ -63,8 +63,13 @@ class QuestionFieldMixin:
             answer_obj = InquiryQuestionAnswer.objects.filter(question=question, inquiry=inquiry)
             if answer_obj.exists():
                 self.initial = answer_obj.first().answer
+            else:
+                self.widget.empty = True
 
         self.validators = [*self.validators, *self.construct_validators()]
+
+    def clean(self, value, ignore_required=False):
+        return  super().clean(value)
 
     def construct_validators(self):
         validator_dict = self.get_question_options()
@@ -89,6 +94,7 @@ class QuestionFieldMixin:
             inquiry_question_answer_obj = InquiryQuestionAnswer.objects.get_or_create(question=self.question, inquiry=inquiry)[0]
             if inquiry_question_answer_obj.answer != value:
                 # Answer has changed
+                # Todo: Check if a check on processing needs to be placed here
                 inquiry_question_answer_obj.answer = value
                 inquiry_question_answer_obj.processed_answer = self.get_answer_option(value)
                 inquiry_question_answer_obj.save()
@@ -100,6 +106,7 @@ class QuestionFieldMixin:
                 if inquiry_question_answer_obj_query[0].processed:
                     inquiry_question_answer_obj_query[0].backward(inquiry)
 
+                # Todo: remove next line
                 InquiryQuestionAnswer.objects.filter(question=self.question, inquiry=inquiry).delete()
 
     def get_answer_option(self, value):
@@ -162,6 +169,12 @@ class QuestionFieldMixin:
             inquiry_answer.processed = False
             inquiry_answer.save()
 
+    def validate(self, value):
+        super().validate(value)
+        if isinstance(self.widget, IgnorableInputMixin):
+            if (value is None or value == '') and not self.widget.is_answered:
+                    raise ValidationError("Deze vraag is nog niet beantwoord ", code='required')
+
 
 class CharQuestionField(QuestionFieldMixin, CharField):
     widget = IgnorableInput
@@ -214,13 +227,11 @@ class ChoiceQuestionField(QuestionFieldMixin, ChoiceField):
                 images[answer.value] = answer.image
 
         self.choices = choices
-        self.required = False
         self.widget.images = images
 
         question_options = self.get_question_options()
         if 'height' in question_options.keys():
             self.widget.answer_height = question_options['height']
-
 
     def get_answer_option(self, value):
         """

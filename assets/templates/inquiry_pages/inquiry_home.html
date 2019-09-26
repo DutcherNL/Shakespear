@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-12">
+            <div class="row">
+                <h1 class="col-12">Welkom</h1>
+            </div>
+            <div class="row ">
+                <div class="col-12">
+                    Welkom op eSafer, de online enquete die je helpt naar een zuiniger huis.
+                </div>
+                <div class="col-12">
+                    Start een nieuwe vragenlijst of ga verder waar je gebleven bent
+                </div>
+            </div>
+        </div>
+        <hr class="col-12">
+
+        <form method="post" action="{% url 'new_query' %}" class="col-md-4">
+            <br class="mt-2">
+            Start een geheel nieuwe vragenlijst
+            {% csrf_token %}
+            <input type="submit" name="next" value="Start nieuw"
+                class="btn btn-primary btn-block"/>
+        </form>
+
+        <form method="get" action="{% url 'run_continue' %}" class="col-md-8">
+            {% csrf_token %}
+            {% with inquiry_entry_form as form %}
+                {% include "snippets/bootstrap_form.html" %}
+            {% endwith %}
+            <div class="row">
+                <div class="col-9 offset-3">
+                    <input type="submit" name="next" value="Ga verder" class="btn btn-block btn-primary"/>
+                </div>
+            </div>
+
+        </form>
+    </div>
+{% endblock %}

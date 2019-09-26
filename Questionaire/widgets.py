@@ -1,43 +1,6 @@
 from django.forms.widgets import RadioSelect, Widget, Input
 
 
-class CustomRadioSelect(RadioSelect):
-    template_name = 'snippets/widget_radio.html'
-    none_value_string = "None"
-    answer_height = None
-
-    def __init__(self, *args, images=None, **kwargs):
-        super(CustomRadioSelect, self).__init__(*args, **kwargs)
-        self.images = images or {}
-
-    def get_context(self, name, value, attrs):
-        context = super(CustomRadioSelect, self).get_context(name, value, attrs)
-        context['widget']['type'] = "radio"
-        context['widget']['none_value'] = self.none_value_string
-        if context['widget']['value'] == ['']:
-            context['widget']['none_selected'] = True
-
-        context['widget']['images'] = self.images
-
-        return context
-
-    def create_option(self, name, value, *args, **kwargs):
-        option = super(CustomRadioSelect, self).create_option(name, value, *args, **kwargs)
-        option['image'] = self.images.get(value, None)
-        option['answer_height'] = self.answer_height
-        return option
-
-    def value_from_datadict(self, data, files, name):
-        """
-        Given a dictionary of data and this widget's name, return the value
-        of this widget or None if it's not provided.
-        """
-        value = super(CustomRadioSelect, self).value_from_datadict(data, files, name)
-        if value == self.none_value_string:
-            return None
-        return value
-
-
 class InformationDisplayWidget(Widget):
     template_name = 'snippets/widget_text_display.html'
 
@@ -49,26 +12,19 @@ class InformationDisplayWidget(Widget):
         return context
 
 
-class IgnorableInput(Input):
-    template_name = 'snippets/widget_text.html'
+class IgnorableInputMixin(object):
     none_name_appendix = "_ignore"
 
-    def __init__(self, *args, **kwargs):
-        super(IgnorableInput, self).__init__(*args, **kwargs)
-        self.required = kwargs.get('required', False)
+    def __init__(self, *args, empty=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.empty = empty
+        self.is_answered = False
 
     def get_context(self, name, value, attrs):
-        # Filter the required attribute in args and make sure it aligns
-        if attrs.get('required', False) != self.required:
-            if self.required:
-                attrs['required'] = True
-            else:
-                attrs.pop('required')
-
-        context = super(IgnorableInput, self).get_context(name, value, attrs)
+        context = super().get_context(name, value, attrs)
 
         context['widget']['none_name'] = context['widget']['name'] + self.none_name_appendix
-        if context['widget']['value'] == ['']:
+        if context['widget']['value'] == [''] and not self.empty:
             context['widget']['none_selected'] = True
 
         return context
@@ -78,25 +34,75 @@ class IgnorableInput(Input):
         Given a dictionary of data and this widget's name, return the value
         of this widget or None if it's not provided.
         """
-        value = super(IgnorableInput, self).value_from_datadict(data, files, name)
+        value = super().value_from_datadict(data, files, name)
 
-        ignore = data.get(name + self.none_name_appendix, False)
-        if ignore:
+        # Determine if the question has been answered, to determine if the empty question has been answered
+        if not (value == '' or value is None):
+            self.is_answered = True
+        else:
+            self.is_answered = False
+
+        if self.ignore_value_from_datadict(data, name, value):
+            self.is_answered = True
             return None
 
         return value
+
+    def ignore_value_from_datadict(self, data, name, value):
+        """ Determines if the returned result should be ignored """
+        ignore_name = name + self.none_name_appendix
+        return ignore_name in data
+
+    def build_attrs(self, *args, **kwargs):
+        # Remove the required attribute from the html as that blocks going backward
+        attrs = super().build_attrs(*args, **kwargs)
+        attrs.pop('required', None)
+        return attrs
+
+
+class IgnorableInput(IgnorableInputMixin, Input):
+    template_name = 'snippets/widget_text.html'
 
 
 class IgnorableEmailInput(IgnorableInput):
     input_type = 'email'
 
 
-class ExternalDataInput(Widget):
+class CustomRadioSelect(IgnorableInputMixin, RadioSelect):
+    template_name = 'snippets/widget_radio.html'
+    input_type = 'radio'
+    answer_height = None
 
+    def __init__(self, *args, images=None, **kwargs):
+        super(CustomRadioSelect, self).__init__(*args, **kwargs)
+        self.images = images or {}
+
+    def get_context(self, name, value, attrs):
+        context = super(CustomRadioSelect, self).get_context(name, value, attrs)
+
+        context['widget']['type'] = self.input_type
+        context['widget']['images'] = self.images
+
+        return context
+
+    def create_option(self, name, value, *args, **kwargs):
+        option = super(CustomRadioSelect, self).create_option(name, value, *args, **kwargs)
+        option['image'] = self.images.get(value, None)
+        option['answer_height'] = self.answer_height
+        return option
+
+    def ignore_value_from_datadict(self, data, name, value):
+        """ Determines if the returned result should be ignored """
+        ignore_value = name + self.none_name_appendix
+        return value == ignore_value
+
+
+class ExternalDataInput(Widget):
 
     def __init__(self, Question, Inquiry, *args, is_hidden=False, **kwargs):
         super(ExternalDataInput, self).__init__(*args, **kwargs)
         self.visible = not is_hidden
+        self.is_answered = True
 
     @property
     def is_hidden(self):

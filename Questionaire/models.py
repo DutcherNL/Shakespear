@@ -135,9 +135,14 @@ class Inquiry(models.Model):
         from django.shortcuts import reverse
         if self.current_page is None:
             first_page = Page.objects.order_by('position').first()
-            return reverse('q_page', kwargs={'inquiry': self.id, 'page': first_page.id})
+            return reverse('debug_q_page', kwargs={'inquiry': self.id, 'page': first_page.id})
         else:
-            return reverse('q_page', kwargs={'inquiry': self.id, 'page': self.current_page.id})
+            return reverse('debug_q_page', kwargs={'inquiry': self.id, 'page': self.current_page.id})
+
+
+class Inquirer(models.Model):
+    email = models.EmailField(blank=True, null=True)
+    active_inquiry = models.ForeignKey(Inquiry, on_delete=models.SET_NULL, null=True, blank=True)
 
     # DO NOT ADJUST THE FOLLOWING PARAMETERS AFTER DEPLOYMENT!
     length = 6
@@ -169,10 +174,10 @@ class Inquiry(models.Model):
         return string
 
     def get_inquiry_code(self):
-        return Inquiry.get_inquiry_code_from_model(self)
+        return Inquirer.get_inquiry_code_from_model(self)
 
     def get_rev_key(self):
-        return Inquiry.get_inquiry_model_from_code(self.get_inquiry_code_from_model(self)).id
+        return Inquirer.get_inquiry_model_from_code(self.get_inquiry_code_from_model(self)).id
 
     @classmethod
     def get_inquiry_model_from_code(cls, code):

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <div class="row">
+        <div class="col">
+            This inquiry has an e-mail address registered. Please confirm your e-mail address so we know it's you.
+            <form method="get">
+                {% csrf_token %}
+                {% with form as form %}
+                    {% include "snippets/bootstrap_form.html" %}
+                {% endwith %}
+                <input type="submit" value="Bevestig" class="btn btn-block btn-primary"/>
+            </form>
+        </div>
+    </div>
+{% endblock %}
