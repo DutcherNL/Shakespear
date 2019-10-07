@@ -1,5 +1,4 @@
 from django.db import models
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.urls import reverse
 
 from string import Formatter
@@ -10,9 +9,7 @@ from .base_models import Inquiry, AnswerOption, InquiryQuestionAnswer, Page
 
 
 class ScoringDeclaration(models.Model):
-    """
-    Declares a score that should be tracked
-    """
+    """ Declares a score that should be tracked """
     name = models.SlugField(max_length=32)
     display_name = models.CharField(max_length=64, blank=True, null=True)
     description = models.CharField(max_length=256)
@@ -23,9 +20,7 @@ class ScoringDeclaration(models.Model):
 
 
 class Technology(models.Model):
-    """
-    Gives all information related to a technology
-    """
+    """ Gives all information related to a technology """
     name = models.CharField(max_length=32)
     short_text = models.CharField(max_length=256)
     icon = models.ImageField(blank=True, null=True)
@@ -38,8 +33,7 @@ class Technology(models.Model):
         return self.name
 
     def get_score(self, inquiry=None):
-        """
-        Returns the resulting score for the specefic technology
+        """ Returns the resulting score for the specefic technology
         :param inquiry: the inquiry model
         :return: 0 is not met, 1 if met, 0.5 if unsure
         """
@@ -57,9 +51,7 @@ class Technology(models.Model):
 
 
 class TechScoreLink(models.Model):
-    """
-    Defines a link between a technology and score declaration and set the thresholds for that declaration
-    """
+    """ Defines a link between a technology and score declaration and set the thresholds for that declaration """
     score_declaration = models.ForeignKey(ScoringDeclaration, on_delete=models.PROTECT)
     technology = models.ForeignKey(Technology, on_delete=models.PROTECT)
     score_threshold_approve = models.DecimalField(default=1, decimal_places=2, max_digits=5)
@@ -81,9 +73,7 @@ class TechScoreLink(models.Model):
 
 
 class Score(models.Model):
-    """
-    Tracks the score of a specific Scoretype for a specific inquiry
-    """
+    """ Tracks the score of a specific Scoretype for a specific inquiry """
     declaration = models.ForeignKey(ScoringDeclaration, on_delete=models.CASCADE)
     inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE)
     score = models.DecimalField(decimal_places=2, max_digits=7)
@@ -98,15 +88,20 @@ class Score(models.Model):
 
 
 class AnswerScoring(models.Model):
-    """
-    Contains information on scores to be altered for a selected answer
-    """
+    """ Contains information on scores to be altered for a selected answer """
     answer_option = models.ForeignKey(AnswerOption, on_delete=models.CASCADE)
     declaration = models.ForeignKey(ScoringDeclaration, on_delete=models.CASCADE)
     score_change_value = models.DecimalField(decimal_places=2, max_digits=5)
     take_answer_value = models.BooleanField(default=False)
 
     def adjust_score(self, score_obj, revert=False):
+        """ Adjusts the score on a given score object
+
+        :param score_obj:
+        :param revert:
+        :return:
+        """
+
         if self.take_answer_value:
             question = self.answer_option.question
             iqa = InquiryQuestionAnswer.objects.get(inquiry=score_obj.inquiry,
@@ -126,9 +121,7 @@ class AnswerScoring(models.Model):
 
 
 class PageRequirement(models.Model):
-    """
-    Illustrates a requirement for the page to be shown
-    """
+    """ Illustrates a requirement for the page to be shown """
     page = models.ForeignKey(Page, on_delete=models.CASCADE)
     score_declaration = models.ForeignKey(ScoringDeclaration, on_delete=models.CASCADE)
     threshold = models.DecimalField(decimal_places=2, max_digits=5)
@@ -159,6 +152,7 @@ class PageRequirement(models.Model):
 
 
 class AnswerScoringNote(models.Model):
+    """ Places a note at a specific technology based on the score adjustment"""
     scoring = models.ForeignKey(AnswerScoring, on_delete=models.CASCADE)
     technology = models.ForeignKey(Technology, blank=True, null=True, on_delete=models.CASCADE)
     text = models.TextField(blank=True, null=True, default="Nothing defined")

@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .model_files.base_models import *
-from .model_files.tech_scoring_models import *
+from .models import *
 
 # Register your models here.
 
