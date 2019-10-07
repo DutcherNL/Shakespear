@@ -12,10 +12,7 @@ from PageDisplay.models import Information
 
 
 class Question(models.Model):
-
-    """
-    A model for a question, can be of multiple types
-    """
+    """ A model for a question, can be of multiple types """
 
     name = models.SlugField(max_length=10)
     description = models.CharField(max_length=256)
@@ -44,23 +41,38 @@ class Page(models.Model):
     position = models.PositiveIntegerField(unique=True)
     questions = models.ManyToManyField(Question, through='PageEntryQuestion',
                                        through_fields=('page', 'question'))
+    include_on = models.ManyToManyField(Question, related_name="include_questions", blank=True)
+    exclude_on = models.ManyToManyField(Question, related_name="exclude_questions", blank=True)
     auto_process = models.BooleanField(default=False)
-
-    def meets_requirements(self, inquiry):
-        for requirement in self.page_requirements_set:
-            if not requirement.is_met(inquiry):
-                return False
-        return True
 
     def __str__(self):
         return "{0}: {1}".format(self.position, self.name)
 
     def is_valid_for_inquiry(self, inquiry):
-
+        # Check if the requirements are met
         for requirement in self.pagerequirement_set.all():
             if not requirement.is_met_for_inquiry(inquiry):
                 return False
+        # Check if the required questions are answered
+        for question in self.include_on.all():
+            if not self.question_is_answered(question, inquiry):
+                return False
+        # Check if the forbidden questions are not answered
+        for question in self.exclude_on.all():
+            if self.question_is_answered(question, inquiry):
+                return False
+
         return True
+
+    def question_is_answered(self, question, inquiry):
+        try:
+            iqa = InquiryQuestionAnswer.objects.get(inquiry=inquiry, question=question)
+            if iqa.processed_answer is None:
+                return False
+            else:
+                return True
+        except InquiryQuestionAnswer.DoesNotExist:
+            return False
 
 
 class PageEntry(models.Model):
@@ -74,7 +86,7 @@ class PageEntry(models.Model):
         (1, 'General information'),
         (2, 'Question'),
     )
-    entry_type = models.PositiveIntegerField(choices=ENTRY_TYPE_OPTIONS)
+    entry_type = models.PositiveIntegerField(choices=ENTRY_TYPE_OPTIONS, blank=True)
 
     def __str__(self):
         i = self.ENTRY_TYPE_OPTIONS[self.entry_type-1][1]
@@ -88,9 +100,9 @@ class PageEntryText(PageEntry):
     """
     text = models.TextField(default="")
 
-    def __init__(self, *args, **kwargs):
-        super(PageEntryText, self).__init__(*args, **kwargs)
+    def save(self, *args, **kwargs):
         self.entry_type = 1
+        super(PageEntryText, self).save(*args, **kwargs)
 
 
 class PageEntryQuestion(PageEntry):
@@ -102,9 +114,9 @@ class PageEntryQuestion(PageEntry):
 
     unique_together = ("page", "question")
 
-    def __init__(self, *args, **kwargs):
-        super(PageEntryQuestion, self).__init__(*args, **kwargs)
-        self.entry_type = 2
+    def save(self, *args, **kwargs):
+        self.entry_type = 1
+        super(PageEntryText, self).save(*args, **kwargs)
 
 
 class AnswerOption(models.Model):

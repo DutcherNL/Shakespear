@@ -41,10 +41,12 @@ class AnswerScoringAdmin(admin.ModelAdmin):
 class PageAdmin(admin.ModelAdmin):
     class PageQuestionsInlines(admin.TabularInline):
         model = PageEntryQuestion
+        exclude = ("entry_type",)
         extra = 0
 
     class PageTextsInlines(admin.TabularInline):
         model = PageEntryText
+        exclude = ("entry_type",)
         extra = 0
 
     class PageReqTechUsefulnessInlines(admin.TabularInline):
