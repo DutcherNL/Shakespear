@@ -1,14 +1,13 @@
 from django.forms import CharField, IntegerField, DecimalField, ChoiceField, Field, ValidationError
 from .widgets import CustomRadioSelect, InformationDisplayWidget,\
     IgnorableInput, ExternalDataInputLocal, IgnorableInputMixin
-from .models import ExternalQuestionSource
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator
 
 from string import Formatter
 import ast
 
-from .models import InquiryQuestionAnswer, AnswerOption, Score
+from .models import ExternalQuestionSource, InquiryQuestionAnswer, AnswerOption, Score
 
 
 class FieldFactory:
