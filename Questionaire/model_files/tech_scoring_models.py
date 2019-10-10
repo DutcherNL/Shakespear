@@ -46,8 +46,6 @@ class Technology(models.Model):
         for scorelink in self.techscorelink_set.all():
             score = scorelink.get_score(inquiry=inquiry) * score
 
-        print(score)
-
         if score == 1:
             return self.TECH_SUCCESS
         if score == 0:

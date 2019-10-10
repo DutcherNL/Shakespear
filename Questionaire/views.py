@@ -9,6 +9,25 @@ from django.urls import reverse
 
 # Create your views here.
 
+class BaseTemplateView(TemplateView):
+    """ A special templateview that implements some site-wide common behaviour """
+    def dispatch(self, request, *args, **kwargs):
+        colorscheme = request.GET.get('colorscheme', None)
+        if colorscheme:
+            if colorscheme == "reset":
+                del request.session['colorscheme']
+            else:
+                request.session['colorscheme'] = colorscheme
+
+        return super(BaseTemplateView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context_data = super(BaseTemplateView, self).get_context_data(**kwargs)
+        a= self.request.session.get('colorscheme', None)
+        print(a)
+        context_data['color_scheme'] = a
+        return context_data
+
 
 class CreateNewInquiryView(View):
     def post(self, request):
@@ -23,7 +42,7 @@ class CreateNewInquiryView(View):
         return HttpResponseRedirect(reverse('start_query'))
 
 
-class InquiryStartScreen(TemplateView):
+class InquiryStartScreen(BaseTemplateView):
     template_name = "inquiry_start.html"
 
     def get_context_data(self, **kwargs):
@@ -66,7 +85,7 @@ class InquiryStartScreen(TemplateView):
             return self.render_to_response(context)
 
 
-class QPageView(TemplateView):
+class QPageView(BaseTemplateView):
     template_name = "question_page.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -152,7 +171,7 @@ class QPageView(TemplateView):
             return Page.objects.filter(position__lt=self.page.position).order_by('position').last()
 
 
-class TechDetailsView(TemplateView):
+class TechDetailsView(BaseTemplateView):
     template_name = "technology_info.html"
 
     def get_context_data(self, **kwargs):
@@ -164,7 +183,7 @@ class TechDetailsView(TemplateView):
         return context
 
 
-class QuesetionHomeScreenView(TemplateView):
+class QuesetionHomeScreenView(BaseTemplateView):
     template_name = "inquiry_pages/inquiry_home.html"
 
     redirect_to = None
@@ -186,7 +205,7 @@ class QuesetionHomeScreenView(TemplateView):
         return context
 
 
-class UserConfirmationPage(TemplateView):
+class UserConfirmationPage(BaseTemplateView):
     template_name = "inquiry_pages/mail_confirmation_page.html"
     redirect_response = None
 

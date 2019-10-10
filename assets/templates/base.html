@@ -5,7 +5,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     {# Bootstrap with Bootswatch Darkly theme #}
-    <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet">
+    {# Basic bootstrap theme #}
+
+
+    {# Bootstrap color scheme #}
+    {% if color_scheme == "dark" %}
+        <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.3.1/cyborg/bootstrap.min.css" rel="stylesheet"
+              integrity="sha384-mtS696VnV9qeIoC8w/PrPoRzJ5gwydRVn0oQ9b+RJOPxE1Z1jXuuJcyeNxvNZhdx" crossorigin="anonymous">
+    {% elif color_scheme == "sketchy" %}
+        <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.3.1/sketchy/bootstrap.min.css" rel="stylesheet"
+              integrity="sha384-N8DsABZCqc1XWbg/bAlIDk7AS/yNzT5fcKzg/TwfmTuUqZhGquVmpb5VvfmLcMzp" crossorigin="anonymous">
+    {% else %}
+        {# No base color scheme yet #}
+        <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet">
+    {% endif %}
     <link href="{% static "css/bootstrap_expansion.css" %}" rel="stylesheet">
     <link href="{% static "css/question_style.css" %}" rel="stylesheet">
     <link href="{% static "css/tabs.css" %}" rel="stylesheet">

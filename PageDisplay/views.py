@@ -1,12 +1,13 @@
 from django.views.generic import TemplateView
 
+from Questionaire.views import BaseTemplateView
 from django.shortcuts import render
 
 from .models import Information
 
 # Create your views here.
 
-class InfoPageView(TemplateView):
+class InfoPageView(BaseTemplateView):
     template_name = "page_info_display.html"
 
     def get_context_data(self, **kwargs):
