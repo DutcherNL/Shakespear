@@ -72,3 +72,17 @@ def get_text_base_score(value):
         return "not recommanded"
     return "unknown"
 
+
+@register.filter
+def get_font_class_for_score(value):
+    if value == 1:
+        return "text-success"
+    if value == 0:
+        return "text-danger"
+    return ""
+
+
+@register.filter
+def get_subtech_html_id(subtech, technology):
+    return "st_" + str(technology.id) + "_" + str(subtech.id)
+

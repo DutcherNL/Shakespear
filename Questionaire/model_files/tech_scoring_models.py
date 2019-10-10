@@ -29,6 +29,11 @@ class Technology(models.Model):
                                                 through_fields=('technology', 'score_declaration'))
     information_page = models.ForeignKey(Information, on_delete=models.PROTECT, null=True, blank=True)
 
+    TECH_SUCCESS = 1
+    TECH_FAIL = 0
+    TECH_UNKNOWN = -1
+    TECH_VARIES = 2
+
     def __str__(self):
         return self.name
 
@@ -41,7 +46,14 @@ class Technology(models.Model):
         for scorelink in self.techscorelink_set.all():
             score = scorelink.get_score(inquiry=inquiry) * score
 
-        return score
+        print(score)
+
+        if score == 1:
+            return self.TECH_SUCCESS
+        if score == 0:
+            return self.TECH_FAIL
+
+        return self.TECH_UNKNOWN
 
     def get_absolute_url(self):
         if self.information_page:
@@ -182,3 +194,40 @@ class AnswerScoringNote(models.Model):
                 format_dict[key] = score_obj.score
 
         return self.text.format(**format_dict)
+
+
+class TechGroup(Technology):
+    """ The presented tech group, combines and presents several technologies as one """
+    sub_technologies = models.ManyToManyField(Technology, related_name="techgroups", blank=True)
+
+    def get_score(self, inquiry=None):
+        """ Returns the resulting score for the specefic technology
+        :param inquiry: the inquiry model
+        :return: 0 is not met, 1 if met, 0.5 if unsure
+        """
+
+        if self.sub_technologies.count() == 0:
+            return super(TechGroup, self).get_score(inquiry=inquiry)
+
+        all_pass = True
+        all_fail = True
+        computed = 0.0
+
+        for sub_tech in self.sub_technologies.all():
+            score = sub_tech.get_score(inquiry=inquiry)
+            if score != self.TECH_SUCCESS:
+                all_pass = False
+            if score != self.TECH_FAIL:
+                all_fail = False
+            if score != self.TECH_UNKNOWN:
+                computed = computed + 1
+
+        if computed < self.sub_technologies.count() / 2:
+            return self.TECH_UNKNOWN
+
+        if all_pass:
+            return self.TECH_SUCCESS
+        if all_fail:
+            return self.TECH_FAIL
+
+        return self.TECH_VARIES

@@ -1,6 +1,6 @@
 from django.views import View
 from django.views.generic import TemplateView
-from .models import Page, Inquiry, Technology, Score, Inquirer
+from .models import Page, Inquiry, Technology, Score, Inquirer, TechGroup
 from django.shortcuts import get_object_or_404
 from .forms import QuestionPageForm, EmailForm, InquiryLoadDebugForm, InquirerLoadForm
 from django.http import HttpResponseRedirect
@@ -112,7 +112,7 @@ class QPageView(TemplateView):
         context['has_next_page'] = self.get_page(get_next=True) is not None
 
         context['inquiry'] = self.inquiry
-        context['techs'] = Technology.objects.all()
+        context['techs'] = TechGroup.objects.all()
 
         # context['tech_scores'] = TechnologyScore.objects.filter(inquiry=self.inquiry)
 

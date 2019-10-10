@@ -1,0 +1,22 @@
+{% load score_result_tags %}
+{% load static %}
+
+
+{{ subtech.short_text }}
+<p>
+    {% with subtech.get_absolute_url as url %}
+        {% if url %}
+            <a target="_blank" rel="noopener noreferrer" href="{{ url }}" > (learn more) </a>
+        {% endif %}
+    {% endwith %}
+</p>
+
+<h4>Ons advies: {{ subtech|get_tech_score:inquiry|get_text_base_score }}</h4>
+
+{% for tech_score in technology|get_tech_scores:inquiry %}
+    {% for note in tech_score|get_score_notes:technology %}
+        <p>
+            {{ note|get_prepped_text:inquiry }}
+        </p>
+    {% endfor %}
+{% endfor %}

@@ -37,6 +37,10 @@
     background-color: #d9534f;
 }
 
+.tab button.maybe {
+    background-color: #FFA500;
+}
+
 /* Style the tab content */
 .tabcontent {
     display: none;
