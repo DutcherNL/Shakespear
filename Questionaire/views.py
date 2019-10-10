@@ -23,9 +23,7 @@ class BaseTemplateView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context_data = super(BaseTemplateView, self).get_context_data(**kwargs)
-        a= self.request.session.get('colorscheme', None)
-        print(a)
-        context_data['color_scheme'] = a
+        context_data['color_scheme'] = self.request.session.get('colorscheme', None)
         return context_data
 
 
