@@ -98,7 +98,7 @@ class PageEntry(models.Model):
     def save(self, *args, **kwargs):
         # Set the entry_type (defining the model type)
         self.entry_type = self._entry_type
-        super(PageEntryText, self).save(*args, **kwargs)
+        super(PageEntry, self).save(*args, **kwargs)
 
 
 class PageEntryText(PageEntry):
