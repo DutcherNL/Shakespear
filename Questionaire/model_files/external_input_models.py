@@ -42,9 +42,9 @@ class ExternalQuestionSource(models.Model):
                     format_dict[key] = score_obj.score
 
             return self.code_source.format(**format_dict)
-        except InquiryQuestionAnswer.ObjectDoesNotExist:
+        except InquiryQuestionAnswer.DoesNotExist:
             return None
-        except Score.ObjectDoesNotExist:
+        except Score.DoesNotExist:
             return None
 
     def get_content(self, inquiry=None):

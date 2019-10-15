@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.conf import settings
 from .models import *
 
 # Register your models here.
@@ -27,6 +28,22 @@ class TechnologyAdmin(admin.ModelAdmin):
         extra = 1
 
     inlines = [TechScoreLinkInlines]
+
+    actions = ['resolve_group_conflicts']
+
+    def resolve_group_conflicts(self, request, queryset):
+        for obj in queryset:
+            techs = Technology.objects.filter(name=obj.name)
+            if techs.count() > 1:
+                # There is a conflict
+                non_group = techs.get(techgroup__isnull=True)
+                tech_group = TechGroup.objects.get(technology_ptr__name=obj.name)
+                old_group = tech_group.technology_ptr
+                tech_group.technology_ptr = non_group
+                tech_group.save()
+                tech_group.sub_technologies.filter(name=obj.name).delete()
+                tech_group.sub_technologies.remove(non_group)
+                old_group.delete()
 
 
 class AnswerScoringAdmin(admin.ModelAdmin):
@@ -64,12 +81,16 @@ admin.site.register(Page, PageAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(AnswerOption, AnswerOptionAdmin)
 admin.site.register(ScoringDeclaration)
-admin.site.register(Inquirer)
 admin.site.register(Technology, TechnologyAdmin)
+admin.site.register(TechGroup, TechnologyAdmin)
 admin.site.register(AnswerScoring, AnswerScoringAdmin)
-admin.site.register(Score)
-admin.site.register(Inquiry)
-admin.site.register(InquiryQuestionAnswer)
 admin.site.register(AnswerScoringNote, AnswerNoteAdmin)
 admin.site.register(ExternalQuestionSource)
-admin.site.register(TechGroup)
+
+if settings.SHOW_DEBUG_CLASSES:
+    admin.site.register(Inquirer)
+    admin.site.register(Score)
+    admin.site.register(Inquiry)
+    admin.site.register(InquiryQuestionAnswer)
+    admin.site.register(TechScoreLink)
+

@@ -28,7 +28,6 @@
             {% endwith %}
         </p>
 
-        Er zijn verscheidene maatregelen die mogelijk zijn. Hieronder zetten wij uit welke maatregelen wij aanraden:
         {% for tech_score in technology|get_tech_scores:inquiry %}
             {% for note in tech_score|get_score_notes:technology %}
                 <p>
@@ -38,6 +37,7 @@
         {% endfor %}
 
         {% if technology.sub_technologies.exists %}
+            Er zijn verscheidene maatregelen die mogelijk zijn. Hieronder zetten wij uit welke maatregelen wij aanraden:
             <div id="accordion_{{ technology.id }}">
                 {% for subtech in technology.sub_technologies.all %}
                     {% with subtech|get_subtech_html_id:technology as subtech_id %}

@@ -81,6 +81,9 @@ class TechScoreLink(models.Model):
             return 0
         return 0.5
 
+    def __str__(self):
+        return "{tech_name}: {declaration}".format(tech_name=self.technology.name, declaration=self.score_declaration)
+
 
 class Score(models.Model):
     """ Tracks the score of a specific Scoretype for a specific inquiry """
