@@ -178,4 +178,4 @@ class DataUploadForm(forms.ModelForm):
             i = i + 1
 
             # Read the next line and loop
-            data = read_as_csv(file)
+            data = read_as_csv(file, deliminator=deliminator)
