@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="row">
+            <h1 class="col-12">Welkom terug</h1>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                Wij hebben nog geen e-mail adres van u. Wij zouden deze graag willen gebruiken om contact met u te houden.
+                Ook is dit een extra beveiliging zodat vreemden niet spontaan uw code kunnen raden.
+            </div>
+            <div class="col-12">
+                Uiteraard kunt u ook verder gaan zonder uw e-mail adres achter te laten.
+            </div>
+            <div class="col-12">
+                {% include "snippets/bootstrap_form.html" %}
+            </div>
+        </div>
+
+        <div class="row">
+            <input type="submit" class="btn btn-block btn-secondary" value="Continue without mail">
+        </div>
+
+    </form>
+
+
+{% endblock %}

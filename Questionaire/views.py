@@ -41,7 +41,7 @@ class CreateNewInquiryView(View):
 
 
 class InquiryStartScreen(BaseTemplateView):
-    template_name = "inquiry_start.html"
+    template_name = "inquiry_pages/inquiry_start.html"
 
     def get_context_data(self, **kwargs):
         context = super(InquiryStartScreen, self).get_context_data(**kwargs)
@@ -81,6 +81,10 @@ class InquiryStartScreen(BaseTemplateView):
         else:
             context['form'] = form
             return self.render_to_response(context)
+
+
+class InquiryContinueScreen(InquiryStartScreen):
+    template_name = "inquiry_pages/inquiry_continue_with_mailrequest.html"
 
 
 class QPageView(BaseTemplateView):
@@ -231,6 +235,6 @@ class UserConfirmationPage(BaseTemplateView):
                 self.redirect_response = reverse('run_query')
             else:
                 # There is no email, urge to fill in the email
-                self.redirect_response = reverse('start_query')
+                self.redirect_response = reverse('continue_query')
 
         return context
