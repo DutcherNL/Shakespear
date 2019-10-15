@@ -14,8 +14,6 @@ def make_tech_group(apps, schema_editor):
 
 
 def reverse_tech_group(apps, schema_editor):
-    # forwards_func() creates two Country instances,
-    # so reverse_func() should delete them.
     pass
 
 
