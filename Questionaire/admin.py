@@ -1,5 +1,7 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.conf import settings
+from django.db.models import ProtectedError
+
 from .models import *
 
 # Register your models here.
@@ -29,9 +31,11 @@ class TechnologyAdmin(admin.ModelAdmin):
 
     inlines = [TechScoreLinkInlines]
 
-    actions = ['resolve_group_conflicts']
+    actions = ['resolve_group_conflicts', 'convert_to_techgroup']
 
     def resolve_group_conflicts(self, request, queryset):
+        merge_succesful = 0
+
         for obj in queryset:
             techs = Technology.objects.filter(name=obj.name)
             if techs.count() > 1:
@@ -43,7 +47,30 @@ class TechnologyAdmin(admin.ModelAdmin):
                 tech_group.save()
                 tech_group.sub_technologies.filter(name=obj.name).delete()
                 tech_group.sub_technologies.remove(non_group)
-                old_group.delete()
+                try:
+                    old_group.delete()
+                    merge_succesful = merge_succesful + 1
+                except ProtectedError:
+                    messages.error(request, "Could not delete {object}, object is protected".format(object=old_group))
+
+        messages.success(request, "Succesfully merged {successes} tech groups".format(merge_succesful))
+
+    def convert_to_techgroup(self, request, queryset):
+        merge_succesful = 0
+
+        for obj in queryset:
+            if obj.techgroups.count() == 0:
+                techgroup = TechGroup(technology_ptr=obj)
+                techgroup.name = obj.name
+                techgroup.short_text = obj.short_text
+                techgroup.icon = obj.icon
+                techgroup.information_page = obj.information_page
+
+                techgroup.save()
+                merge_succesful = merge_succesful + 1
+
+        messages.info(request, "Successfully converted {number} technologies to technologygroups".
+                      format(number=merge_succesful))
 
 
 class AnswerScoringAdmin(admin.ModelAdmin):
