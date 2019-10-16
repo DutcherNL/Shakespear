@@ -1,8 +1,9 @@
 from django import template
 from django.db.models import Q, Count
-from Questionaire.models import Score, AnswerScoringNote, AnswerOption, InquiryQuestionAnswer
+from Questionaire.models import Score, AnswerScoringNote, AnswerOption, InquiryQuestionAnswer, TechScoreLink, Technology
 
 register = template.Library()
+
 
 @register.filter
 def get_tech_score(technology, inquiry):
@@ -13,6 +14,7 @@ def get_tech_score(technology, inquiry):
     :return:
     """
     return technology.get_score(inquiry=inquiry)
+
 
 @register.filter
 def get_tech_scores(technology, inquiry):
@@ -25,6 +27,19 @@ def get_tech_scores(technology, inquiry):
     return Score.objects.filter(
         inquiry=inquiry,
         declaration__in=technology.score_declarations.all())
+
+
+@register.filter
+def get_as_score(score_link, inquiry):
+    """
+    Get all score objects for the given technology by a given user
+    :param technology:
+    :param inquiry:
+    :return: A queryobject of filtered scores
+    """
+    return Score.objects.filter(
+        inquiry=inquiry,
+        declaration=score_link.score_declaration)[0]
 
 
 @register.filter

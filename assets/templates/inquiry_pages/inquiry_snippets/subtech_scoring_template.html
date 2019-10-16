@@ -13,10 +13,45 @@
 
 <h4>Ons advies: {{ subtech|get_tech_score:inquiry|get_text_base_score }}</h4>
 
-{% for tech_score in technology|get_tech_scores:inquiry %}
+{% for tech_score in subtech|get_tech_scores:inquiry %}
     {% for note in tech_score|get_score_notes:technology %}
         <p>
             {{ note|get_prepped_text:inquiry }}
         </p>
     {% endfor %}
 {% endfor %}
+
+{% if DISPLAY_TECH_SCORES %}
+    <h4>Display progress scores</h4>
+
+    <table class="table table-hover">
+        {# Table header #}
+        <thead>
+        <tr class="">
+            <td style="min-width: 10rem">Name</td>
+            <td style="min-width: 10rem;">Score</td>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for tech_score_link in subtech.techscorelink_set.all %}
+            <tr>
+                <td>
+                    {{ tech_score_link.score_declaration.name }}
+                </td>
+                <td>
+                    {% with tech_score_link|get_as_score:inquiry as score %}
+                        {{ score.score }}
+                    {% endwith %}
+                </td>
+                <td>
+                    {{ tech_score_link.score_threshold_approve }}
+                </td>
+                <td>
+                    {{ tech_score_link.score_threshold_deny }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}

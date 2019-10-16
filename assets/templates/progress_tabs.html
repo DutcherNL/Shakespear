@@ -11,7 +11,9 @@
             {% endif %}
         {% endwith %}
         ">
+        {% if technology.icon %}
             <img src="{{ technology.icon.url }}" width="50" height="50">
+        {% endif %}
         </button>
     {% endfor %}
 </div>
@@ -82,7 +84,42 @@
             {% endfor %}
         {% endif %}
 
+        {% if DISPLAY_TECH_SCORES %}
+            <h4>Display progress scores</h4>
 
+            <table class="table table-hover">
+                {# Table header #}
+                <thead>
+                    <tr class="">
+                        <td style="min-width: 10rem">Name</td>
+                        <td style="min-width: 10rem;">Score</td>
+                        <td>Threshold approve</td>
+                        <td>Threshold deny</td>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for tech_score_link in technology.techscorelink_set.all %}
+                        <tr>
+                            <td>
+                                {{ tech_score_link.score_declaration.name }}
+                            </td>
+                            <td>
+                                {% with tech_score_link|get_as_score:inquiry as score %}
+                                    {{ score.score }}
+                                {% endwith %}
+                            </td>
+                            <td>
+                                {{ tech_score_link.score_threshold_approve }}
+                            </td>
+                            <td>
+                                {{ tech_score_link.score_threshold_deny }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
     </div>
 {% endfor %}
 
