@@ -16,4 +16,5 @@ urlpatterns = [
     path('inquiry/run/', views.QPageView.as_view(), name='run_query'),
     path('inquiry/get_query/', views.UserConfirmationPage.as_view(), name='run_continue'),
     path('inquiry/continue/', views.InquiryContinueScreen.as_view(), name='continue_query'),
+    path('inquiry/results/', views.QuestionaireCompleteView.as_view(), name='results_display'),
 ]

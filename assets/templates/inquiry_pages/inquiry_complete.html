@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load score_result_tags %}
+{% load static %}
+
+
+{% block body %}
+    <h1 class="row col-12">Einde</h1>
+    De vragenlijst is voltooid. Heronder staan de resultaten
+
+    Wij raden u de volgende aanpassingen aan:
+    {% for technology in techs %}
+        {% with technology|get_tech_score:inquiry as score %}
+            {% if score == technology.TECH_SUCCESS %}
+                {% with technology.id as tech_id %}
+                    <div class="card">
+                        <div class="card-header py-0" id="{{ tech_id }}">
+                            <h5 class="mb-0">
+                                <div class="" role="button" data-toggle="collapse" data-target="#col_{{ tech_id }}" aria-expanded="false" aria-controls="col_{{ tech_id }}">
+                                    <div class="row">
+                                        {% if technology.icon %}
+                                            <img class="" src="{{ technology.icon.url }}" width="50" height="50">
+                                        {% endif %}
+                                        <div class="col py-3"> {{ technology.name }}</div>
+                                        <div class="col text-right py-3
+                                                {{ score|get_font_class_for_score }}">
+                                            {{ score|get_text_base_score }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </h5>
+                        </div>
+                    </div>
+                {% endwith %}
+
+            {% elif score == technology.TECH_VARIES %} maybe
+            {% endif %}
+
+        {% endwith %}
+    {% endfor %}
+
+    De volgende veranderingen kunnen mogelijk interessant zijn:
+    {% for technology in techs %}
+        {% with technology|get_tech_score:inquiry as score %}
+            {% if score == technology.TECH_VARIES or score == technology.TECH_UNKNOWN %}
+                {% with technology.id as tech_id %}
+                    <div class="card">
+                        <div class="card-header py-0" id="{{ tech_id }}">
+                            <h5 class="mb-0">
+                                <div class="" role="button" data-toggle="collapse" data-target="#col_{{ tech_id }}" aria-expanded="false" aria-controls="col_{{ tech_id }}">
+                                    <div class="row">
+                                        {% if technology.icon %}
+                                            <img class="" src="{{ technology.icon.url }}" width="50" height="50">
+                                        {% endif %}
+                                        <div class="col py-3"> {{ technology.name }}</div>
+                                        <div class="col text-right py-3
+                                                {{ score|get_font_class_for_score }}">
+                                            {{ score|get_text_base_score }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </h5>
+                        </div>
+                    </div>
+                {% endwith %}
+            {% endif %}
+        {% endwith %}
+    {% endfor %}
+{% endblock %}
+

@@ -161,8 +161,11 @@ class QPageView(BaseTemplateView):
 
     def get_redirect(self, get_next):
         page = self.get_page(get_next=get_next)
-
-        self.request.session['page_id'] = page.id
+        if page:
+            self.request.session['page_id'] = page.id
+        elif get_next:
+            # The end of the questionaire is reached, forward to the results page
+            return reverse('results_display')
 
         return reverse('run_query')
 
@@ -238,3 +241,21 @@ class UserConfirmationPage(BaseTemplateView):
                 self.redirect_response = reverse('continue_query')
 
         return context
+
+
+class QuestionaireCompleteView(BaseTemplateView):
+    template_name = 'inquiry_pages/inquiry_complete.html'
+
+    def init_base_keys(self):
+        self.inquiry = get_object_or_404(Inquiry, id=self.request.session.get('inquiry_id', None))
+
+    def get_context_data(self, **kwargs):
+        context = super(QuestionaireCompleteView, self).get_context_data(**kwargs)
+
+        self.init_base_keys()
+
+        context['inquiry'] = self.inquiry
+        context['techs'] = TechGroup.objects.all()
+
+        return context
+

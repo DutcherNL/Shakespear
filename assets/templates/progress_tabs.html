@@ -30,15 +30,15 @@
             {% endwith %}
         </p>
 
-        {% for tech_score in technology|get_tech_scores:inquiry %}
-            {% for note in tech_score|get_score_notes:technology %}
-                <p>
-                    {{ note|get_prepped_text:inquiry }}
-                </p>
-            {% endfor %}
-        {% endfor %}
-
         {% if technology.sub_technologies.exists %}
+            {% for tech_score in technology|get_tech_scores:inquiry %}
+                {% for note in tech_score|get_score_notes:technology %}
+                    <p>
+                        {{ note|get_prepped_text:inquiry }}
+                    </p>
+                {% endfor %}
+            {% endfor %}
+
             Er zijn verscheidene maatregelen die mogelijk zijn. Hieronder zetten wij uit welke maatregelen wij aanraden:
             <div id="accordion_{{ technology.id }}">
                 {% for subtech in technology.sub_technologies.all %}
