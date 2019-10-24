@@ -16,12 +16,51 @@ class QuestionAdmin(admin.ModelAdmin):
     inlines = [QuestionAnwerOptionsInlines]
 
 
+class AnswerScoringFilter(admin.SimpleListFilter):
+    """
+    A filter that filters users on the time they've had a negative balance.
+    """
+    # Human-readable title which will be displayed in the
+    # right admin sidebar just above the filter options.
+    title = 'Adjusted Scoring values'
+
+    # Parameter for the filter that will be used in the URL query.
+    parameter_name = 'adj_scoring_note'
+
+    def lookups(self, request, model_admin):
+        """
+        Returns a list of tuples representing all the declarations
+        as displayed in the table
+        """
+
+        list_of_declarations = []
+        queryset = ScoringDeclaration.objects.order_by('name')
+        for declaration in queryset:
+            list_of_declarations.append(
+                (str(declaration.id), declaration.name)
+            )
+        return sorted(list_of_declarations, key=lambda tp: tp[1])
+
+    def queryset(self, request, queryset):
+        """
+        Returns the filtered querysets containing all members of the selected associations
+        """
+
+        # If no selection is made, return the entire query
+        if self.value():
+            return queryset.filter(answerscoring__declaration=self.value())
+        return queryset
+
+
 class AnswerOptionAdmin(admin.ModelAdmin):
     class AnswerScoringInlines(admin.TabularInline):
         model = AnswerScoring
         extra = 0
 
     inlines = [AnswerScoringInlines]
+
+    list_display = ('__str__', 'question', 'answer',)
+    list_filter = ('question', AnswerScoringFilter)
 
 
 class TechnologyAdmin(admin.ModelAdmin):
@@ -77,7 +116,7 @@ class AnswerScoringAdmin(admin.ModelAdmin):
     class AnswerScoreNoteInlines(admin.TabularInline):
         model = AnswerScoringNote
         extra = 0
-        filter_horizontal = ('exclude_on','include_on',)
+        filter_horizontal = ('exclude_on', 'include_on',)
 
     inlines = [AnswerScoreNoteInlines]
 
@@ -102,6 +141,9 @@ class PageAdmin(admin.ModelAdmin):
 
 class AnswerNoteAdmin(admin.ModelAdmin):
     filter_horizontal = ('exclude_on', 'include_on',)
+
+    list_display = ('__str__', 'scoring', 'technology',)
+    list_filter = ('technology',)
 
 
 admin.site.register(Page, PageAdmin)
