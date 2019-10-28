@@ -75,9 +75,9 @@ class TechScoreLink(models.Model):
         """
         score_obj = Score.objects.get_or_create(inquiry=inquiry, declaration=self.score_declaration)[0]
 
-        if score_obj.score > self.score_threshold_approve:
+        if score_obj.score >= self.score_threshold_approve:
             return 1
-        if score_obj.score < self.score_threshold_deny:
+        if score_obj.score <= self.score_threshold_deny:
             return 0
         return 0.5
 
