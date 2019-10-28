@@ -5,7 +5,7 @@ from string import Formatter
 from decimal import *
 from PageDisplay.models import Information
 
-from .base_models import Inquiry, AnswerOption, InquiryQuestionAnswer, Page
+from Questionaire.model_files.base_models import Inquiry, AnswerOption, InquiryQuestionAnswer, Page
 
 
 class ScoringDeclaration(models.Model):
@@ -176,25 +176,8 @@ class AnswerScoringNote(models.Model):
         return "{tech}: {answer}".format(tech=self.technology, answer=self.scoring.answer_option)
 
     def get_prepped_text(self, inquiry=None):
-        formatter = Formatter()
-        iter_obj = formatter.parse(self.text)
-        keys = []
-        for literal, key, format, conversion in iter_obj:
-            keys.append(key)
-
-        format_dict = {}
-        for key in keys:
-            if key is None:
-                continue
-
-            if key.startswith('q_'):
-                iqa_obj = InquiryQuestionAnswer.objects.get(question__name=key[2:], inquiry=inquiry)
-                format_dict[key] = iqa_obj.get_readable_answer()
-            elif key.startswith('v_'):
-                score_obj = Score.objects.get(declaration__name=key[2:], inquiry=inquiry)
-                format_dict[key] = score_obj.score
-
-        return self.text.format(**format_dict)
+        from Questionaire.processors.replace_text_from_database import format_from_database
+        return format_from_database(self.text, inquiry=inquiry)
 
 
 class TechGroup(Technology):

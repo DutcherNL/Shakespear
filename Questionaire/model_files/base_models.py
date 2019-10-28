@@ -122,6 +122,7 @@ class AnswerOption(models.Model):
     """ An option for a multiple choice answer """
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     answer = models.CharField(max_length=64)
+    context_code = models.CharField(blank=True, null=True, max_length=256)
     value = models.IntegerField()
     image = models.ImageField(null=True, blank=True)
 
@@ -246,11 +247,16 @@ class InquiryQuestionAnswer(models.Model):
     def __str__(self):
         return "{0} {1}: {2}".format(self.question.name, self.inquiry.id, self.answer)
 
-    def get_readable_answer(self):
+    def get_readable_answer(self, with_answer_code=False):
         """ Returns a human readable answer, as given
 
         :return: a human readable string
         """
+        if with_answer_code:
+            if self.processed_answer:
+                return self.processed_answer.context_code
+            return None
+
         if self.question.question_type == 3:
             if self.answer == "0":
                 # The answer has not been given
