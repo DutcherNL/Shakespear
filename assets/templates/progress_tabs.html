@@ -20,69 +20,7 @@
 
 {% for technology in techs %}
     <div id="tech_{{ technology.id }}" class="tabcontent">
-        <h3>{{ technology.name }}</h3>
-        <p>
-            {{ technology.short_text }}
-            {% with technology.get_absolute_url as url %}
-                {% if url %}
-                    <a target="_blank" rel="noopener noreferrer" href="{{ url }}" > (learn more) </a>
-                {% endif %}
-            {% endwith %}
-        </p>
-
-        {% if technology.sub_technologies.exists %}
-            {% for tech_score in technology|get_tech_scores:inquiry %}
-                {% for note in tech_score|get_score_notes:technology %}
-                    <p>
-                        {{ note|get_prepped_text:inquiry }}
-                    </p>
-                {% endfor %}
-            {% endfor %}
-
-            Er zijn verscheidene maatregelen die mogelijk zijn. Hieronder zetten wij uit welke maatregelen wij aanraden:
-            <div id="accordion_{{ technology.id }}">
-                {% for subtech in technology.sub_technologies.all %}
-                    {% with subtech|get_subtech_html_id:technology as subtech_id %}
-                        <div class="card">
-                            <div class="card-header py-0" id="{{ subtech_id }}">
-                                <h5 class="mb-0">
-                                    <div class="" role="button" data-toggle="collapse" data-target="#col_{{ subtech_id }}" aria-expanded="false" aria-controls="col_{{ subtech_id }}">
-                                        <div class="row">
-                                            {% if subtech.icon %}
-                                                <img class="" src="{{ subtech.icon.url }}" width="50" height="50">
-                                            {% endif %}
-                                            <div class="col py-3"> {{ subtech.name }}</div>
-                                            {% with subtech|get_tech_score:inquiry as sub_score %}
-                                                <div class="col text-right py-3
-                                                            {{ sub_score|get_font_class_for_score }}">
-                                                    {{ sub_score|get_text_base_score }}
-                                                </div>
-                                            {% endwith %}
-                                        </div>
-                                    </div>
-                                </h5>
-                            </div>
-
-                            <div id="col_{{ subtech_id }}" class="collapse" aria-labelledby="{{ subtech_id }}" data-parent="#accordion_{{ technology.id }}">
-                                <div class="card-body">
-                                    {% include "inquiry_pages/inquiry_snippets/subtech_scoring_template.html" %}
-                                </div>
-                            </div>
-                        </div>
-                    {% endwith %}
-                {% endfor %}
-
-            </div>
-        {% else %}
-            <h4>Ons advies: {{ technology|get_tech_score:inquiry|get_text_base_score }}</h4>
-            {% for tech_score in technology|get_tech_scores:inquiry %}
-                {% for note in tech_score|get_score_notes:technology %}
-                    <p>
-                        {{ note|get_prepped_text:inquiry }}
-                    </p>
-                {% endfor %}
-            {% endfor %}
-        {% endif %}
+        {% include "inquiry_pages/inquiry_snippets/snippet_tech_group_info.html" %}
 
         {% if DISPLAY_TECH_SCORES %}
             <h4>Display progress scores</h4>

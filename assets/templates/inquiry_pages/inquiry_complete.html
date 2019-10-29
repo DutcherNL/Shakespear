@@ -5,65 +5,74 @@
 
 {% block body %}
     <h1 class="row col-12">Einde</h1>
-    De vragenlijst is voltooid. Heronder staan de resultaten
 
-    Wij raden u de volgende aanpassingen aan:
-    {% for technology in techs %}
-        {% with technology|get_tech_score:inquiry as score %}
-            {% if score == technology.TECH_SUCCESS %}
-                {% with technology.id as tech_id %}
-                    <div class="card">
-                        <div class="card-header py-0" id="{{ tech_id }}">
-                            <h5 class="mb-0">
-                                <div class="" role="button" data-toggle="collapse" data-target="#col_{{ tech_id }}" aria-expanded="false" aria-controls="col_{{ tech_id }}">
-                                    <div class="row">
-                                        {% if technology.icon %}
-                                            <img class="" src="{{ technology.icon.url }}" width="50" height="50">
-                                        {% endif %}
-                                        <div class="col py-3"> {{ technology.name }}</div>
-                                        <div class="col text-right py-3
-                                                {{ score|get_font_class_for_score }}">
-                                            {{ score|get_text_base_score }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </h5>
-                        </div>
-                    </div>
-                {% endwith %}
+    <p>
+        De vragenlijst is voltooid. Heronder staan de resultaten
+    </p>
 
-            {% elif score == technology.TECH_VARIES %} maybe
-            {% endif %}
+    <h3>Wij raden aan...</h3>
+    {% if techs_recommanded or techs_varies %}
+    <p>
+        Gebasseerd op de antwoorden die u heeft ingevuld kunnen wij het volgende aanraden:
+    </p>
+    {% with accordion_id='accordion_good' %}
+        <div id="{{ accordion_id }}">
+            {% for technology in techs_recommanded %}
+                {% include "inquiry_pages/inquiry_snippets/snippet_tech_group_accordion.html" with tech_id=technology.id extra_header_class='bg-success text-white' %}
+            {% endfor %}
+            {% for technology in techs_varies %}
+                    {% include "inquiry_pages/inquiry_snippets/snippet_tech_group_accordion.html" with tech_id=technology.id extra_header_class='bg-success text-white' %}
+            {% endfor %}
+        </div>
+    {% endwith %}
+    {% else %}
+        Wij kunnen op dit moment niets aanraden.
+        {% if techs_unknown %}
+            Wij hebben hiervoor nog te weinig informatie. Mocht u de vragenlijst niet volledig hebben ingevuld, dan raden wij u aan om de niet beantwoorde vragen ook te beantwoorden waar mogelijk.
+        {% endif %}
+        {% if techs_discouraged %}
+            Wat we wel weten van u is dat een aantal maatregelen niet nodig zijn. Dit is bij u al geoptamaliseerd of geeft in uw geval geen toegevoegde waarde. Deze zijn hieronder toegelicht:
+        {% endif %}
+    {% endif %}
 
+    {% if techs_discouraged %}
+        {% if techs_recommanded or techs_varies %}
+            <hr class="border-1 p-2">
+            <h3>Wij raden u af...</h3>
+            <p>
+                Gebasseerd op de antwoorden die u heeft ingevuld kunnen wij het volgende niet aanraden. U heeft dit al geoptimaliseerd of deze aanpassing heeft geen toegevoegde waarde
+                voor u.
+            </p>
+        {% endif %}
+        {% with 'accordion_bad' as accordion_id %}
+            <div id="{{ accordion_id }}">
+                {% for technology in techs_discouraged %}
+                    {% with extra_card_class='bg-danger text-white' %}
+                        {% include "inquiry_pages/inquiry_snippets/snippet_tech_group_accordion.html" with tech_id=technology.id extra_header_class='bg-danger text-white' %}
+                    {% endwith %}
+                {% endfor %}
+            </div>
         {% endwith %}
-    {% endfor %}
+        {% endif %}
 
-    De volgende veranderingen kunnen mogelijk interessant zijn:
-    {% for technology in techs %}
-        {% with technology|get_tech_score:inquiry as score %}
-            {% if score == technology.TECH_VARIES or score == technology.TECH_UNKNOWN %}
-                {% with technology.id as tech_id %}
-                    <div class="card">
-                        <div class="card-header py-0" id="{{ tech_id }}">
-                            <h5 class="mb-0">
-                                <div class="" role="button" data-toggle="collapse" data-target="#col_{{ tech_id }}" aria-expanded="false" aria-controls="col_{{ tech_id }}">
-                                    <div class="row">
-                                        {% if technology.icon %}
-                                            <img class="" src="{{ technology.icon.url }}" width="50" height="50">
-                                        {% endif %}
-                                        <div class="col py-3"> {{ technology.name }}</div>
-                                        <div class="col text-right py-3
-                                                {{ score|get_font_class_for_score }}">
-                                            {{ score|get_text_base_score }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </h5>
-                        </div>
-                    </div>
-                {% endwith %}
-            {% endif %}
+    {% if techs_unknown %}
+        <hr class="border-1">
+        <h3>Wij kunnen u niet verder helpen met...</h3>
+        <p>
+            Wij hebben helaas te weinig informatie om een uitspraak te kunnen doen over de volgende  technologien. Beantwoord
+            zoveel mogelijk vragen of zoek een specialist bij u in de buurt om te weten of dit interessant voor u kan zijn.
+        </p>
+
+        {% with 'accordion_unknown' as accordion_id %}
+            <div id="{{ accordion_id }}">
+                {% for technology in techs_unknown %}
+                    {% with extra_card_class='' %}
+                        {% include "inquiry_pages/inquiry_snippets/snippet_tech_group_accordion.html" with tech_id=technology.id %}
+                    {% endwith %}
+                {% endfor %}
+            </div>
         {% endwith %}
-    {% endfor %}
+    {% endif %}
+
 {% endblock %}
 

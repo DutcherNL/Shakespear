@@ -101,3 +101,8 @@ def get_font_class_for_score(value):
 def get_subtech_html_id(subtech, technology):
     return "st_" + str(technology.id) + "_" + str(subtech.id)
 
+
+@register.filter
+def create_sub_tech_accordion_name(technolgy):
+    """ I wish this was not neccessary, but I can't get a good function with the add filter, it returns None :S """
+    return "sub_accordion_{tech_id}".format(tech_id=technolgy.id)

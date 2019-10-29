@@ -257,5 +257,30 @@ class QuestionaireCompleteView(BaseTemplateView):
         context['inquiry'] = self.inquiry
         context['techs'] = TechGroup.objects.all()
 
+        techs_recommanded = []
+        techs_unknown = []
+        techs_varies = []
+        techs_discouraged = []
+
+        for tech in TechGroup.objects.all():
+            tech_score = tech.get_score(self.inquiry)
+            tech.score = tech_score
+
+            if tech_score == Technology.TECH_SUCCESS:
+                techs_recommanded.append(tech)
+            elif tech_score == Technology.TECH_FAIL:
+                techs_discouraged.append(tech)
+            elif tech_score == Technology.TECH_VARIES:
+                techs_varies.append(tech)
+            elif tech_score == Technology.TECH_UNKNOWN:
+                techs_unknown.append(tech)
+
+        context['techs_recommanded'] = techs_recommanded
+        context['techs_discouraged'] = techs_discouraged
+        context['techs_varies'] = techs_varies
+        context['techs_unknown'] = techs_unknown
+
+
+
         return context
 

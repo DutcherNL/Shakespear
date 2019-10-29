@@ -1,0 +1,40 @@
+{% load score_result_tags %}
+
+<div class="card {{ extra_card_class }}">
+    <div class="card-header py-0 {{ extra_header_class }}" id="{{ tech_id }}">
+        <h5 class="mb-0">
+            <div class="" role="button" data-toggle="collapse" data-target="#col_{{ tech_id }}" aria-expanded="false" aria-controls="col_{{ tech_id }}">
+                <div class="row">
+                    {% if technology.icon %}
+                        <img class="" src="{{ technology.icon.url }}" width="50" height="50">
+                    {% endif %}
+                    <div class="col py-3"> {{ technology.name }}</div>
+
+                    {% if technology.score %}
+                        <div class="col text-right py-3 {{ technology.score|get_font_class_for_score }}">
+                            {{ technology.score|get_text_base_score }}
+                        </div>
+                    {% else %}
+                        {% with technology|get_tech_score:inquiry as score %}
+                            <div class="col text-right py-3 {{ score|get_font_class_for_score }}">
+                                {{ score|get_text_base_score }}
+                            </div>
+                        {% endwith %}
+                    {% endif %}
+
+
+                </div>
+            </div>
+        </h5>
+    </div>
+
+    <div id="col_{{ tech_id }}" class="collapse" aria-labelledby="{{ tech_id }}" data-parent="#{{ accordion_id }}">
+        <div class="card-body">
+            {% if is_subtech %}
+                {% include "inquiry_pages/inquiry_snippets/subtech_scoring_template.html" %}
+            {% else %}
+                {% include "inquiry_pages/inquiry_snippets/snippet_tech_group_info.html" %}
+            {% endif %}
+        </div>
+    </div>
+</div>
