@@ -17,4 +17,5 @@ urlpatterns = [
     path('inquiry/get_query/', views.GetInquirerView.as_view(), name='run_continue'),
     path('inquiry/continue/', views.InquiryContinueScreen.as_view(), name='continue_query'),
     path('inquiry/results/', views.QuestionaireCompleteView.as_view(), name='results_display'),
+    path('inquiry/reset_query/', views.ResetQueryView.as_view(), name='reset_inquiry'),
 ]

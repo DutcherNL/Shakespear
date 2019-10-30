@@ -140,8 +140,8 @@ class QPageView(BaseTemplateView):
         return context
 
     def init_base_keys(self):
-        self.page = get_object_or_404(Page, id=self.request.session.get('page_id', None))
         self.inquiry = get_object_or_404(Inquiry, id=self.request.session.get('inquiry_id', None))
+        self.page = get_object_or_404(Page, id=self.request.session.get('page_id', None))
 
     def post(self, request, *args, **kwargs):
         context = self.get_context_data()
@@ -291,7 +291,24 @@ class QuestionaireCompleteView(BaseTemplateView):
         context['techs_varies'] = techs_varies
         context['techs_unknown'] = techs_unknown
 
-
-
         return context
+
+
+class ResetQueryView(BaseTemplateView):
+    """ This class proposes ans handles the event that an inquiery needs to be reset.
+
+    Reset is that all scores are returned to their base values and the first page is the active page.
+    Answeres are however maintained.
+
+    """
+    template_name = "inquiry_pages/inquiry_reset.html"
+
+    def post(self, request, *args, **kwargs):
+        inquiry = get_object_or_404(Inquiry, id=self.request.session.get('inquiry_id', None))
+        inquiry.reset()
+        self.request.session['page_id'] = inquiry.current_page.id
+
+        return HttpResponseRedirect(reverse('run_query'))
+
+
 

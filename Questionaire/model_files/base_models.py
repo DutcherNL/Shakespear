@@ -156,6 +156,25 @@ class Inquiry(models.Model):
         self.current_page = None
         self.save()
 
+    def reset(self):
+        """ Resets the inquiry data, it maintains all answers, but removes all scores
+
+        :return:
+        """
+        # Remove all score objects
+        self.score_set.all().delete()
+
+        # Clear all processed states
+        for answer in self.inquiryquestionanswer_set.all():
+            answer.processed = False
+            answer.processed_answer = None
+            answer.save()
+
+        # Adjust own state
+        self.is_complete = False
+        self.current_page = Page.objects.order_by('position').first()
+        self.save()
+
 
 class Inquirer(models.Model):
     """ Contains information of a single user filling in queries """

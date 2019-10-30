@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <form method="post" class="">
+        Het aanpassen van een vragenlijst verwijderd alle opgebouwde score. Echter zullen uw antwoorden blijven behouden.
+        {% csrf_token %}
+        <div class="row">
+            <div class="">
+                <input type="submit" name="next" value="Start opnieuw" class="btn btn-block btn-primary"/>
+            </div>
+        </div>
+    </form>
+{% endblock %}
