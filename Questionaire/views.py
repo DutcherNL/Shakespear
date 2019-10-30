@@ -164,7 +164,8 @@ class QPageView(BaseTemplateView):
         if page:
             self.request.session['page_id'] = page.id
         elif get_next:
-            # The end of the questionaire is reached, forward to the results page
+            # The end of the questionaire is reached, complete the inquiry
+            self.inquiry.complete()
             return reverse('results_display')
 
         return reverse('run_query')
@@ -210,7 +211,14 @@ class QuesetionHomeScreenView(BaseTemplateView):
         return context
 
 
-class UserConfirmationPage(BaseTemplateView):
+class GetInquirerView(BaseTemplateView):
+    """ A view that retrieves and connects the inquirer
+
+    It searches the given inquirer, assures it's access and then forwards to either continuing the questionnaire
+    or leads to the results page
+
+    """
+
     template_name = "inquiry_pages/mail_confirmation_page.html"
     redirect_response = None
 
@@ -232,7 +240,10 @@ class UserConfirmationPage(BaseTemplateView):
             inquirer = context['form'].inquirer_model
             self.request.session['inquirer_id'] = inquirer.id
 
-            if context['form'].inquirer_model.email:
+            if inquirer.active_inquiry.is_complete:
+                self.redirect_response = reverse('results_display')
+
+            elif context['form'].inquirer_model.email:
                 self.request.session['inquiry_id'] = inquirer.active_inquiry.id
                 self.request.session['page_id'] = inquirer.active_inquiry.current_page.id
                 self.redirect_response = reverse('run_query')

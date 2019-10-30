@@ -142,10 +142,19 @@ class Inquiry(models.Model):
     def get_url(self):
         from django.shortcuts import reverse
         if self.current_page is None:
+            if self.is_complete:
+                return reverse('results_display')
+
+
             first_page = Page.objects.order_by('position').first()
             return reverse('debug_q_page', kwargs={'inquiry': self.id, 'page': first_page.id})
         else:
             return reverse('debug_q_page', kwargs={'inquiry': self.id, 'page': self.current_page.id})
+
+    def complete(self):
+        self.is_complete = True
+        self.current_page = None
+        self.save()
 
 
 class Inquirer(models.Model):

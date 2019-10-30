@@ -116,8 +116,6 @@ class InquirerLoadForm(forms.Form):
         if 'email' in exclude:
             self.fields.pop('email')
 
-
-
     def clean(self):
         cleaned_data = super(InquirerLoadForm, self).clean()
 
