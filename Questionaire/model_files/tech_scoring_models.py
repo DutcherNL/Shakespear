@@ -206,7 +206,7 @@ class TechGroup(Technology):
             if score != self.TECH_UNKNOWN:
                 computed = computed + 1
 
-        if computed < self.sub_technologies.count() / 2:
+        if computed <= self.sub_technologies.count() / 2:
             return self.TECH_UNKNOWN
 
         if all_pass:

@@ -272,22 +272,5 @@ class InformationField(Field):
         pass
 
     def prep_text(self, text, inquiry=None):
-        formatter = Formatter()
-        iter_obj = formatter.parse(text)
-        keys = []
-        for literal, key, format, conversion in iter_obj:
-            keys.append(key)
-
-        format_dict = {}
-        for key in keys:
-            if key is None:
-                continue
-
-            if key.startswith('q_'):
-                iqa_obj = InquiryQuestionAnswer.objects.get(question__name=key[2:], inquiry=inquiry)
-                format_dict[key] = iqa_obj.get_readable_answer()
-            elif key.startswith('v_'):
-                score_obj = Score.objects.get(declaration__name=key[2:], inquiry=inquiry)
-                format_dict[key] = score_obj.score
-
-        return text.format(**format_dict)
+        from Questionaire.processors.replace_text_from_database import format_from_database
+        return format_from_database(text, inquiry=inquiry)

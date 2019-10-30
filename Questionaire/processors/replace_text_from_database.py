@@ -30,17 +30,19 @@ def format_from_database(text, inquiry=None):
                     # Check if the code is requested
                     q_name = q_name[:-6]
                     retrieve_code = True
-                print(q_name)
                 iqa_obj = InquiryQuestionAnswer.objects.get(question__name=q_name, inquiry=inquiry)
-                format_dict[key] = iqa_obj.get_readable_answer(with_answer_code=retrieve_code)
+                if len(iqa_obj.answer) > 0:
+                    format_dict[key] = iqa_obj.get_readable_answer(with_answer_code=retrieve_code)
+                else:
+                    format_dict[key] = ""
             elif key.startswith('v_'):
                 score_obj = Score.objects.get(declaration__name=key[2:], inquiry=inquiry)
                 format_dict[key] = score_obj.score
 
         except InquiryQuestionAnswer.DoesNotExist:
             print("{key} did not exist".format(key=key))
-            return text
+            format_dict[key] = ""
         except Score.DoesNotExist:
-            return text
+            format_dict[key] = ""
 
     return text.format(**format_dict)

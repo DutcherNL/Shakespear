@@ -10,8 +10,9 @@
         De vragenlijst is voltooid. Heronder staan de resultaten
     </p>
 
-    <h3>Wij raden aan...</h3>
+
     {% if techs_recommanded or techs_varies %}
+    <h3>Wij raden aan...</h3>
     <p>
         Gebasseerd op de antwoorden die u heeft ingevuld kunnen wij het volgende aanraden:
     </p>
@@ -26,13 +27,23 @@
         </div>
     {% endwith %}
     {% else %}
-        Wij kunnen op dit moment niets aanraden.
-        {% if techs_unknown %}
-            Wij hebben hiervoor nog te weinig informatie. Mocht u de vragenlijst niet volledig hebben ingevuld, dan raden wij u aan om de niet beantwoorde vragen ook te beantwoorden waar mogelijk.
-        {% endif %}
-        {% if techs_discouraged %}
-            Wat we wel weten van u is dat een aantal maatregelen niet nodig zijn. Dit is bij u al geoptamaliseerd of geeft in uw geval geen toegevoegde waarde. Deze zijn hieronder toegelicht:
-        {% endif %}
+        <h3>Wij raden aan... niets!</h3>
+        <p>
+            Wij kunnen op dit moment niets aanraden.
+            {% if techs_unknown %}
+                Wij hebben hiervoor nog te weinig informatie. Mocht u de vragenlijst niet volledig hebben ingevuld,
+                dan raden wij u aan om de niet beantwoorde vragen ook te beantwoorden waar mogelijk.
+                {% if techs_discouraged %}
+                    </p><p>
+                    Wat we wel weten van u is dat één of meerdere maatregelen niet nodig zijn.
+                    Dit is bij u al geoptimaliseerd of geeft in uw geval geen toegevoegde waarde.
+                    Deze zijn hieronder toegelicht:
+                {% endif %}
+            {% elif techs_discouraged %}
+                U lijkt alles al op orde te hebben. Uitstekend! Mocht u alsnog twijfelen raden we u aan om een expert bij u in de buurt te raadplegen.
+            {% endif %}
+        </p>
+
     {% endif %}
 
     {% if techs_discouraged %}
