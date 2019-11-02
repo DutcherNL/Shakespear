@@ -64,7 +64,8 @@ ROOT_URLCONF = 'Shakespeare.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'assets/templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'assets/templates'),
+                 os.path.join(BASE_DIR, 'assets/reports')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -74,7 +75,24 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'Shakespeare.context_processors.questionaire_context'
             ],
+            'builtins': ['Questionaire.templatetags.pdf_tags_preview'],
         },
+    },
+    {
+        'NAME': 'PDFTemplates',
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'assets/reports')],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                'Shakespeare.context_processors.questionaire_context'
+            ],
+            'builtins': ['Questionaire.templatetags.pdf_tags'],
+        }
     },
 ]
 
@@ -140,6 +158,7 @@ from .run_settings import *
 
 STATIC_URL = '/static/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "uploads")
+REPORT_ROOT = os.path.join(BASE_DIR, "reports")
 
+MEDIA_ROOT = os.path.join(BASE_DIR, "uploads")
 MEDIA_URL = "/media/"

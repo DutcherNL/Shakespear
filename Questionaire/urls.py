@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 
 from . import views, views_debug
 
@@ -11,11 +11,18 @@ urlpatterns = [
     path('debug_inq/<int:inquiry>/progress/', views_debug.InquiryScoresViewDebug.as_view(), name='debug_inq_scores'),
 
     path('main/', views.QuesetionHomeScreenView.as_view(), name='index_screen'),
-    path('inquriy/new/', views.CreateNewInquiryView.as_view(), name='new_query'),
-    path('inquiry/welcome', views.InquiryStartScreen.as_view(), name='start_query'),
-    path('inquiry/run/', views.QPageView.as_view(), name='run_query'),
-    path('inquiry/get_query/', views.GetInquirerView.as_view(), name='run_continue'),
-    path('inquiry/continue/', views.InquiryContinueScreen.as_view(), name='continue_query'),
-    path('inquiry/results/', views.QuestionaireCompleteView.as_view(), name='results_display'),
-    path('inquiry/reset_query/', views.ResetQueryView.as_view(), name='reset_inquiry'),
+    path('inquiry/', include([
+        path('new/', views.CreateNewInquiryView.as_view(), name='new_query'),
+        path('welcome', views.InquiryStartScreen.as_view(), name='start_query'),
+        path('run/', views.QPageView.as_view(), name='run_query'),
+        path('get_query/', views.GetInquirerView.as_view(), name='run_continue'),
+        path('continue/', views.InquiryContinueScreen.as_view(), name='continue_query'),
+        path('reset_query/', views.ResetQueryView.as_view(), name='reset_inquiry'),
+
+        path('results/', include([
+            path('', views.QuestionaireCompleteView.as_view(), name='results_display'),
+            path('pdfpreview/', views.QuestionaireCompletePDFView.as_view()),
+            path('pdf/', views.ResultsPDFPlotter.as_view(), name='results_pdf'),
+        ])),
+    ])),
 ]
