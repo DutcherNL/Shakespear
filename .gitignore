@@ -167,6 +167,7 @@ ENV/
 
 uploads/
 Socrates/config.py
+reports/
 .idea/
 *.iml
-*/ignore/*
+ignore/*
