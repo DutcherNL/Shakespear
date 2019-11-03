@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+    {# Bootstrap with Bootswatch Darkly theme #}
+    {# Basic bootstrap theme #}
+
+    <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet">
+
+    {# Bootstrap color scheme #}
+    {# Font Awesome icons #}
+    {% block head %}{% endblock %}
+    <title>{% block title %}Shakespear: The questionaire{% endblock %}</title>
+</head>
+<body class="bg-dark">
+
+<div class="container my-3 border border-dark rounded bg-light" style="height: 110mm">
+    {% block body %}{% endblock %}
+</div>
+
+{% for page in pages %}
+    <div class="container my-3 border border-dark rounded bg-light" style="height: 100mm">
+        {% include 'reports_page.html' %}
+    </div>
+{% endfor %}
+</body>
+</html>

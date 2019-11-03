@@ -1,5 +1,7 @@
 from django.urls import path, include
 
+from reports.views import ResultsPDFPlotter, QuestionaireCompletePDFView
+
 from . import views, views_debug
 
 urlpatterns = [
@@ -21,8 +23,7 @@ urlpatterns = [
 
         path('results/', include([
             path('', views.QuestionaireCompleteView.as_view(), name='results_display'),
-            path('pdfpreview/', views.QuestionaireCompletePDFView.as_view()),
-            path('pdf/', views.ResultsPDFPlotter.as_view(), name='results_pdf'),
+            path('pdf/', include('reports.urls')),
         ])),
     ])),
 ]

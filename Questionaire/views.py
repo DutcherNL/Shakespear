@@ -315,44 +315,7 @@ class ResetQueryView(BaseTemplateView):
         return HttpResponseRedirect(reverse('run_query'))
 
 
-class QuestionaireCompletePDFView(QuestionaireCompleteView):
-    template_name = "report_overview.html"
 
-    def dispatch(self, *args, **kwargs):
-        #import pdfkit
-        #pdfkit.from_url("http://google.com", "out.pdf")
-
-        return super(QuestionaireCompletePDFView, self).dispatch(*args, **kwargs)
-
-
-class ResultsPDFPlotter(QuestionaireCompleteView):
-    template_name = "report_overview.html"
-    template_engine = "PDFTemplates"
-
-    def dispatch(self, request, *args, **kwargs):
-        parent_result = super(ResultsPDFPlotter, self).dispatch(request, *args, **kwargs)
-
-        from django.template.loader import get_template
-        import pdfkit
-
-        template = get_template(self.template_name, using=self.template_engine)
-        context = self.get_context_data()
-        html = template.render(context)  # Renders the template with the context data.
-        #print(html)
-
-        filename = "{id}-{timestamp}.pdf".format(id=self.inquiry.id, timestamp=timezone.now().timestamp())
-        filepath = os.path.join(settings.REPORT_ROOT, filename)
-
-        pdfkit.from_string(html, filepath)
-        pdf = open(filepath, 'rb')
-        response = HttpResponse(content=pdf)  # Generates the response as pdf response.
-        response['Content-Type'] = 'application/pdf'
-        print(filename)
-        response['Content-Disposition'] = 'attachment; filename={filename}'.format(filename=filename)
-        pdf.close()
-        # print("out.pdf")  # remove the locally created pdf file.
-
-        return response  # returns the response.
 
 
 

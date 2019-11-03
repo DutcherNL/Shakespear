@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'Questionaire.apps.QuestionaireConfig',
     'DataStorage.apps.DataStorageConfig',
     'PageDisplay.apps.PagedisplayConfig',
+    'reports.apps.ReportsConfig',
 
 
 
@@ -158,7 +159,7 @@ from .run_settings import *
 
 STATIC_URL = '/static/'
 
-REPORT_ROOT = os.path.join(BASE_DIR, "reports")
+REPORT_ROOT = os.path.join(BASE_DIR, "reports/created_reports")
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "uploads")
 MEDIA_URL = "/media/"

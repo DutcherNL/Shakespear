@@ -9,11 +9,25 @@ from django.urls import reverse
 class Information(models.Model):
     name = models.CharField(max_length=63)
 
+    template_name = 'page_info_display.html'
+
     def get_absolute_url(self):
-        return reverse('tech_details', kwargs={'tech_id': self.id})
+        return reverse('info_page', kwargs={'inf_id': self.id})
 
     def __str__(self):
         return self.name
+
+    def get_context_data(self):
+        context = {}
+        context['modules'] = self.basemodule_set.order_by('position')
+        return context
+
+    def render(self):
+        from django.template.loader import get_template
+
+        template = get_template(self.template_name)
+        context = self.get_context_data()
+        return template.render(context)  # Renders the template with the context data.
 
 
 class BaseModule(models.Model):
