@@ -1,0 +1,32 @@
+{% extends 'pagedisplay/page_edit_base.html' %}
+
+{% block page %}
+    {% for module in modules %}
+        <div class="row">
+            <div class="col-12">
+                <a class="page_edit_overlay" href="{% url 'edit_page' inf_id=page.id module_id=module.id %}">
+
+                </a>
+
+                {{ module.render }}
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% block sidebar_title %}
+    Edit page
+{% endblock %}
+
+{% block sidebar_content %}
+    <div class="row">
+        <div class="h4 col-12">
+            Instructions
+        </div>
+        <div class="col-12">
+            Click on a module to edit it
+        </div>
+        <hr class="col-12 border-white my-2">
+        <a class="btn btn-primary btn-block" href="{% url 'edit_page_add' inf_id=page.id %}">Voeg module toe</a>
+    </div>
+{% endblock %}

@@ -12,39 +12,36 @@
                 <div class="container">
                     {% autoescape off %}
                         {% block page %}
-                            - Insert page here -
+                            {% for module in modules %}
+                                <div class="row">
+                                    <div class="col-12">
+                                        {% block module_decor %}
+                                        {% endblock %}
+
+                                        {{ module.render }}
+                                    </div>
+                                </div>
+                            {% endfor %}
                         {% endblock %}
                     {% endautoescape %}
                 </div>
             </div>
             <div class="pe_sidebar">
+
                 <div>
                     <div class="row">
                         <div class="h2 col-12 my-0">
-                            Module opties
-                        </div>
-                        <hr class="col-12 border-white my-2">
-                    </div>
+                            {% block sidebar_title %}
 
-                    <div class="row">
-                        <div class="h4 col-12">
-                            Details
-                        </div>
-                        <div class="col-12">
-                            {% block module_details %}
-                                Please select a module
                             {% endblock %}
-
                         </div>
                         <hr class="col-12 border-white my-2">
                     </div>
+                    {% block sidebar_content %}
 
-                    <form class="row" method="post">
-                        {% csrf_token %}
-                        {% block module_options %}
+                    {% endblock %}
 
-                        {% endblock %}
-                    </form>
+
 
                 </div>
             </div>

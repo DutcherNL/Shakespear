@@ -3,6 +3,8 @@ from django.utils.safestring import mark_safe
 from django.forms.renderers import get_default_renderer
 from django.urls import reverse
 
+from .module_registry import registry
+
 # Create your models here.
 
 
@@ -34,6 +36,8 @@ class BaseModule(models.Model):
     """
     A module to create information
     """
+    verbose = "-Abstract module-"
+    _type_id = 0
     information = models.ForeignKey(Information, on_delete=models.PROTECT)
     position = models.PositiveIntegerField(default=999)
 
@@ -42,7 +46,10 @@ class BaseModule(models.Model):
         (2, "textmodule"),
         (3, "imagemodule"),
     )
-    _type = models.PositiveIntegerField(choices=_types)
+    _type = models.PositiveIntegerField()
+    @property
+    def type(self):
+        return self.verbose
 
     def get_child(self):
         class_type = None
@@ -63,62 +70,64 @@ class BaseModule(models.Model):
         return mark_safe(renderer.render(self.template_name, context))
 
     def get_context(self):
-        return {}
+        return {'module': self}
 
     def get_fixed_properties(self):
-        properties = [('type', self._type), ('position', self.position)]
+        properties = [('type', self.type), ('position', self.position)]
         return properties
+
+    def save(self, **kwargs):
+        self._type = self._type_id
+        super(BaseModule, self).save(**kwargs)
 
 
 class TitleModule(BaseModule):
+    verbose = "Title"
+    _type_id = 1
+
     template_name = "pagedisplay/modules/module_title.html"
 
     title = models.CharField(max_length=127)
     size = models.PositiveIntegerField(default=1, help_text="The level of the title 1,2,3... maz 5")
+    css = models.CharField(max_length=256, help_text="CSS classes in accordance with Bootstrap",
+                           null=True, blank=True, default="")
 
     def __init__(self, *args, **kwargs):
         super(TitleModule, self).__init__(*args, **kwargs)
-        self._type = 1
-
-    def get_context(self):
-        context = super(TitleModule, self).get_context()
-        context['title_size'] = self.size
-        context['title_text'] = self.title
-        return context
-
-    def save(self, **kwargs):
-        self._type = 1
-        super(TitleModule, self).save(**kwargs)
+        self._type = self._type_id
 
 
 class TextModule(BaseModule):
+    verbose = "Text"
+    _type_id = 2
+
     template_name = "pagedisplay/modules/module_text.html"
     text = models.TextField()
+    css = models.CharField(max_length=256, help_text="CSS classes in accordance with Bootstrap",
+                           null=True, blank=True, default="")
 
     def __init__(self, *args, **kwargs):
         super(TextModule, self).__init__(*args, **kwargs)
-        self._type = 2
+        self._type = self._type_id
 
     def __str__(self):
         return self.text
 
-    def get_context(self):
-        context = super(TextModule, self).get_context()
-        context['text'] = self.text
-        return context
-
     def save(self, **kwargs):
-        self._type = 2
+        self._type = self._type_id
         super(TextModule, self).save(**kwargs)
 
 
 class ImageModule(BaseModule):
+    verbose = "Image"
+    _type_id = 3
+
     template_name = "pagedisplay/modules/module_image.html"
     image = models.ImageField()
 
     def __init__(self, *args, **kwargs):
         super(ImageModule, self).__init__(*args, **kwargs)
-        self._type = 3
+        self._type = self._type_id
 
     def get_context(self):
         context = super(ImageModule, self).get_context()
@@ -127,5 +136,9 @@ class ImageModule(BaseModule):
         return context
 
     def save(self, **kwargs):
-        self._type = 3
+        self._type = self._type_id
         super(ImageModule, self).save(**kwargs)
+
+
+registry.register(TitleModule)
+registry.register(TextModule)
