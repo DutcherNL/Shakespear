@@ -34,6 +34,7 @@ class BaseModule(models.Model):
     """
     A module to create information
     """
+    verbose = "-Abstract module-"
     information = models.ForeignKey(Information, on_delete=models.PROTECT)
     position = models.PositiveIntegerField(default=999)
 
@@ -43,6 +44,9 @@ class BaseModule(models.Model):
         (3, "imagemodule"),
     )
     _type = models.PositiveIntegerField(choices=_types)
+    @property
+    def type(self):
+        return self.verbose
 
     def get_child(self):
         class_type = None
@@ -66,11 +70,13 @@ class BaseModule(models.Model):
         return {}
 
     def get_fixed_properties(self):
-        properties = [('type', self._type), ('position', self.position)]
+        properties = [('type', self.type), ('position', self.position)]
         return properties
 
 
 class TitleModule(BaseModule):
+    verbose = "Title"
+
     template_name = "pagedisplay/modules/module_title.html"
 
     title = models.CharField(max_length=127)
@@ -92,6 +98,8 @@ class TitleModule(BaseModule):
 
 
 class TextModule(BaseModule):
+    verbose = "Text"
+
     template_name = "pagedisplay/modules/module_text.html"
     text = models.TextField()
 
@@ -113,6 +121,8 @@ class TextModule(BaseModule):
 
 
 class ImageModule(BaseModule):
+    verbose = "Image"
+
     template_name = "pagedisplay/modules/module_image.html"
     image = models.ImageField()
 
