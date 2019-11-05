@@ -65,9 +65,13 @@ class BaseModule(models.Model):
     def get_context(self):
         return {}
 
+    def get_fixed_properties(self):
+        properties = [('type', self._type), ('position', self.position)]
+        return properties
+
 
 class TitleModule(BaseModule):
-    template_name = "modules/module_title.html"
+    template_name = "pagedisplay/modules/module_title.html"
 
     title = models.CharField(max_length=127)
     size = models.PositiveIntegerField(default=1, help_text="The level of the title 1,2,3... maz 5")
@@ -88,7 +92,7 @@ class TitleModule(BaseModule):
 
 
 class TextModule(BaseModule):
-    template_name = "modules/module_text.html"
+    template_name = "pagedisplay/modules/module_text.html"
     text = models.TextField()
 
     def __init__(self, *args, **kwargs):
@@ -109,7 +113,7 @@ class TextModule(BaseModule):
 
 
 class ImageModule(BaseModule):
-    template_name = "modules/module_image.html"
+    template_name = "pagedisplay/modules/module_image.html"
     image = models.ImageField()
 
     def __init__(self, *args, **kwargs):

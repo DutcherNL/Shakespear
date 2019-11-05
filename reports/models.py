@@ -30,7 +30,6 @@ class Page(models.Model):
         return "No layout defined for {0}".format(self.name)
 
 
-
 class PageCriteria(models.Model):
     """ Adds the page in the report if a certain criteria is met """
     page = models.ForeignKey(Page, on_delete=models.CASCADE)

@@ -5,13 +5,12 @@ from django.views.generic import TemplateView
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
-from django.conf import settings
-from django.utils import timezone
 
-from .models import Page, Inquiry, Technology, Score, Inquirer, TechGroup
-from .forms import QuestionPageForm, EmailForm, InquiryLoadDebugForm, InquirerLoadForm
+from .models import Page, Inquiry, Technology, Inquirer, TechGroup
+from .forms import QuestionPageForm, EmailForm, InquirerLoadForm
 
 # Create your views here.
+
 
 class BaseTemplateView(TemplateView):
     """ A special templateview that implements some site-wide common behaviour """

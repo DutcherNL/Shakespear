@@ -1,0 +1,19 @@
+{% extends 'report_base.html' %}
+
+{% block page_details %}
+    <div class="container my-0 text-light">
+        <div class="row">
+            <div class="col bg-info">
+                <div class="h4 font-weight-bold">{{ page.name }}</div>
+                <div>
+                    {{ page.description }}
+                </div>
+            </div>
+
+            <div class="col">
+                <a class="btn btn-block btn-primary" href="{% url 'result_preview' page_number=page.page_number %}">View alone</a>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

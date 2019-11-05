@@ -1,103 +1,99 @@
-{% extends 'report_base.html' %}
 {% load score_result_tags %}
 
-
-{% block body %}
-    <h1>Resultaten </h1>
-    <div class="row">
-        <div class="col-12">
-            {% if techs_recommanded or techs_varies %}
-                <h3>Wij raden aan...</h3>
-                <p>
-                    Gebasseerd op de antwoorden die u heeft ingevuld kunnen wij het volgende aanraden:
-                </p>
-
-                {% for technology in techs_recommanded %}
-                    <div class="row">
-                        {% if technology.icon %}
-                            <img class="" src="{{ technology.icon|img }}" width="50" height="50">
-                        {% endif %}
-                        <div class="col py-3"> {{ technology.name }}</div>
-
-                        {% if technology.score %}
-                            <div class="col text-right py-3 {{ technology.score|get_font_class_for_score }}">
-                                {{ technology.score|get_text_base_score }}
-                            </div>
-                        {% else %}
-                            {% with technology|get_tech_score:inquiry as score %}
-                                <div class="col text-right py-3 {{ score|get_font_class_for_score }}">
-                                    {{ score|get_text_base_score }}
-                                </div>
-                            {% endwith %}
-                        {% endif %}
-                    </div>
-                {% endfor %}
-                {% for technology in techs_varies %}
-                        {{ technology }}
-                {% endfor %}
-            {% else %}
-                <h3>Wij raden aan... niets!</h3>
-                <p>
-                    Wij kunnen op dit moment niets aanraden.
-                    {% if techs_unknown %}
-                        Wij hebben hiervoor nog te weinig informatie. Mocht u de vragenlijst niet volledig hebben ingevuld,
-                        dan raden wij u aan om de niet beantwoorde vragen ook te beantwoorden waar mogelijk.
-                        {% if techs_discouraged %}
-                            </p><p>
-                            Wat we wel weten van u is dat één of meerdere maatregelen niet nodig zijn.
-                            Dit is bij u al geoptimaliseerd of geeft in uw geval geen toegevoegde waarde.
-                            Deze zijn hieronder toegelicht:
-                        {% endif %}
-                    {% elif techs_discouraged %}
-                        U lijkt alles al op orde te hebben. Uitstekend! Mocht u alsnog twijfelen raden we u aan om een expert bij u in de buurt te raadplegen.
-                    {% endif %}
-                </p>
-
-            {% endif %}
-        </div>
-
-        <div class="col-12">
-        {% if techs_discouraged %}
-            {% if techs_recommanded or techs_varies %}
-                <hr class="border-1 p-2">
-                <h3>Wij raden u af...</h3>
-                <p>
-                    Gebasseerd op de antwoorden die u heeft ingevuld kunnen wij het volgende niet aanraden. U heeft dit al geoptimaliseerd of deze aanpassing heeft geen toegevoegde waarde
-                    voor u.
-                </p>
-            {% endif %}
-            {% with 'accordion_bad' as accordion_id %}
-                <div id="{{ accordion_id }}">
-                    {% for technology in techs_discouraged %}
-                        {% with extra_card_class='bg-danger text-white' %}
-                            {{ technology }}
-                        {% endwith %}
-                    {% endfor %}
-                </div>
-            {% endwith %}
-            {% endif %}
-        </div>
-
-        <div class="col-12">
-        {% if techs_unknown %}
-            <hr class="border-1">
-            <h3>Wij kunnen u niet verder helpen met...</h3>
+<h1>Resultaten </h1>
+<div class="row">
+    <div class="col-12">
+        {% if techs_recommanded or techs_varies %}
+            <h3>Wij raden aan...</h3>
             <p>
-                Wij hebben helaas te weinig informatie om een uitspraak te kunnen doen over de volgende  technologien. Beantwoord
-                zoveel mogelijk vragen of zoek een specialist bij u in de buurt om te weten of dit interessant voor u kan zijn.
+                Gebasseerd op de antwoorden die u heeft ingevuld kunnen wij het volgende aanraden:
             </p>
 
-            {% with 'accordion_unknown' as accordion_id %}
-                <div id="{{ accordion_id }}">
-                    {% for technology in techs_unknown %}
-                        {% with extra_card_class='' %}
-                            {{ technology }}
+            {% for technology in techs_recommanded %}
+                <div class="row">
+                    {% if technology.icon %}
+                        <img class="" src="{{ technology.icon|img }}" width="50" height="50">
+                    {% endif %}
+                    <div class="col py-3"> {{ technology.name }}</div>
+
+                    {% if technology.score %}
+                        <div class="col text-right py-3 {{ technology.score|get_font_class_for_score }}">
+                            {{ technology.score|get_text_base_score }}
+                        </div>
+                    {% else %}
+                        {% with technology|get_tech_score:inquiry as score %}
+                            <div class="col text-right py-3 {{ score|get_font_class_for_score }}">
+                                {{ score|get_text_base_score }}
+                            </div>
                         {% endwith %}
-                    {% endfor %}
+                    {% endif %}
                 </div>
-            {% endwith %}
+            {% endfor %}
+            {% for technology in techs_varies %}
+                    {{ technology }}
+            {% endfor %}
+        {% else %}
+            <h3>Wij raden aan... niets!</h3>
+            <p>
+                Wij kunnen op dit moment niets aanraden.
+                {% if techs_unknown %}
+                    Wij hebben hiervoor nog te weinig informatie. Mocht u de vragenlijst niet volledig hebben ingevuld,
+                    dan raden wij u aan om de niet beantwoorde vragen ook te beantwoorden waar mogelijk.
+                    {% if techs_discouraged %}
+                        </p><p>
+                        Wat we wel weten van u is dat één of meerdere maatregelen niet nodig zijn.
+                        Dit is bij u al geoptimaliseerd of geeft in uw geval geen toegevoegde waarde.
+                        Deze zijn hieronder toegelicht:
+                    {% endif %}
+                {% elif techs_discouraged %}
+                    U lijkt alles al op orde te hebben. Uitstekend! Mocht u alsnog twijfelen raden we u aan om een expert bij u in de buurt te raadplegen.
+                {% endif %}
+            </p>
+
         {% endif %}
-        </div>
     </div>
-{% endblock %}
+
+    <div class="col-12">
+    {% if techs_discouraged %}
+        {% if techs_recommanded or techs_varies %}
+            <hr class="border-1 p-2">
+            <h3>Wij raden u af...</h3>
+            <p>
+                Gebasseerd op de antwoorden die u heeft ingevuld kunnen wij het volgende niet aanraden. U heeft dit al geoptimaliseerd of deze aanpassing heeft geen toegevoegde waarde
+                voor u.
+            </p>
+        {% endif %}
+        {% with 'accordion_bad' as accordion_id %}
+            <div id="{{ accordion_id }}">
+                {% for technology in techs_discouraged %}
+                    {% with extra_card_class='bg-danger text-white' %}
+                        {{ technology }}
+                    {% endwith %}
+                {% endfor %}
+            </div>
+        {% endwith %}
+        {% endif %}
+    </div>
+
+    <div class="col-12">
+    {% if techs_unknown %}
+        <hr class="border-1">
+        <h3>Wij kunnen u niet verder helpen met...</h3>
+        <p>
+            Wij hebben helaas te weinig informatie om een uitspraak te kunnen doen over de volgende  technologien. Beantwoord
+            zoveel mogelijk vragen of zoek een specialist bij u in de buurt om te weten of dit interessant voor u kan zijn.
+        </p>
+
+        {% with 'accordion_unknown' as accordion_id %}
+            <div id="{{ accordion_id }}">
+                {% for technology in techs_unknown %}
+                    {% with extra_card_class='' %}
+                        {{ technology }}
+                    {% endwith %}
+                {% endfor %}
+            </div>
+        {% endwith %}
+    {% endif %}
+    </div>
+</div>
 

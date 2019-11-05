@@ -5,6 +5,7 @@ import os
 from django.http import HttpResponse
 from django.conf import settings
 from django.utils import timezone
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from Questionaire.views import QuestionaireCompleteView
 from .models import Report, Page, PageCriteria
@@ -12,12 +13,27 @@ from .models import Report, Page, PageCriteria
 # Create your views here.
 
 
-class QuestionaireCompletePDFView(QuestionaireCompleteView):
-    template_name = "report_overview.html"
+class QuestionaireCompletePDFView(LoginRequiredMixin, QuestionaireCompleteView):
+    template_name = "report_preview.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.init_keys()
+        return super(QuestionaireCompletePDFView, self).dispatch(request, *args, **kwargs)
+
+    def init_keys(self):
+        if self.kwargs.get('page_number', None):
+            self.page = Page.objects.filter(page_number=self.kwargs['page_number']).order_by('last_edited').first()
+        else:
+            print("No page number")
+            self.page = None
 
     def get_context_data(self, **kwargs):
         context = super(QuestionaireCompletePDFView, self).get_context_data(**kwargs)
         context['pages'] = Page.objects.filter(report__is_live=True).order_by('page_number')
+        if self.page:
+            context['pages'] = context['pages'].filter(page_number=self.page.page_number)
+        else:
+            context['show_overview'] = True
 
         return context
 

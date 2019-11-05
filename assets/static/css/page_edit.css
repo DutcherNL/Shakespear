@@ -1,0 +1,33 @@
+.page_edit_overlay{
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    border: 1px solid green;
+}
+
+.page_edit_overlay:hover{
+    border-color: #0d3849;
+}
+
+
+.pe_main{
+    padding-right: 400px;
+}
+
+.pe_sidebar{
+    width: 400px;
+    background-color: #3E3F3A;
+    color: #FFF;
+    height: 90%;
+    position: fixed;
+    top: 5%;
+    bottom: 5%;
+    right: 0;
+    z-index: 1000;
+    display: block;
+    padding: 20px;
+    overflow-x: hidden;
+    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+
+    border-radius: 10px 0 0 10px;
+}

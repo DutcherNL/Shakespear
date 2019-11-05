@@ -1,0 +1,31 @@
+{% extends 'pagedisplay/page_edit_base.html' %}
+
+{% block page %}
+    {% for module in modules %}
+        <div class="row">
+            <div class="col-12">
+                <a class="page_edit_overlay" href="{% url 'edit_page' inf_id=page.id module_id=module.id %}">
+
+                </a>
+
+                {{ module.render }}
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}
+
+
+{% block module_details %}
+    {% for key, value in selected_module.get_fixed_properties %}
+        <div class="row">
+            <div class="col-4">{{ key }}</div>
+            <div class="col-8">{{ value }}</div>
+        </div>
+
+    {% endfor %}
+{% endblock %}
+
+
+{% block module_options %}
+    {% include "snippets/bootstrap_form.html" %}
+{% endblock %}

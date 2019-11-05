@@ -15,14 +15,20 @@
 </head>
 <body class="bg-dark">
 
-<div class="container my-3 border border-dark rounded bg-light" style="height: 110mm">
-    {% block body %}{% endblock %}
-</div>
+{% block base %}
+    {% if show_overview %}
+        <div class="container my-3 border border-dark rounded bg-light" style="height: 110mm">
+            {% include 'report_overview.html' %}
+        </div>
+    {% endif %}
 
-{% for page in pages %}
-    <div class="container my-3 border border-dark rounded bg-light" style="height: 100mm">
-        {% include 'reports_page.html' %}
-    </div>
-{% endfor %}
+    {% for page in pages %}
+        {% block page_details %} {% endblock %}
+        <div class="container my-3 border border-dark rounded bg-light" style="height: 100mm">
+            {% include 'reports_page.html' %}
+        </div>
+    {% endfor %}
+{% endblock %}
+
 </body>
 </html>
