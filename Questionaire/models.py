@@ -8,7 +8,7 @@
 from .model_files.base_models import *
 from .model_files.tech_scoring_models import *
 from .model_files.external_input_models import *
-
+from Questionaire import modules
 
 
 
