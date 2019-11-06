@@ -92,10 +92,6 @@ class TitleModule(BaseModule):
     css = models.CharField(max_length=256, help_text="CSS classes in accordance with Bootstrap",
                            null=True, blank=True, default="")
 
-    def __init__(self, *args, **kwargs):
-        super(TitleModule, self).__init__(*args, **kwargs)
-        self._type = self._type_id
-
 
 class TextModule(BaseModule):
     verbose = "Text"
@@ -106,16 +102,8 @@ class TextModule(BaseModule):
     css = models.CharField(max_length=256, help_text="CSS classes in accordance with Bootstrap",
                            null=True, blank=True, default="")
 
-    def __init__(self, *args, **kwargs):
-        super(TextModule, self).__init__(*args, **kwargs)
-        self._type = self._type_id
-
     def __str__(self):
         return self.text
-
-    def save(self, **kwargs):
-        self._type = self._type_id
-        super(TextModule, self).save(**kwargs)
 
 
 class ImageModule(BaseModule):
@@ -125,19 +113,11 @@ class ImageModule(BaseModule):
     template_name = "pagedisplay/modules/module_image.html"
     image = models.ImageField()
 
-    def __init__(self, *args, **kwargs):
-        super(ImageModule, self).__init__(*args, **kwargs)
-        self._type = self._type_id
-
     def get_context(self):
         context = super(ImageModule, self).get_context()
         context['image'] = self.image
         context['height'] = 100
         return context
-
-    def save(self, **kwargs):
-        self._type = self._type_id
-        super(ImageModule, self).save(**kwargs)
 
 
 registry.register(TitleModule)

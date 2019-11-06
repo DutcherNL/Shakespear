@@ -10,41 +10,29 @@ from .forms import build_moduleform, AddModuleForm, DelModuleForm
 
 # Create your views here.
 
-class InfoPageView(BaseTemplateView):
+class PageMixin:
+    def get_context_data(self, **kwargs):
+        self.information = Information.objects.get(pk=self.kwargs['inf_id'])
+        context = super().get_context_data(**kwargs)
+        self.information = Information.objects.get(pk=self.kwargs['inf_id'])
+        context['page'] = self.information
+        context['modules'] = self.information.basemodule_set.order_by('position')
+        return context
+
+
+class InfoPageView(PageMixin, BaseTemplateView):
     template_name = "pagedisplay/page_info_display.html"
 
-    def get_context_data(self, **kwargs):
-        context = super(InfoPageView, self).get_context_data(**kwargs)
 
-        information = Information.objects.get(pk=self.kwargs['inf_id'])
-        context['page'] = information
-        context['modules'] = information.basemodule_set.order_by('position')
-
-        return context
-
-
-class PageAlterView(TemplateView):
+class PageAlterView(PageMixin, TemplateView):
     template_name = 'pagedisplay/page_edit_page.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
 
-        information = Information.objects.get(pk=self.kwargs['inf_id'])
-        context['page'] = information
-        context['modules'] = information.basemodule_set.order_by('position')
-
-        return context
-
-
-class PageAddModuleView(TemplateView):
+class PageAddModuleView(PageMixin, TemplateView):
     template_name = 'pagedisplay/page_edit_add_module.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        self.information = Information.objects.get(pk=self.kwargs['inf_id'])
-        context['page'] = self.information
-        context['modules'] = self.information.basemodule_set.order_by('position')
         context['form'] = AddModuleForm(page=self.information)
 
         return context
@@ -65,15 +53,12 @@ class PageAddModuleView(TemplateView):
             return self.render_to_response(context)
 
 
-class PageAlterModuleView(TemplateView):
+class PageAlterModuleView(PageMixin, TemplateView):
     template_name = 'pagedisplay/page_edit_module.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        self.information = Information.objects.get(pk=self.kwargs['inf_id'])
-        context['page'] = self.information
-        context['modules'] = self.information.basemodule_set.order_by('position')
         self.selected_module = self.information.basemodule_set.get(id=self.kwargs['module_id']).get_child()
         context['selected_module'] = self.selected_module
         context['form'] = build_moduleform(instance=self.selected_module)
