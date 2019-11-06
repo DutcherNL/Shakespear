@@ -2,11 +2,11 @@
     position: absolute;
     height: 100%;
     width: 100%;
-    border: 1px solid green;
+    border: 1px solid #e4d8c5;
 }
 
 .page_edit_overlay:hover{
-    border-color: #0d3849;
+    border-color: #6b9430;
 }
 
 
