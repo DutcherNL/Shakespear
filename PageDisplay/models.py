@@ -1,9 +1,8 @@
 from django.db import models
-from django.utils.safestring import mark_safe
-from django.forms.renderers import get_default_renderer
 from django.urls import reverse
 
 from .module_registry import registry
+from PageDisplay import widgets
 
 # Create your models here.
 
@@ -40,52 +39,53 @@ class BaseModule(models.Model):
     _type_id = 0
     information = models.ForeignKey(Information, on_delete=models.PROTECT)
     position = models.PositiveIntegerField(default=999)
-
-    _types = (
-        (1, "titlemodule"),
-        (2, "textmodule"),
-        (3, "imagemodule"),
-    )
     _type = models.PositiveIntegerField()
+
     @property
     def type(self):
         return self.verbose
 
+    def __init__(self, *args, **kwargs):
+        super(BaseModule, self).__init__(*args, **kwargs)
+
     def get_child(self):
-        class_type = None
-        # Get the correct tuple from the list
-        for tuple in self._types:
-            if tuple[0] == self._type:
-                class_type = tuple[1]
+        # Get the module class from the module registry
+        child_class = registry.get_module(self._type)
 
-        new_obj = getattr(self, class_type)
-        return new_obj
+        # Retrieve the child through the class objects
+        # Django inheritance maintains object id of the parent in the children
+        child_obj = child_class.objects.get(id=self.id)
 
-    def render(self):
-        return self.get_child().render_field()
+        return child_obj
 
-    def render_field(self):
-        context = self.get_context()
-        renderer = get_default_renderer()
-        return mark_safe(renderer.render(self.template_name, context))
+    def _init_widget(self, widget=None):
+        """ Initialise the widget object """
+        widget = widget or self.widget
+        if isinstance(widget, type):
+            widget = widget(model=self)
+        return widget
 
-    def get_context(self):
-        return {'module': self}
+    def render(self, widget=None, renderer=None):
+        # Get the child as deep as possible
+        child = self.get_child()
+        # Load the widget and render it
+        return child._init_widget(widget).render(renderer)
 
     def get_fixed_properties(self):
+        """ Get fixed properties to display in the fixed properties window """
         properties = [('type', self.type), ('position', self.position)]
         return properties
 
     def save(self, **kwargs):
+        # Guarantee that the _type_id is stored correctly on all objects
         self._type = self._type_id
         super(BaseModule, self).save(**kwargs)
 
 
 class TitleModule(BaseModule):
     verbose = "Title"
+    widget = widgets.TitleWidget
     _type_id = 1
-
-    template_name = "pagedisplay/modules/module_title.html"
 
     title = models.CharField(max_length=127)
     size = models.PositiveIntegerField(default=1, help_text="The level of the title 1,2,3... maz 5")
@@ -96,8 +96,8 @@ class TitleModule(BaseModule):
 class TextModule(BaseModule):
     verbose = "Text"
     _type_id = 2
+    widget = widgets.TextWidget
 
-    template_name = "pagedisplay/modules/module_text.html"
     text = models.TextField()
     css = models.CharField(max_length=256, help_text="CSS classes in accordance with Bootstrap",
                            null=True, blank=True, default="")
@@ -109,16 +109,11 @@ class TextModule(BaseModule):
 class ImageModule(BaseModule):
     verbose = "Image"
     _type_id = 3
+    widget = widgets.ImageWidget
 
-    template_name = "pagedisplay/modules/module_image.html"
     image = models.ImageField()
-
-    def get_context(self):
-        context = super(ImageModule, self).get_context()
-        context['image'] = self.image
-        context['height'] = 100
-        return context
 
 
 registry.register(TitleModule)
 registry.register(TextModule)
+registry.register(ImageModule)

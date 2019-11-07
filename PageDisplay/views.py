@@ -1,6 +1,5 @@
 from django.views.generic import TemplateView, View
-from django.views.generic.detail import SingleObjectMixin
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 from Questionaire.views import BaseTemplateView
@@ -69,7 +68,7 @@ class PageAlterModuleView(PageMixin, TemplateView):
         context = self.get_context_data(**kwargs)
 
         # Add the comment
-        form = build_moduleform(instance=self.selected_module, data=request.POST)
+        form = build_moduleform(instance=self.selected_module, data=request.POST, files=request.FILES)
 
         if form.is_valid():
             form.save()
@@ -82,18 +81,15 @@ class PageAlterModuleView(PageMixin, TemplateView):
 class PageDeleteModuleView(View):
 
     def get(self, request, *args, **kwargs):
-        print("GET?")
         return HttpResponseRedirect(reverse('edit_page', kwargs={'inf_id': self.kwargs['inf_id']}))
 
     def post(self, request, *args, **kwargs):
-        print("POST!")
         form = DelModuleForm(self.kwargs['module_id'], data=request.POST)
 
         if form.is_valid():
             form.execute()
             return HttpResponseRedirect(reverse('edit_page', kwargs={'inf_id': self.kwargs['inf_id']}))
 
-        print(form.errors)
         return HttpResponseRedirect(reverse('edit_page', kwargs={'inf_id': self.kwargs['inf_id'],
                                                                  'module_id': self.kwargs['module_id']}))
 

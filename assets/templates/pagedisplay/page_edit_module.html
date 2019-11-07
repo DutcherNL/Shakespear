@@ -30,7 +30,7 @@
     </div>
 
     <div class="row">
-        <form class="col-12" method="post" id="property_form">
+        <form class="col-12" method="post" id="property_form" enctype="multipart/form-data">
             {% csrf_token %}
             {% include "snippets/bootstrap_form.html" %}
         </form>

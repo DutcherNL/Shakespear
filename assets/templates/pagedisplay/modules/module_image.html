@@ -1,1 +1,3 @@
-<img src="{{ image.url }}" height="{{ height }}" width="auto">
+{% if module.image %}
+    <img src="{{ module.image.url }}" height="{{ height }}" width="auto">
+{% endif %}

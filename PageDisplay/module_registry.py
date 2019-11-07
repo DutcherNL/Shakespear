@@ -22,7 +22,6 @@ class ModuleRegister:
         return modules
 
     def get_module(self, type_id):
-        print(type_id)
         return self._modules.get(type_id, None)
 
 
