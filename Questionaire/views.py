@@ -8,6 +8,7 @@ from django.urls import reverse
 
 from .models import Page, Inquiry, Technology, Inquirer, TechGroup
 from .forms import QuestionPageForm, EmailForm, InquirerLoadForm
+from .modules import modules
 
 # Create your views here.
 
