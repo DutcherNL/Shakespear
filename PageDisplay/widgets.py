@@ -1,5 +1,6 @@
 from django.utils.safestring import mark_safe
 from django.forms.renderers import get_default_renderer
+from django.template.loader import get_template, TemplateDoesNotExist
 
 
 class BaseModuleWidget:
@@ -13,13 +14,14 @@ class BaseModuleWidget:
     def __init__(self, model):
         self.model = model
 
-    def render(self, renderer=None):
-        context = self.get_context()
-        if renderer is None:
-            renderer = get_default_renderer()
-        return mark_safe(renderer.render(self.template_name, context))
+    def render(self, request=None, using=None):
+        context = self.get_context(request=request)
+        template = get_template(self.template_name, using=using)
+        rendered_result = template.render(context, request)
 
-    def get_context(self):
+        return mark_safe(rendered_result)
+
+    def get_context(self, request=None):
         return {'module': self.model}
 
 
@@ -34,7 +36,7 @@ class TextWidget(BaseModuleWidget):
 class ImageWidget(BaseModuleWidget):
     template_name = "pagedisplay/modules/module_image.html"
 
-    def get_context(self):
+    def get_context(self, request=None):
         context = super().get_context()
         context['image'] = self.model.image
         context['height'] = 100

@@ -1,17 +1,10 @@
 {% extends 'pagedisplay/page_edit_base.html' %}
+{% load page_tags %}
 
-{% block page %}
-    {% for module in modules %}
-        <div class="row">
-            <div class="col-12">
-                <a class="page_edit_overlay" href="{% url 'edit_page' inf_id=page.id module_id=module.id %}">
+{% block module_decor %}
+    <a class="page_edit_overlay" href="{% url 'edit_page' inf_id=page.id module_id=module.id %}">
 
-                </a>
-
-                {{ module.render }}
-            </div>
-        </div>
-    {% endfor %}
+    </a>
 {% endblock %}
 
 {% block sidebar_title %}

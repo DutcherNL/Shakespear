@@ -65,11 +65,11 @@ class BaseModule(models.Model):
             widget = widget(model=self)
         return widget
 
-    def render(self, widget=None, renderer=None):
+    def render(self, widget=None, request=None, using=None):
         # Get the child as deep as possible
         child = self.get_child()
         # Load the widget and render it
-        return child._init_widget(widget).render(renderer)
+        return child._init_widget(widget).render(request=request, using=using)
 
     def get_fixed_properties(self):
         """ Get fixed properties to display in the fixed properties window """
