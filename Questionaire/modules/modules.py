@@ -16,4 +16,4 @@ class TechScoreModule(BaseModule):
     technology = models.ForeignKey(Technology, on_delete=models.CASCADE)
 
 
-registry.register(TechScoreModule)
+# registry.register(TechScoreModule)

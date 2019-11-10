@@ -25,18 +25,39 @@ def get_module_choices():
 
 
 class AddModuleForm(forms.Form):
-    module = forms.ChoiceField(choices=get_module_choices())
-    position = forms.IntegerField(initial=1)
+    module = forms.ChoiceField(choices=get_module_choices(), required=True)
+    position = forms.IntegerField(required=True)
 
-    def __init__(self, page=None, *args, **kwargs):
-        if page:
-            self.page = page
+    def __init__(self, information=None, *args, **kwargs):
+        self.information = information
         super(AddModuleForm, self).__init__(*args, **kwargs)
+
+    def make_hidden(self):
+        # Form should be hidden
+        for key, field in self.fields.items():
+            field.widget = forms.HiddenInput()
+
+    def clean_position(self):
+        position = self.cleaned_data['position']
+        if position <= 0:
+            raise forms.ValidationError("Position must be larger than 0")
+        return position
+
+    def get_obj_class(self):
+        return registry.get_module(int(self.cleaned_data['module']))
+
+    def get_instance(self):
+        if self.is_valid():
+            class_type = self.get_obj_class()
+            instance = class_type(position=self.cleaned_data['position'],
+                                  information=self.information)
+            return instance
+        return None
 
     def save(self):
         class_name = registry.get_module(int(self.cleaned_data['module']))
-        self.instance = class_name(position=self.cleaned_data['position'], information=self.page)
-        self.instance.save()
+        # self.instance = class_name(position=self.cleaned_data['position'], information=self.page)
+        # self.instance.save()
         return self.instance
 
 
@@ -46,13 +67,5 @@ class DelModuleForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.module = BaseModule.objects.get(id=module_id)
 
-    def clean(self):
-        # Ready for more advanced logic
-        a = super().clean()
-        print("Clean {0}".format(a))
-        return a
-
     def execute(self):
-        print("Delete module")
-
         self.module.delete()

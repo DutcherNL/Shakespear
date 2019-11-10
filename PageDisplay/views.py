@@ -30,26 +30,67 @@ class PageAlterView(PageMixin, TemplateView):
 class PageAddModuleView(PageMixin, TemplateView):
     template_name = 'pagedisplay/page_edit_add_module.html'
 
+    def __init__(self, *args, **kwargs):
+        super(PageAddModuleView, self).__init__(*args, **kwargs)
+        self.position = None
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = AddModuleForm(page=self.information)
+
+        if len(self.request.GET) == 0:
+            root_form = AddModuleForm(information=self.information)
+        else:
+            root_form = AddModuleForm(information=self.information, data=self.request.GET)
+
+            if root_form.is_valid():
+                instance = root_form.get_instance()
+                self.position = instance.position
+                root_form.make_hidden()
+
+                context['module_form'] = build_moduleform(instance=instance)
+
+        context['root_form'] = root_form
+
+        # Get the item it is placed in front of:
+        if self.position:
+            for module in self.information.basemodule_set.order_by('position'):
+                if module.position > self.position:
+                    context['module_after_new'] = module
+                    break
 
         return context
+
+    def set_forms(self, root_data=None, module_data=None):
+        root_form = AddModuleForm(information=self.information, data=root_data)
+
+        if root_form.is_valid():
+            # class_type = form.get_obj_class()
+            instance = root_form.get_instance()
+
+            module_form = build_moduleform(instance=instance, data=module_data)
+            return root_form, module_form
+        return root_form, None
 
     def post(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
 
-        # Add the comment
-        form = AddModuleForm(page=self.information, data=request.POST)
+        root_form = AddModuleForm(information=self.information, data=self.request.POST)
 
-        if form.is_valid():
-            instance = form.save()
+        if root_form.is_valid():
+            instance = root_form.get_instance()
 
-            return HttpResponseRedirect(reverse('edit_page', kwargs={'inf_id': self.information.id,
-                                                                     'module_id': instance.id}))
-        else:
-            context['form'] = form
-            return self.render_to_response(context)
+            module_form = build_moduleform(instance=instance, data=request.POST)
+            if module_form.is_valid():
+                module_form.save()
+                return HttpResponseRedirect(reverse('edit_page', kwargs={'inf_id': self.information.id}))
+
+            context['module_form'] = module_form
+
+        return self.render_to_response(context)
+
+
+class PageAddModuleDetailsView(PageMixin, TemplateView):
+    template_name = 'pagedisplay/page_edit_add_module_details.html'
 
 
 class PageAlterModuleView(PageMixin, TemplateView):

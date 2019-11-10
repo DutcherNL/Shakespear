@@ -1,19 +1,39 @@
 {% extends 'pagedisplay/page_edit_base.html' %}
 
+{% block module_decor %}
+    {% if module == module_after_new %}
+        <p>
+            <<-- Insert Here
+        </p>
+    {% endif %}
+{% endblock %}
+
+
 {% block sidebar_title %}
     Add module
 {% endblock %}
 
 {% block sidebar_content %}
-    <form class="row" method="post">
-        {% csrf_token %}
+    <form class="row" {% if module_form %}method="post"{% endif %}>
+        {% if module_form %}
+            {% csrf_token %}
+        {% endif %}
+
         <div class="col-12">
-            {% include "snippets/bootstrap_form.html" %}
+            {% include "snippets/bootstrap_form.html" with form=root_form %}
+        </div>
+        <div class="col-12">
+            {% include "snippets/bootstrap_form.html" with form=module_form %}
         </div>
         <hr class="col-12 border-white my-2">
         <div class="btn-group col-12" role="group" aria-label="Opties">
-            <input type="submit" class="btn btn-success" value="Toevoegen">
-            <a class="btn btn-secondary" href="{% url 'edit_page' inf_id=page.id %}">Terug</a>
+            {% if module_form %}
+                <input type="submit" class="btn btn-success" value="Toevoegen">
+                <a class="btn btn-secondary" href="{% url 'edit_page_add' inf_id=page.id %}">Terug</a>
+            {% else %}
+                <input type="submit" class="btn btn-primary" value="Volgende">
+                <a class="btn btn-secondary" href="{% url 'edit_page' inf_id=page.id %}">Terug</a>
+            {% endif %}
         </div>
     </form>
 {% endblock %}
