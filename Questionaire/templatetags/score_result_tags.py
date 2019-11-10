@@ -13,6 +13,10 @@ def get_tech_score(technology, inquiry):
     :param inquiry:
     :return:
     """
+    if inquiry is None:
+        # In case the inquiry is unknown
+        return Technology.TECH_UNKNOWN
+
     return technology.get_score(inquiry=inquiry)
 
 
