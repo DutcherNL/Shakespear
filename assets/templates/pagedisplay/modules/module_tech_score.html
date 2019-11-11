@@ -1,0 +1,68 @@
+{% load score_result_tags %}
+
+<div class="card {{ extra_card_class }}">
+    <div class="card-header py-0 {{ extra_header_class }}" id="{{ tech_id }}">
+        <h5 class="mb-0">
+            <div class="row">
+                {% if technology.icon %}
+                    <img class="" src="{{ technology.icon.url }}" width="50" height="50">
+                {% endif %}
+                <div class="col py-3"> {{ technology.name }}</div>
+
+                {% if technology.score %}
+                    <div class="col text-right py-3 {{ technology.score|get_font_class_for_score }}">
+                        {{ technology.score|get_text_base_score }}
+                    </div>
+                {% else %}
+                    {% with technology|get_tech_score:inquiry as score %}
+                        <div class="col text-right py-3 {{ score|get_font_class_for_score }}">
+                            {{ score|get_text_base_score }}
+                        </div>
+                    {% endwith %}
+                {% endif %}
+            </div>
+        </h5>
+    </div>
+</div>
+<div class="p-2">
+    <h3>{{ technology.name }}</h3>
+    <p>
+        {{ technology.short_text }}
+        {% with technology.get_absolute_url as url %}
+            {% if url %}
+                <a target="_blank" rel="noopener noreferrer" href="{{ url }}" > (learn more) </a>
+            {% endif %}
+        {% endwith %}
+    </p>
+
+    {% if technology.sub_technologies.exists %}
+        {% for tech_score in technology|get_tech_scores:inquiry %}
+            {% for note in tech_score|get_score_notes:technology %}
+                <p>
+                    {{ note|get_prepped_text:inquiry }}
+                </p>
+            {% endfor %}
+        {% endfor %}
+
+        Er zijn verscheidene maatregelen die mogelijk zijn. Hieronder zetten wij uit welke maatregelen wij aanraden:
+        {% with technology|create_sub_tech_accordion_name as accordion_id %}
+            <div id="{{ accordion_id }}">
+                {% for subtech in technology.sub_technologies.all %}
+                    {% with subtech|get_subtech_html_id:technology as tech_id %}
+                        {% include "inquiry_pages/inquiry_snippets/snippet_tech_group_accordion.html" with is_subtech=1 technology=subtech extra_card_class='text-dark' extra_header_class='' %}
+                    {% endwith %}
+                {% endfor %}
+
+            </div>
+        {% endwith %}
+    {% else %}
+        <h4>Ons advies: {{ technology|get_tech_score:inquiry|get_text_base_score }}</h4>
+        {% for tech_score in technology|get_tech_scores:inquiry %}
+            {% for note in tech_score|get_score_notes:technology %}
+                <p>
+                    {{ note|get_prepped_text:inquiry }}
+                </p>
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
+</div>

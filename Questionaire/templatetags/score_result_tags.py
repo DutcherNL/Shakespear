@@ -86,10 +86,10 @@ def get_prepped_text(note, inquiry):
 @register.filter
 def get_text_base_score(value):
     if value == 1:
-        return "recommanded"
+        return "Aanbevolen"
     if value == 0:
-        return "not recommanded"
-    return "unknown"
+        return "Niet aanbevolen"
+    return "Onbekend"
 
 
 @register.filter
