@@ -8,6 +8,14 @@
     {% endif %}
 {% endblock %}
 
+{% block bottom_addition %}
+    {% if module_after_new is None %}
+        <p>
+            <<-- Insert Here
+        </p>
+    {% endif %}
+{% endblock %}
+
 
 {% block sidebar_title %}
     Add module

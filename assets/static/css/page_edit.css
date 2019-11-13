@@ -8,11 +8,15 @@
 }
 
 .page_edit_overlay>div{
-    border: 1px solid #e4d8c5;
+    border: 1px solid #ffffff;
     height:100%;
 }
 
-.page_edit_overlay:hover{
+.page_edit_overlay.select>div{
+    border-color: #6b9430;
+}
+
+.page_edit_overlay>div:hover{
     border-color: #6b9430;
 }
 
