@@ -3,6 +3,7 @@ from django.urls import path, include
 from . import views
 
 urlpatterns = [
+    path('', views.PageOverview.as_view(), name='page_overview'),
     path('<int:inf_id>/', include([
         path('',views.InfoPageView.as_view(), name='info_page'),
         path('edit/', include([

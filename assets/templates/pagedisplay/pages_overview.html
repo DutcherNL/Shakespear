@@ -1,0 +1,25 @@
+{% extends 'base_with_body.html' %}
+
+{% block body %}
+    <h1>Pages</h1>
+    {% for page in pages %}
+        <div class="row">
+            <div class="col-md-8">
+                {{ page.id }} - {{ page.name }}
+            </div>
+            <div class="col-md-4 btn-group" role="group" aria-label="Opties">
+                <a href="{{ page.get_absolute_url }}" class="btn btn-primary">
+                    View
+                </a>
+                <a href="{% url 'edit_page' inf_id=page.id %}" class="btn btn-warning">
+                    Edit
+                </a>
+            </div>
+        </div>
+    {% empty %}
+        <div class="">No pages yet.</div>
+    {% endfor %}
+
+
+
+{% endblock %}

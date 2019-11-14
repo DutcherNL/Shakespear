@@ -3,9 +3,42 @@
 
 
 {% block body_content %}
-    <div class="container my-3">
-        {% block body %}{% endblock %}
-    </div>
+    {% if user.is_authenticated %}
+        <nav class="navbar navbar-expand navbar-dark bg-primary my-0 py-0">
+            <a href="{% url 'index' %}" class="navbar-brand mr-auto">
+                <span class="h3 d-none d-lg-inline"
+                      style="line-height: 40px; vertical-align: middle; margin: 0 0 0 10px"> ENLEB</span>
+                <span class="h5 d-none d-md-inline d-lg-none"
+                      style="line-height: 40px; vertical-align: middle; margin: 0 0 0 10px"> ENLEB</span>
+            </a>
+            {% with justify="d-flex justify-content-between align-items-center" %}
+
+                    <span class="navbar-text text-right px-2">
+                    Logged in as: {{ user }}<br>
+                </span>
+                    <div class="navbar-nav">
+                        <div class="nav-item dropdown">
+                            {# (mb-0 is needed to cancel the margin that gets added by h4) #}
+                            <a class="nav-link dropdown-toggle h4 mb-0" href="#" data-toggle="dropdown">
+                                <i class="fas fa-info"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a class="dropdown-item {{ justify }}" href="">
+                                    Opt 1 <i class="fas fa-question"></i>
+                                </a>
+                                <a class="dropdown-item" href="">
+                                    Opt 2
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+            {% endwith %}
+        </nav>
+    {% endif %}
+
+    {% block body-containerless %}
+        <div class="container my-3">
+            {% block body %}{% endblock %}
+        </div>
+    {% endblock %}
 {% endblock body_content %}
-
-

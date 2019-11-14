@@ -1,3 +1,7 @@
+{% extends 'base_with_body.html' %}
+
+{% block body %}
+
 {% autoescape off %}
 
     {% for module in modules %}
@@ -5,3 +9,5 @@
     {% endfor %}
 
 {% endautoescape %}
+
+{% endblock %}

@@ -1,4 +1,5 @@
 from django.views.generic import TemplateView, View
+from django.views.generic.list import ListView
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
@@ -134,3 +135,8 @@ class PageDeleteModuleView(View):
         return HttpResponseRedirect(reverse('edit_page', kwargs={'inf_id': self.kwargs['inf_id'],
                                                                  'module_id': self.kwargs['module_id']}))
 
+
+class PageOverview(ListView):
+    model = Information
+    context_object_name = "pages"
+    template_name = "pagedisplay/pages_overview.html"
