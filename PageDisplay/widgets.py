@@ -36,9 +36,3 @@ class TextWidget(BaseModuleWidget):
 class ImageWidget(BaseModuleWidget):
     template_name = "pagedisplay/modules/module_image.html"
 
-    def get_context(self, request=None):
-        context = super().get_context()
-        context['image'] = self.model.image
-        context['height'] = 100
-        return context
-

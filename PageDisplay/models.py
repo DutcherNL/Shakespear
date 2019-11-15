@@ -112,6 +112,10 @@ class ImageModule(BaseModule):
     widget = widgets.ImageWidget
 
     image = models.ImageField()
+    caption = models.CharField(max_length=256, null=True, blank=True, default="")
+    height = models.PositiveIntegerField(default=100)
+    css = models.CharField(max_length=256, help_text="CSS classes in accordance with Bootstrap",
+                           null=True, blank=True, default="")
 
 
 registry.register(TitleModule)
