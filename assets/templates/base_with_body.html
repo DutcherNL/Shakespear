@@ -11,10 +11,16 @@
                 <span class="h5 d-none d-md-inline d-lg-none"
                       style="line-height: 40px; vertical-align: middle; margin: 0 0 0 10px"> ENLEB</span>
             </a>
+            <div class="mr-auto">
+                {% block nav-bar-options %}
+
+                {% endblock %}
+            </div>
+
             {% with justify="d-flex justify-content-between align-items-center" %}
 
-                    <span class="navbar-text text-right px-2">
-                    Logged in as: {{ user }}<br>
+                <span class="navbar-text text-right px-2">
+                Logged in as: {{ user }}<br>
                 </span>
                     <div class="navbar-nav">
                         <div class="nav-item dropdown">

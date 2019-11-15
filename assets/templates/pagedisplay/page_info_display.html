@@ -1,13 +1,18 @@
 {% extends 'base_with_body.html' %}
 
 {% block body %}
+    {% autoescape off %}
 
-{% autoescape off %}
+        {% for module in modules %}
+            {{ module.render }}
+        {% endfor %}
 
-    {% for module in modules %}
-        {{ module.render }}
-    {% endfor %}
-
-{% endautoescape %}
-
+    {% endautoescape %}
 {% endblock %}
+
+{% block nav-bar-options %}
+    <a class="btn btn-secondary" href="{% url 'edit_page' inf_id=page.id%}">
+        Edit page
+    </a>
+{% endblock %}
+
