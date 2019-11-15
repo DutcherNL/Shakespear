@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Information, BaseModule, TitleModule, TextModule, ImageModule
+from .models import Information, BaseModule, TitleModule, TextModule, ImageModule, ModuleContainer
 
 # Register your models here.
 
@@ -25,6 +25,7 @@ class InformationAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Information, InformationAdmin)
+admin.site.register(ModuleContainer)
 admin.site.register(TitleModule)
 admin.site.register(TextModule)
 admin.site.register(ImageModule)

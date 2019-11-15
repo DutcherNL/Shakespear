@@ -7,7 +7,11 @@ from PageDisplay import widgets
 # Create your models here.
 
 
-class Information(models.Model):
+class ModuleContainer(models.Model):
+    pass
+
+
+class Information(ModuleContainer):
     name = models.CharField(max_length=63)
 
     template_name = 'page_info_display.html'
@@ -37,7 +41,7 @@ class BaseModule(models.Model):
     """
     verbose = "-Abstract module-"
     _type_id = 0
-    information = models.ForeignKey(Information, on_delete=models.PROTECT)
+    information = models.ForeignKey(ModuleContainer, on_delete=models.PROTECT)
     position = models.PositiveIntegerField(default=999)
     _type = models.PositiveIntegerField()
 
