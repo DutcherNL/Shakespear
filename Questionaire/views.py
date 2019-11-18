@@ -81,6 +81,7 @@ class InquiryStartScreen(BaseTemplateView):
                 inquiry = Inquiry.objects.create(current_page=page)
                 self.inquirer.active_inquiry = inquiry
                 self.inquirer.save()
+
             return self.redirect_to()
         else:
             context['form'] = form
