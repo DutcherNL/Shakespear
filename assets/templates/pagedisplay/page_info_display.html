@@ -2,11 +2,7 @@
 
 {% block body %}
     {% autoescape off %}
-
-        {% for module in modules %}
-            {{ module.render }}
-        {% endfor %}
-
+        {{ page.layout.render }}
     {% endautoescape %}
 {% endblock %}
 

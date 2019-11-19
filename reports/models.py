@@ -1,7 +1,7 @@
 from django.db import models
 
 from Questionaire.models import Technology
-from PageDisplay.models import Information
+# from PageDisplay.models import VerticalModuleContainer
 
 # Create your models here.
 
@@ -17,7 +17,7 @@ class Page(models.Model):
     report = models.ForeignKey(Report, on_delete=models.PROTECT)
     page_number = models.PositiveIntegerField(default=1)
     last_edited = models.DateTimeField(auto_now=True)
-    layout = models.ForeignKey(Information, on_delete=models.PROTECT, blank=True, null=True)
+    #layout = models.ForeignKey(VerticalModuleContainer, on_delete=models.PROTECT, blank=True, null=True)
     name = models.CharField(max_length=128)
     description = models.TextField()
 

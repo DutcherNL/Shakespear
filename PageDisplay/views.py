@@ -5,18 +5,17 @@ from django.urls import reverse
 
 from Questionaire.views import BaseTemplateView
 
-from .models import Information
+from .models import Page
 from .forms import build_moduleform, AddModuleForm, DelModuleForm
 
 # Create your views here.
 
 class PageMixin:
     def get_context_data(self, **kwargs):
-        self.information = Information.objects.get(pk=self.kwargs['inf_id'])
+        self.page = Page.objects.get(pk=self.kwargs['inf_id'])
         context = super().get_context_data(**kwargs)
-        self.information = Information.objects.get(pk=self.kwargs['inf_id'])
-        context['page'] = self.information
-        context['modules'] = self.information.basemodule_set.order_by('position')
+        self.page = Page.objects.get(pk=self.kwargs['inf_id'])
+        context['page'] = self.page
         return context
 
 
@@ -39,9 +38,9 @@ class PageAddModuleView(PageMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         if len(self.request.GET) == 0:
-            root_form = AddModuleForm(information=self.information)
+            root_form = AddModuleForm(information=self.page)
         else:
-            root_form = AddModuleForm(information=self.information, data=self.request.GET)
+            root_form = AddModuleForm(information=self.page, data=self.request.GET)
 
             if root_form.is_valid():
                 instance = root_form.get_instance()
@@ -54,7 +53,7 @@ class PageAddModuleView(PageMixin, TemplateView):
 
         # Get the item it is placed in front of:
         if self.position:
-            for module in self.information.basemodule_set.order_by('position'):
+            for module in self.page.basemodule_set.order_by('position'):
                 if module.position > self.position:
                     context['module_after_new'] = module
                     break
@@ -62,7 +61,7 @@ class PageAddModuleView(PageMixin, TemplateView):
         return context
 
     def set_forms(self, root_data=None, module_data=None):
-        root_form = AddModuleForm(information=self.information, data=root_data)
+        root_form = AddModuleForm(information=self.page, data=root_data)
 
         if root_form.is_valid():
             # class_type = form.get_obj_class()
@@ -75,7 +74,7 @@ class PageAddModuleView(PageMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
 
-        root_form = AddModuleForm(information=self.information, data=self.request.POST)
+        root_form = AddModuleForm(information=self.page, data=self.request.POST)
 
         if root_form.is_valid():
             instance = root_form.get_instance()
@@ -83,7 +82,7 @@ class PageAddModuleView(PageMixin, TemplateView):
             module_form = build_moduleform(instance=instance, data=request.POST)
             if module_form.is_valid():
                 module_form.save()
-                return HttpResponseRedirect(reverse('edit_page', kwargs={'inf_id': self.information.id}))
+                return HttpResponseRedirect(reverse('edit_page', kwargs={'inf_id': self.page.id}))
 
             context['module_form'] = module_form
 
@@ -100,7 +99,7 @@ class PageAlterModuleView(PageMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        self.selected_module = self.information.basemodule_set.get(id=self.kwargs['module_id']).get_child()
+        self.selected_module = self.page.basemodule_set.get(id=self.kwargs['module_id']).get_child()
         context['selected_module'] = self.selected_module
         context['form'] = build_moduleform(instance=self.selected_module)
 
@@ -114,7 +113,7 @@ class PageAlterModuleView(PageMixin, TemplateView):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('edit_page', kwargs={'inf_id': self.information.id}))
+            return HttpResponseRedirect(reverse('edit_page', kwargs={'inf_id': self.page.id}))
         else:
             context['form'] = form
             return self.render_to_response(context)
@@ -137,6 +136,6 @@ class PageDeleteModuleView(View):
 
 
 class PageOverview(ListView):
-    model = Information
+    model = Page
     context_object_name = "pages"
     template_name = "pagedisplay/pages_overview.html"

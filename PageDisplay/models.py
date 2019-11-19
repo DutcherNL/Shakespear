@@ -8,19 +8,15 @@ from PageDisplay import widgets
 
 
 class ModuleContainer(models.Model):
-    pass
+
+    def render(self):
+        if self.verticalmodulecontainer:
+            return self.verticalmodulecontainer.render()
+        return "Base container :/"
 
 
-class Information(ModuleContainer):
-    name = models.CharField(max_length=63)
-
-    template_name = 'page_info_display.html'
-
-    def get_absolute_url(self):
-        return reverse('info_page', kwargs={'inf_id': self.id})
-
-    def __str__(self):
-        return self.name
+class VerticalModuleContainer(ModuleContainer):
+    template_name = 'pagedisplay/modules/module_vert_container.html'
 
     def get_context_data(self):
         context = {}
@@ -33,6 +29,14 @@ class Information(ModuleContainer):
         template = get_template(self.template_name)
         context = self.get_context_data()
         return template.render(context)  # Renders the template with the context data.
+
+
+class Page(models.Model):
+    layout = models.ForeignKey(ModuleContainer, on_delete=models.PROTECT)
+    name = models.CharField(max_length=63)
+
+    def get_absolute_url(self):
+        return reverse('info_page', kwargs={'inf_id': self.id})
 
 
 class BaseModule(models.Model):
