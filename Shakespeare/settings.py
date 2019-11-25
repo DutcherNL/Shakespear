@@ -163,3 +163,11 @@ REPORT_ROOT = os.path.join(BASE_DIR, "reports/created_reports")
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "uploads")
 MEDIA_URL = "/media/"
+
+
+
+# Import local settings if that exists
+try:
+    from Shakespeare.local_settings import *
+except ImportError:
+    pass
