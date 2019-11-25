@@ -39,6 +39,9 @@ class QuestionPageForm(forms.Form):
                 for key, value in self.cleaned_data.items():
                     self.fields[key].save(value, inquiry)
 
+        # Save the inquiry, aka update that it has changed
+        inquiry.save()
+
     def forward(self, inquiry):
         """
         Compute the effects of the form, works in the assumption it is not yet completed.

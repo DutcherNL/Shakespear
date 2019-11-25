@@ -146,6 +146,16 @@ class AnswerNoteAdmin(admin.ModelAdmin):
     list_filter = ('technology',)
 
 
+class InquirerAdmin(admin.ModelAdmin):
+    list_display = ('get_email', 'created_on',)
+    list_filter = ('created_on',)
+
+
+class InquiryAdmin(admin.ModelAdmin):
+    list_display = ('get_owner', 'current_page', 'is_complete', 'last_visited')
+    list_filter = ('is_complete', 'created_on')
+
+
 admin.site.register(Page, PageAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(AnswerOption, AnswerOptionAdmin)
@@ -156,10 +166,11 @@ admin.site.register(AnswerScoring, AnswerScoringAdmin)
 admin.site.register(AnswerScoringNote, AnswerNoteAdmin)
 admin.site.register(ExternalQuestionSource)
 
+admin.site.register(Inquiry, InquiryAdmin)
+admin.site.register(Inquirer, InquirerAdmin)
+
 if settings.SHOW_DEBUG_CLASSES:
-    admin.site.register(Inquirer)
     admin.site.register(Score)
-    admin.site.register(Inquiry)
     admin.site.register(InquiryQuestionAnswer)
     admin.site.register(TechScoreLink)
 

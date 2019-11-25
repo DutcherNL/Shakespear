@@ -134,6 +134,8 @@ class Inquiry(models.Model):
     """ Combines the result of a single question set added by the user """
     current_page = models.ForeignKey(Page, null=True, blank=True, on_delete=models.SET_NULL)
     is_complete = models.BooleanField(default=False)
+    created_on = models.DateTimeField(auto_now_add=True)
+    last_visited = models.DateTimeField(auto_now=True)
 
     def set_current_page(self, page):
         self.current_page = page
@@ -175,11 +177,18 @@ class Inquiry(models.Model):
         self.current_page = Page.objects.order_by('position').first()
         self.save()
 
+    @property
+    def get_owner(self):
+        return self.inquirer_set.first().get_email()
 
 class Inquirer(models.Model):
     """ Contains information of a single user filling in queries """
     email = models.EmailField(blank=True, null=True)
     active_inquiry = models.ForeignKey(Inquiry, on_delete=models.SET_NULL, null=True, blank=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+
+    def get_email(self):
+        return self.email or "-Not given-"
 
     # DO NOT ADJUST THE FOLLOWING PARAMETERS AFTER DEPLOYMENT!
     length = 6
