@@ -6,7 +6,7 @@ from Questionaire.models import Inquiry
 class TechScoreWidget(BaseModuleWidget):
     template_name = "pagedisplay/modules/module_tech_score.html"
 
-    def get_context(self, request=None):
+    def get_context(self, request=None, **kwargs):
         context = super(TechScoreWidget, self).get_context(request)
         context['technology'] = self.model.technology
         if request:

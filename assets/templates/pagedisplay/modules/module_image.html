@@ -1,3 +1,10 @@
 {% if module.image %}
-    <img src="{{ module.image.url }}" height="{{ height }}" width="auto">
+    <div class="thumbnail">
+        <img src="{{ module.image.url }}" class="{{ module.css }}" height="{{ module.height }}" width="auto">
+        {% if module.caption %}
+            <div class="caption">
+                <p>{{ module.caption }}</p>
+            </div>
+        {% endif %}
+    </div>
 {% endif %}

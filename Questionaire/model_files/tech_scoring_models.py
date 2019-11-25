@@ -1,10 +1,9 @@
 from django.db import models
 from django.urls import reverse
 
-from string import Formatter
 from decimal import *
-from PageDisplay.models import Information
 
+from PageDisplay.models import Page as InfoPage
 from Questionaire.model_files.base_models import Inquiry, AnswerOption, InquiryQuestionAnswer, Page
 
 
@@ -27,7 +26,7 @@ class Technology(models.Model):
     score_declarations = models.ManyToManyField(ScoringDeclaration,
                                                 through='TechScoreLink',
                                                 through_fields=('technology', 'score_declaration'))
-    information_page = models.ForeignKey(Information, on_delete=models.PROTECT, null=True, blank=True)
+    information_page = models.ForeignKey(InfoPage, on_delete=models.PROTECT, null=True, blank=True)
 
     TECH_SUCCESS = 1
     TECH_FAIL = 0

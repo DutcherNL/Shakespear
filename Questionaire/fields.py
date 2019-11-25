@@ -1,6 +1,6 @@
-from django.forms import CharField, IntegerField, DecimalField, ChoiceField, Field, ValidationError
+from django.forms import CharField, IntegerField, DecimalField, ChoiceField, Field, ValidationError, EmailField
 from .widgets import CustomRadioSelect, InformationDisplayWidget,\
-    IgnorableInput, ExternalDataInputLocal, IgnorableInputMixin
+    IgnorableInput, ExternalDataInputLocal, IgnorableInputMixin, IgnorableEmailInput
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator
 
@@ -45,6 +45,16 @@ class FieldFactory:
         raise ValueError("q_type is beyond expected range")
 
 
+class IgnorableFieldCheckMixin:
+    """ A mixin that takes the IgnorableInput nature from the mixin into account"""
+
+    def validate(self, value):
+        super().validate(value)
+        if isinstance(self.widget, IgnorableInputMixin):
+            if (value is None or value == '') and not self.widget.is_answered:
+                raise ValidationError("Deze vraag is nog niet beantwoord ", code='required')
+
+
 class QuestionFieldMixin:
     def __init__(self, question, inquiry, *args, **kwargs):
         if ExternalQuestionSource.objects.filter(question=question).exists():
@@ -68,7 +78,7 @@ class QuestionFieldMixin:
         self.validators = [*self.validators, *self.construct_validators()]
 
     def clean(self, value, ignore_required=False):
-        return  super().clean(value)
+        return super().clean(value)
 
     def construct_validators(self):
         validator_dict = self.get_question_options()
@@ -168,14 +178,12 @@ class QuestionFieldMixin:
             inquiry_answer.processed = False
             inquiry_answer.save()
 
-    def validate(self, value):
-        super().validate(value)
-        if isinstance(self.widget, IgnorableInputMixin):
-            if (value is None or value == '') and not self.widget.is_answered:
-                    raise ValidationError("Deze vraag is nog niet beantwoord ", code='required')
+
+class IgnorableQuestionFieldMixin(IgnorableFieldCheckMixin, QuestionFieldMixin):
+    pass
 
 
-class CharQuestionField(QuestionFieldMixin, CharField):
+class CharQuestionField(IgnorableQuestionFieldMixin, CharField):
     widget = IgnorableInput
 
     def is_empty_value(self, value):
@@ -189,7 +197,7 @@ class CharQuestionField(QuestionFieldMixin, CharField):
             return None
 
 
-class IntegerQuestionField(QuestionFieldMixin, IntegerField):
+class IntegerQuestionField(IgnorableQuestionFieldMixin, IntegerField):
     def get_answer_option(self, value):
         if value is None:
             return None
@@ -207,11 +215,11 @@ class IntegerQuestionField(QuestionFieldMixin, IntegerField):
         return best_option
 
 
-class DecimalQuestionField(QuestionFieldMixin, DecimalField):
+class DecimalQuestionField(IgnorableQuestionFieldMixin, DecimalField):
     pass
 
 
-class ChoiceQuestionField(QuestionFieldMixin, ChoiceField):
+class ChoiceQuestionField(IgnorableQuestionFieldMixin, ChoiceField):
     widget = CustomRadioSelect
 
     def __init__(self, question, inquiry, *args, **kwargs):
@@ -244,7 +252,7 @@ class ChoiceQuestionField(QuestionFieldMixin, ChoiceField):
             return AnswerOption.objects.get(question=self.question, value=int(value))
 
 
-class LookUpQuestion(QuestionFieldMixin, CharField):
+class LookUpQuestion(IgnorableQuestionFieldMixin, CharField):
     widget = CharField(required=False)
 
     def __init__(self, question, inquiry, *args, **kwargs):
@@ -274,3 +282,7 @@ class InformationField(Field):
     def prep_text(self, text, inquiry=None):
         from Questionaire.processors.replace_text_from_database import format_from_database
         return format_from_database(text, inquiry=inquiry)
+
+
+class IgnorableEmailField(IgnorableFieldCheckMixin, EmailField):
+    widget = IgnorableEmailInput

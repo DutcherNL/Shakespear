@@ -1,11 +1,11 @@
 from django.contrib import admin
 
-from .models import Information, BaseModule, TitleModule, TextModule, ImageModule
+from .models import VerticalModuleContainer, Page, TitleModule, TextModule, ImageModule, ModuleContainer
 
 # Register your models here.
 
 
-class InformationAdmin(admin.ModelAdmin):
+class VertContainerAdmin(admin.ModelAdmin):
     class TitleInlines(admin.TabularInline):
         model = TitleModule
         extra = 0
@@ -24,7 +24,9 @@ class InformationAdmin(admin.ModelAdmin):
     inlines = [TitleInlines, TextsInlines, ImageInlines]
 
 
-admin.site.register(Information, InformationAdmin)
+admin.site.register(VerticalModuleContainer, VertContainerAdmin)
+admin.site.register(ModuleContainer)
+admin.site.register(Page)
 admin.site.register(TitleModule)
 admin.site.register(TextModule)
 admin.site.register(ImageModule)

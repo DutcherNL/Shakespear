@@ -7,28 +7,37 @@ from PageDisplay import widgets
 # Create your models here.
 
 
-class Information(models.Model):
-    name = models.CharField(max_length=63)
+class ModuleContainer(models.Model):
+    def render(self, overlay=None, inf_id=None, request=None):
+        if self.verticalmodulecontainer:
+            return self.verticalmodulecontainer.render(overlay, inf_id, request)
+        return "Base container :/"
 
-    template_name = 'page_info_display.html'
 
-    def get_absolute_url(self):
-        return reverse('info_page', kwargs={'inf_id': self.id})
+class VerticalModuleContainer(ModuleContainer):
+    template_name = 'pagedisplay/modules/module_vert_container.html'
 
-    def __str__(self):
-        return self.name
-
-    def get_context_data(self):
-        context = {}
-        context['modules'] = self.basemodule_set.order_by('position')
+    def get_context_data(self, request=None):
+        context = {'request': request,
+                   'modules': self.basemodule_set.order_by('position')}
         return context
 
-    def render(self):
+    def render(self, overlay=None, inf_id=None, request=None):
         from django.template.loader import get_template
 
         template = get_template(self.template_name)
-        context = self.get_context_data()
+        context = self.get_context_data(request)
+        context['overlay'] = overlay
+        context['inf_id'] = inf_id
         return template.render(context)  # Renders the template with the context data.
+
+
+class Page(models.Model):
+    layout = models.ForeignKey(ModuleContainer, on_delete=models.PROTECT)
+    name = models.CharField(max_length=63)
+
+    def get_absolute_url(self):
+        return reverse('info_page', kwargs={'inf_id': self.id})
 
 
 class BaseModule(models.Model):
@@ -37,7 +46,7 @@ class BaseModule(models.Model):
     """
     verbose = "-Abstract module-"
     _type_id = 0
-    information = models.ForeignKey(Information, on_delete=models.PROTECT)
+    information = models.ForeignKey(ModuleContainer, on_delete=models.PROTECT)
     position = models.PositiveIntegerField(default=999)
     _type = models.PositiveIntegerField()
 
@@ -65,11 +74,11 @@ class BaseModule(models.Model):
             widget = widget(model=self)
         return widget
 
-    def render(self, widget=None, request=None, using=None):
+    def render(self, widget=None, request=None, using=None, overlay=None, inf_id=None):
         # Get the child as deep as possible
         child = self.get_child()
         # Load the widget and render it
-        return child._init_widget(widget).render(request=request, using=using)
+        return child._init_widget(widget).render(request=request, using=using, overlay=overlay, inf_id=inf_id)
 
     def get_fixed_properties(self):
         """ Get fixed properties to display in the fixed properties window """
@@ -112,6 +121,10 @@ class ImageModule(BaseModule):
     widget = widgets.ImageWidget
 
     image = models.ImageField()
+    caption = models.CharField(max_length=256, null=True, blank=True, default="")
+    height = models.PositiveIntegerField(default=100)
+    css = models.CharField(max_length=256, help_text="CSS classes in accordance with Bootstrap",
+                           null=True, blank=True, default="")
 
 
 registry.register(TitleModule)

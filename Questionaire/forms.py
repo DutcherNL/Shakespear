@@ -1,7 +1,7 @@
 from django import forms
 from .models import PageEntry, Inquirer, Inquiry
 
-from .fields import FieldFactory, QuestionFieldMixin
+from .fields import FieldFactory, QuestionFieldMixin, IgnorableEmailField
 from .widgets import IgnorableInput
 
 
@@ -67,14 +67,13 @@ class QuestionPageForm(forms.Form):
 
 
 class EmailForm(forms.Form):
-    email = forms.EmailField(widget=IgnorableInput, required=False)
+    email = IgnorableEmailField(required=False)
 
     def __init__(self, *args, inquirer=None, **kwargs):
         if inquirer is None:
             raise KeyError("inquiry is missing or is None")
 
         self.inquirer = inquirer
-
         return super(EmailForm, self).__init__(*args, **kwargs)
 
     def save(self):

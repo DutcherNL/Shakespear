@@ -28,8 +28,8 @@ class AddModuleForm(forms.Form):
     module = forms.ChoiceField(choices=get_module_choices(), required=True)
     position = forms.IntegerField(required=True)
 
-    def __init__(self, information=None, *args, **kwargs):
-        self.information = information
+    def __init__(self, container=None, *args, **kwargs):
+        self.container = container
         super(AddModuleForm, self).__init__(*args, **kwargs)
 
     def make_hidden(self):
@@ -50,7 +50,7 @@ class AddModuleForm(forms.Form):
         if self.is_valid():
             class_type = self.get_obj_class()
             instance = class_type(position=self.cleaned_data['position'],
-                                  information=self.information)
+                                  information=self.container)
             return instance
         return None
 

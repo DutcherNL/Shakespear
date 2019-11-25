@@ -1,21 +1,29 @@
 {% load score_result_tags %}
 {% load static %}
 
-<div class="tab">
-    {% for technology in techs %}
-        <button onclick="toggleTab(event, 'tech_{{ technology.id }}')" class="tablinks
-        {% with technology|get_tech_score:inquiry as score %}
-            {% if score == technology.TECH_SUCCESS %} accept
-            {% elif score == technology.TECH_FAIL %} deny
-            {% elif score == technology.TECH_VARIES %} maybe
-            {% endif %}
-        {% endwith %}
-        ">
-        {% if technology.icon %}
-            <img src="{{ technology.icon.url }}" width="50" height="50">
-        {% endif %}
-        </button>
-    {% endfor %}
+<div class="table-responsive">
+<table class="table tab border-0">
+    <tbody>
+        <tr>
+            {% for technology in techs %}
+                <td class="m-0 p-0 border-0">
+                    <button onclick="toggleTab(event, 'tech_{{ technology.id }}')" class="tablinks
+                    {% with technology|get_tech_score:inquiry as score %}
+                        {% if score == technology.TECH_SUCCESS %} accept
+                        {% elif score == technology.TECH_FAIL %} deny
+                        {% elif score == technology.TECH_VARIES %} maybe
+                        {% endif %}
+                    {% endwith %}
+                    ">
+                    {% if technology.icon %}
+                        <img src="{{ technology.icon.url }}" width="50" height="50">
+                    {% endif %}
+                    </button>
+                </td>
+            {% endfor %}
+        </tr>
+    </tbody>
+</table>
 </div>
 
 {% for technology in techs %}
