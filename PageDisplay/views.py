@@ -5,16 +5,17 @@ from django.urls import reverse
 
 from Questionaire.views import BaseTemplateView
 
-from .models import Page
+from .models import Page, BaseModule, ModuleContainer
 from .forms import build_moduleform, AddModuleForm, DelModuleForm
+from .widget_overlays import ModuleSelectOverlay
 
 # Create your views here.
+
 
 class PageMixin:
     def get_context_data(self, **kwargs):
         self.page = Page.objects.get(pk=self.kwargs['inf_id'])
         context = super().get_context_data(**kwargs)
-        self.page = Page.objects.get(pk=self.kwargs['inf_id'])
         context['page'] = self.page
         return context
 
@@ -26,6 +27,11 @@ class InfoPageView(PageMixin, BaseTemplateView):
 class PageAlterView(PageMixin, TemplateView):
     template_name = 'pagedisplay/page_edit_page.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(PageAlterView, self).get_context_data(**kwargs)
+        context['overlay'] = ModuleSelectOverlay()
+        return context
+
 
 class PageAddModuleView(PageMixin, TemplateView):
     template_name = 'pagedisplay/page_edit_add_module.html'
@@ -36,11 +42,13 @@ class PageAddModuleView(PageMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        self.container = ModuleContainer.objects.get(pk=self.kwargs['container_id'])
+        context['container'] = self.container
 
         if len(self.request.GET) == 0:
-            root_form = AddModuleForm(information=self.page)
+            root_form = AddModuleForm(container=self.page.layout)
         else:
-            root_form = AddModuleForm(information=self.page, data=self.request.GET)
+            root_form = AddModuleForm(container=self.page.layout, data=self.request.GET)
 
             if root_form.is_valid():
                 instance = root_form.get_instance()
@@ -53,7 +61,7 @@ class PageAddModuleView(PageMixin, TemplateView):
 
         # Get the item it is placed in front of:
         if self.position:
-            for module in self.page.basemodule_set.order_by('position'):
+            for module in self.container.basemodule_set.order_by('position'):
                 if module.position > self.position:
                     context['module_after_new'] = module
                     break
@@ -61,7 +69,7 @@ class PageAddModuleView(PageMixin, TemplateView):
         return context
 
     def set_forms(self, root_data=None, module_data=None):
-        root_form = AddModuleForm(information=self.page, data=root_data)
+        root_form = AddModuleForm(container=self.page.layout, data=root_data)
 
         if root_form.is_valid():
             # class_type = form.get_obj_class()
@@ -74,7 +82,7 @@ class PageAddModuleView(PageMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
 
-        root_form = AddModuleForm(information=self.page, data=self.request.POST)
+        root_form = AddModuleForm(container=self.page.layout, data=self.request.POST)
 
         if root_form.is_valid():
             instance = root_form.get_instance()
@@ -99,7 +107,7 @@ class PageAlterModuleView(PageMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        self.selected_module = self.page.basemodule_set.get(id=self.kwargs['module_id']).get_child()
+        self.selected_module = BaseModule.objects.get(id=self.kwargs['module_id']).get_child()
         context['selected_module'] = self.selected_module
         context['form'] = build_moduleform(instance=self.selected_module)
 

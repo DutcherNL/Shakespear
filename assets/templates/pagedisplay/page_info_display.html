@@ -1,8 +1,9 @@
 {% extends 'base_with_body.html' %}
+{% load page_tags %}
 
 {% block body %}
     {% autoescape off %}
-        {{ page.layout.render }}
+        {% render_module page.layout %}
     {% endautoescape %}
 {% endblock %}
 

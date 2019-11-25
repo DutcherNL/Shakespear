@@ -13,16 +13,7 @@
                 <div class="container">
                     {% autoescape off %}
                         {% block page %}
-                            {% for module in modules %}
-                                <div class="row">
-                                    <div class="col-12">
-                                        {% block module_decor %}
-                                        {% endblock %}
-
-                                        {% render_module module request %}
-                                    </div>
-                                </div>
-                            {% endfor %}
+                            {% render_module page.layout %}
                         {% endblock %}
                     {% endautoescape %}
                     {% block bottom_addition %}

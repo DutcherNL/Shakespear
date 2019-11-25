@@ -8,26 +8,27 @@ from PageDisplay import widgets
 
 
 class ModuleContainer(models.Model):
-
-    def render(self):
+    def render(self, overlay=None, inf_id=None, request=None):
         if self.verticalmodulecontainer:
-            return self.verticalmodulecontainer.render()
+            return self.verticalmodulecontainer.render(overlay, inf_id, request)
         return "Base container :/"
 
 
 class VerticalModuleContainer(ModuleContainer):
     template_name = 'pagedisplay/modules/module_vert_container.html'
 
-    def get_context_data(self):
-        context = {}
-        context['modules'] = self.basemodule_set.order_by('position')
+    def get_context_data(self, request=None):
+        context = {'request': request,
+                   'modules': self.basemodule_set.order_by('position')}
         return context
 
-    def render(self):
+    def render(self, overlay=None, inf_id=None, request=None):
         from django.template.loader import get_template
 
         template = get_template(self.template_name)
-        context = self.get_context_data()
+        context = self.get_context_data(request)
+        context['overlay'] = overlay
+        context['inf_id'] = inf_id
         return template.render(context)  # Renders the template with the context data.
 
 
@@ -73,11 +74,11 @@ class BaseModule(models.Model):
             widget = widget(model=self)
         return widget
 
-    def render(self, widget=None, request=None, using=None):
+    def render(self, widget=None, request=None, using=None, overlay=None, inf_id=None):
         # Get the child as deep as possible
         child = self.get_child()
         # Load the widget and render it
-        return child._init_widget(widget).render(request=request, using=using)
+        return child._init_widget(widget).render(request=request, using=using, overlay=overlay, inf_id=inf_id)
 
     def get_fixed_properties(self):
         """ Get fixed properties to display in the fixed properties window """

@@ -14,15 +14,17 @@ class BaseModuleWidget:
     def __init__(self, model):
         self.model = model
 
-    def render(self, request=None, using=None):
-        context = self.get_context(request=request)
+    def render(self, request=None, using=None, overlay=None, inf_id=None):
+        context = self.get_context(request=request, overlay=overlay, inf_id=inf_id)
         template = get_template(self.template_name, using=using)
         rendered_result = template.render(context, request)
 
+        print("{0}: {1} - {2}".format(type(self), overlay, inf_id))
+
         return mark_safe(rendered_result)
 
-    def get_context(self, request=None):
-        return {'module': self.model}
+    def get_context(self, request=None, overlay=None, inf_id=None):
+        return {'module': self.model, 'inf_id': inf_id, "overlay": overlay}
 
 
 class TitleWidget(BaseModuleWidget):
