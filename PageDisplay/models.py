@@ -8,9 +8,9 @@ from PageDisplay import widgets
 
 
 class ModuleContainer(models.Model):
-    def render(self, overlay=None, inf_id=None, request=None):
+    def render(self, **kwargs):
         if self.verticalmodulecontainer:
-            return self.verticalmodulecontainer.render(overlay, inf_id, request)
+            return self.verticalmodulecontainer.render(**kwargs)
         return "Base container :/"
 
 
@@ -22,13 +22,18 @@ class VerticalModuleContainer(ModuleContainer):
                    'modules': self.basemodule_set.order_by('position')}
         return context
 
-    def render(self, overlay=None, inf_id=None, request=None):
+    def render(self, overlay=None, inf_id=None, request=None, active_container=None, **kwargs):
         from django.template.loader import get_template
 
         template = get_template(self.template_name)
         context = self.get_context_data(request)
         context['overlay'] = overlay
         context['inf_id'] = inf_id
+        context['current_container'] = self
+        context['active_container'] = active_container
+        print(kwargs)
+        context['selected_module'] = kwargs.get('selected_module', None)
+
         return template.render(context)  # Renders the template with the context data.
 
 
@@ -74,7 +79,7 @@ class BaseModule(models.Model):
             widget = widget(model=self)
         return widget
 
-    def render(self, widget=None, request=None, using=None, overlay=None, inf_id=None):
+    def render(self, widget=None, request=None, using=None, overlay=None, inf_id=None, active_container=None, **kwargs):
         # Get the child as deep as possible
         child = self.get_child()
         # Load the widget and render it

@@ -12,7 +12,8 @@
 }
 
 .page_edit_overlay.select>div{
-    border-color: #6b9430;
+    border-color: #20c997;
+    border-width: 2px;
 }
 
 .page_edit_overlay>div:hover{

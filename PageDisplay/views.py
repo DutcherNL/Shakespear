@@ -7,7 +7,7 @@ from Questionaire.views import BaseTemplateView
 
 from .models import Page, BaseModule, ModuleContainer
 from .forms import build_moduleform, AddModuleForm, DelModuleForm
-from .widget_overlays import ModuleSelectOverlay
+from .widget_overlays import ModuleSelectOverlay, ModuleEditOverlay
 
 # Create your views here.
 
@@ -30,6 +30,9 @@ class PageAlterView(PageMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(PageAlterView, self).get_context_data(**kwargs)
         context['overlay'] = ModuleSelectOverlay()
+
+        context['active_container'] = self.page.layout
+
         return context
 
 
@@ -110,6 +113,9 @@ class PageAlterModuleView(PageMixin, TemplateView):
         self.selected_module = BaseModule.objects.get(id=self.kwargs['module_id']).get_child()
         context['selected_module'] = self.selected_module
         context['form'] = build_moduleform(instance=self.selected_module)
+
+        context['overlay'] = ModuleEditOverlay()
+        context['active_container'] = self.selected_module.information
 
         return context
 

@@ -181,6 +181,7 @@ class Inquiry(models.Model):
     def get_owner(self):
         return self.inquirer_set.first().get_email()
 
+
 class Inquirer(models.Model):
     """ Contains information of a single user filling in queries """
     email = models.EmailField(blank=True, null=True)

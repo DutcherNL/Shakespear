@@ -19,8 +19,6 @@ class BaseModuleWidget:
         template = get_template(self.template_name, using=using)
         rendered_result = template.render(context, request)
 
-        print("{0}: {1} - {2}".format(type(self), overlay, inf_id))
-
         return mark_safe(rendered_result)
 
     def get_context(self, request=None, overlay=None, inf_id=None):

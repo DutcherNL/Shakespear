@@ -4,9 +4,19 @@ from django import template
 register = template.Library()
 
 @register.simple_tag(takes_context=True)
-def render_module(context, module, **kwargs):
-    request = context.get('request')
+def render_module(context, module, use_overlay=True):
     overlay = context.get('overlay', None)
-    inf_id = context.get('inf_id', None)
-    return module.render(request=request, overlay=overlay, inf_id=inf_id, **kwargs)
+
+    flattened_context = context.flatten()
+
+    if module is not None:
+        flattened_context['module'] = module
+
+
+    # Whether to use the overlay on the modules
+    if overlay and use_overlay:
+        if overlay.use_overlay(**flattened_context):
+            return overlay.render(**flattened_context)
+
+    return module.render(**flattened_context)
 
