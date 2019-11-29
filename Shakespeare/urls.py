@@ -18,8 +18,8 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from .index import index
-from Questionaire import views as q_views
 
+from Questionaire import views as q_views
 
 urlpatterns = [
     path('', index, name='index'),

@@ -171,3 +171,5 @@ created_reports/
 .idea/
 *.iml
 ignore/*
+
+/static/
