@@ -31,7 +31,6 @@ class VerticalModuleContainer(ModuleContainer):
         context['inf_id'] = inf_id
         context['current_container'] = self
         context['active_container'] = active_container
-        print(kwargs)
         context['selected_module'] = kwargs.get('selected_module', None)
 
         return template.render(context)  # Renders the template with the context data.

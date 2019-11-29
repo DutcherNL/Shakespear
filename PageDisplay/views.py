@@ -1,4 +1,4 @@
-from django.views.generic import TemplateView, View
+from django.views.generic import TemplateView, View, UpdateView
 from django.views.generic.list import ListView
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -13,10 +13,14 @@ from .widget_overlays import ModuleSelectOverlay, ModuleEditOverlay
 
 
 class PageMixin:
+    def dispatch(self, *args, **kwargs):
+        self.page = Page.objects.get(pk=kwargs['inf_id'])
+        return super(PageMixin, self).dispatch(*args, **kwargs)
+
     def get_context_data(self, **kwargs):
-        self.page = Page.objects.get(pk=self.kwargs['inf_id'])
         context = super().get_context_data(**kwargs)
         context['page'] = self.page
+        context['inf_id'] = self.page.id
         return context
 
 
@@ -34,6 +38,18 @@ class PageAlterView(PageMixin, TemplateView):
         context['active_container'] = self.page.layout
 
         return context
+
+
+class PageAlterSettingsView(PageMixin, UpdateView):
+    template_name = 'pagedisplay/page_edit_settings.html'
+    fields = ['name']
+    model = Page
+
+    def get_object(self, queryset=None):
+        return self.page
+
+    def get_success_url(self):
+        return reverse('edit_page', kwargs={'inf_id': self.page.id})
 
 
 class PageAddModuleView(PageMixin, TemplateView):
