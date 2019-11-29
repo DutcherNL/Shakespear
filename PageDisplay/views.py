@@ -2,6 +2,7 @@ from django.views.generic import TemplateView, View, UpdateView
 from django.views.generic.list import ListView
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from Questionaire.views import BaseTemplateView
 
@@ -28,7 +29,7 @@ class InfoPageView(PageMixin, BaseTemplateView):
     template_name = "pagedisplay/page_info_display.html"
 
 
-class PageAlterView(PageMixin, TemplateView):
+class PageAlterView(LoginRequiredMixin, PageMixin, TemplateView):
     template_name = 'pagedisplay/page_edit_page.html'
 
     def get_context_data(self, **kwargs):
@@ -40,7 +41,7 @@ class PageAlterView(PageMixin, TemplateView):
         return context
 
 
-class PageAlterSettingsView(PageMixin, UpdateView):
+class PageAlterSettingsView(LoginRequiredMixin, PageMixin, UpdateView):
     template_name = 'pagedisplay/page_edit_settings.html'
     fields = ['name']
     model = Page
@@ -52,7 +53,7 @@ class PageAlterSettingsView(PageMixin, UpdateView):
         return reverse('edit_page', kwargs={'inf_id': self.page.id})
 
 
-class PageAddModuleView(PageMixin, TemplateView):
+class PageAddModuleView(LoginRequiredMixin, PageMixin, TemplateView):
     template_name = 'pagedisplay/page_edit_add_module.html'
 
     def __init__(self, *args, **kwargs):
@@ -116,11 +117,11 @@ class PageAddModuleView(PageMixin, TemplateView):
         return self.render_to_response(context)
 
 
-class PageAddModuleDetailsView(PageMixin, TemplateView):
+class PageAddModuleDetailsView(LoginRequiredMixin, PageMixin, TemplateView):
     template_name = 'pagedisplay/page_edit_add_module_details.html'
 
 
-class PageAlterModuleView(PageMixin, TemplateView):
+class PageAlterModuleView(LoginRequiredMixin, PageMixin, TemplateView):
     template_name = 'pagedisplay/page_edit_module.html'
 
     def get_context_data(self, **kwargs):
@@ -149,7 +150,7 @@ class PageAlterModuleView(PageMixin, TemplateView):
             return self.render_to_response(context)
 
 
-class PageDeleteModuleView(View):
+class PageDeleteModuleView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         return HttpResponseRedirect(reverse('edit_page', kwargs={'inf_id': self.kwargs['inf_id']}))
@@ -165,7 +166,7 @@ class PageDeleteModuleView(View):
                                                                  'module_id': self.kwargs['module_id']}))
 
 
-class PageOverview(ListView):
+class PageOverview(LoginRequiredMixin, ListView):
     model = Page
     context_object_name = "pages"
     template_name = "pagedisplay/pages_overview.html"
