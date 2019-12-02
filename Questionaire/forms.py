@@ -131,7 +131,7 @@ class InquirerLoadForm(forms.Form):
 
             if self.inquirer_model.email is not None:
                 if self.cleaned_data.get('email', None) != self.inquirer_model.email:
-                    raise forms.ValidationError("E-mail komt niet overeen met {email}".format(email=self.inquirer_model.email))
+                    raise forms.ValidationError("Dit is niet het geaccosieerde e-mail adres")
 
         return cleaned_data
 
