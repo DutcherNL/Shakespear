@@ -2,7 +2,7 @@ from django.urls import path, include
 
 from reports.views import ResultsPDFPlotter, QuestionaireCompletePDFView
 
-from . import views, views_debug
+from . import views, views_debug, views_analysis
 
 urlpatterns = [
     path('', views_debug.StartViewDebug.as_view(), name='home'),
@@ -25,5 +25,9 @@ urlpatterns = [
             path('', views.QuestionaireCompleteView.as_view(), name='results_display'),
             path('pdf/', include('reports.urls')),
         ])),
+    ])),
+    path('analysis/', include([
+        path('', views_analysis.AnalysisListView.as_view(), name='analysis_overview'),
+        path('<int:pk>/', views_analysis.InquiryAnalysis.as_view(), name='analysis_detail'),
     ])),
 ]

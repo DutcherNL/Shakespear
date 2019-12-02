@@ -1,20 +1,16 @@
-import os
-
 from django.views import View
 from django.views.generic import TemplateView
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 from .models import Page, Inquiry, Technology, Inquirer, TechGroup
 from .forms import QuestionPageForm, EmailForm, InquirerLoadForm
-from .modules import modules
 
 # Create your views here.
 
-
-class BaseTemplateView(TemplateView):
-    """ A special templateview that implements some site-wide common behaviour """
+class SiteBaseTemplateMixin:
+    """ A mixin that provides a couple of site wide implementations to the templateviews"""
     def dispatch(self, request, *args, **kwargs):
         colorscheme = request.GET.get('colorscheme', None)
         if colorscheme:
@@ -23,12 +19,17 @@ class BaseTemplateView(TemplateView):
             else:
                 request.session['colorscheme'] = colorscheme
 
-        return super(BaseTemplateView, self).dispatch(request, *args, **kwargs)
+        return super(SiteBaseTemplateMixin, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context_data = super(BaseTemplateView, self).get_context_data(**kwargs)
+        context_data = super(SiteBaseTemplateMixin, self).get_context_data(**kwargs)
         context_data['color_scheme'] = self.request.session.get('colorscheme', None)
         return context_data
+
+
+class BaseTemplateView(SiteBaseTemplateMixin, TemplateView):
+    """ A special templateview that implements some site-wide common behaviour """
+    pass
 
 
 class CreateNewInquiryView(View):
@@ -314,8 +315,6 @@ class ResetQueryView(BaseTemplateView):
         self.request.session['page_id'] = inquiry.current_page.id
 
         return HttpResponseRedirect(reverse('run_query'))
-
-
 
 
 

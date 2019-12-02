@@ -1,0 +1,59 @@
+{% extends 'base_with_body.html' %}
+
+{% block body %}
+    <h1 class="row col-12">Gegevens</h1>
+    <div class="row">
+        <div class="col-4">
+            E-mail
+        </div>
+        <div class="col-8">
+            {{ inquiry.get_owner }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-4">
+            Page
+        </div>
+        <div class="col-8">
+            {{ inquiry.current_page }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-4">
+            Code
+        </div>
+        <div class="col-8">
+            {{ inquiry.inquirer.get_inquiry_code }}
+        </div>
+    </div>
+
+
+    <h1 class="mt-4">Scores</h1>
+    {% include "progress_tabs.html" %}
+
+    <h1 class="row col-12">Antwoorden</h1>
+    {% for answer in processed_answers %}
+        <div class="row">
+            <div class="col-4">
+                {{ answer.question.name }}
+            </div>
+            <div class="col-4">
+                {{ answer.answer }}
+            </div>
+            <div class="col-4">
+                {{ answer.processed_answer.answer }}
+            </div>
+        </div>
+
+
+    {% endfor %}
+
+
+
+{% endblock %}
+
+{% block nav-bar-options %}
+    <a class="btn btn-secondary" href="{% url 'analysis_overview' %}">
+        Inquiry Overview Page
+    </a>
+{% endblock %}

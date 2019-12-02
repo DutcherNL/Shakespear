@@ -29,11 +29,17 @@
                                 <i class="fas fa-info"></i>
                             </a>
                             <div class="dropdown-menu dropdown-menu-right">
-                                <a class="dropdown-item {{ justify }}" href="">
-                                    Opt 1 <i class="fas fa-question"></i>
+                                <a class="dropdown-item"
+                                   href="{% url 'page_overview' %}">
+                                    Pages
                                 </a>
-                                <a class="dropdown-item" href="">
-                                    Opt 2
+                                <a class="dropdown-item"
+                                   href="{% url 'analysis_overview' %}">
+                                    Result Analysis
+                                </a>
+                                <a class="dropdown-item"
+                                   href="{% url 'admin:index' %}">
+                                    Admin Panel
                                 </a>
                             </div>
                         </div>

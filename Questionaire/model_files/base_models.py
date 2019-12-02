@@ -179,7 +179,11 @@ class Inquiry(models.Model):
 
     @property
     def get_owner(self):
-        return self.inquirer_set.first().get_email()
+        return self.inquirer.get_email()
+
+    @property
+    def inquirer(self):
+        return self.inquirer_set.first()
 
 
 class Inquirer(models.Model):
