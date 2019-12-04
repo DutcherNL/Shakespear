@@ -2,7 +2,7 @@ from django import forms
 from .models import PageEntry, Inquirer, Inquiry
 
 from .fields import FieldFactory, QuestionFieldMixin, IgnorableEmailField
-from .widgets import IgnorableInput
+from mailing.forms import MailForm
 
 
 class QuestionPageForm(forms.Form):
@@ -143,3 +143,10 @@ class InquirerLoadForm(forms.Form):
 
     def get_code_value(self):
         return self.cleaned_data['code']
+
+
+class InquiryMailForm(MailForm):
+
+    def __init__(self, *args, **kwargs):
+        super(InquiryMailForm, self).__init__(*args, **kwargs)
+        self.fields['to'].disabled = True

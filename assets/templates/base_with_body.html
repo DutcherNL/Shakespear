@@ -47,6 +47,9 @@
             {% endwith %}
         </nav>
     {% endif %}
+    {% if messages %}
+        {% include 'messages.html' %}
+    {% endif %}
 
     {% block body-containerless %}
         <div class="container my-3">

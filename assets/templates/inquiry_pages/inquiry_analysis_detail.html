@@ -26,6 +26,15 @@
             {{ inquiry.inquirer.get_inquiry_code }}
         </div>
     </div>
+    <div class="row">
+        <div class="offset-4 col-4">
+            <a  class="btn btn-block btn-primary"
+                    href="{% url 'analysis_mailing' pk=inquiry.pk %}">Send mail</a>
+        </div>
+        <div class="col-4">
+
+        </div>
+    </div>
 
 
     <h1 class="mt-4">Scores</h1>

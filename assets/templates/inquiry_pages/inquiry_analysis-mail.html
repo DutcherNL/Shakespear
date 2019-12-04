@@ -1,0 +1,10 @@
+{% extends 'mailing/construct_mail.html' %}
+
+{% block nav-bar-options %}
+    <a class="btn btn-secondary" href="{% url 'analysis_overview' %}">
+        Inquiry Overview Page
+    </a>
+    <a class="btn btn-secondary" href="{% url 'analysis_detail' pk=inquiry.pk %}">
+        Inquiry Detail Page
+    </a>
+{% endblock %}

@@ -28,6 +28,9 @@ urlpatterns = [
     ])),
     path('analysis/', include([
         path('', views_analysis.AnalysisListView.as_view(), name='analysis_overview'),
-        path('<int:pk>/', views_analysis.InquiryAnalysis.as_view(), name='analysis_detail'),
+        path('<int:pk>/', include([
+            path('', views_analysis.InquiryAnalysis.as_view(), name='analysis_detail'),
+            path('mail/', views_analysis.ConstructMailForInquiryView.as_view(), name='analysis_mailing'),
+        ])),
     ])),
 ]
