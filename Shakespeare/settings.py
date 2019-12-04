@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'DataStorage.apps.DataStorageConfig',
     'PageDisplay.apps.PagedisplayConfig',
     'reports.apps.ReportsConfig',
+    'mailing.apps.MailingConfig',
 
 
 
@@ -93,6 +94,15 @@ TEMPLATES = [
                 'Shakespeare.context_processors.questionaire_context'
             ],
             'builtins': ['Questionaire.templatetags.pdf_tags'],
+        }
+    },
+    {
+        'NAME': 'EmailTemplates',
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'assets/mails')],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'builtins': ['mailing.templatetags.mail_tags'],
         }
     },
 ]
@@ -164,6 +174,7 @@ REPORT_ROOT = os.path.join(BASE_DIR, "reports/created_reports")
 MEDIA_ROOT = os.path.join(BASE_DIR, "uploads")
 MEDIA_URL = "/media/"
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
 # Import local settings if that exists

@@ -1,0 +1,10 @@
+{% extends 'base.txt' %}
+
+{% block content %}
+Empty content block
+{% endblock content %}
+
+
+{% block mail_footer %}
+
+{% endblock %}

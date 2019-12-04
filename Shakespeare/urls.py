@@ -25,6 +25,7 @@ urlpatterns = [
     path('', index, name='index'),
     path('admin/', admin.site.urls),
     path('Q/', include('Questionaire.urls')),
+    path('mails/', include('mailing.urls')),
     path('pages/', include('PageDisplay.urls')),
     path('techs/<int:tech_id>', q_views.TechDetailsView.as_view(), name='tech_details'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
