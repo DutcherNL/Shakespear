@@ -169,9 +169,9 @@ from .run_settings import *
 
 STATIC_URL = '/static/'
 
-REPORT_ROOT = os.path.join(BASE_DIR, "reports/created_reports")
+REPORT_ROOT = os.path.join(BASE_DIR, "reports/created_reports/")
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "uploads")
+MEDIA_ROOT = os.path.join(BASE_DIR, "uploads/")
 MEDIA_URL = "/media/"
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
