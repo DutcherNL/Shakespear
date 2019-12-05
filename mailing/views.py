@@ -54,12 +54,12 @@ class EmailTemplateView(View):
         if not request.user.is_superuser:
             return HttpResponseForbidden("You do not have permission to view this")
 
-        template_location = request.GET.get('template', None) + ".html"
+        template_location = request.GET.get('template', "") + ".html"
 
         try:
             template = get_template(template_location, using='EmailTemplates')
         except TemplateDoesNotExist:
-            return Http404("Given template name not found")
+            raise Http404("Given template name not found")
 
         context = self.ContentFactory(dictionary=request.GET.dict())
         context['request'] = request
