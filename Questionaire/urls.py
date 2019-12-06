@@ -17,6 +17,7 @@ urlpatterns = [
         path('new/', views.CreateNewInquiryView.as_view(), name='new_query'),
         path('welcome', views.InquiryStartScreen.as_view(), name='start_query'),
         path('run/', views.QPageView.as_view(), name='run_query'),
+        path('login/', views.LogInInquiry.as_view()),
         path('get_query/', views.GetInquirerView.as_view(), name='run_continue'),
         path('continue/', views.InquiryContinueScreen.as_view(), name='continue_query'),
         path('reset_query/', views.ResetQueryView.as_view(), name='reset_inquiry'),

@@ -240,16 +240,21 @@ class GetInquirerView(BaseTemplateView):
         context = super().get_context_data(**kwargs)
 
         context['inquiries'] = Inquiry.objects.all()
-        context['form'] = InquirerLoadForm(self.request.GET)
 
-        if context['form'].is_valid():
-            inquirer = context['form'].inquirer_model
+        if self.request.GET.__len__() > 0:
+            form = InquirerLoadForm(self.request.GET)
+        else:
+            form = InquirerLoadForm()
+        context['form'] = form
+
+        if form.is_valid():
+            inquirer = form.inquirer_model
             self.request.session['inquirer_id'] = inquirer.id
 
             if inquirer.active_inquiry.is_complete:
                 self.redirect_response = reverse('results_display')
 
-            elif context['form'].inquirer_model.email:
+            elif form.inquirer_model.email:
                 self.request.session['inquiry_id'] = inquirer.active_inquiry.id
                 self.request.session['page_id'] = inquirer.active_inquiry.current_page.id
                 self.redirect_response = reverse('run_query')
@@ -258,6 +263,10 @@ class GetInquirerView(BaseTemplateView):
                 self.redirect_response = reverse('continue_query')
 
         return context
+
+
+class LogInInquiry(GetInquirerView):
+    template_name = "inquiry_pages/inquiry_continue_with.html"
 
 
 class QuestionaireCompleteView(BaseTemplateView):
