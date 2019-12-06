@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <p>
+    Welkom op de eSafer, de online vragenlijst welke je helpt in het energiezuiniger maken van je huis.
+    <br><span style="font-size: small"> Deze website is onderdeel van het ENLEB project.</span>
+    </p>
+    <p>
+    Om uw vragenlijst later verder te vervolgen, of om uw resultaten te zien kunt u inloggen met uw e-mail en de volgende code:
+    </p>
+    <p><b>
+        {{ code }}
+    </b></p>
+
+    <p>
+        Dit kunt u doen op de volgende url:
+    <br>
+    <a href="http://menukaart.bwk.tue.nl/Q/inquiry/login/">menukaart.bwk.tue.nl/Q/inquiry/login/</a>
+    </p>
+
+
+    Een fijne dag.
+{% endblock content %}
+
+
+{% block mail_footer %}
+{% endblock %}

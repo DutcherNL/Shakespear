@@ -1,0 +1,11 @@
+Welkom op de eSafer, de online vragenlijst welke je helpt in het energiezuiniger maken van je huis.
+Deze website is onderdeel van het ENLEB project.
+
+Om uw vragenlijst later verder te vervolgen, of om uw resultaten te zien kunt u inloggen met uw e-mail en de volgende code:
+
+{{ code }}
+
+Dit kunt u doen op de volgende url:
+menukaart.bwk.tue.nl/Q/inquiry/login/
+
+Een fijne dag.

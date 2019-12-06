@@ -3,6 +3,7 @@ from .models import PageEntry, Inquirer, Inquiry
 
 from .fields import FieldFactory, QuestionFieldMixin, IgnorableEmailField
 from mailing.forms import MailForm
+from mailing.mails import send_templated_mail
 
 
 class QuestionPageForm(forms.Form):
@@ -82,6 +83,15 @@ class EmailForm(forms.Form):
     def save(self):
         self.inquirer.email = self.cleaned_data.get('email', None)
         self.inquirer.save()
+
+        subject = "Welkom bij de menukaart"
+        template = "questionaire/welcome_code"
+        context = {'code': self.inquirer.get_inquiry_code()}
+
+        send_templated_mail(subject=subject,
+                            template_name=template,
+                            context_data=context,
+                            recipient=self.inquirer.email)
 
 
 class InquiryLoadDebugForm(forms.Form):

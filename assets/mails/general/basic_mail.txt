@@ -1,7 +1,1 @@
-{% block content %}
-    {{ content }}
-{% endblock content %}
-
-
-{% block mail_footer %}
-{% endblock %}
+{{ content }}
