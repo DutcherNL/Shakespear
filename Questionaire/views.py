@@ -273,7 +273,9 @@ class QuestionaireCompleteView(BaseTemplateView):
     template_name = 'inquiry_pages/inquiry_complete.html'
 
     def init_base_keys(self):
-        self.inquiry = get_object_or_404(Inquiry, id=self.request.session.get('inquiry_id', None))
+        print(self.request.session.get('inquirer_id', None))
+        self.inquirer = get_object_or_404(Inquirer, id=self.request.session.get('inquirer_id', None))
+        self.inquiry = self.inquirer.active_inquiry
 
     def get_context_data(self, **kwargs):
         context = super(QuestionaireCompleteView, self).get_context_data(**kwargs)
