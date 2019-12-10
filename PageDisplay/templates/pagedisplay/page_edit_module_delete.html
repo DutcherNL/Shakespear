@@ -30,20 +30,13 @@
     </div>
 
     <div class="row">
-        <form class="col-12" method="post" id="property_form" enctype="multipart/form-data">
+        <form class="col-12" method="post" id="delete_form">
             {% csrf_token %}
-            {% include "snippets/bootstrap_form.html" %}
+            <p>Weet je zeker dat je dit wilt verwijderen?</p>
         </form>
-        <div class="col-12">
-            <a href="{% url 'edit_page_delete_module' page_id=page.id module_id=selected_module.id %}"
-               class="btn btn-danger col-12 col-md-9 offset-md-3">
-                Verwijderen
-            </a>
-        </div>
-        <hr class="col-12 border-white my-2">
         <div class="btn-group col-12" role="group" aria-label="Opties">
-            <input type="submit" class="btn btn-success" value="Opslaan" form="property_form">
-            <a class="btn btn-secondary" href="{% url 'edit_page' page_id=page.id %}">Terug</a>
+            <input type="submit" class="btn btn-success" value="Ja, verwijderen" form="delete_form">
+            <a class="btn btn-secondary" href="{% url 'edit_page' page_id=page_id module_id=selected_module.id %}">Nee, terug</a>
         </div>
     </div>
 {% endblock %}

@@ -1,7 +1,7 @@
 {% extends 'pagedisplay/module_overlays/mo_base.html' %}
 
 {% block overlay_start %}
-    <a class="page_edit_overlay" href="{% url 'edit_page' inf_id=inf_id module_id=module.id %}">
+    <a class="page_edit_overlay" href="{% url 'edit_page' page_id=page_id module_id=module.id %}">
         <div></div>
     </a>
 {% endblock %}

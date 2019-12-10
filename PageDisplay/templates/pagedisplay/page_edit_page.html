@@ -14,7 +14,7 @@
             Click on a module to edit it
         </div>
         <hr class="col-12 border-white my-2">
-        <a class="btn btn-primary btn-block" href="{% url 'edit_page_add' inf_id=page.id container_id=page.layout.id %}">Voeg module toe</a>
-        <a class="btn btn-primary btn-block" href="{% url 'edit_page_settings' inf_id=page.id %}">Change settings</a>
+        <a class="btn btn-primary btn-block" href="{% url 'edit_page_add' page_id=page.id container_id=page.layout.id %}">Voeg module toe</a>
+        <a class="btn btn-primary btn-block" href="{% url 'edit_page_settings' page_id=page.id %}">Change settings</a>
     </div>
 {% endblock %}

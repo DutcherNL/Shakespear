@@ -4,13 +4,16 @@ from .models import BaseModule, TitleModule, TextModule, ImageModule
 from .module_registry import registry
 
 
-def build_moduleform(instance, **kwargs):
+def build_moduleform(instance, get_as_class=False, **kwargs):
     class_type = type(instance)
 
     class ModuleForm(forms.ModelForm):
         class Meta:
             model = class_type
             exclude = ['_type', 'information']
+
+    if get_as_class:
+        return ModuleForm
 
     return ModuleForm(instance=instance, **kwargs)
 
