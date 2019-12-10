@@ -7,8 +7,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from Questionaire.views import BaseTemplateView
 
 from .models import Page, BaseModule, ModuleContainer
-from .forms import build_moduleform, AddModuleForm, DelModuleForm
-from .widget_overlays import ModuleSelectOverlay, ModuleEditOverlay
+from .forms import build_moduleform, AddModuleForm
+from .widget_overlays import ModuleSelectOverlay, ModuleEditOverlay, ModuleAddOverlay
 
 # ------------------------------------ """
 # ------- Pages Overview Pages ------- """
@@ -133,11 +133,7 @@ class PageAddModuleView(PageEditMixin, TemplateView):
 
         # Get the item it is placed in front of:
         if self.position:
-            # Todo: Insert placement moduleOverlay
-            for module in self.container.basemodule_set.order_by('position'):
-                if module.position > self.position:
-                    context['module_after_new'] = module
-                    break
+            context['overlay'].position = self.position
 
         return context
 
@@ -161,6 +157,9 @@ class PageAddModuleView(PageEditMixin, TemplateView):
             context['module_form'] = module_form
 
         return self.render_to_response(context)
+
+    def get_overlay(self):
+        return ModuleAddOverlay(active_container=self.get_active_container())
 
 
 class ModuleEditMixin:

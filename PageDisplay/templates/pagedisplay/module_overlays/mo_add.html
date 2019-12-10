@@ -1,0 +1,18 @@
+{% extends 'pagedisplay/module_overlays/mo_base.html' %}
+
+{% block overlay_start %}
+    {% if not append_to_end %}
+        <div class="page_edit_add">
+            <div>-- Insert Module Here --</div>
+        </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block overlay_end %}
+    {% if append_to_end %}
+        <div class="page_edit_add">
+            <div>-- Insert Module Here --</div>
+        </div>
+    {% endif %}
+{% endblock %}
