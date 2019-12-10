@@ -20,6 +20,12 @@
     border-color: #6b9430;
 }
 
+.page_edit_add{
+    width: 100%;
+    padding-right: 30px;
+    z-index: 100000;
+    border: 2px solid #20c997;
+}
 
 .pe_main{
     padding-right: 400px;
