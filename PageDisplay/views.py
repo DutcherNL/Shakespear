@@ -1,4 +1,4 @@
-from django.views.generic import TemplateView, View, UpdateView, DeleteView
+from django.views.generic import TemplateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from django.http import HttpResponseRedirect
 from django.urls import reverse

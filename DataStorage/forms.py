@@ -4,48 +4,9 @@ from django.forms import ValidationError
 from .models import StoredDataCode, StoredDataDeclaration, StoredDataCodeDeclaration, StoredDataContent, DataBatch
 
 
-class DataLookupForm(forms.Form):
-    data_type = forms.ModelChoiceField(queryset=StoredDataCodeDeclaration.objects.all())
-    content_type = forms.ModelChoiceField(queryset=StoredDataDeclaration.objects.all())
-    code = forms.CharField(max_length=64)
-
-    @property
-    def get_data(self):
-        if not self.is_valid():
-            return None
-
-        keys = self.cleaned_data.keys()
-        if 'code' not in keys and \
-                'data_type' not in keys and \
-                'content_type' not in keys:
-            return None
-
-        return StoredDataContent.objects.get(code__code_type=self.cleaned_data['data_type'],
-                                             code__identification_code=self.cleaned_data['code'],
-                                             data_declaration=self.cleaned_data['content_type'])
-
-    def clean(self):
-        cleaned_data = super(DataLookupForm, self).clean()
-
-        if not (cleaned_data.get('code')):
-            return cleaned_data
-
-        if not StoredDataCode.objects.filter(identification_code=cleaned_data['code'],
-                                             code_type=cleaned_data['data_type']).exists():
-            raise forms.ValidationError("The given code does not match")
-
-        if not StoredDataContent.objects.filter(code__code_type=cleaned_data['data_type'],
-                                                code__identification_code=cleaned_data['code'],
-                                                data_declaration=cleaned_data['content_type']).exists():
-            raise forms.ValidationError(
-                "The given code has no information on {0}".format(cleaned_data['content_type']))
-
-        return cleaned_data
-
-
 def read_as_csv(file, deliminator=';'):
     """
-    Returns a new reaad line from a file and interprets the data as if it was a CSV file
+    Returns a new read line from a file and interprets the data as if it was a CSV file
     :param file: The CSV file
     :param deliminator: The deliminator of the csv file. Default: ;
     :return: The line from the CSV file
@@ -55,9 +16,10 @@ def read_as_csv(file, deliminator=';'):
     if len(line) == 0:
         return None
 
-    # Decorde to human readable
+    # Decode to human readable
     line = line.decode("utf-8")
     if line.endswith('\r\n'):
+        # Remove the last two newline characters
         line = line[0:-2]
 
     # Break up the entries
@@ -114,8 +76,6 @@ class DataUploadForm(forms.ModelForm):
                 except StoredDataDeclaration.DoesNotExist:
                     raise ValidationError("The term '{data_type}' does not match any of the known data types".
                                           format(data_type=repr(data_entry)))
-
-
         return cleaned_data
 
     def save(self, commit=True):
@@ -157,7 +117,6 @@ class DataUploadForm(forms.ModelForm):
 
         # Read all the data in the file
         data = read_as_csv(file, deliminator=deliminator)
-        i = 0
         while data is not None:
             # Create the Data code root object
             code = StoredDataCode.objects.get_or_create(code_type=declarations[0],
@@ -172,10 +131,6 @@ class DataUploadForm(forms.ModelForm):
                     sdc.content = data_entry
                     sdc.batch = batch
                     sdc.save()
-
-            if i % 5 == 0:
-                print(data[0])
-            i = i + 1
 
             # Read the next line and loop
             data = read_as_csv(file, deliminator=deliminator)

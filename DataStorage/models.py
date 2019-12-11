@@ -2,8 +2,29 @@ from django.db import models
 from django.core.exceptions import ValidationError
 import re
 
+""""
+In the Stored Data there are two steps:
+Declaration:    General declaration of the type of data
+Content:        The actual data stored
+
+
+An example would be:
+    Code declaration: Full Adress
+    Declaration: City
+    Declaration: House type
+    Declaration: Neighbourhood
+
+    Code: Hoofdstraat 24 1234AB
+    Content: Amsterdam (City)
+    Content: Row house (House Type)
+    Content: Centrum (Neighbourhood)
+
+An uploaded collection of data is stored in a single Databatch
+"""
+
 
 class StoredDataCodeDeclaration(models.Model):
+    """ Contains an overall code declaration """
     name = models.SlugField(max_length=32)
     description = models.CharField(max_length=255)
     code_regex = models.CharField(max_length=255)
@@ -13,6 +34,7 @@ class StoredDataCodeDeclaration(models.Model):
 
 
 class StoredDataCode(models.Model):
+    """ Content identified with a given code in accordance to the code declaration """
     code_type = models.ForeignKey(StoredDataCodeDeclaration, on_delete=models.CASCADE)
     identification_code = models.CharField(max_length=255)
 
@@ -25,14 +47,12 @@ class StoredDataCode(models.Model):
                 code=self.identification_code, regex=regex
             ))
 
-        # Validate that the code type has not changed
-
-
     def __str__(self):
         return "{type}: {code}".format(code=self.identification_code, type=self.code_type.name)
 
 
 class StoredDataDeclaration(models.Model):
+    """ Declaration of the data that can be contained in a certain kind of data code """
     code_type = models.ForeignKey(StoredDataCodeDeclaration, on_delete=models.CASCADE)
     name = models.SlugField(max_length=32)
     description = models.CharField(max_length=255)
@@ -42,11 +62,13 @@ class StoredDataDeclaration(models.Model):
 
 
 class DataBatch(models.Model):
+    """ A combined uploaded batch for easy tracking """
     created_on = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=128, unique=True)
 
 
 class StoredDataContent(models.Model):
+    """ Actual Data associated to a certain code """
     code = models.ForeignKey(StoredDataCode, on_delete=models.PROTECT)
     data_declaration = models.ForeignKey(StoredDataDeclaration, on_delete=models.CASCADE)
     content = models.CharField(max_length=255)
