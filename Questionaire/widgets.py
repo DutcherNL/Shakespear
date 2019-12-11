@@ -2,7 +2,7 @@ from django.forms.widgets import RadioSelect, Widget, Input
 
 
 class InformationDisplayWidget(Widget):
-    template_name = 'snippets/widget_text_display.html'
+    template_name = 'snippets/../assets/templates/widgets/widget_text_display.html'
 
     def get_context(self, name, value, attrs):
         context = super(InformationDisplayWidget, self).get_context(name, value, attrs)
@@ -61,7 +61,7 @@ class IgnorableInputMixin(object):
 
 
 class IgnorableInput(IgnorableInputMixin, Input):
-    template_name = 'snippets/widget_text.html'
+    template_name = 'snippets/../assets/templates/widgets/widget_text.html'
 
 
 class IgnorableEmailInput(IgnorableInput):
@@ -69,7 +69,7 @@ class IgnorableEmailInput(IgnorableInput):
 
 
 class CustomRadioSelect(IgnorableInputMixin, RadioSelect):
-    template_name = 'snippets/widget_radio.html'
+    template_name = 'snippets/../assets/templates/widgets/widget_radio.html'
     input_type = 'radio'
     answer_height = None
 

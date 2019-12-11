@@ -4,8 +4,6 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from Questionaire.views import BaseTemplateView
-
 from .models import Page, BaseModule, ModuleContainer
 from .forms import build_moduleform, AddModuleForm
 from .widget_overlays import ModuleSelectOverlay, ModuleEditOverlay, ModuleAddOverlay
@@ -34,8 +32,11 @@ class PageMixin:
     page = None
 
     def dispatch(self, *args, **kwargs):
-        self.page = Page.objects.get(pk=kwargs['page_id'])
+        self.init_page(**kwargs)
         return super(PageMixin, self).dispatch(*args, **kwargs)
+
+    def init_page(self, **kwargs):
+        self.page = Page.objects.get(pk=kwargs['page_id'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -44,7 +45,7 @@ class PageMixin:
         return context
 
 
-class InfoPageView(PageMixin, BaseTemplateView):
+class PageInfoView(PageMixin, TemplateView):
     """ Displays a page the normal way """
     template_name = "pagedisplay/page_info_display.html"
 

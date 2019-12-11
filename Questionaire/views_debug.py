@@ -29,7 +29,7 @@ class InquiryStartScreenDebug(InquiryStartScreen):
 
 
 class QueryIndexViewDebug(TemplateView):
-    template_name = "front_page.html"
+    template_name = "inquiry/debug/front_page.html"
     redirect_to = None
 
     def dispatch(self, request, *args, **kwargs):
@@ -63,7 +63,7 @@ class QPageViewDebug(QPageView):
 
 
 class InquiryScoresViewDebug(TemplateView):
-    template_name = 'inquiry_scores.html'
+    template_name = 'inquiry/debug/inquiry_scores.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -77,4 +77,4 @@ class InquiryScoresViewDebug(TemplateView):
 
 
 class StartViewDebug(TemplateView):
-    template_name = "inquiry_pages/start_debug_page.html"
+    template_name = "inquiry/debug/start_debug_page.html"

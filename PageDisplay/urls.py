@@ -5,7 +5,7 @@ from . import views
 urlpatterns = [
     path('', views.PageOverview.as_view(), name='page_overview'),
     path('<int:page_id>/', include([
-        path('',views.InfoPageView.as_view(), name='info_page'),
+        path('', views.PageInfoView.as_view(), name='info_page'),
         path('edit/', include([
             path('', views.PageAlterView.as_view(), name='edit_page'),
             path('settings/', views.PageAlterSettingsView.as_view(), name='edit_page_settings'),

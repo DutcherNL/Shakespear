@@ -28,7 +28,7 @@
 
 {% for technology in techs %}
     <div id="tech_{{ technology.id }}" class="tabcontent">
-        {% include "inquiry_pages/inquiry_snippets/snippet_tech_group_info.html" %}
+        {% include "inquiry/inquiry_snippets/snippet_tech_group_info.html" %}
 
         {% if DISPLAY_TECH_SCORES %}
             <h4>Display progress scores</h4>

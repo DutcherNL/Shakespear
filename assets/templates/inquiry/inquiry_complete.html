@@ -25,10 +25,10 @@
                 {% with accordion_id='accordion_good' %}
                     <div id="{{ accordion_id }}">
                         {% for technology in techs_recommanded %}
-                            {% include "inquiry_pages/inquiry_snippets/snippet_tech_group_accordion.html" with tech_id=technology.id extra_header_class='bg-success text-white' %}
+                            {% include "inquiry/inquiry_snippets/snippet_tech_group_accordion.html" with tech_id=technology.id extra_header_class='bg-success text-white' %}
                         {% endfor %}
                         {% for technology in techs_varies %}
-                                {% include "inquiry_pages/inquiry_snippets/snippet_tech_group_accordion.html" with tech_id=technology.id extra_header_class='bg-success text-white' %}
+                                {% include "inquiry/inquiry_snippets/snippet_tech_group_accordion.html" with tech_id=technology.id extra_header_class='bg-success text-white' %}
                         {% endfor %}
                     </div>
                 {% endwith %}
@@ -67,7 +67,7 @@
                 <div id="{{ accordion_id }}">
                     {% for technology in techs_discouraged %}
                         {% with extra_card_class='bg-danger text-white' %}
-                            {% include "inquiry_pages/inquiry_snippets/snippet_tech_group_accordion.html" with tech_id=technology.id extra_header_class='bg-danger text-white' %}
+                            {% include "inquiry/inquiry_snippets/snippet_tech_group_accordion.html" with tech_id=technology.id extra_header_class='bg-danger text-white' %}
                         {% endwith %}
                     {% endfor %}
                 </div>
@@ -88,7 +88,7 @@
                 <div id="{{ accordion_id }}">
                     {% for technology in techs_unknown %}
                         {% with extra_card_class='' %}
-                            {% include "inquiry_pages/inquiry_snippets/snippet_tech_group_accordion.html" with tech_id=technology.id %}
+                            {% include "inquiry/inquiry_snippets/snippet_tech_group_accordion.html" with tech_id=technology.id %}
                         {% endwith %}
                     {% endfor %}
                 </div>

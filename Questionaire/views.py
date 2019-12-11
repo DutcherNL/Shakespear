@@ -7,9 +7,11 @@ from django.urls import reverse
 from .models import Page, Inquiry, Technology, Inquirer, TechGroup
 from .forms import QuestionPageForm, EmailForm, InquirerLoadForm
 
+from PageDisplay.views import PageInfoView
+
 # Create your views here.
 
-class SiteBaseTemplateMixin:
+class FlexCssMixin:
     """ A mixin that provides a couple of site wide implementations to the templateviews"""
     def dispatch(self, request, *args, **kwargs):
         colorscheme = request.GET.get('colorscheme', None)
@@ -19,15 +21,15 @@ class SiteBaseTemplateMixin:
             else:
                 request.session['colorscheme'] = colorscheme
 
-        return super(SiteBaseTemplateMixin, self).dispatch(request, *args, **kwargs)
+        return super(FlexCssMixin, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context_data = super(SiteBaseTemplateMixin, self).get_context_data(**kwargs)
+        context_data = super(FlexCssMixin, self).get_context_data(**kwargs)
         context_data['color_scheme'] = self.request.session.get('colorscheme', None)
         return context_data
 
 
-class BaseTemplateView(SiteBaseTemplateMixin, TemplateView):
+class BaseTemplateView(FlexCssMixin, TemplateView):
     """ A special templateview that implements some site-wide common behaviour """
     pass
 
@@ -46,7 +48,7 @@ class CreateNewInquiryView(View):
 
 
 class InquiryStartScreen(BaseTemplateView):
-    template_name = "inquiry_pages/inquiry_start.html"
+    template_name = "inquiry/inquiry_start.html"
 
     def get_context_data(self, **kwargs):
         context = super(InquiryStartScreen, self).get_context_data(**kwargs)
@@ -90,11 +92,11 @@ class InquiryStartScreen(BaseTemplateView):
 
 
 class InquiryContinueScreen(InquiryStartScreen):
-    template_name = "inquiry_pages/inquiry_continue_with_mailrequest.html"
+    template_name = "inquiry/inquiry_continue_with_mailrequest.html"
 
 
 class QPageView(BaseTemplateView):
-    template_name = "question_page.html"
+    template_name = "inquiry/inquiry_questions.html"
 
     def dispatch(self, request, *args, **kwargs):
         response = super().dispatch(request, *args, **kwargs)
@@ -183,20 +185,20 @@ class QPageView(BaseTemplateView):
             return Page.objects.filter(position__lt=self.page.position).order_by('position').last()
 
 
-class TechDetailsView(BaseTemplateView):
-    template_name = "technology_info.html"
+class TechDetailsView(FlexCssMixin, PageInfoView):
+    def init_page(self, **kwargs):
+        self.technology = get_object_or_404(Technology, id=self.kwargs['tech_id'])
+        self.page = self.technology.information_page
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        self.technology = get_object_or_404(Technology, id=self.kwargs['tech_id'])
         context['technology'] = self.technology
 
         return context
 
 
 class QuesetionHomeScreenView(BaseTemplateView):
-    template_name = "inquiry_pages/inquiry_home.html"
+    template_name = "inquiry/inquiry_home.html"
 
     redirect_to = None
 
@@ -225,7 +227,7 @@ class GetInquirerView(BaseTemplateView):
 
     """
 
-    template_name = "inquiry_pages/mail_confirmation_page.html"
+    template_name = "inquiry/mail_confirmation_page.html"
     redirect_response = None
 
     def dispatch(self, request, *args, **kwargs):
@@ -266,11 +268,11 @@ class GetInquirerView(BaseTemplateView):
 
 
 class LogInInquiry(GetInquirerView):
-    template_name = "inquiry_pages/inquiry_continue_with.html"
+    template_name = "inquiry/inquiry_continue_with.html"
 
 
 class QuestionaireCompleteView(BaseTemplateView):
-    template_name = 'inquiry_pages/inquiry_complete.html'
+    template_name = 'inquiry/inquiry_complete.html'
 
     def init_base_keys(self):
         print(self.request.session.get('inquirer_id', None))
@@ -318,7 +320,7 @@ class ResetQueryView(BaseTemplateView):
     Answeres are however maintained.
 
     """
-    template_name = "inquiry_pages/inquiry_reset.html"
+    template_name = "inquiry/inquiry_reset.html"
 
     def post(self, request, *args, **kwargs):
         inquiry = get_object_or_404(Inquiry, id=self.request.session.get('inquiry_id', None))

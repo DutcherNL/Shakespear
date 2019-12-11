@@ -29,9 +29,9 @@
     <div id="col_{{ tech_id }}" class="collapse" aria-labelledby="{{ tech_id }}" data-parent="#{{ accordion_id }}">
         <div class="card-body">
             {% if is_subtech %}
-                {% include "inquiry_pages/inquiry_snippets/subtech_scoring_template.html" %}
+                {% include "inquiry/inquiry_snippets/subtech_scoring_template.html" %}
             {% else %}
-                {% include "inquiry_pages/inquiry_snippets/snippet_tech_group_info.html" %}
+                {% include "inquiry/inquiry_snippets/snippet_tech_group_info.html" %}
             {% endif %}
         </div>
     </div>

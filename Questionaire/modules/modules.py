@@ -1,6 +1,6 @@
 from django.db import models
 
-from PageDisplay.models import BaseModule
+from PageDisplay.models import BaseModule, BasicModuleMixin
 from PageDisplay.module_registry import registry
 
 from Questionaire.models import Technology
