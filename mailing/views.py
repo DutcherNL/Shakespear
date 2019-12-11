@@ -1,13 +1,15 @@
 from django.views.generic import View
 from django.views.generic.edit import FormView
-from django.http import HttpResponseForbidden, Http404
+from django.http import Http404
 from django.shortcuts import render
 from django.urls import reverse
 from django.template.loader import get_template, TemplateDoesNotExist
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import MailForm
 
-class EmailTemplateView(View):
+
+class EmailTemplateView(LoginRequiredMixin, View):
     """
     A view to test mail templates with.
     The contentfactory class inside ensures that when an object does not reside in the context,
@@ -19,7 +21,7 @@ class EmailTemplateView(View):
         A dictionary that either returns the content, or a new dictionary with the name of the searched content
         Used to replace unfound content in the template with the original name
         """
-        def __init__(self, name="", dictionary={}):
+        def __init__(self, name="", dictionary=None):
             self._dict = dictionary
             self._name = name
 
@@ -27,10 +29,39 @@ class EmailTemplateView(View):
             return self[key]
 
         def __getitem__(self, key):
-            item = self._dict.get(key, None)
+            # Create the name of the new object if needed
+            name = "{name}.{key}".format(name=self._name, key=key)
+
+            # If the wrappwer is empty, return a new wrapper
+            if self._dict is None:
+                return type(self)(name=name)
+
+            # There is an object, so search the object
+            try:
+                # Dictionary lookup
+                item = self._dict[key]
+            except (AttributeError, KeyError, TypeError):
+                # Dictionary lookup failed. Try attribute lookup
+                try:
+                    item = getattr(self._dict, key)
+                except (TypeError, AttributeError):
+                    item = None
+
+            if callable(item):
+                # Check if item is callable
+                try:  # method call (assuming no args required)
+                    item = item()
+                except TypeError:
+                    item = None
+
+            print("{0}: {1}".format(name, item))
+
             if item is None:
-                return EmailTemplateView.create_new_factory(name="{name}.{key}".format(name=self._name, key=key))
+                # If key is not in dictionary, create a new ContentFactory to act as a query shell
+                return type(self)(name=name)
             else:
+                if hasattr(item, '__getattr__') or hasattr(item, '__getitem__'):
+                    return type(self)(name=name, dictionary=item)
                 return item
 
         def __contains__(self, item):
@@ -38,42 +69,45 @@ class EmailTemplateView(View):
             return True
 
         def __str__(self):
-            return "-{}-".format(self._name)
-
-        def __repr__(self):
-            return self._dict.__str__()
+            # Check if the wrapper encompasses an object, if so, print the object, otherwise print itself
+            if self._dict is None:
+                return "- {} -".format(self._name)
+            else:
+                return "> {} <".format(self._dict.__str__())
 
         def __setitem__(self, key, value):
+            # create a dict if it does not exist
+            if self._dict is None:
+                self._dict = {}
+            # Add the entry in the dict
             self._dict[key] = value
 
-    @staticmethod
-    def create_new_factory(name=""):
-        return EmailTemplateView.ContentFactory(name=name)
+    def get_context_data(self, request):
+        """ Create the context data """
+        context = self.ContentFactory(dictionary=request.GET.dict())
+        context['request'] = request
+        context['user'] = request.user
+        return context
 
     def get(self, request):
-        if not request.user.is_superuser:
-            return HttpResponseForbidden("You do not have permission to view this")
-
         template_location = request.GET.get('template', "") + ".html"
 
+        # Test if template exists
         try:
             template = get_template(template_location, using='EmailTemplates')
         except TemplateDoesNotExist:
             raise Http404("Given template name not found")
 
-        context = self.ContentFactory(dictionary=request.GET.dict())
-        context['request'] = request
-        context['user'] = request.user
+        context = self.get_context_data(request)
         return render(None, template_location, context, using='EmailTemplates')
 
 
 class ConstructMailView(FormView):
+    """ A view that allows users to send mails with the set mail adres """
     template_name = "mailing/construct_mail.html"
     form_class = MailForm
 
     def form_valid(self, form):
-        # This method is called when valid form data has been POSTed.
-        # It should return an HttpResponse.
         form.send_email()
         return super().form_valid(form)
 

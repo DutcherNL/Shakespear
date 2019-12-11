@@ -16,6 +16,7 @@ def _render_and_send_mail(*args, txt_template=None, html_template=None, context_
 
 
 def _get_mail_templates(full_template_name):
+    """ Gets the mail template with the given name """
     try:
         return get_template(full_template_name, using='EmailTemplates')
     except TemplateDoesNotExist:
@@ -23,10 +24,20 @@ def _get_mail_templates(full_template_name):
 
 
 def send_templated_mail(subject=None, template_name=None, context_data={}, recipient=None, **kwargs):
+    """
+    Sends a templated e-mail to the recipient
+    :param subject: The subject of the mail
+    :param template_name: The template name without extension. Assumes a .txt version exists for plain text
+     and uses .html file if one is present at the same location
+    :param context_data: The context data used in the rendering process.
+     User is automatically added as 'user' if it is a Django model instance
+    :param recipient: The recipient.
+     Can be a string of an email adres or a dict/ Django model object with an email parameter
+    :param kwargs: additional EmailTemplateMessage arguments (from django.core.email)
+    :return: --
+    """
     if recipient is None:
         raise KeyError("No email target given. Please define the recipient")
-
-    context_data['user'] = recipient
 
     # Get the email
     if isinstance(recipient, dict):
@@ -35,7 +46,9 @@ def send_templated_mail(subject=None, template_name=None, context_data={}, recip
         to = recipient
     else:
         to = recipient.email
+        context_data['user'] = recipient
 
+    # Render and send the e-mail
     _render_and_send_mail(subject=subject,
                           txt_template=_get_mail_templates(template_name+".txt"),
                           html_template=_get_mail_templates(template_name+".html"),
