@@ -5,20 +5,31 @@ from .module_registry import registry
 
 
 def build_moduleform(instance, get_as_class=False, **kwargs):
+    """
+    Constructs the form for the given module instance
+    :param instance: The module instance on which the form should be based
+    :param get_as_class: Returns the uninitiated Form class
+    :param kwargs: Other Form arguments
+    :return: A ModuleForm instance (or class) for the given Module instance
+    """
     class_type = type(instance)
 
+    # Create the Form class
     class ModuleForm(forms.ModelForm):
         class Meta:
             model = class_type
             exclude = ['_type', 'information']
 
+    # If uninitiated form is desired
     if get_as_class:
         return ModuleForm
 
+    # Initiate the form
     return ModuleForm(instance=instance, **kwargs)
 
 
 def get_module_choices():
+    """ Returns a list of all availlable modules that can be selected """
     module_list = []
     module_classes = registry.get_all_modules()
 
@@ -28,25 +39,31 @@ def get_module_choices():
 
 
 class AddModuleForm(forms.Form):
+    """ A form that selects a specific module in a specific location """
     module = forms.ChoiceField(choices=get_module_choices(), required=True)
-    position = forms.IntegerField(required=True)
+    position = forms.IntegerField(required=True, min_value=1)
 
     def __init__(self, container=None, *args, **kwargs):
+        """
+        Form that opts uses for basic shared module information
+        :param container: The container the module is to be placed in
+        :param args: Form arguments
+        :param kwargs: Form dict arguments
+        """
         self.container = container
         super(AddModuleForm, self).__init__(*args, **kwargs)
 
     def make_hidden(self):
+        """ Sets the form as hidden.
+
+        Contents are still communicated in the background. Unnoticeable for the front-end user
+        """
         # Form should be hidden
         for key, field in self.fields.items():
             field.widget = forms.HiddenInput()
 
-    def clean_position(self):
-        position = self.cleaned_data['position']
-        if position <= 0:
-            raise forms.ValidationError("Position must be larger than 0")
-        return position
-
     def get_obj_class(self):
+        """ Returns the module class of the selected module """
         return registry.get_module(int(self.cleaned_data['module']))
 
     def get_instance(self):
@@ -56,19 +73,3 @@ class AddModuleForm(forms.Form):
                                   information=self.container)
             return instance
         return None
-
-    def save(self):
-        class_name = registry.get_module(int(self.cleaned_data['module']))
-        # self.instance = class_name(position=self.cleaned_data['position'], information=self.page)
-        # self.instance.save()
-        return self.instance
-
-
-class DelModuleForm(forms.Form):
-
-    def __init__(self, module_id, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.module = BaseModule.objects.get(id=module_id)
-
-    def execute(self):
-        self.module.delete()
