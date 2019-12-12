@@ -47,7 +47,7 @@ class QueryIndexViewDebug(TemplateView):
         context['inquiry_entry_form'] = InquiryLoadDebugForm(self.request.GET)
 
         if context['inquiry_entry_form'].is_valid():
-            self.redirect_to = context['inquiry_entry_form'].get_inquiry().get_url()
+            self.redirect_to = context['inquiry_entry_form'].get_inquiry().get_absolute_url()
 
         return context
 

@@ -1,6 +1,8 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 
+from Questionaire.code_translation import inquiry_6encoder
+
 
 class Question(models.Model):
     """ A model for a question, can be of multiple types """
@@ -141,12 +143,11 @@ class Inquiry(models.Model):
         self.current_page = page
         self.save()
 
-    def get_url(self):
+    def get_absolute_url(self):
         from django.shortcuts import reverse
         if self.current_page is None:
             if self.is_complete:
                 return reverse('results_display')
-
 
             first_page = Page.objects.order_by('position').first()
             return reverse('debug_q_page', kwargs={'inquiry': self.id, 'page': first_page.id})
@@ -154,15 +155,13 @@ class Inquiry(models.Model):
             return reverse('debug_q_page', kwargs={'inquiry': self.id, 'page': self.current_page.id})
 
     def complete(self):
+        """ A script that is called when the questionaire is completed """
         self.is_complete = True
         self.current_page = None
         self.save()
 
     def reset(self):
-        """ Resets the inquiry data, it maintains all answers, but removes all scores
-
-        :return:
-        """
+        """ Resets the inquiry data, it maintains all answers, but removes all scores """
         # Remove all score objects
         self.score_set.all().delete()
 
@@ -207,71 +206,23 @@ class Inquirer(models.Model):
         Get the lettercode for this inquiry object
         :return: Returns the lettercode for the given inquiry object
         """
-        # New value is the key multiplied by the steps mod the total number of possibilities
-        value = (model.pk * cls.steps) % (len(cls.allowed_chars) ** cls.length)
-        string = ''
-
-        # Translate the reformed number to its letterform
-        for i in range(cls.length-1, 0 -1, -1):
-            base = len(cls.allowed_chars) ** i
-
-            # Compute the position of the character (devide by base rounded down)
-            char_pos = int(value / base)
-            # Add the new character to the string
-            string += cls.allowed_chars[char_pos]
-            # Remove the processed value from the string
-            value -= (base * char_pos)
-
-        return string
+        inquiry_6encoder.get_code_from_id(model.id)
 
     def get_inquiry_code(self):
-        return Inquirer.get_inquiry_code_from_model(self)
-
-    def get_rev_key(self):
-        return Inquirer.get_inquiry_model_from_code(self.get_inquiry_code_from_model(self)).id
+        return inquiry_6encoder.get_code_from_id(self.id)
 
     @classmethod
     def get_inquiry_model_from_code(cls, code):
         """
         Retrieves the inquiry model based on a given letter-code
         :param code: The 6-letter code
-        :return: The inquiry-model TODO: return inquiry model instead of pk number
+        :return: The inquiry-model
         """
-
-        def egcd(a, b):
-            """
-            Extended Euclidean Algorithm
-            :param a: Int number 1
-            :param b: Int number 2
-            :return: the greatest common division (gcd) and the x and y values according to ax +by = gcd
-            """
-            x,y, u,v = 0,1, 1,0
-            while a != 0:
-                q, r = b//a, b%a
-                m, n = x-u*q, y-v*q
-                b,a, x,y, u,v = a,r, u,v, m,n
-            gcd = b
-            return gcd, x, y
-
-        # Define base variables
-        value = 0
-        max_combos = (len(cls.allowed_chars) ** cls.length)
-
-        # Translate the code to the reformed number
-        for i in range(0, len(code)):
-            char_pos = cls.allowed_chars.find(code[i])
-
-            if char_pos == -1:
-                raise ValidationError("Character was not the possible characters")
-            else:
-                value += char_pos * (len(cls.allowed_chars) ** (cls.length - i - 1))
-
-        # Recompute the reformed number to its original number
-        gcd, x, y = egcd(cls.steps, max_combos)
-        id = (value * x) % max_combos
+        # Uncode the code
+        id_value = inquiry_6encoder.get_id_from_code(code)
 
         # Return the result
-        return cls.objects.get(id=id)
+        return cls.objects.get(id=id_value)
 
 
 class InquiryQuestionAnswer(models.Model):
