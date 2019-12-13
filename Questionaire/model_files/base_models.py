@@ -12,12 +12,17 @@ class Question(models.Model):
     question_text = models.CharField(max_length=128)
     help_text = models.CharField(max_length=255, default="", blank=True, null=True)
 
+    TYPE_OPEN = 0
+    TYPE_INT = 1
+    TYPE_DOUBLE = 2
+    TYPE_CHOICE = 3
+
     # Define the question types
     QUESTION_TYPE_OPTIONS = (
-        (0, 'Open question'),
-        (1, 'Integer question'),
-        (2, 'Double question'),
-        (3, 'Choice question'),
+        (TYPE_OPEN, 'Open question'),
+        (TYPE_INT, 'Integer question'),
+        (TYPE_DOUBLE, 'Double question'),
+        (TYPE_CHOICE, 'Choice question'),
     )
     question_type = models.PositiveIntegerField(choices=QUESTION_TYPE_OPTIONS)
     options = models.TextField(blank=True, null=True, default="{}")
@@ -131,6 +136,28 @@ class AnswerOption(models.Model):
     def __str__(self):
         return "{question}: {answer}".format(question=self.question.name, answer=self.answer)
 
+    def forward_for_inquiry(self, inquiry):
+        """ Executes a forward processing movement for all adjustments in the inquiry"""
+        # Import the Score class (done here as previously it wasn't processed yet
+        from Questionaire.model_files.tech_scoring_models import Score
+
+        # Loop over all adjustments and adjust them
+        for adjustment in self.answerscoring_set.all():
+            score_obj = Score.objects.get_or_create(declaration=adjustment.declaration, inquiry=inquiry)[0]
+            adjustment.adjust_score(score_obj)
+            score_obj.save()
+
+    def backward_for_inquiry(self, inquiry):
+        # Import the Score class (done here as previously it wasn't processed yet
+        from Questionaire.model_files.tech_scoring_models import Score
+
+        # Loop over all adjustments and adjust them
+        for adjustment in self.answerscoring_set.all():
+            # Revert all the scores
+            score_obj = Score.objects.get_or_create(declaration=adjustment.declaration, inquiry=inquiry)[0]
+            adjustment.adjust_score(score_obj, revert=True)
+            score_obj.save()
+
 
 class Inquiry(models.Model):
     """ Combines the result of a single question set added by the user """
@@ -194,12 +221,6 @@ class Inquirer(models.Model):
     def get_email(self):
         return self.email or "-Not given-"
 
-    # DO NOT ADJUST THE FOLLOWING PARAMETERS AFTER DEPLOYMENT!
-    length = 6
-    allowed_chars = 'QZXSWDCVFRTGBYHNMJKLP'
-    steps = 2766917
-    # DO NOT ADJUST THE ABOVE PARAMETERS AFTER DEPLOYMENT!
-
     @classmethod
     def get_inquiry_code_from_model(cls, model):
         """
@@ -258,4 +279,29 @@ class InquiryQuestionAnswer(models.Model):
 
         return self.answer
 
+    def forward(self):
+        """
+        Computes the processed answer and adjust the scoring accordingly
+        :return:
+        """
+        # Answer is already processed and should not be processed again
+        if self.processed:
+            return
+
+        if self.processed_answer is not None:
+            self.processed_answer.forward_for_inquiry(self.inquiry)
+            self.processed = True
+            self.save()
+
+    def backward(self):
+        """ Reverts the processed answer by adjusting the scoring accordingly """
+        # If the current answer is not processed, it is useless to undo the process
+        if not self.processed:
+            return
+
+        if self.processed_answer is not None:
+            self.processed_answer.backward_for_inquiry(self.inquiry)
+            # Set the answer as unprocessed
+            self.processed = False
+            self.save()
 

@@ -1,7 +1,7 @@
 from django import forms
 from .models import PageEntry, Inquirer, Inquiry
 
-from .fields import FieldFactory, QuestionFieldMixin, IgnorableEmailField
+from .fields import QuestionFieldFactory, QuestionFieldMixin, IgnorableEmailField
 from mailing.forms import MailForm
 from mailing.mails import send_templated_mail
 
@@ -15,8 +15,9 @@ class QuestionPageForm(forms.Form):
         super(QuestionPageForm, self).__init__(*args, **kwargs)
         self.page = page
 
+        # Get all page entries and transform them to a field
         for entry in PageEntry.objects.filter(page=page).order_by('position'):
-            field = FieldFactory.get_field_by_entrymodel(entry, inquiry=inquiry)
+            field = QuestionFieldFactory.get_field_by_entrymodel(entry, inquiry=inquiry)
             if isinstance(field, QuestionFieldMixin):
                 field.backward(inquiry)
 
@@ -71,6 +72,7 @@ class QuestionPageForm(forms.Form):
 
 
 class EmailForm(forms.Form):
+    """ A form that requests the mail for an inquirer object """
     email = IgnorableEmailField(required=False)
 
     def __init__(self, *args, inquirer=None, **kwargs):
@@ -94,31 +96,8 @@ class EmailForm(forms.Form):
                             recipient=self.inquirer.email)
 
 
-class InquiryLoadDebugForm(forms.Form):
-    code = forms.CharField(max_length=6)
-    inquiry_model = None
-
-    def clean(self):
-        cleaned_data = super(InquiryLoadDebugForm, self).clean()
-
-        code = cleaned_data.get('code')
-
-        if code is not None:
-            try:
-                self.inquiry_model = Inquiry.get_inquiry_model_from_code(code)
-            except Inquiry.DoesNotExist:
-                raise forms.ValidationError("Code is incorrect. Inquiry is not known")
-
-        return cleaned_data
-
-    def get_inquiry(self):
-        if self.inquiry_model is None:
-            raise ValueError("No inquiry model computed yet")
-
-        return self.inquiry_model
-
-
 class InquirerLoadForm(forms.Form):
+    """ Form that attemps to retrieve an inquirer model based on the key and the e-mail adres """
     code = forms.CharField(max_length=6, required=True)
     email = forms.EmailField(required=False)
     inquirer_model = None
@@ -128,31 +107,44 @@ class InquirerLoadForm(forms.Form):
         if 'email' in exclude:
             self.fields.pop('email')
 
-    def clean(self):
-        cleaned_data = super(InquirerLoadForm, self).clean()
+    @property
+    def inquirer_model(self):
+        try:
+            code = self.cleaned_data.get('code')
+            if code is None:
+                return None
+            return Inquirer.get_inquiry_model_from_code(code)
+        except Inquirer.DoesNotExist:
+            return None
 
-        code = cleaned_data.get('code')
+    def clean_code(self):
+        """ Clean the code """
+        if self.inquirer_model is None:
+            raise forms.ValidationError("Code is incorrect. Inquiry is not known")
 
-        if code is not None:
-            try:
-                self.inquirer_model = Inquirer.get_inquiry_model_from_code(code)
-            except Inquirer.DoesNotExist:
-                raise forms.ValidationError("Code is incorrect. Inquiry is not known")
+        return self.cleaned_data.get('code')
 
-            if self.inquirer_model.email is not None:
-                if self.cleaned_data.get('email', None) != self.inquirer_model.email:
-                    raise forms.ValidationError("Dit is niet het geaccosieerde e-mail adres")
+    def clean_email(self):
+        """ Clean the email, check if it matches the inquiry object """
+        email = self.cleaned_data.get('email')
+        if self.inquirer_model is None:
+            return email
 
-        return cleaned_data
+        if self.inquirer_model.email is None:
+            # If email should be empty, check if it is empty
+            if email == "":
+                return email
+        elif email == self.inquirer_model.email:
+            # There is an email left, validate it
+            return email
+
+        raise forms.ValidationError("Dit is niet het geaccosieerde e-mail adres")
 
     def get_inquiry(self):
         if self.inquirer_model is None:
             raise ValueError("No inquirer model computed yet")
 
         return self.inquirer_model.active_inquiry
-
-    def get_code_value(self):
-        return self.cleaned_data['code']
 
 
 class InquiryMailForm(MailForm):

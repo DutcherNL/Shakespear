@@ -73,6 +73,12 @@ class TechnologyAdmin(admin.ModelAdmin):
     actions = ['resolve_group_conflicts', 'convert_to_techgroup']
 
     def resolve_group_conflicts(self, request, queryset):
+        """ A method that attempts to resolve conflicts when a tech group and a technology are not related, but share
+        the same name
+
+        :param request:
+        :param queryset:
+        """
         merge_succesful = 0
 
         for obj in queryset:
@@ -95,6 +101,7 @@ class TechnologyAdmin(admin.ModelAdmin):
         messages.success(request, "Succesfully merged {successes} tech groups".format(merge_succesful))
 
     def convert_to_techgroup(self, request, queryset):
+        """ Converts a technology to a tech group """
         merge_succesful = 0
 
         for obj in queryset:

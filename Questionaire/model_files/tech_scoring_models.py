@@ -41,15 +41,23 @@ class Technology(models.Model):
         :param inquiry: the inquiry model
         :return: 0 is not met, 1 if met, 0.5 if unsure
         """
-        score = 1
+        all_fail = True
+        all_pass = True
+        # Check for all sub_techs the states and mark trends
         for scorelink in self.techscorelink_set.all():
-            score = scorelink.get_score(inquiry=inquiry) * score
+            score = scorelink.get_score(inquiry=inquiry)
+            if score != self.TECH_SUCCESS:
+                all_pass = False
+            if score != self.TECH_FAIL:
+                all_fail = False
 
-        if score == 1:
+        # Analyse the trends and conclude overall progress
+        if all_pass:
             return self.TECH_SUCCESS
-        if score == 0:
+        if all_fail:
             return self.TECH_FAIL
 
+        # Scores vary too much, result is unknown
         return self.TECH_UNKNOWN
 
     def get_absolute_url(self):
@@ -57,6 +65,45 @@ class Technology(models.Model):
             return reverse('tech_details', kwargs={'tech_id': self.id})
         else:
             return None
+
+
+class TechGroup(Technology):
+    """ The presented tech group, combines and presents several technologies as one """
+    sub_technologies = models.ManyToManyField(Technology, related_name="techgroups", blank=True)
+
+    def get_score(self, inquiry=None):
+        """ Returns the resulting score for the specefic technology
+        :param inquiry: the inquiry model
+        :return: 0 is not met, 1 if met, 0.5 if unsure
+        """
+
+        if self.sub_technologies.count() == 0:
+            return super(TechGroup, self).get_score(inquiry=inquiry)
+
+        all_pass = True
+        all_fail = True
+        computed = 0.0
+
+        # Check for all sub_techs the states and mark trends
+        for sub_tech in self.sub_technologies.all():
+            score = sub_tech.get_score(inquiry=inquiry)
+            if score != self.TECH_SUCCESS:
+                all_pass = False
+            if score != self.TECH_FAIL:
+                all_fail = False
+            if score != self.TECH_UNKNOWN:
+                computed = computed + 1
+
+        # Analyse the trends and conclude overall progress
+        if computed <= self.sub_technologies.count() / 2:
+            # Too few results to analyse overall trend
+            return self.TECH_UNKNOWN
+        if all_pass:
+            return self.TECH_SUCCESS
+        if all_fail:
+            return self.TECH_FAIL
+        # Scores vary
+        return self.TECH_VARIES
 
 
 class TechScoreLink(models.Model):
@@ -70,15 +117,15 @@ class TechScoreLink(models.Model):
         """
         Returns the resulting score for the specefic link
         :param inquiry:
-        :return: 0 is not met, 1 if met, 0.5 if unsure
+        :return: Returns Technology SUCCES, FAIL of UNKNOWN objecten
         """
         score_obj = Score.objects.get_or_create(inquiry=inquiry, declaration=self.score_declaration)[0]
 
         if score_obj.score >= self.score_threshold_approve:
-            return 1
+            return Technology.TECH_SUCCESS
         if score_obj.score <= self.score_threshold_deny:
-            return 0
-        return 0.5
+            return Technology.TECH_FAIL
+        return Technology.TECH_UNKNOWN
 
     def __str__(self):
         return "{tech_name}: {declaration}".format(tech_name=self.technology.name, declaration=self.score_declaration)
@@ -93,6 +140,7 @@ class Score(models.Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.id is None:
+            # If object is about to be created, create it with the default start value
             self.score = self.declaration.score_start_value
 
     def __str__(self):
@@ -109,21 +157,25 @@ class AnswerScoring(models.Model):
     def adjust_score(self, score_obj, revert=False):
         """ Adjusts the score on a given score object
 
-        :param score_obj:
-        :param revert:
+        :param score_obj: The score object that needs to be adjusted
+        :param revert: If the process needs to be reverted (i.e. backwards process is triggered)
         :return:
         """
 
         if self.take_answer_value:
+            # The value of the answer is the value of this score
+            # This could be useful for e.g. power consumption
             question = self.answer_option.question
             iqa = InquiryQuestionAnswer.objects.get(inquiry=score_obj.inquiry,
                                                     question=question)
             if revert:
+                # Revert the result
                 score_obj.score = score_obj.score - Decimal(iqa.answer)
             else:
                 score_obj.score = score_obj.score + Decimal(iqa.answer)
 
         if revert:
+            # Revert the result
             score_obj.score = score_obj.score - self.score_change_value
         else:
             score_obj.score = score_obj.score + self.score_change_value
@@ -176,41 +228,7 @@ class AnswerScoringNote(models.Model):
 
     def get_prepped_text(self, inquiry=None):
         from Questionaire.processors.replace_text_from_database import format_from_database
+        # Format the text to include answers from database objects entries
         return format_from_database(self.text, inquiry=inquiry)
 
 
-class TechGroup(Technology):
-    """ The presented tech group, combines and presents several technologies as one """
-    sub_technologies = models.ManyToManyField(Technology, related_name="techgroups", blank=True)
-
-    def get_score(self, inquiry=None):
-        """ Returns the resulting score for the specefic technology
-        :param inquiry: the inquiry model
-        :return: 0 is not met, 1 if met, 0.5 if unsure
-        """
-
-        if self.sub_technologies.count() == 0:
-            return super(TechGroup, self).get_score(inquiry=inquiry)
-
-        all_pass = True
-        all_fail = True
-        computed = 0.0
-
-        for sub_tech in self.sub_technologies.all():
-            score = sub_tech.get_score(inquiry=inquiry)
-            if score != self.TECH_SUCCESS:
-                all_pass = False
-            if score != self.TECH_FAIL:
-                all_fail = False
-            if score != self.TECH_UNKNOWN:
-                computed = computed + 1
-
-        if computed <= self.sub_technologies.count() / 2:
-            return self.TECH_UNKNOWN
-
-        if all_pass:
-            return self.TECH_SUCCESS
-        if all_fail:
-            return self.TECH_FAIL
-
-        return self.TECH_VARIES
