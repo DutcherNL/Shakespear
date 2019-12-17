@@ -14,7 +14,7 @@ urlpatterns = [
 
     path('main/', views.QuesetionHomeScreenView.as_view(), name='index_screen'),
     path('inquiry/', include([
-        path('new/', views.CreateNewInquiryView.as_view(), name='new_query'),
+        path('new/', views.CreateNewInquirerView.as_view(), name='new_query'),
         path('welcome', views.InquiryStartScreen.as_view(), name='start_query'),
         path('run/', views.QPageView.as_view(), name='run_query'),
         path('login/', views.LogInInquiry.as_view()),

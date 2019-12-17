@@ -36,7 +36,7 @@
                 class="btn btn-primary btn-block"/>
         </form>
 
-        <form method="get" action="{% url 'run_continue' %}" class="col-md-8">
+        <form method="post" action="{% url 'run_continue' %}" class="col-md-8">
             {% csrf_token %}
             {% with inquiry_entry_form as form %}
                 {% include "snippets/bootstrap_form.html" %}

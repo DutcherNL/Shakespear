@@ -5,7 +5,7 @@
         <div class="col">
             Deze vragenlijst is geassocieerd aan een e-mail adres. Gelieve dit adres in te vullen zodat we weten dat u het bent.
 
-            <form method="get">
+            <form method="post">
                 {% csrf_token %}
                 {% with form as form %}
                     {% include "snippets/bootstrap_form.html" %}

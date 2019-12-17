@@ -12,13 +12,13 @@ from .views import *
 # Create your views here.
 
 
-class CreateNewInquiryViewDebug(CreateNewInquiryView):
+class CreateNewInquiryViewDebug(CreateNewInquirerView):
     def get_redirect(self, request):
         return HttpResponseRedirect(reverse('debug_start_query', kwargs={'inquirer': self.inquirer.id}))
 
 
 class InquiryStartScreenDebug(InquiryStartScreen):
-    def init_base_properties(self):
+    def get_inquirer(self):
         self.inquirer = get_object_or_404(Inquirer, id=self.kwargs['inquirer'])
 
     def redirect_to(self):

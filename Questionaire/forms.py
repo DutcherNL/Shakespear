@@ -1,9 +1,10 @@
 from django import forms
 from .models import PageEntry, Inquirer, Inquiry
 
-from .fields import QuestionFieldFactory, QuestionFieldMixin, IgnorableEmailField
 from mailing.forms import MailForm
 from mailing.mails import send_templated_mail
+
+from .fields import QuestionFieldFactory, QuestionFieldMixin, IgnorableEmailField
 
 
 class QuestionPageForm(forms.Form):
@@ -11,7 +12,7 @@ class QuestionPageForm(forms.Form):
     The Form presenting all questions on a page
     """
 
-    def __init__(self, page, inquiry, *args, **kwargs):
+    def __init__(self, *args, page=None, inquiry=None, **kwargs):
         super(QuestionPageForm, self).__init__(*args, **kwargs)
         self.page = page
 
@@ -19,6 +20,7 @@ class QuestionPageForm(forms.Form):
         for entry in PageEntry.objects.filter(page=page).order_by('position'):
             field = QuestionFieldFactory.get_field_by_entrymodel(entry, inquiry=inquiry)
             if isinstance(field, QuestionFieldMixin):
+                # Roll backwards for all fields (fields check themselves if it is needed
                 field.backward(inquiry)
 
             self.fields[field.name] = field
@@ -77,7 +79,7 @@ class EmailForm(forms.Form):
 
     def __init__(self, *args, inquirer=None, **kwargs):
         if inquirer is None:
-            raise KeyError("inquiry is missing or is None")
+            raise KeyError("inquirer is missing or is None")
 
         self.inquirer = inquirer
         return super(EmailForm, self).__init__(*args, **kwargs)
@@ -137,6 +139,10 @@ class InquirerLoadForm(forms.Form):
         elif email == self.inquirer_model.email:
             # There is an email left, validate it
             return email
+
+        if email == "":
+            raise forms.ValidationError("Er is een e-mail adres aan deze vragenlijst gekoppeld. \n"
+                                        "Gelieve dit in te vullen zodat wij weten dat u het bent")
 
         raise forms.ValidationError("Dit is niet het geaccosieerde e-mail adres")
 

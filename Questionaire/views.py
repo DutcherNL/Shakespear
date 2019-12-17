@@ -1,5 +1,5 @@
 from django.views import View
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, CreateView, FormView
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -11,12 +11,15 @@ from PageDisplay.views import PageInfoView
 
 # Create your views here.
 
+
 class FlexCssMixin:
     """ A mixin that provides a couple of site wide implementations to the templateviews"""
     def dispatch(self, request, *args, **kwargs):
+        # Search for a colorsheme attribute in the GET arguments and store it in the session
         colorscheme = request.GET.get('colorscheme', None)
         if colorscheme:
             if colorscheme == "reset":
+                # Reset the colorscheme to the default
                 del request.session['colorscheme']
             else:
                 request.session['colorscheme'] = colorscheme
@@ -25,6 +28,7 @@ class FlexCssMixin:
 
     def get_context_data(self, **kwargs):
         context_data = super(FlexCssMixin, self).get_context_data(**kwargs)
+        # Add the color_scheme attribute the the context arguments
         context_data['color_scheme'] = self.request.session.get('colorscheme', None)
         return context_data
 
@@ -34,108 +38,121 @@ class BaseTemplateView(FlexCssMixin, TemplateView):
     pass
 
 
-class CreateNewInquiryView(View):
-    def post(self, request):
-        self.inquirer = Inquirer()
-        self.inquirer.save()
+class CreateNewInquirerView(FlexCssMixin, CreateView):
+    """ Creates a new inquirer object without User interaction """
+    model = Inquirer
+    # Fields attribute should be empty, this should be an unseen webpage
+    fields = []
 
-        return self.get_redirect(request)
-
-    def get_redirect(self, request):
-        request.session['inquirer_id'] = self.inquirer.id
-
-        return HttpResponseRedirect(reverse('start_query'))
+    def get_success_url(self):
+        self.request.session['inquirer_id'] = self.object.id
+        return reverse('start_query')
 
 
-class InquiryStartScreen(BaseTemplateView):
+class InquiryStartScreen(FlexCssMixin, FormView):
+    """ A webpage that start the inquiry
+    It displays the unique code and asks for an e-mail adress """
+    form_class = EmailForm
     template_name = "inquiry/inquiry_start.html"
+
+    @property
+    def inquirer(self):
+        """ The inquirer using the current view """
+        return get_object_or_404(Inquirer, id=self.request.session.get('inquirer_id', None))
+
+    def get_form_kwargs(self):
+        form_kwargs = super(InquiryStartScreen, self).get_form_kwargs()
+        # Set the inquirer object
+        form_kwargs['inquirer'] = self.inquirer
+        return form_kwargs
 
     def get_context_data(self, **kwargs):
         context = super(InquiryStartScreen, self).get_context_data(**kwargs)
-
-        self.init_base_properties()
-
         context['inquirer'] = self.inquirer
-        context['form'] = EmailForm(inquirer=context['inquirer'])
-
         return context
 
-    def init_base_properties(self):
-        self.inquirer = get_object_or_404(Inquirer, id=self.request.session.get('inquirer_id', None))
-
-    def redirect_to(self):
+    def get_success_url(self):
+        # Set the page id and inquirer id in the sessions
         self.request.session['page_id'] = self.inquirer.active_inquiry.current_page.id
         self.request.session['inquiry_id'] = self.inquirer.active_inquiry.id
-        return HttpResponseRedirect(reverse('run_query'))
+        return reverse('run_query')
 
-    def post(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
+    def form_valid(self, form):
+        # Save the form
+        form.save()
 
-        # Add the comment
-        form = EmailForm(inquirer=context['inquirer'], data=request.POST)
+        # Create the inquiry if needed
+        if self.inquirer.active_inquiry is None:
+            # Create the inquiry
+            page = Page.objects.order_by('position').first()
+            inquiry = Inquiry.objects.create(current_page=page)
+            self.inquirer.active_inquiry = inquiry
+            self.inquirer.save()
 
-        if form.is_valid():
-            form.save()
-
-            # Create the inquiry if needed
-            if self.inquirer.active_inquiry is None:
-                # Create the inquiry
-                page = Page.objects.order_by('position').first()
-                inquiry = Inquiry.objects.create(current_page=page)
-                self.inquirer.active_inquiry = inquiry
-                self.inquirer.save()
-
-            return self.redirect_to()
-        else:
-            context['form'] = form
-            return self.render_to_response(context)
+        return super(InquiryStartScreen, self).form_valid(form)
 
 
 class InquiryContinueScreen(InquiryStartScreen):
+    """ Screen that continues the inquiry
+    Asks for email is no e-mail was given """
     template_name = "inquiry/inquiry_continue_with_mailrequest.html"
 
 
-class QPageView(BaseTemplateView):
+class QPageView(FlexCssMixin, FormView):
+    """ The view for the question pages """
     template_name = "inquiry/inquiry_questions.html"
+    form_class = QuestionPageForm
+
+    def get_form_kwargs(self):
+        form_kwargs = super(QPageView, self).get_form_kwargs()
+        form_kwargs.update({
+            'page': self.page,
+            'inquiry': self.inquiry,
+        })
+        return form_kwargs
 
     def dispatch(self, request, *args, **kwargs):
-        response = super().dispatch(request, *args, **kwargs)
+        # Initiate the basic attributes
+        self.init_base_keys()
 
-        if self.page.is_valid_for_inquiry(self.inquiry):
-            if self.page.auto_process and self.inquiry.current_page.position != self.page.position:
-                form = QuestionPageForm(self.page, self.inquiry, request.GET)
-                if form.is_valid():
-                    # The form is valid, the page should not be displayed visibly
-                    form.save(self.inquiry)
-
-                    # Determine whether the movement is forward or backward
-                    if self.inquiry.current_page.position < self.page.position:
-                        # Movement is forward
-                        form.forward(self.inquiry)
-                        rev = self.get_redirect(get_next=True)
-                        return HttpResponseRedirect(rev)
-                    if self.inquiry.current_page.position > self.page.position:
-                        # Movement is backward
-                        form.backward(self.inquiry)
-                        rev = self.get_redirect(get_next=False)
-                        return HttpResponseRedirect(rev)
-
-            # The page should be displayed normally
-            self.inquiry.set_current_page(self.page)
-
-            return response
-        else:
+        # Check if the page can be processed for the current inquiry
+        # Some pages are blocked based on certain answers
+        if not self.page.is_valid_for_inquiry(self.inquiry):
+            # Determine the direction of the movement
             if self.inquiry.current_page.position < self.page.position:
                 return HttpResponseRedirect(self.get_redirect(True))
             else:
                 return HttpResponseRedirect(self.get_redirect(False))
 
+        # If the page should automatically be processed. This occurs when external data needs to be retrieved
+        if self.page.auto_process and self.inquiry.current_page.position != self.page.position:
+            auto_result = self.autoprocess()
+            if auto_result is not None:
+                return auto_result
+
+        # The page should be displayed normally
+        self.inquiry.set_current_page(self.page)
+        return super().dispatch(request, *args, **kwargs)
+
+    def autoprocess(self):
+        """ Attempts to autoprocess a form in its entirety even though it is likely a GET request"""
+        form = QuestionPageForm(self.request.GET, page=self.page, inquiry=self.inquiry)
+        if form.is_valid():
+            # The form is valid, the page should not be displayed visibly
+            form.save(self.inquiry)
+
+            # Determine whether the movement is forward or backward
+            if self.inquiry.current_page.position < self.page.position:
+                # Movement is forward
+                form.forward(self.inquiry)
+                return HttpResponseRedirect(self.get_redirect(get_next=True))
+            else:
+                # Movement is backward
+                form.backward(self.inquiry)
+                return HttpResponseRedirect(self.get_redirect(get_next=False))
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        self.init_base_keys()
-
-        context['form'] = QuestionPageForm(self.page, self.inquiry)
 
         context['has_prev_page'] = self.get_page(get_next=False) is not None
         context['has_next_page'] = self.get_page(get_next=True) is not None
@@ -143,42 +160,57 @@ class QPageView(BaseTemplateView):
         context['inquiry'] = self.inquiry
         context['techs'] = TechGroup.objects.all()
 
-        # context['tech_scores'] = TechnologyScore.objects.filter(inquiry=self.inquiry)
-
         return context
 
     def init_base_keys(self):
         self.inquiry = get_object_or_404(Inquiry, id=self.request.session.get('inquiry_id', None))
         self.page = get_object_or_404(Page, id=self.request.session.get('page_id', None))
 
-    def post(self, request, *args, **kwargs):
-        context = self.get_context_data()
-        context['form'] = QuestionPageForm(self.page, self.inquiry, request.POST)
+    def form_valid(self, form):
+        # Form is valid, save it
+        form.save(self.inquiry)
+        if 'prev' not in self.request.POST:
+            form.forward(self.inquiry)
+        return super(QPageView, self).form_valid(form)
 
-        if 'prev' in request.POST:
-            # Backwards run for safety reasons, but should theoretically be useless here
-            context['form'].save(self.inquiry, True)
-            # context['form'].backward(self.inquiry)
+    def form_invalid(self, form):
+        # Form is invalid, save it only if the movement is backwards
+        if 'prev' in self.request.POST:
+            # If backwards is pressed, save current state and redirect to previous page
+            form.save(self.inquiry, True)
             return HttpResponseRedirect(self.get_redirect(False))
+
+        return super(QPageView, self).form_invalid(form)
+
+    def get_success_url(self):
+        if 'prev' in self.request.POST:
+            return self.get_redirect(False)
         else:
-            if context['form'].is_valid():
-                context['form'].save(self.inquiry)
-                context['form'].forward(self.inquiry)
-                return HttpResponseRedirect(self.get_redirect(True))
-            return self.render_to_response(context)
+            return self.get_redirect(True)
 
     def get_redirect(self, get_next):
+        """ Returns the next page url
+
+        :param get_next: Whether the next page needs to be returned (defaults True)
+        :return: The url
+        """
         page = self.get_page(get_next=get_next)
         if page:
+            # Set the id to the correct page id
             self.request.session['page_id'] = page.id
         elif get_next:
-            # The end of the questionaire is reached, complete the inquiry
+            # There is no next page, so the end is reached; complete the inquiry
             self.inquiry.complete()
             return reverse('results_display')
 
         return reverse('run_query')
 
     def get_page(self, get_next=True):
+        """ Returns the next page
+
+        :param get_next: True returns next page, False the previous page
+        :return: The Next Page Object
+        """
         if get_next:
             return Page.objects.filter(position__gt=self.page.position).order_by('position').first()
         else:
@@ -186,6 +218,7 @@ class QPageView(BaseTemplateView):
 
 
 class TechDetailsView(FlexCssMixin, PageInfoView):
+    """ Displays technology information """
     def init_page(self, **kwargs):
         self.technology = get_object_or_404(Technology, id=self.kwargs['tech_id'])
         self.page = self.technology.information_page
@@ -193,22 +226,11 @@ class TechDetailsView(FlexCssMixin, PageInfoView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['technology'] = self.technology
-
         return context
 
 
 class QuesetionHomeScreenView(BaseTemplateView):
     template_name = "inquiry/inquiry_home.html"
-
-    redirect_to = None
-
-    def dispatch(self, request, *args, **kwargs):
-        result = super().dispatch(request, *args, **kwargs)
-
-        if self.redirect_to is not None:
-            return HttpResponseRedirect(self.redirect_to)
-
-        return result
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -219,52 +241,40 @@ class QuesetionHomeScreenView(BaseTemplateView):
         return context
 
 
-class GetInquirerView(BaseTemplateView):
+class GetInquirerView(FlexCssMixin, FormView):
     """ A view that retrieves and connects the inquirer
 
     It searches the given inquirer, assures it's access and then forwards to either continuing the questionnaire
     or leads to the results page
 
     """
-
+    form_class = InquirerLoadForm
     template_name = "inquiry/mail_confirmation_page.html"
-    redirect_response = None
+    inquirer = None
 
-    def dispatch(self, request, *args, **kwargs):
-        result = super().dispatch(request, *args, **kwargs)
+    def get_form_kwargs(self):
+        form_kwargs = super(GetInquirerView, self).get_form_kwargs()
+        form_kwargs['initial'] = self.request.GET
+        return form_kwargs
 
-        if self.redirect_response is not None:
-            return HttpResponseRedirect(self.redirect_response)
+    def form_valid(self, form):
+        self.inquirer = form.inquirer_model
+        self.request.session['inquirer_id'] = self.inquirer.id
+        return super(GetInquirerView, self).form_valid(form)
 
-        return result
+    def get_success_url(self):
+        # If inquiry is complete, display the results page
+        if self.inquirer.active_inquiry.is_complete:
+            return reverse('results_display')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['inquiries'] = Inquiry.objects.all()
-
-        if self.request.GET.__len__() > 0:
-            form = InquirerLoadForm(self.request.GET)
+        # If an inquirer already has an e-mail adres, continue where he left off
+        elif self.inquirer.email:
+            self.request.session['inquiry_id'] = self.inquirer.active_inquiry.id
+            self.request.session['page_id'] = self.inquirer.active_inquiry.current_page.id
+            return reverse('run_query')
         else:
-            form = InquirerLoadForm()
-        context['form'] = form
-
-        if form.is_valid():
-            inquirer = form.inquirer_model
-            self.request.session['inquirer_id'] = inquirer.id
-
-            if inquirer.active_inquiry.is_complete:
-                self.redirect_response = reverse('results_display')
-
-            elif form.inquirer_model.email:
-                self.request.session['inquiry_id'] = inquirer.active_inquiry.id
-                self.request.session['page_id'] = inquirer.active_inquiry.current_page.id
-                self.redirect_response = reverse('run_query')
-            else:
-                # There is no email, urge to fill in the email
-                self.redirect_response = reverse('continue_query')
-
-        return context
+            # There is no email, urge to fill in the email
+            return reverse('continue_query')
 
 
 class LogInInquiry(GetInquirerView):
@@ -272,21 +282,24 @@ class LogInInquiry(GetInquirerView):
 
 
 class QuestionaireCompleteView(BaseTemplateView):
+    """ A view that displays the inquiry results """
     template_name = 'inquiry/inquiry_complete.html'
 
     def init_base_keys(self):
-        print(self.request.session.get('inquirer_id', None))
         self.inquirer = get_object_or_404(Inquirer, id=self.request.session.get('inquirer_id', None))
         self.inquiry = self.inquirer.active_inquiry
+
+    def dispatch(self, request, *args, **kwargs):
+        self.init_base_keys()
+        super(QuestionaireCompleteView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(QuestionaireCompleteView, self).get_context_data(**kwargs)
 
-        self.init_base_keys()
-
         context['inquiry'] = self.inquiry
         context['techs'] = TechGroup.objects.all()
 
+        # Create lists of various technology states
         techs_recommanded = []
         techs_unknown = []
         techs_varies = []

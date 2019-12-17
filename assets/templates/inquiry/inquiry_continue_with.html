@@ -5,7 +5,7 @@
         <div class="col">
             Vul uw unique code en e-mail in om verder te gaan met een vragenlijst
 
-            <form method="get">
+            <form method="post">
                 {% csrf_token %}
                 {% with form as form %}
                     {% include "snippets/bootstrap_form.html" %}

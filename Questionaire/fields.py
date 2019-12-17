@@ -4,7 +4,6 @@ from .widgets import CustomRadioSelect, InformationDisplayWidget,\
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator
 
-from string import Formatter
 import ast
 
 from .models import ExternalQuestionSource, InquiryQuestionAnswer, AnswerOption, Score, Question
