@@ -16,7 +16,7 @@
         </form>
         <div class="btn-group col-12" role="group" aria-label="Opties">
             <input type="submit" class="btn btn-success" value="Opslaan" form="property_form">
-            <a class="btn btn-secondary" href="{% url 'edit_page' page_id=page.id %}">Terug</a>
+            <a class="btn btn-secondary" href="{% url 'pages:edit_page' page_id=page.id %}">Terug</a>
         </div>
     </div>
 {% endblock %}

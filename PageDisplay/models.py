@@ -68,7 +68,7 @@ class Page(models.Model):
     name = models.CharField(max_length=63)
 
     def get_absolute_url(self):
-        return reverse('info_page', kwargs={'page_id': self.id})
+        return reverse('pages:info_page', kwargs={'page_id': self.id})
 
 
 class BaseModule(models.Model):

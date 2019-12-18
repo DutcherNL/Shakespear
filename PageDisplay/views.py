@@ -95,7 +95,8 @@ class PageAlterSettingsView(PageEditMixin, UpdateView):
         return self.page
 
     def get_success_url(self):
-        return reverse('edit_page', kwargs={'page_id': self.page.id})
+        return reverse('pages:edit_page', kwargs={'page_id': self.page.id},
+                       current_app=self.request.resolver_match.namespace)
 
 
 class PageAddModuleView(PageEditMixin, TemplateView):
@@ -153,7 +154,8 @@ class PageAddModuleView(PageEditMixin, TemplateView):
             if module_form.is_valid():
                 # Module_form is valid. Save the module and go back to the edit page
                 module_form.save()
-                return HttpResponseRedirect(reverse('edit_page', kwargs={'page_id': self.page.id}))
+                return HttpResponseRedirect(reverse('pages:edit_page', kwargs={'page_id': self.page.id},
+                                                    current_app=self.request.resolver_match.namespace))
 
             context['module_form'] = module_form
 
@@ -202,7 +204,8 @@ class PageAlterModuleView(ModuleEditBase, UpdateView):
         return self.selected_module
 
     def get_success_url(self):
-        return reverse('edit_page', kwargs={'page_id': self.page.id})
+        return reverse('pages:edit_page', kwargs={'page_id': self.page.id}
+                       , current_app=self.request.resolver_match.namespace)
 
     def get_form_class(self):
         return build_moduleform(instance=self.selected_module, get_as_class=True)
@@ -217,4 +220,4 @@ class PageDeleteModuleView(ModuleEditBase, DeleteView):
         return self.selected_module
 
     def get_success_url(self):
-        return reverse('edit_page', kwargs={'page_id': self.page.id})
+        return reverse('pages:edit_page', kwargs={'page_id': self.page.id})
