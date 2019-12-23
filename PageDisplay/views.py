@@ -102,7 +102,9 @@ class PageEditMixin(LoginRequiredMixin, PageMixin):
         if self.site is not None:
             # Create the View Page button
             namespace = self.request.resolver_match.namespace
-            self.header_buttons['View Page'] = reverse(namespace+':view_page', kwargs=kwargs, current_app=namespace)
+            self.header_buttons['View Page'] = reverse(namespace+':view_page',
+                                                       kwargs={'page_id': kwargs.get('page_id')},
+                                                       current_app=namespace)
 
 
 class PageAlterView(PageEditMixin, TemplateView):
