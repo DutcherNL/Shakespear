@@ -219,7 +219,7 @@ class QPageView(FlexCssMixin, FormView):
 
 class TechDetailsView(FlexCssMixin, PageInfoView):
     """ Displays technology information """
-    def init_page(self, **kwargs):
+    def init_params(self, **kwargs):
         self.technology = get_object_or_404(Technology, id=self.kwargs['tech_id'])
         self.page = self.technology.information_page
 

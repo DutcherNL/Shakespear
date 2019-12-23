@@ -1,0 +1,14 @@
+{% extends 'base_with_body.html' %}
+
+{% block body %}
+    <h1>Pages</h1>
+    <a href="{% url 'setup:tech_list' %}" class="btn btn-primary btn-block">
+        Technology pages
+    </a>
+    <a href="" class="btn btn-block btn-disabled">
+        Report pages
+    </a>
+    <a href="" class="btn btn-block">
+        Questionaire pages
+    </a>
+{% endblock %}

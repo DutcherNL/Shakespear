@@ -1,7 +1,5 @@
 from django.urls import path, include
 
-from reports.views import ResultsPDFPlotter, QuestionaireCompletePDFView
-
 from . import views, views_debug, views_analysis
 
 urlpatterns = [
@@ -13,6 +11,7 @@ urlpatterns = [
     path('debug_inq/<int:inquiry>/progress/', views_debug.InquiryScoresViewDebug.as_view(), name='debug_inq_scores'),
 
     path('main/', views.QuesetionHomeScreenView.as_view(), name='index_screen'),
+
     path('inquiry/', include([
         path('new/', views.CreateNewInquirerView.as_view(), name='new_query'),
         path('welcome', views.InquiryStartScreen.as_view(), name='start_query'),

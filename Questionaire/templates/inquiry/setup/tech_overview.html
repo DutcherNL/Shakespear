@@ -1,0 +1,60 @@
+{% extends 'base_with_body.html' %}
+
+{% block body %}
+    <h1>Technologies</h1>
+    <div class="table-responsive">
+    <table class="table table-hover">
+    <thead>
+    <tr class="font-weight-bold">
+        <td style="min-width: 10rem">Name</td>
+        <td style="min-width: 10rem">Settings</td>
+        <td style="min-width: 15rem;">Page</td>
+    </tr>
+    </thead>
+    <tbody>
+    {% for tech in technologies %}
+        <tr>
+            <td>
+                {{ tech.name }}
+            </td>
+            <td>
+                <a href="{% url 'setup:tech_update' tech_id=tech.id %}" class="btn btn-primary btn-block">
+                    Settings
+                </a>
+            </td>
+
+            <td>
+                {% if tech.information_page %}
+                    <div class="btn-group w-100" role="group" aria-label="Opties">
+                    {% with tech.information_page as page %}
+                        <a href="{% url 'setup:pages:view_page' page_id=page.id %}" class="btn btn-secondary">
+                            View page
+                        </a>
+                        <a href="{% url 'setup:edit_test' tech_id=tech.id %}" class="btn btn-warning">
+                            Edit page
+                        </a>
+                    {% endwith %}
+                    </div>
+                {% else %}
+                    <a href="{% url 'setup:create_page' tech_id=tech.id %}" class="btn btn-success btn-block">
+                        Add page
+                    </a>
+                {% endif %}
+            </td>
+        </tr>
+    {% empty %}
+        <td rowspan="3">
+            No spaces yet
+        </td>
+    {% endfor %}
+    </tbody>
+    </table>
+    </div>
+
+{% endblock %}
+
+{% block nav-bar-options %}
+    <a class="btn btn-secondary" href="{% url 'setup:home' %}">
+        Setup Home
+    </a>
+{% endblock %}
