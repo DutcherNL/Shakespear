@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Page, BaseModule, ModuleContainer
 from .forms import build_moduleform, AddModuleForm
 from .widget_overlays import ModuleSelectOverlay, ModuleEditOverlay, ModuleAddOverlay
+from . import reverse_ns
 
 # ------------------------------------ """
 # ------- Pages Overview Pages ------- """
@@ -30,24 +31,43 @@ class PageMixin:
     page: The page object that the view processes
     """
     page = None
+    site = None
+    extends = 'base_with_body.html'
+    header_buttons = {}
+
+    def __init__(self, *args, site=None, extends=None, **kwargs):
+        self.site = site
+        self.extends = extends or self.extends
+        self.header_buttons = kwargs.pop('header_buttons', self.header_buttons)
+        super(PageMixin, self).__init__(*args, **kwargs)
 
     def dispatch(self, *args, **kwargs):
-        self.init_page(**kwargs)
+        self.init_params(**kwargs)
         return super(PageMixin, self).dispatch(*args, **kwargs)
 
-    def init_page(self, **kwargs):
+    def init_params(self, **kwargs):
         self.page = Page.objects.get(pk=kwargs['page_id'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['page'] = self.page
         context['page_id'] = self.page.id
+        context['extends'] = self.extends
+        context['header_buttons'] = self.header_buttons
         return context
 
 
 class PageInfoView(PageMixin, TemplateView):
     """ Displays a page the normal way """
     template_name = "pagedisplay/page_info_display.html"
+
+    def init_params(self, **kwargs):
+        super(PageInfoView, self).init_params(**kwargs)
+
+        if self.site is not None:
+            # Create the Edit Page button
+            namespace = self.request.resolver_match.namespace
+            self.header_buttons['Edit Page'] = reverse(namespace+':edit_page', kwargs=kwargs, current_app=namespace)
 
 
 class PageEditMixin(LoginRequiredMixin, PageMixin):
@@ -76,6 +96,14 @@ class PageEditMixin(LoginRequiredMixin, PageMixin):
         except AttributeError:
             return self.page.layout
 
+    def init_params(self, **kwargs):
+        super(PageEditMixin, self).init_params(**kwargs)
+
+        if self.site is not None:
+            # Create the View Page button
+            namespace = self.request.resolver_match.namespace
+            self.header_buttons['View Page'] = reverse(namespace+':view_page', kwargs=kwargs, current_app=namespace)
+
 
 class PageAlterView(PageEditMixin, TemplateView):
     """ The root for the page alteration """
@@ -95,8 +123,7 @@ class PageAlterSettingsView(PageEditMixin, UpdateView):
         return self.page
 
     def get_success_url(self):
-        return reverse('pages:edit_page', kwargs={'page_id': self.page.id},
-                       current_app=self.request.resolver_match.namespace)
+        return reverse_ns(self.request, 'edit_page', kwargs={'page_id': self.page.id})
 
 
 class PageAddModuleView(PageEditMixin, TemplateView):
@@ -119,9 +146,9 @@ class PageAddModuleView(PageEditMixin, TemplateView):
 
         # If there are no get parameters, initiate the root_form, otherwise. Get those paramaters and check validity
         if len(self.request.GET) == 0:
-            root_form = AddModuleForm(container=self.page.layout)
+            root_form = AddModuleForm(container=self.page.layout, site=self.site)
         else:
-            root_form = AddModuleForm(container=self.page.layout, data=self.request.GET)
+            root_form = AddModuleForm(container=self.page.layout, site=self.site, data=self.request.GET)
 
             if root_form.is_valid():
                 # Basic parameters are valid so hide the root_form from now on.
@@ -154,8 +181,7 @@ class PageAddModuleView(PageEditMixin, TemplateView):
             if module_form.is_valid():
                 # Module_form is valid. Save the module and go back to the edit page
                 module_form.save()
-                return HttpResponseRedirect(reverse('pages:edit_page', kwargs={'page_id': self.page.id},
-                                                    current_app=self.request.resolver_match.namespace))
+                return HttpResponseRedirect(reverse_ns(self.request, 'edit_page', kwargs={'page_id': self.page.id}))
 
             context['module_form'] = module_form
 
@@ -204,8 +230,7 @@ class PageAlterModuleView(ModuleEditBase, UpdateView):
         return self.selected_module
 
     def get_success_url(self):
-        return reverse('pages:edit_page', kwargs={'page_id': self.page.id}
-                       , current_app=self.request.resolver_match.namespace)
+        return reverse_ns(self.request, 'edit_page', kwargs={'page_id': self.page.id})
 
     def get_form_class(self):
         return build_moduleform(instance=self.selected_module, get_as_class=True)
@@ -220,4 +245,4 @@ class PageDeleteModuleView(ModuleEditBase, DeleteView):
         return self.selected_module
 
     def get_success_url(self):
-        return reverse('pages:edit_page', kwargs={'page_id': self.page.id})
+        return reverse_ns(self.request, 'edit_page', kwargs={'page_id': self.page.id})

@@ -1,4 +1,4 @@
-{% extends 'base_with_body.html' %}
+{% extends extends %}
 {% load page_tags %}
 
 {% block head %}
@@ -45,7 +45,9 @@
 {% endblock %}
 
 {% block nav-bar-options %}
-    <a class="btn btn-secondary" href="{% url 'pages:info_page' page_id=page.id%}">
-        View page
-    </a>
+    {% for name, url in header_buttons.items %}
+        <a class="btn btn-secondary" href="{{ url }}">
+            {{ name }}
+        </a>
+    {% endfor %}
 {% endblock %}

@@ -28,10 +28,13 @@ def build_moduleform(instance, get_as_class=False, **kwargs):
     return ModuleForm(instance=instance, **kwargs)
 
 
-def get_module_choices():
+def get_module_choices(site):
     """ Returns a list of all availlable modules that can be selected """
     module_list = []
-    module_classes = registry.get_all_modules()
+    if site is None:
+        module_classes = registry.get_all_modules()
+    else:
+        module_classes = site.get_availlable_modules()
 
     for module in module_classes:
         module_list.append((module._type_id, module.verbose))
@@ -40,10 +43,10 @@ def get_module_choices():
 
 class AddModuleForm(forms.Form):
     """ A form that selects a specific module in a specific location """
-    module = forms.ChoiceField(choices=get_module_choices(), required=True)
+    module = forms.ChoiceField(required=True) #choices are defined in __init__
     position = forms.IntegerField(required=True, min_value=1)
 
-    def __init__(self, container=None, *args, **kwargs):
+    def __init__(self, container=None, site=None, *args, **kwargs):
         """
         Form that opts uses for basic shared module information
         :param container: The container the module is to be placed in
@@ -52,6 +55,7 @@ class AddModuleForm(forms.Form):
         """
         self.container = container
         super(AddModuleForm, self).__init__(*args, **kwargs)
+        self.fields['module'].choices = get_module_choices(site)
 
     def make_hidden(self):
         """ Sets the form as hidden.

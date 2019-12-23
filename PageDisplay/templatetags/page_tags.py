@@ -1,4 +1,6 @@
 from django import template
+from django.urls import reverse
+from PageDisplay import reverse_ns
 
 
 register = template.Library()
@@ -23,4 +25,10 @@ def render_module(context, module, use_overlay=True):
 
     # Overlay should not be rendered, so just render the module itself
     return module.render(**flattened_context)
+
+
+@register.simple_tag(takes_context=True)
+def ns_url(context, url, **kwargs):
+    """ Returns the url with the appended current namespace """
+    return reverse_ns(context.get('request'), url, kwargs=kwargs)
 

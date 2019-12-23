@@ -8,8 +8,10 @@
 {% endblock %}
 
 {% block nav-bar-options %}
-    <a class="btn btn-secondary" href="{% url 'pages:edit_page' page_id=page.id%}">
-        Edit page
-    </a>
+    {% for name, url in header_buttons.items %}
+        <a class="btn btn-secondary" href="{{ url }}">
+            {{ name }}
+        </a>
+    {% endfor %}
 {% endblock %}
 

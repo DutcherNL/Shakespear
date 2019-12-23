@@ -5,6 +5,8 @@ from .module_registry import registry
 from PageDisplay import widgets
 
 # Create your models here.
+__all__ = ['ModuleContainer', 'VerticalModuleContainer',
+           'Page', 'BaseModule']
 
 
 class ModuleContainer(models.Model):
@@ -64,11 +66,24 @@ class Page(models.Model):
 
     Is a wrapper of sorts for root module container contained in layout
     """
-    layout = models.ForeignKey(ModuleContainer, on_delete=models.PROTECT)
+    layout = models.ForeignKey(ModuleContainer, on_delete=models.PROTECT, blank=True)
     name = models.CharField(max_length=63)
 
     def get_absolute_url(self):
-        return reverse('pages:info_page', kwargs={'page_id': self.id})
+        return reverse('pages:view_page', kwargs={'page_id': self.id})
+
+    def save(self, *args, **kwargs):
+        try:
+            if self.layout is None:
+                # If there is no container, default to a basic container
+                self.layout = VerticalModuleContainer.objects.create()
+        except ModuleContainer.DoesNotExist:
+            self.layout = VerticalModuleContainer.objects.create()
+
+        return super(Page, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
 
 
 class BaseModule(models.Model):
