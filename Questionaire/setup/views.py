@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 
 from Questionaire.models import Technology
+from Questionaire.widgets import IconInput
 from PageDisplay.models import Page
 from Questionaire.setup.forms import CreatePageForTechForm
 
@@ -23,6 +24,11 @@ class UpdateTechnologyView(UpdateView):
     pk_url_kwarg = "tech_id"
     model = Technology
     fields = ['name', 'short_text', 'icon']
+
+    def get_form(self, form_class=None):
+        form = super(UpdateTechnologyView, self).get_form(form_class=form_class)
+        form.fields['icon'].widget = IconInput()
+        return form
 
 
 class TechnologyMixin:
