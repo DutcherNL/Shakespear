@@ -296,7 +296,7 @@ class QuestionaireCompleteView(BaseTemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.init_base_keys()
-        super(QuestionaireCompleteView, self).dispatch(request, *args, **kwargs)
+        return super(QuestionaireCompleteView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(QuestionaireCompleteView, self).get_context_data(**kwargs)
