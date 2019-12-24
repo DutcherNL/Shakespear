@@ -86,8 +86,13 @@ class InquiryStartScreen(FlexCssMixin, FormView):
             # Create the inquiry
             page = Page.objects.order_by('position').first()
             inquiry = Inquiry.objects.create(current_page=page)
-            self.inquirer.active_inquiry = inquiry
-            self.inquirer.save()
+
+            # Create a local inquierer so we can adjust it's properties
+            inquirer = self.inquirer
+
+            # Save the inquirer
+            inquirer.active_inquiry = inquiry
+            inquirer.save()
 
         return super(InquiryStartScreen, self).form_valid(form)
 
