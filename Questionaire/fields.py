@@ -1,5 +1,5 @@
 from django.forms import CharField, IntegerField, DecimalField, ChoiceField, Field, ValidationError, EmailField
-from .widgets import CustomRadioSelect, InformationDisplayWidget,\
+from .question_widgets import CustomRadioSelect, InformationDisplayWidget,\
     IgnorableInput, ExternalDataInputLocal, IgnorableInputMixin, IgnorableEmailInput
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator
