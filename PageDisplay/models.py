@@ -24,6 +24,7 @@ class ModuleContainer(models.Model):
                    'current_container': self,
                    'active_container': kwargs.get('active_container', None),
                    'selected_module': kwargs.get('selected_module', None),
+                   'url_kwargs': kwargs.get('url_kwargs', None)
                    }
         return context
     

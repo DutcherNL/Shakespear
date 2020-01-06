@@ -29,6 +29,9 @@ def render_module(context, module, use_overlay=True):
 
 @register.simple_tag(takes_context=True)
 def ns_url(context, url, **kwargs):
-    """ Returns the url with the appended current namespace """
+    """ Returns the url with the appended current namespace
+     Also uses the right arguments to create the default url reversing """
+    # Update the kwargs with the default url_kwargs
+    kwargs.update(context.get('url_kwargs', {}))
     return reverse_ns(context.get('request'), url, kwargs=kwargs)
 

@@ -33,12 +33,15 @@ class PageMixin:
     page = None
     site = None
     extends = 'base_with_body.html'
+    init_view_params = None
     header_buttons = {}
 
-    def __init__(self, *args, site=None, extends=None, **kwargs):
+    def __init__(self, *args, site=None, extends=None, url_kwargs=None, **kwargs):
         self.site = site
+        self.url_kwargs = url_kwargs
         self.extends = extends or self.extends
         self.header_buttons = kwargs.pop('header_buttons', self.header_buttons)
+        self.init_view_params = kwargs.pop('init_view_params', self.init_view_params)
         super(PageMixin, self).__init__(*args, **kwargs)
 
     def dispatch(self, *args, **kwargs):
@@ -46,7 +49,8 @@ class PageMixin:
         return super(PageMixin, self).dispatch(*args, **kwargs)
 
     def init_params(self, **kwargs):
-        self.page = Page.objects.get(pk=kwargs['page_id'])
+        if self.init_view_params is not None:
+            self.init_view_params(self, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -54,7 +58,14 @@ class PageMixin:
         context['page_id'] = self.page.id
         context['extends'] = self.extends
         context['header_buttons'] = self.header_buttons
+        context['url_kwargs'] = self.url_kwargs(self)
         return context
+
+    @staticmethod
+    def url_kwargs(self):
+        """ Gets the url_kwargs used when reversing urls """
+        # This should be overwritten by the site, but is here as a requirement when setting up views
+        raise KeyError("url_kwargs has not been inserted from the site level")
 
 
 class PageInfoView(PageMixin, TemplateView):
@@ -103,7 +114,7 @@ class PageEditMixin(LoginRequiredMixin, PageMixin):
             # Create the View Page button
             namespace = self.request.resolver_match.namespace
             self.header_buttons['View Page'] = reverse(namespace+':view_page',
-                                                       kwargs={'page_id': kwargs.get('page_id')},
+                                                       kwargs={'tech_id': kwargs.get('tech_id')},
                                                        current_app=namespace)
 
 
@@ -125,7 +136,7 @@ class PageAlterSettingsView(PageEditMixin, UpdateView):
         return self.page
 
     def get_success_url(self):
-        return reverse_ns(self.request, 'edit_page', kwargs={'page_id': self.page.id})
+        return reverse_ns(self.request, 'edit_page', kwargs=self.url_kwargs(self))
 
 
 class PageAddModuleView(PageEditMixin, TemplateView):
@@ -183,7 +194,7 @@ class PageAddModuleView(PageEditMixin, TemplateView):
             if module_form.is_valid():
                 # Module_form is valid. Save the module and go back to the edit page
                 module_form.save()
-                return HttpResponseRedirect(reverse_ns(self.request, 'edit_page', kwargs={'page_id': self.page.id}))
+                return HttpResponseRedirect(reverse_ns(self.request, 'edit_page', kwargs=self.url_kwargs(self)))
 
             context['module_form'] = module_form
 
@@ -232,7 +243,7 @@ class PageAlterModuleView(ModuleEditBase, UpdateView):
         return self.selected_module
 
     def get_success_url(self):
-        return reverse_ns(self.request, 'edit_page', kwargs={'page_id': self.page.id})
+        return reverse_ns(self.request, 'edit_page', kwargs=self.url_kwargs(self))
 
     def get_form_class(self):
         return build_moduleform(instance=self.selected_module, get_as_class=True)
@@ -247,4 +258,4 @@ class PageDeleteModuleView(ModuleEditBase, DeleteView):
         return self.selected_module
 
     def get_success_url(self):
-        return reverse_ns(self.request, 'edit_page', kwargs={'page_id': self.page.id})
+        return reverse_ns(self.request, 'edit_page', kwargs=self.url_kwargs(self))

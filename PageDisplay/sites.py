@@ -1,9 +1,13 @@
 from functools import update_wrapper
 
-from django.urls import path, include, reverse
+from django.urls import path, include
 
 from PageDisplay import views
 from PageDisplay.module_registry import registry
+from PageDisplay.models import Page
+
+
+__all__ = ['PageSite']
 
 
 class PageSite:
@@ -12,6 +16,8 @@ class PageSite:
     """
     name = 'pages'
     extends = None
+    use_overview = True
+    use_page_keys = True
 
     @property
     def urls(self):
@@ -26,9 +32,20 @@ class PageSite:
                 return self.get_view(view_class)(*args, **kwargs)
             return update_wrapper(wrapper, view_class)
 
-        urlpatterns = [
-            path('', views.PageOverview.as_view(), name='overview'),
-            path('<int:page_id>/', include([
+        urlpatterns = []
+
+        # Whether an overview page of all pages is present
+        if self.use_overview:
+            urlpatterns += [path('all/', views.PageOverview.as_view(), name='overview')]
+
+        # Whether the page id is determined by itself or something else
+        if self.use_page_keys:
+            url_string = 'pages/<int:page_id>/'
+        else:
+            url_string = ''
+
+        urlpatterns += [
+            path(url_string, include([
                 path('', wrap(views.PageInfoView), name='view_page'),
                 path('edit/', include([
                     path('', wrap(views.PageAlterView), name='edit_page'),
@@ -39,6 +56,7 @@ class PageSite:
                 ])),
             ])),
         ]
+
         return urlpatterns
 
     def get_view(self, view_class):
@@ -50,7 +68,15 @@ class PageSite:
         return {
             'site': self,
             'extends': self.extends,
-            'header_buttons': self.get_header_buttons(view_class)
+            'header_buttons': self.get_header_buttons(view_class),
+            'init_view_params': self.init_view_params,
+            'url_kwargs': self.get_url_kwargs
+        }
+
+    @staticmethod
+    def get_url_kwargs(view_obj):
+        return {
+            'page_id': view_obj.page.id
         }
 
     def get_header_buttons(self, view_class):
@@ -63,6 +89,13 @@ class PageSite:
     def get_availlable_modules(self):
         """ Returns availlable modules """
         return registry.get_all_modules()
+
+    @staticmethod
+    def init_view_params(view_obj, **kwargs):
+        """ A method that sets view specific parameters, triggered in each view upon dispatch
+        This methoed can also check access by raising a 404Error or 403Error
+        """
+        view_obj.page = Page.objects.get(pk=kwargs['page_id'])
 
 
 page_site = PageSite()

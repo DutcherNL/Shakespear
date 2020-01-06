@@ -28,7 +28,12 @@ class BaseWidgetOverlay:
         return mark_safe(rendered_result)
 
     def get_context(self, module=None, **kwargs):
-        context = create_limited_copy(kwargs, 'page_id', 'overlay', 'current_container', 'active_container')
+        context = create_limited_copy(kwargs,
+                                      'page_id',
+                                      'overlay',
+                                      'current_container',
+                                      'active_container',
+                                      'url_kwargs')
         context['module'] = module
         return context
 

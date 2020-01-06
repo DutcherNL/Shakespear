@@ -12,8 +12,8 @@ urlpatterns = [
         path('<int:tech_id>/', include([
             path('edit/', views.RedirectTest.as_view(), name='edit_test'),
             path('settings/', views.UpdateTechnologyView.as_view(), name='tech_update'),
-            path('create_page/', views.CreateTechPageView.as_view(), name='create_page')
+            path('create_page/', views.CreateTechPageView.as_view(), name='create_page'),
+            path('page/', page_site.urls)
         ])),
-        path('pages/', page_site.urls)
     ])),
 ]

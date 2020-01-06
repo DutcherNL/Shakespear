@@ -37,7 +37,7 @@
         </form>
         <div class="btn-group col-12" role="group" aria-label="Opties">
             <input type="submit" class="btn btn-success" value="Ja, verwijderen" form="delete_form">
-            <a class="btn btn-secondary" href="{% ns_url 'edit_page' page_id=page_id module_id=selected_module.id %}">Nee, terug</a>
+            <a class="btn btn-secondary" href="{% ns_url 'edit_page' module_id=selected_module.id %}">Nee, terug</a>
         </div>
     </div>
 {% endblock %}

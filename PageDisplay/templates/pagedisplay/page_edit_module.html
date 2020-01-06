@@ -36,7 +36,7 @@
             {% include "snippets/bootstrap_form.html" %}
         </form>
         <div class="col-12">
-            <a href="{% ns_url 'edit_page_delete_module' page_id=page.id module_id=selected_module.id %}"
+            <a href="{% ns_url 'edit_page_delete_module' module_id=selected_module.id %}"
                class="btn btn-danger col-12 col-md-9 offset-md-3">
                 Verwijderen
             </a>
@@ -44,7 +44,7 @@
         <hr class="col-12 border-white my-2">
         <div class="btn-group col-12" role="group" aria-label="Opties">
             <input type="submit" class="btn btn-success" value="Opslaan" form="property_form">
-            <a class="btn btn-secondary" href="{% ns_url 'edit_page' page_id=page.id %}">Terug</a>
+            <a class="btn btn-secondary" href="{% ns_url 'edit_page' %}">Terug</a>
         </div>
     </div>
 {% endblock %}
