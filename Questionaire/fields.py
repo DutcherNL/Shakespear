@@ -1,12 +1,17 @@
 from django.forms import CharField, IntegerField, DecimalField, ChoiceField, Field, ValidationError, EmailField
-from .widgets_question import CustomRadioSelect, InformationDisplayWidget,\
-    IgnorableInput, ExternalDataInputLocal, IgnorableInputMixin, IgnorableEmailInput
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator
+from django.db.models import IntegerField as IntegerDBField
+from django.db.models import DecimalField as DecimalDBField
+from django.db.models.functions import Cast
+
+from .widgets_question import CustomRadioSelect, InformationDisplayWidget, \
+    IgnorableInput, ExternalDataInputLocal, IgnorableInputMixin, IgnorableEmailInput
+from .models import ExternalQuestionSource, InquiryQuestionAnswer, AnswerOption, Question
 
 import ast
 
-from .models import ExternalQuestionSource, InquiryQuestionAnswer, AnswerOption, Score, Question
+
 
 
 class QuestionFieldFactory:
@@ -237,20 +242,12 @@ class IntegerQuestionField(IgnorableQuestionFieldMixin, IntegerField):
         if value is None:
             return None
 
-        options = AnswerOption.objects.filter(question=self.question)
-
-        best_option = None
-        best_value = -9999999
-        # Go over all question options and select the answer that closest approximates the answer
-        # Excludes all higher options
-        for option in options:
-            # Todo: change this to a database query, filter smaller than value, sort by value
-            answer_value = int(option.answer)
-            if best_value < answer_value <= value:
-                best_value = answer_value
-                best_option = option
-
-        return best_option
+        # Get all answer options
+        options = self.question.answeroption_set.all()
+        # Select the answer that closest approximates, but not exceeds the inserted value
+        options = options.annotate(answer_int=Cast('answer', IntegerDBField()))
+        options = options.filter(answer_int__lte=value)
+        return options.order_by('answer_int').last()
 
 
 class DecimalQuestionField(IgnorableQuestionFieldMixin, DecimalField):
@@ -259,20 +256,12 @@ class DecimalQuestionField(IgnorableQuestionFieldMixin, DecimalField):
         if value is None:
             return None
 
-        options = AnswerOption.objects.filter(question=self.question)
-
-        best_option = None
-        best_value = -9999999
-        # Go over all question options and select the answer that closest approximates the answer
-        # Excludes all higher options
-        for option in options:
-            # Todo: change this to a database query, filter smaller than value, sort by value
-            answer_value = float(option.answer)
-            if best_value < answer_value <= value:
-                best_value = answer_value
-                best_option = option
-
-        return best_option
+        # Get all answer options
+        options = self.question.answeroption_set.all()
+        # Select the answer that closest approximates, but not exceeds the inserted value
+        options = options.annotate(answer_int=Cast('answer', DecimalDBField()))
+        options = options.filter(answer_int__lte=value)
+        return options.order_by('answer_int').last()
 
 
 class ChoiceQuestionField(IgnorableQuestionFieldMixin, ChoiceField):

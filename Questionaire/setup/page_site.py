@@ -28,8 +28,6 @@ class TechPageSite(PageSite):
         except Page.DoesNotExist:
             raise HttpResponseNotFound("Technology does not contain an information page")
 
-        # TODO: Continue with uncoupling url reverse arguments
-
     @staticmethod
     def get_url_kwargs(view_obj):
         return {
