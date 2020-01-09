@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Count
 from django.urls import reverse
 
 from decimal import *
@@ -230,5 +231,30 @@ class AnswerScoringNote(models.Model):
         from Questionaire.processors.replace_text_from_database import format_from_database
         # Format the text to include answers from database objects entries
         return format_from_database(self.text, inquiry=inquiry)
+
+    @classmethod
+    def get_all_notes(cls, technology, inquiry):
+        """ Returns all notes that should be displayed for a certain technology with a certain inquiry """
+        inq_question_answ = InquiryQuestionAnswer.objects.filter(inquiry=inquiry, processed=True)
+        # Select all processed answer options for the given inquiry
+        selected_answers = AnswerOption.objects.filter(inquiryquestionanswer__in=inq_question_answ)
+
+        answer_notes = cls.objects.filter(technology=technology, scoring__answer_option__in=selected_answers)
+        # Remove notes for the selected answers
+        answer_notes = answer_notes.exclude(exclude_on__in=selected_answers)
+
+        # Get all items in the queryset with include_on restrictions
+        incomplete_entries = []
+        for answerNote in answer_notes.annotate(
+                num_includes=Count('include_on')).filter(num_includes__gt=0):
+            # Loop over all include items and check if it is in there
+            for includer in answerNote.include_on.all():
+                if includer not in selected_answers:
+                    incomplete_entries.append(answerNote.id)
+                    break
+        # Remove all notes that are not met
+        answer_notes = answer_notes.exclude(id__in=incomplete_entries)
+
+        return answer_notes
 
 
