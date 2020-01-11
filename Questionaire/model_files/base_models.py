@@ -1,7 +1,7 @@
 from django.db import models
-from django.core.exceptions import ValidationError
 
 from Questionaire.code_translation import inquiry_6encoder
+from Questionaire.processors import question_processors
 
 
 class Question(models.Model):
@@ -304,4 +304,15 @@ class InquiryQuestionAnswer(models.Model):
             # Set the answer as unprocessed
             self.processed = False
             self.save()
+
+    def get_answer_option(self, update_on_obj=False):
+        """
+        Attempts to find the relevant answer option
+        :param update_on_obj: Whether the solution should replace processed_answer
+        :return: The selected answer option
+        """
+        answer_option = question_processors.get_answer_option_from_answer(self)
+        if update_on_obj:
+            self.processed_answer = answer_option
+        return answer_option
 

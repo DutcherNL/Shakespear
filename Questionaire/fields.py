@@ -12,8 +12,6 @@ from .models import ExternalQuestionSource, InquiryQuestionAnswer, AnswerOption,
 import ast
 
 
-
-
 class QuestionFieldFactory:
     """ Factory class generating fields from Question model instances
 
@@ -170,12 +168,14 @@ class QuestionFieldMixin:
         else:
             inquiry_question_answer_obj_query = InquiryQuestionAnswer.objects.filter(question=self.question, inquiry=inquiry)
             if inquiry_question_answer_obj_query.exists():
+                inquiry_question_answer_obj = inquiry_question_answer_obj_query.first()
                 # Revert the scoring if that has been processed
-                if inquiry_question_answer_obj_query[0].processed:
-                    inquiry_question_answer_obj_query[0].backward(inquiry)
+                if inquiry_question_answer_obj.processed:
+                    inquiry_question_answer_obj.backward(inquiry)
 
-                # Todo: remove next line
-                InquiryQuestionAnswer.objects.filter(question=self.question, inquiry=inquiry).delete()
+                # Change the answer to the new value
+                inquiry_question_answer_obj.answer = value
+                inquiry_question_answer_obj.save()
 
     def get_answer_option(self, value):
         """ Returns the answer option associated with the question type """

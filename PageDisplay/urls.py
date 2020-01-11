@@ -2,7 +2,7 @@ from django.urls import path, include
 
 from . import views
 
-app_name = "pages"
+app_name = "page_display"
 
 urlpatterns = [
     path('', views.PageOverview.as_view(), name='overview'),
