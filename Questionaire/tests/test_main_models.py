@@ -1,85 +1,10 @@
 from django.test import TestCase
 
 from Questionaire.models import *
+from . import set_up_questionaire, set_up_inquiry, set_up_questionaire_scoring
 
 
-def set_up_questionaire():
-    # Create example questions
-    int_question = Question.objects.create(name="IntQ1",
-                                           question_text="This is a simple Integer question",
-                                           question_type=Question.TYPE_INT)
-    AnswerOption.objects.create(question=int_question, answer=400, value=11)
-    AnswerOption.objects.create(question=int_question, answer=0, value=12)
-    AnswerOption.objects.create(question=int_question, answer=50, value=13)
-    AnswerOption.objects.create(question=int_question, answer=10, value=14)
-    AnswerOption.objects.create(question=int_question, answer=2000, value=15)
-    AnswerOption.objects.create(question=int_question, answer=150, value=16)
-
-    choice_question = Question.objects.create(name="IntQ1",
-                                              question_text="This is a simple Integer question",
-                                              question_type=Question.TYPE_CHOICE)
-    AnswerOption.objects.create(question=choice_question, answer="A", value=21)
-    AnswerOption.objects.create(question=choice_question, answer="B", value=22)
-    AnswerOption.objects.create(question=choice_question, answer="C", value=26)
-    AnswerOption.objects.create(question=choice_question, answer="None of the above", value=999)
-
-    # Create the pages
-    page_1 = Page.objects.create(name="First_page",
-                                 position=1)
-    page_3 = Page.objects.create(name="Third_page",  # Page is the third page in the order,
-                                 position=5)  # actual position shouldn't matter
-    page_2 = Page.objects.create(name="Second_page",
-                                 position=3)
-    page_last = Page.objects.create(name="Last_page",
-                                    position=99)
-
-    # Create the first page
-    PageEntryText.objects.create(text="This is the first page", page=page_1, position=1)
-    PageEntryText.objects.create(text="This is the seconc page", page=page_2, position=1)
-    PageEntryText.objects.create(text="This is the third page", page=page_3, position=1)
-    PageEntryText.objects.create(text="This is the last page", page=page_last, position=1)
-
-    PageEntryQuestion.objects.create(question=int_question, page=page_2, position=4)
-    PageEntryQuestion.objects.create(question=choice_question, page=page_2, position=9)
-
-    # Set up inclusive and exclusive page
-    page_inclusive = Page.objects.create(name="inclusive", position=10)
-    page_inclusive.include_on.add(int_question)
-    page_exclusive = Page.objects.create(name="exclusive", position=11)
-    page_exclusive.exclude_on.add(choice_question)
-
-
-def set_up_inquiry():
-    # Set up the inquirer and inquiry
-    inquiry = Inquiry.objects.create()
-    inquirer = Inquirer.objects.create(active_inquiry=inquiry)
-
-    # Set up the first page (currently not done automatically)
-    inquiry.set_current_page(Page.objects.order_by('position').first())
-
-    return inquiry
-
-
-def set_up_questionaire_scoring():
-    t1 = Technology.objects.create(name="Tech_1")
-    t2 = Technology.objects.create(name="Tech_2")
-    t3 = Technology.objects.create(name="Tech_3")
-
-    sd1 = ScoringDeclaration.objects.create(name="tech_1_score")
-    sd2 = ScoringDeclaration.objects.create(name="tech_2_score", score_start_value=4)
-    sd3 = ScoringDeclaration.objects.create(name="Arb_score")
-
-    TechScoreLink.objects.create(score_declaration=sd1, technology=t1)
-    TechScoreLink.objects.create(score_declaration=sd2, technology=t2, score_threshold_approve=25, score_threshold_deny=5)
-    TechScoreLink.objects.create(score_declaration=sd2, technology=t3)
-
-    answer_option = AnswerOption.objects.get(value=11)
-    AnswerScoring.objects.create(answer_option=answer_option, declaration=sd1, score_change_value=1)
-    AnswerScoring.objects.create(answer_option=answer_option, declaration=sd2, score_change_value=2)
-    AnswerScoring.objects.create(answer_option=answer_option, declaration=sd3, score_change_value=3)
-
-
-class QuestionTestCase(TestCase):
+class QuestionProcessingTestCase(TestCase):
     def setUp(self):
         # Set up the database
         set_up_questionaire()
@@ -108,6 +33,8 @@ class QuestionTestCase(TestCase):
         # Check if pages are valid for the given inquiry
         self.assertTrue(p_excl.is_valid_for_inquiry(inquiry))
         self.assertFalse(p_incl.is_valid_for_inquiry(inquiry))
+
+        # Todo, page scoring requireements
 
     def test_start_scores(self):
         """ Tests if the processing of forward and backward of an answer option has the expected results on the scores
@@ -152,5 +79,129 @@ class QuestionTestCase(TestCase):
         self.assertEqual(tech_3.get_score(inquiry), Technology.TECH_SUCCESS)
         self.assertEqual(arb_score.score, 0.5)
 
+    def test_int_option_retrieval(self):
+        question = Question.objects.get(name="IntQ1")
+        inquiry = set_up_inquiry()
 
+        answer_obj = InquiryQuestionAnswer(question=question, inquiry=inquiry)
+
+        # Check higher than
+        answer_obj.answer = 180
+        answer_obj.get_answer_option(update_on_obj=True)
+        self.assertEqual(answer_obj.processed_answer.answer, '150')
+
+        # Check equal to an option
+        answer_obj.answer = 50
+        answer_obj.get_answer_option(update_on_obj=True)
+        self.assertEqual(answer_obj.processed_answer.answer, '50')
+
+        # Check no update version
+        answer_obj.answer = 49
+        temp_answer = answer_obj.get_answer_option(update_on_obj=False)
+        self.assertEqual(temp_answer.answer, '10')
+        self.assertEqual(answer_obj.processed_answer.answer, '50')  # check if answer_obj did not update
+
+        # Check if below lowest option (there is no option below -1, so it should return None
+        answer_obj.answer = -1
+        self.assertIsNone(answer_obj.get_answer_option())
+
+    def test_double_option_retrieval(self):
+        question = Question.objects.get(name="DoubleQ1")
+        inquiry = set_up_inquiry()
+
+        answer_obj = InquiryQuestionAnswer(question=question, inquiry=inquiry)
+
+        # Check higher than
+        answer_obj.answer = 0.49
+        answer_obj.get_answer_option(update_on_obj=True)
+        self.assertEqual(answer_obj.processed_answer.answer, '0.25')
+
+        # Check equal to an option
+        answer_obj.answer = 0.5
+        answer_obj.get_answer_option(update_on_obj=True)
+        self.assertEqual(answer_obj.processed_answer.answer, '0.5')
+
+        # Check no update version
+        answer_obj.answer = 0.78
+        temp_answer = answer_obj.get_answer_option(update_on_obj=False)
+        self.assertEqual(temp_answer.answer, '0.75')
+        self.assertEqual(answer_obj.processed_answer.answer, '0.5')  # check if answer_obj did not update
+
+        # Check if below lowest option (there is no option below -1, so it should return None
+        answer_obj.answer = -1
+        self.assertIsNone(answer_obj.get_answer_option())
+
+    def test_open_option_retrieval(self):
+        question = Question.objects.get(name="OpenQ1")
+        inquiry = set_up_inquiry()
+
+        answer_obj = InquiryQuestionAnswer(question=question, inquiry=inquiry)
+
+        # Check if an answer is filled in
+        answer_obj.answer = "Some random answer"
+        answer_obj.get_answer_option(update_on_obj=True)
+        self.assertEqual(answer_obj.processed_answer.answer, 'NotNone')
+        # Check if answer was left empty
+        answer_obj.answer = None
+        answer_obj.get_answer_option(update_on_obj=True)
+        self.assertIsNone(answer_obj.processed_answer)
+
+    def test_choice_option_retrieval(self):
+        question = Question.objects.get(name="ChoiceQ1")
+        inquiry = set_up_inquiry()
+
+        answer_obj = InquiryQuestionAnswer(question=question, inquiry=inquiry)
+
+        # Check higher than
+        answer_obj.answer = 21
+        answer_obj.get_answer_option(update_on_obj=True)
+        self.assertEqual(answer_obj.processed_answer.answer, "A")
+        answer_obj.answer = 999
+        temp_answer = answer_obj.get_answer_option(update_on_obj=False)
+        self.assertEqual(answer_obj.processed_answer.answer, "A")
+        self.assertEqual(temp_answer.answer, "None of the above")
+        answer_obj.answer = None
+        answer_obj.get_answer_option(update_on_obj=True)
+        self.assertIsNone(answer_obj.processed_answer)
+
+    def test_answer_processing(self):
+        """ Test whether the processed state is used correctly """
+        inquiry = set_up_inquiry()
+
+        # Set up the score to track
+        arb_declaration = ScoringDeclaration.objects.get(name="Arb_score")
+        arb_score = Score.objects.create(declaration=arb_declaration, inquiry=inquiry)
+        self.assertEqual(arb_score.score, 0.5)
+
+        # Create the answer
+        answer_option = AnswerOption.objects.get(value=11)
+        answer_obj = InquiryQuestionAnswer(question=answer_option.question,
+                                           inquiry=inquiry,
+                                           processed_answer=answer_option)
+
+        # Forward the result
+        # This should fail as it was already processed
+        answer_obj.processed = True
+        answer_obj.forward()
+        arb_score.refresh_from_db()
+        self.assertEqual(arb_score.score, 0.5)
+
+        # A non-processed answer should also fail
+        answer_obj.processed = False
+        answer_obj.backward()
+        arb_score.refresh_from_db()
+        self.assertEqual(arb_score.score, 0.5)
+
+        # Check that something changes (exact value is not important for this test, just that it should change)
+        # Checks that the state has changed as well
+        answer_obj.forward()
+        arb_score.refresh_from_db()
+        self.assertNotEqual(arb_score.score, 0.5)
+        self.assertTrue(answer_obj.processed)
+
+        # Revert the state and check if the state is reverted accordingly
+        answer_obj.backward()
+        arb_score.refresh_from_db()
+        self.assertEqual(arb_score.score, 0.5)
+        self.assertFalse(answer_obj.processed)
 
