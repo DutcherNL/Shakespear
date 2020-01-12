@@ -8,6 +8,7 @@ from django.db.models.functions import Cast
 from .widgets_question import CustomRadioSelect, InformationDisplayWidget, \
     IgnorableInput, ExternalDataInputLocal, IgnorableInputMixin, IgnorableEmailInput
 from .models import ExternalQuestionSource, InquiryQuestionAnswer, AnswerOption, Question
+from .processors.question_processors import get_answer_option_through_question
 
 import ast
 
@@ -179,7 +180,7 @@ class QuestionFieldMixin:
 
     def get_answer_option(self, value):
         """ Returns the answer option associated with the question type """
-        return None
+        return get_answer_option_through_question(self.question, value)
 
     def is_empty_value(self, value):
         """
@@ -226,42 +227,14 @@ class CharQuestionField(IgnorableQuestionFieldMixin, CharField):
     def is_empty_value(self, value):
         return value is None or value == ""
 
-    def get_answer_option(self, value):
-        try:
-            # Set the answer option to NotNone if it was answered
-            if not self.is_empty_value(value):
-                return AnswerOption.objects.get(question=self.question, answer="NotNone")
-        except AnswerOption.DoesNotExist:
-            # No option was made for this question
-            return None
-
 
 class IntegerQuestionField(IgnorableQuestionFieldMixin, IntegerField):
     """ An IntField for a Int Question """
-    def get_answer_option(self, value):
-        if value is None:
-            return None
-
-        # Get all answer options
-        options = self.question.answeroption_set.all()
-        # Select the answer that closest approximates, but not exceeds the inserted value
-        options = options.annotate(answer_int=Cast('answer', IntegerDBField()))
-        options = options.filter(answer_int__lte=value)
-        return options.order_by('answer_int').last()
+    pass
 
 
 class DecimalQuestionField(IgnorableQuestionFieldMixin, DecimalField):
-    """ A decimal field for a decimal focussed question """
-    def get_answer_option(self, value):
-        if value is None:
-            return None
-
-        # Get all answer options
-        options = self.question.answeroption_set.all()
-        # Select the answer that closest approximates, but not exceeds the inserted value
-        options = options.annotate(answer_int=Cast('answer', DecimalDBField()))
-        options = options.filter(answer_int__lte=value)
-        return options.order_by('answer_int').last()
+    pass
 
 
 class ChoiceQuestionField(IgnorableQuestionFieldMixin, ChoiceField):
@@ -288,17 +261,6 @@ class ChoiceQuestionField(IgnorableQuestionFieldMixin, ChoiceField):
         # Set the height of the question
         if 'height' in question_options.keys():
             self.widget.answer_height = question_options['height']
-
-    def get_answer_option(self, value):
-        """
-        Returns the answer_option for the given value
-        :param value: The value of the answer
-        :return:
-        """
-        if value is None or value == '':
-            return None
-        else:
-            return AnswerOption.objects.get(question=self.question, value=int(value))
 
 
 class InformationField(Field):

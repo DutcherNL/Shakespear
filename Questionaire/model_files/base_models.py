@@ -37,10 +37,7 @@ class Question(models.Model):
         """
         try:
             iqa = InquiryQuestionAnswer.objects.get(inquiry=inquiry, question=self)
-            if iqa.processed_answer is None:
-                return False
-            else:
-                return True
+            return iqa.processed
         except InquiryQuestionAnswer.DoesNotExist:
             return False
 
