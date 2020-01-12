@@ -55,11 +55,7 @@ def set_up_questionaire():
     PageEntryQuestion.objects.create(question=int_question, page=page_2, position=4)
     PageEntryQuestion.objects.create(question=choice_question, page=page_2, position=9)
 
-    # Set up inclusive and exclusive page
-    page_inclusive = Page.objects.create(name="inclusive", position=10)
-    page_inclusive.include_on.add(int_question)
-    page_exclusive = Page.objects.create(name="exclusive", position=11)
-    page_exclusive.exclude_on.add(choice_question)
+
 
 
 def set_up_inquiry():
@@ -98,3 +94,4 @@ def set_up_questionaire_scoring():
     AnswerScoring.objects.create(answer_option=answer_option, declaration=sd1, score_change_value=1)
     AnswerScoring.objects.create(answer_option=answer_option, declaration=sd2, score_change_value=2)
     AnswerScoring.objects.create(answer_option=answer_option, declaration=sd3, score_change_value=3)
+
