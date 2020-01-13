@@ -1,6 +1,6 @@
 from django.db import models
 
-from Questionaire.code_translation import inquiry_6encoder
+from Questionaire.processors.code_translation import inquiry_6encoder
 from Questionaire.processors import question_processors
 
 
@@ -40,6 +40,21 @@ class Question(models.Model):
             return iqa.processed
         except InquiryQuestionAnswer.DoesNotExist:
             return False
+
+    def answer(self, inquiry, answer_value, process=True):
+        """
+        Creates or updates an answer given to this question
+        :param inquiry: The inquiry the answer is part of
+        :param answer_value: The value of the answer
+        :param process: Whether the answer option should be processed/ searched
+        :return: The InquiryQuestionAnswer object updated
+        """
+        iqa = InquiryQuestionAnswer.objects.get_or_create(inquiry=inquiry, question=self)[0]
+        iqa.answer = answer_value
+        if process:
+            iqa.get_answer_option(update_on_obj=True)
+        iqa.save()
+        return iqa
 
 
 class Page(models.Model):
@@ -247,7 +262,7 @@ class InquiryQuestionAnswer(models.Model):
     """ Contains the answer for a single question in the enquiry """
     inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    answer = models.CharField(max_length=256)
+    answer = models.CharField(max_length=256, blank=True, null=True)
 
     # Content to define whether the answer has been processed and as what
     processed = models.BooleanField(default=False)

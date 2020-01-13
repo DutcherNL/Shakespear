@@ -2,6 +2,12 @@ from django.utils.timezone import now
 
 # get now datetime based upon django settings.py TZ_INFO
 
+"""
+This timelogger was used to trace for optimisation metrics
+I know, it's very basic. Don't judge me :P
+~ Wouter
+"""
+
 
 class TimeLogger:
     def __init__(self):
