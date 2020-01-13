@@ -1,7 +1,12 @@
-from django.forms.widgets import RadioSelect, Widget, Input
+from django.forms.widgets import *
+from django.utils.safestring import mark_safe
 
+
+__all__ = ["CustomRadioSelect", "InformationDisplayWidget", "IgnorableTextInput", "ExternalDataInputLocal",
+           "IgnorableEmailInput", "IgnorableNumberInput", "IgnorableDoubleInput"]
 
 class InformationDisplayWidget(Widget):
+    """ A widget that does not do anything except display text in between other widgets """
     template_name = 'widgets/widget_text_display.html'
 
     def get_context(self, name, value, attrs):
@@ -13,6 +18,7 @@ class InformationDisplayWidget(Widget):
 
 
 class IgnorableInputMixin(object):
+    template_name = 'widgets/widget_ignorable_wrapper.html'
     none_name_appendix = "_ignore"
 
     def __init__(self, *args, empty=False, **kwargs):
@@ -26,6 +32,12 @@ class IgnorableInputMixin(object):
         context['widget']['none_name'] = context['widget']['name'] + self.none_name_appendix
         if context['widget']['value'] == [''] and not self.empty:
             context['widget']['none_selected'] = True
+
+        # Set the non_name in the javascript code
+        context['widget']['attrs']['onclick'] = mark_safe(
+            context['widget']['attrs']['onclick'].replace('{non_name}', context['widget']['none_name']))
+
+        context['widget']['layout_name'] = super(IgnorableInputMixin, self).template_name
 
         return context
 
@@ -57,15 +69,33 @@ class IgnorableInputMixin(object):
         # Remove the required attribute from the html as that blocks going backward
         attrs = super().build_attrs(*args, **kwargs)
         attrs.pop('required', None)
+
+        # Add the javascript code
+        attrs['onclick'] = "c = document.getElementById('{non_name}');" \
+                           "if (c.checked == true) {c.parentElement.click()}"
         return attrs
 
 
-class IgnorableInput(IgnorableInputMixin, Input):
-    template_name = 'widgets/widget_text.html'
+class IgnorableTextInput(IgnorableInputMixin, TextInput):
+    pass
 
 
-class IgnorableEmailInput(IgnorableInput):
-    input_type = 'email'
+class IgnorableEmailInput(IgnorableInputMixin, EmailInput):
+    pass
+
+
+class IgnorableNumberInput(IgnorableInputMixin, NumberInput):
+    pass
+
+
+class IgnorableDoubleInput(IgnorableNumberInput):
+    def build_attrs(self, *args, **kwargs):
+        attrs = super().build_attrs(*args, **kwargs)
+
+        # Add a step
+        attrs['step'] = 0.1
+
+        return attrs
 
 
 class CustomRadioSelect(IgnorableInputMixin, RadioSelect):

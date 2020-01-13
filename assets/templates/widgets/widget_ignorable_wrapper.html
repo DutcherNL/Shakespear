@@ -1,0 +1,21 @@
+<div data-toggle="buttons" class="row">
+    <div class="col-12">
+        {# Include the layout of the original widget. This allows quite mixing of every widget #}
+        {% include widget.layout_name %}
+    </div>
+
+    {% if not widget.required %}
+        <div class="col-12">
+            <label for="{{ widget.none_name }}" class="btn btn-outline-secondary float-right
+                {% if widget.none_selected %}
+                    active
+                {% endif %}">
+
+                <input type="checkbox" name="{{ widget.none_name }}"
+                       class="d-none" id="{{ widget.none_name }}"
+                        {% if widget.none_selected %} checked {% endif %}>
+
+                Laat leeg
+            </label></div>
+    {% endif %}
+</div>

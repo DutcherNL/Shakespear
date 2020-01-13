@@ -1,13 +1,10 @@
 from django.forms import CharField, IntegerField, DecimalField, ChoiceField, Field, ValidationError, EmailField
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator
-from django.db.models import IntegerField as IntegerDBField
-from django.db.models import DecimalField as DecimalDBField
-from django.db.models.functions import Cast
 
-from .widgets_question import CustomRadioSelect, InformationDisplayWidget, \
-    IgnorableInput, ExternalDataInputLocal, IgnorableInputMixin, IgnorableEmailInput
-from .models import ExternalQuestionSource, InquiryQuestionAnswer, AnswerOption, Question
+from .widgets_question import *
+from .widgets_question import IgnorableInputMixin
+from .models import ExternalQuestionSource, InquiryQuestionAnswer, Question
 from .processors.question_processors import get_answer_option_through_question
 
 import ast
@@ -111,9 +108,6 @@ class QuestionFieldMixin:
         # Store the validators
         self.validators = [*self.validators, *self.construct_validators()]
 
-    def clean(self, value, ignore_required=False):
-        return super().clean(value)
-
     def construct_validators(self):
         """
         Constructs and returns the validators for the question
@@ -160,6 +154,9 @@ class QuestionFieldMixin:
                 # This shouldn't happen at any point, but could happen when the questions are altered while an
                 # inquiry is being filled in.
                 if inquiry_question_answer_obj.processed:
+                    # If this occurs an incorrect change to the questions has occured while the questionaire was live
+                    # and serving. (e.g. the currently opened page now contains a question it previously somehow didn't
+                    # resulting in a non-reverted question on the currently active page
                     raise RuntimeError("Inquiry is already processed and can't be altered")
 
                 inquiry_question_answer_obj.answer = value
@@ -167,10 +164,12 @@ class QuestionFieldMixin:
                 inquiry_question_answer_obj.save()
 
         else:
+            # The question was left empty
             inquiry_question_answer_obj_query = InquiryQuestionAnswer.objects.filter(question=self.question, inquiry=inquiry)
             if inquiry_question_answer_obj_query.exists():
                 inquiry_question_answer_obj = inquiry_question_answer_obj_query.first()
                 # Revert the scoring if that has been processed
+                # This should not happen, but could happen when a specific race-condition occurs
                 if inquiry_question_answer_obj.processed:
                     inquiry_question_answer_obj.backward(inquiry)
 
@@ -188,7 +187,7 @@ class QuestionFieldMixin:
         :param value: the given answer
         :return: whether the given entry is empty for this parameter
         """
-        return value is None or value == 0
+        return value is None or value == 0 or value == ""
 
     def forward(self, inquiry):
         """
@@ -222,7 +221,7 @@ class IgnorableQuestionFieldMixin(IgnorableFieldCheckMixin, QuestionFieldMixin):
 
 class CharQuestionField(IgnorableQuestionFieldMixin, CharField):
     """ A CharField for a Char Question """
-    widget = IgnorableInput
+    widget = IgnorableTextInput
 
     def is_empty_value(self, value):
         return value is None or value == ""
@@ -230,11 +229,11 @@ class CharQuestionField(IgnorableQuestionFieldMixin, CharField):
 
 class IntegerQuestionField(IgnorableQuestionFieldMixin, IntegerField):
     """ An IntField for a Int Question """
-    pass
+    widget = IgnorableNumberInput
 
 
 class DecimalQuestionField(IgnorableQuestionFieldMixin, DecimalField):
-    pass
+    widget = IgnorableDoubleInput
 
 
 class ChoiceQuestionField(IgnorableQuestionFieldMixin, ChoiceField):
