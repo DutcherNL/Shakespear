@@ -189,30 +189,6 @@ class QuestionFieldMixin:
         """
         return value is None or value == 0 or value == ""
 
-    def forward(self, inquiry):
-        """
-        Computes the effects on the inquiry in a forwards motion
-        :return:
-        """
-        try:
-            inquiry_answer = InquiryQuestionAnswer.objects.get(inquiry=inquiry, question=self.question)
-            inquiry_answer.forward()
-        except ObjectDoesNotExist:
-            # If the object does not exist yet, which can happen when no answer is given
-            return
-
-    def backward(self, inquiry):
-        """
-        Reverts the effects on the inquiry in a forwards motion
-        :return:
-        """
-        try:
-            inquiry_answer = InquiryQuestionAnswer.objects.get(inquiry=inquiry, question=self.question)
-            inquiry_answer.backward()
-        except ObjectDoesNotExist:
-            # If the object does not exist yet, which is the case on empty answers
-            return
-
 
 class IgnorableQuestionFieldMixin(IgnorableFieldCheckMixin, QuestionFieldMixin):
     """ Combines two mixin for ease of use in remaining QuestionField classes """

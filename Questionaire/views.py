@@ -120,8 +120,6 @@ class QPageView(FlexCssMixin, FormView):
         # Initiate the basic attributes
         self.init_base_keys()
 
-        print(request.POST)
-
         # Check if the page can be processed for the current inquiry
         # Some pages are blocked based on certain answers
         if not self.page.is_valid_for_inquiry(self.inquiry):

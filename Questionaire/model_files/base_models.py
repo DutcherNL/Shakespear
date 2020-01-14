@@ -41,7 +41,7 @@ class Question(models.Model):
         except InquiryQuestionAnswer.DoesNotExist:
             return False
 
-    def answer(self, inquiry, answer_value, process=True):
+    def answer_for_inquiry(self, inquiry, answer_value, process=True):
         """
         Creates or updates an answer given to this question
         :param inquiry: The inquiry the answer is part of

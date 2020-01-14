@@ -1,5 +1,5 @@
 from django import forms
-from .models import PageEntry, Inquirer, Inquiry
+from .models import PageEntry, Inquirer, Inquiry, Question, InquiryQuestionAnswer
 
 from mailing.forms import MailForm
 from mailing.mails import send_templated_mail
@@ -15,62 +15,67 @@ class QuestionPageForm(forms.Form):
     def __init__(self, *args, page=None, inquiry=None, **kwargs):
         super(QuestionPageForm, self).__init__(*args, **kwargs)
         self.page = page
+        self.questions = Question.objects.filter(pageentryquestion__page=page)
 
         # Get all page entries and transform them to a field
         for entry in PageEntry.objects.filter(page=page).order_by('position'):
             field = QuestionFieldFactory.get_field_by_entrymodel(entry, inquiry=inquiry)
-            if isinstance(field, QuestionFieldMixin):
-                # Roll backwards for all fields (fields check themselves if it is needed
-                field.backward(inquiry)
 
             self.fields[field.name] = field
 
+        self.backward(inquiry)
+
     def save(self, inquiry, save_raw=False):
-        if inquiry is int:
-            inquiry = Inquiry.objects.get(id=inquiry)
+        if not save_raw and not self.is_valid():
+            # Current state can't be saved as it is not valid
+            return
 
-        if save_raw:
-            # Save the raw uncleaned data. Used when using the back button
-            for name, field in self.fields.items():
-                # value_from_datadict() gets the data from the data dictionaries.
-                # Each widget type knows how to retrieve its own data, because some
-                # widgets split data over several HTML fields.
-                value = field.widget.value_from_datadict(self.data, self.files, self.add_prefix(name))
-                field.save(value, inquiry)
+        for question in self.questions:
+            name = question.name
 
-        else:
-            if self.is_valid():
-                for key, value in self.cleaned_data.items():
-                    self.fields[key].save(value, inquiry)
+            if save_raw:
+                # Save the raw uncleaned data, as uncleaned data is not stored, re-retrieve it from the fields widget
+                answer = self.fields[name].widget.value_from_datadict(self.data, self.files, self.add_prefix(name))
+                question.answer_for_inquiry(inquiry, answer, False)
+            else:
+                # Answer the question normally
+                answer = self.cleaned_data[name]
+                question.answer_for_inquiry(inquiry, answer, True)
 
-        # Save the inquiry, aka update that it has changed
+        # Update the inquiry itself (to adjust the last_visited time
         inquiry.save()
 
     def forward(self, inquiry):
         """
-        Compute the effects of the form, works in the assumption it is not yet completed.
+        Process all questions in a forward manner
         :return:
         """
         # For each question in this form
         # Process the anwers
 
         # Loop over all questions in this form
-        for field in self.fields.values():
-            field.forward(inquiry)
-            pass
+        for question in self.questions:
+            try:
+                inquiry_answer = InquiryQuestionAnswer.objects.get(inquiry=inquiry, question=question)
+                inquiry_answer.forward()
+            except InquiryQuestionAnswer.DoesNotExist:
+                # If the object does not exist yet, which is the case on empty answers
+                continue
 
     def backward(self, inquiry):
         """
-        Compute the effects of the form, works in the assumption it is not yet completed.
+        Process all questions in a backwards manner
         :return:
         """
-        # For each question in this form
-        # Process the anwers
 
         # Loop over all questions in this form
-        for field in self.fields.values():
-            field.backward(inquiry)
-            pass
+        for question in self.questions:
+            try:
+                inquiry_answer = InquiryQuestionAnswer.objects.get(inquiry=inquiry, question=question)
+                inquiry_answer.backward()
+            except InquiryQuestionAnswer.DoesNotExist:
+                # If the object does not exist yet, which is the case on empty answers
+                continue
 
 
 class EmailForm(forms.Form):
