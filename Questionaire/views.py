@@ -120,6 +120,8 @@ class QPageView(FlexCssMixin, FormView):
         # Initiate the basic attributes
         self.init_base_keys()
 
+        print(request.POST)
+
         # Check if the page can be processed for the current inquiry
         # Some pages are blocked based on certain answers
         if not self.page.is_valid_for_inquiry(self.inquiry):
@@ -159,8 +161,8 @@ class QPageView(FlexCssMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['has_prev_page'] = self.get_page(get_next=False) is not None
-        context['has_next_page'] = self.get_page(get_next=True) is not None
+        context['has_prev_page'] = Page.objects.filter(position__lt=self.page.position).exists()
+        context['has_next_page'] = Page.objects.filter(position__gt=self.page.position).exists()
 
         context['inquiry'] = self.inquiry
         context['techs'] = TechGroup.objects.all()
@@ -199,7 +201,11 @@ class QPageView(FlexCssMixin, FormView):
         :param get_next: Whether the next page needs to be returned (defaults True)
         :return: The url
         """
-        page = self.get_page(get_next=get_next)
+        if get_next:
+            page = Page.objects.filter(position__gt=self.page.position).order_by('position').first()
+        else:
+            page = Page.objects.filter(position__lt=self.page.position).order_by('position').last()
+
         if page:
             # Set the id to the correct page id
             self.request.session['page_id'] = page.id
@@ -209,17 +215,6 @@ class QPageView(FlexCssMixin, FormView):
             return reverse('results_display')
 
         return reverse('run_query')
-
-    def get_page(self, get_next=True):
-        """ Returns the next page
-
-        :param get_next: True returns next page, False the previous page
-        :return: The Next Page Object
-        """
-        if get_next:
-            return Page.objects.filter(position__gt=self.page.position).order_by('position').first()
-        else:
-            return Page.objects.filter(position__lt=self.page.position).order_by('position').last()
 
 
 class TechDetailsView(FlexCssMixin, PageInfoView):
