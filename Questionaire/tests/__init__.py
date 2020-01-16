@@ -95,3 +95,6 @@ def set_up_questionaire_scoring():
     AnswerScoring.objects.create(answer_option=answer_option, declaration=sd2, score_change_value=2)
     AnswerScoring.objects.create(answer_option=answer_option, declaration=sd3, score_change_value=3)
 
+    answer_option = AnswerOption.objects.get(value=33)
+    AnswerScoring.objects.create(answer_option=answer_option, declaration=sd1, score_change_value=1)
+

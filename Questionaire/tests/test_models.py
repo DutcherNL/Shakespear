@@ -41,8 +41,8 @@ class PageTestCase(TestCase):
         """
         # Set up inclusive and exclusive page
         question = Question.objects.create(name="Page_req_question",
-                                               question_text="This is used to check page question requirement",
-                                               question_type=Question.TYPE_OPEN)
+                                           question_text="This is used to check page question requirement",
+                                           question_type=Question.TYPE_OPEN)
 
         page_inclusive = Page.objects.create(name="inclusive", position=70)
         page_inclusive.include_on.add(question)
@@ -96,6 +96,7 @@ class PageTestCase(TestCase):
                 page_req.comparison = i
                 page_req.save()
                 self.assertEqual(page.is_valid_for_inquiry(inquiry), results[i])
+
         """
         Comparison values:
           0: Greater then
@@ -105,9 +106,9 @@ class PageTestCase(TestCase):
           4: Lower
         """
         # Threshold was set to 2
-        check_for_stats(3, [True,  True,  False, False, False])
-        check_for_stats(2, [False, True,  True,  True,  False])
-        check_for_stats(1, [False, False, False, True,  True])
+        check_for_stats(3, [True, True, False, False, False])
+        check_for_stats(2, [False, True, True, True, False])
+        check_for_stats(1, [False, False, False, True, True])
 
 
 class QuestionProcessingTestCase(TestCase):
@@ -285,6 +286,166 @@ class QuestionProcessingTestCase(TestCase):
         self.assertEqual(arb_score.score, 0.5)
         self.assertFalse(answer_obj.processed)
 
+    def test_question_answering(self):
+        question = Question.objects.get(name="IntQ1")
+        inquiry = set_up_inquiry()
 
-# Todo: Answer scoring note check
-# Todo Question.answer()
+        # Set the answer and get the answer object
+        iqa_returned = question.answer_for_inquiry(inquiry, 180, process=False)
+        iqa_found = InquiryQuestionAnswer.objects.get(question=question, inquiry=inquiry)
+
+        # Test if the returned object is the right object
+        self.assertEqual(iqa_found.id, iqa_returned.id)
+        # Test if the answer is correct
+        self.assertEqual(iqa_returned.answer, 180)
+        # Test the process feature (should search the answer option)
+        self.assertIsNone(iqa_returned.processed_answer)
+
+        # Test autoprocess
+        iqa_returned = question.answer_for_inquiry(inquiry, 173, process=True)
+        self.assertEqual(iqa_returned.answer, 173)
+        self.assertIsNotNone(iqa_returned.processed_answer)
+
+
+class TechScoreNoteTestCase(TestCase):
+
+    def setUp(self):
+        # Set up the database
+        set_up_questionaire()
+        set_up_questionaire_scoring()
+        self.setUp_notes()
+
+    def setUp_notes(self):
+        self.technology_1 = Technology.objects.get(name="Tech_1")
+        self.technology_2 = Technology.objects.get(name="Tech_2")
+
+        self.answer_score = AnswerScoring.objects.first()
+        self.answer_option = self.answer_score.answer_option
+
+        AnswerScoringNote.objects.create(scoring=self.answer_score, technology=self.technology_1, text="Some random text")
+        AnswerScoringNote.objects.create(scoring=self.answer_score, technology=self.technology_1, text="Some other text")
+
+        # Inclusive single
+        note = AnswerScoringNote.objects.create(scoring=self.answer_score,
+                                                technology=self.technology_1,
+                                                text="Inclusive text")
+        note.include_on.add(AnswerOption.objects.get(value=21))
+
+        # Inclusive plural
+        note = AnswerScoringNote.objects.create(scoring=self.answer_score,
+                                                technology=self.technology_1,
+                                                text="Inclusive text")
+        note.include_on.add(AnswerOption.objects.get(value=21))
+        note.include_on.add(AnswerOption.objects.get(value=31))
+
+        # Multiple exclude options
+        note = AnswerScoringNote.objects.create(scoring=self.answer_score,
+                                                technology=self.technology_1,
+                                                text="Exclusive text")
+        note.exclude_on.add(AnswerOption.objects.get(value=22))
+        note.exclude_on.add(AnswerOption.objects.get(value=26))
+
+        # A random answer scoring note on another question that is not answered
+        other_scoring_note = AnswerScoring.objects.last()
+        self.other_answer_option = other_scoring_note.answer_option
+        AnswerScoringNote.objects.create(scoring=other_scoring_note, technology=self.technology_1, text="A")
+        AnswerScoringNote.objects.create(scoring=other_scoring_note, technology=self.technology_2, text="B")
+
+    def test_note_base(self):
+        """ Tests that the basic functionality of a single note appearing is done correctly """
+        inquiry = set_up_inquiry()
+        # ######## Test base function #######
+        # Assert that it starts with a single note
+        self.assertEqual(0, len(AnswerScoringNote.get_all_notes(self.technology_1, inquiry)))
+
+        iqa = InquiryQuestionAnswer.objects.create(inquiry=inquiry,
+                                                   question=self.answer_option.question,
+                                                   answer="x",
+                                                   processed_answer=self.answer_option)
+        # Assert that it doesn't use a processed answer when the question is not processed
+        self.assertEqual(0, len(AnswerScoringNote.get_all_notes(self.technology_1, inquiry)))
+
+        # Assert it does us processed answers when the question is processed
+        iqa.processed = True
+        iqa.save()
+        # 2 base + 1 exclude + 0 include
+        self.assertEqual(3, len(AnswerScoringNote.get_all_notes(self.technology_1, inquiry)))
+
+    def test_note_exclude(self):
+        """ Test the exclude function workings on the note.
+        Any option under exclude removes the note if any of the option have been processed """
+        inquiry = set_up_inquiry()
+        InquiryQuestionAnswer.objects.create(inquiry=inquiry,
+                                             question=self.answer_option.question,
+                                             answer="x",
+                                             processed_answer=self.answer_option,
+                                             processed=True)
+
+        # ######## Test exclude function #######
+        iqa2 = InquiryQuestionAnswer.objects.create(inquiry=inquiry,
+                                                    question=self.answer_option.question,
+                                                    answer="x",
+                                                    processed_answer=AnswerOption.objects.get(value=22))
+        # Not processed, not excluded
+        self.assertEqual(3, len(AnswerScoringNote.get_all_notes(self.technology_1, inquiry)))
+        # Proccesss it so it is excluded
+        iqa2.processed = True
+        iqa2.save()
+        # 2 base + 0 exclude + 0 include
+        self.assertEqual(2, len(AnswerScoringNote.get_all_notes(self.technology_1, inquiry)))
+
+    def test_note_include(self):
+        """ Test the workings of include functionality on the Note
+        Include disables a note from being applicable if and only if all options under include are
+        also processed in the inquiry """
+        inquiry = set_up_inquiry()
+        InquiryQuestionAnswer.objects.create(inquiry=inquiry,
+                                             question=self.answer_option.question,
+                                             answer="x",
+                                             processed_answer=self.answer_option,
+                                             processed=True)
+
+        # ######## Test include function #######
+        iqa2 = InquiryQuestionAnswer.objects.create(inquiry=inquiry,
+                                                    question=self.answer_option.question,
+                                                    answer="x",
+                                                    processed_answer=AnswerOption.objects.get(value=21))
+        # 2 base + 1 exclude + 0 include
+        self.assertEqual(3, len(AnswerScoringNote.get_all_notes(self.technology_1, inquiry)))
+        # Set include as not processed
+        iqa2.processed = True
+        iqa2.save()
+        # 2 base + 1 exclude + 1 include
+        self.assertEqual(4, len(AnswerScoringNote.get_all_notes(self.technology_1, inquiry)))
+
+        # ######### Test plural includes ##########
+        answer_option_3 = AnswerOption.objects.get(value=31)
+        InquiryQuestionAnswer.objects.create(inquiry=inquiry,
+                                             question=answer_option_3.question,
+                                             answer="x",
+                                             processed_answer=answer_option_3,
+                                             processed=True)
+        # 2 base + 1 exclude + 2 include
+        self.assertEqual(5, len(AnswerScoringNote.get_all_notes(self.technology_1, inquiry)))
+
+    def test_multiple_answers(self):
+        """ Tests whether multiple answers containing notes are counted correctly """
+        inquiry = set_up_inquiry()
+        InquiryQuestionAnswer.objects.create(inquiry=inquiry,
+                                             question=self.answer_option.question,
+                                             answer="x",
+                                             processed_answer=self.answer_option,
+                                             processed=True)
+        InquiryQuestionAnswer.objects.create(inquiry=inquiry,
+                                             question=self.other_answer_option.question,
+                                             answer="x",
+                                             processed_answer=self.other_answer_option,
+                                             processed=True)
+        # 2 base + 1 exclude + 0 include + 1 external
+        self.assertEqual(4, len(AnswerScoringNote.get_all_notes(self.technology_1, inquiry)))
+
+        # 1 external (different technology)
+        self.assertEqual(1, len(AnswerScoringNote.get_all_notes(self.technology_2, inquiry)))
+
+
+# Todo: External question sources
