@@ -2,6 +2,10 @@ from Questionaire.models import InquiryQuestionAnswer, Score
 from string import Formatter
 
 
+# Assert that InquiryQuestionAnswer has the attribute get_readable_answer because dependency
+assert hasattr(InquiryQuestionAnswer, 'get_readable_answer')
+
+
 def format_from_database(text, inquiry=None):
     """ Formats the given text with information from the database
 

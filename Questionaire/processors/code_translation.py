@@ -13,7 +13,7 @@ class IdEncoder:
     # DO NOT ADJUST THE FOLLOWING PARAMETERS AFTER DEPLOYMENT!
     _length = 6
     _allowed_chars = 'QZXSWDCVFRTGBYHNMJKLP'
-    _steps = 2766917
+    _steps = 2766917    # This should be a prime number
     # DO NOT ADJUST THE ABOVE PARAMETERS AFTER DEPLOYMENT!
 
     def __init__(self, length=None, allowed_chars=None, steps=None):

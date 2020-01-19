@@ -281,7 +281,7 @@ class InquiryQuestionAnswer(models.Model):
         if with_answer_code:
             if self.processed_answer:
                 return self.processed_answer.context_code
-            return None
+            return ""
 
         if self.question.question_type == 3:
             if self.answer == "0":
