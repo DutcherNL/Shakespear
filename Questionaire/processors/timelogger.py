@@ -1,5 +1,7 @@
 from django.utils.timezone import now
 
+import time
+
 # get now datetime based upon django settings.py TZ_INFO
 
 """
@@ -15,12 +17,11 @@ class TimeLogger:
         self.reset_time()
 
     def reset_time(self):
-        self.time = now()
+        self.time = time.perf_counter()
 
     def log(self, name):
-        dif = now() - self.time
-        dif_ms = dif.microseconds
-        print("{name}: {time}".format(name=name, time=dif_ms))
+        dif = time.perf_counter() - self.time
+        print(f'{name}: {round(dif, 4)} seconds')
 
 
 logger = TimeLogger()
