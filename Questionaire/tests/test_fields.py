@@ -30,7 +30,7 @@ class FieldTestMixin:
                 result = value
                 field.clean(value)
         except ValidationError as e:
-            raise AssertionError("{value} was not deemed valid: {error}".format(value=result, error=e.message))
+            raise AssertionError("{value} was not deemed valid:".format(value=result))
 
     @staticmethod
     def assertNotValidates(field, value):
@@ -81,35 +81,39 @@ class TestIgnorableTestCase(FieldTestMixin, TestCase):
         set_up_questionaire_scoring()
 
     @staticmethod
-    def get_ignorable_name(field):
-        return field.name + field.widget.none_name_appendix
+    def get_ignorable_name(field, key):
+        return key + field.widget.none_name_appendix
 
     def test_ignorable(self):
-        fields = []
+        fields = {}
+        answers = {}
         inquiry = set_up_inquiry()
 
         # Integer question
         question = Question.objects.create(name="IntQ2", question_type=Question.TYPE_INT)
-        fields.append(IntegerQuestionField(question, inquiry, required=False))
+        fields['Q_1'] = IntegerQuestionField(question, inquiry, required=False)
+        answers['Q_1'] = 4
 
         # Double question
         question = Question.objects.create(name="DblQ2", question_type=Question.TYPE_DOUBLE)
-        fields.append(DecimalQuestionField(question, inquiry, required=False))
+        fields['Q_2'] = DecimalQuestionField(question, inquiry, required=False)
+        answers['Q_2'] = 4.0
 
         # Char question
         question = Question.objects.create(name="CharQ2", question_type=Question.TYPE_OPEN)
-        fields.append(CharQuestionField(question, inquiry, required=False))
+        fields['Q_3'] = CharQuestionField(question, inquiry, required=False)
+        answers['Q_3'] = "answer"
 
         # Choice question
         choice_question = Question.objects.get(name="ChoiceQ1")
-        fields.append(IntegerQuestionField(question, inquiry, required=False))
+        fields['Q_4'] = IntegerQuestionField(question, inquiry, required=False)
         # A value that will result in a valid choice answer
         # this value is also used at the other question, but the answer is not relevant there
-        res_value = choice_question.answeroption_set.first().value
+        answers['Q_4'] = choice_question.answeroption_set.first().value
 
-
-        # EmailField
-        fields.append(IgnorableEmailField(required=False))
+        # Email field
+        fields['Q_5'] = IgnorableEmailField(required=False)
+        answers['Q_5'] = "home@google.com"
 
         # In order test for,
         # 1) ignore_question used,
@@ -117,20 +121,20 @@ class TestIgnorableTestCase(FieldTestMixin, TestCase):
         # 3) required active, but ignore used (wost case, ideally this option is not displayed)
         # 4) a given answer is accepted on required=True
 
-        for field in fields:
+        for key, field in fields.items():
             self.assertValidates(field, field.widget.value_from_datadict(
-                {'something_else': 'an_answer', self.get_ignorable_name(field): '1'},
-                {}, field.name))
+                {'something_else': 'an_answer', self.get_ignorable_name(field, key): '1'},
+                {}, key))
             self.assertNotValidates(field, field.widget.value_from_datadict(
-                {"some_random_context": 'Maybe'}, {}, field.name))
+                {"some_random_context": 'Maybe'}, {}, key))
 
             field.required = True
             self.assertNotValidates(field, field.widget.value_from_datadict(
-                {'something_else': 'an_answer', self.get_ignorable_name(field): '1'},
-                {}, field.name))
+                {'something_else': 'an_answer', self.get_ignorable_name(field, key): '1'},
+                {}, key))
             self.assertValidates(field, field.widget.value_from_datadict(
-                {'something_else': 'an_answer', field.name: '{value}'.format(value=res_value)},
-                {}, field.name))
+                {'something_else': 'an_answer', key: '{value}'.format(value=answers[key])},
+                {}, key))
 
     def test_email_field(self):
         # There is an ignorable email field. Check that functionality is not broken due to it being ignorable
@@ -169,7 +173,7 @@ class FieldsTestCase(FieldTestMixin, TestCase):
         # Todo: min/max validation implementation in question settings
 
     def test_double_field(self):
-        question = Question.objects.create(name="DblQ3",question_type=Question.TYPE_DOUBLE)
+        question = Question.objects.create(name="DblQ3", question_type=Question.TYPE_DOUBLE)
         inquiry = set_up_inquiry()
         answer = 4.2
         question.answer_for_inquiry(inquiry, answer, process=False)

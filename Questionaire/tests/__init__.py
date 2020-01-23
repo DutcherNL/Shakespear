@@ -32,8 +32,8 @@ def set_up_questionaire():
     AnswerOption.objects.create(question=double_question, answer=1, value=35)
 
     open_question = Question.objects.create(name="OpenQ1",
-                                              question_text="This is a simple open question",
-                                              question_type=Question.TYPE_OPEN)
+                                            question_text="This is a simple open question",
+                                            question_type=Question.TYPE_OPEN)
     AnswerOption.objects.create(question=open_question, answer="NotNone", value=41)
 
     # Create the pages
@@ -54,8 +54,6 @@ def set_up_questionaire():
 
     PageEntryQuestion.objects.create(question=int_question, page=page_2, position=4)
     PageEntryQuestion.objects.create(question=choice_question, page=page_2, position=9)
-
-
 
 
 def set_up_inquiry():
@@ -97,4 +95,3 @@ def set_up_questionaire_scoring():
 
     answer_option = AnswerOption.objects.get(value=33)
     AnswerScoring.objects.create(answer_option=answer_option, declaration=sd1, score_change_value=1)
-

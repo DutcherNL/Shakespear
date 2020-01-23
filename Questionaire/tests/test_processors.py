@@ -3,7 +3,7 @@ from django.test import TestCase
 
 from Questionaire.processors.code_translation import IdEncoder
 from Questionaire.processors.replace_text_from_database import format_from_database
-from Questionaire.models import Score, ScoringDeclaration, InquiryQuestionAnswer, Question, AnswerOption
+from Questionaire.models import Score, ScoringDeclaration, InquiryQuestionAnswer, Question
 
 from . import set_up_questionaire, set_up_questionaire_scoring, set_up_inquiry
 
@@ -17,9 +17,8 @@ class CodeTestCase(TestCase):
 
         # Ensure that the steps are a prime number
         upper_limit = math.floor(math.sqrt(encoder._steps))
-        for i in range(2, upper_limit):
-            if encoder._steps % i == 0:
-                raise AssertionError("_steps is not a prime number")
+        for i in range(2, int(upper_limit)):
+            self.assertEqual(encoder._steps % 1, 0, "_steps is not a prime number")
 
         # Set a random collection of ids to be tested
         # We assume that only constant letters are used at least 6 times
@@ -32,10 +31,9 @@ class CodeTestCase(TestCase):
             code = encoder.get_code_from_id(value)
             res_value = encoder.get_id_from_code(code)
 
-            if res_value != value:
-                raise AssertionError("{value} yielded {res_value}, but did not reverse to {code}".format(
-                    value=value, res_value=res_value, code=code
-                ))
+            error_message = "{value} yielded {res_value}, but did not reverse to {code}".format(
+                value=value, res_value=res_value, code=code)
+            self.assertEqual(res_value, value, error_message)
 
 
 class TextFormattingFromDbTestCase(TestCase):

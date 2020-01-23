@@ -322,8 +322,8 @@ class TechScoreNoteTestCase(TestCase):
         self.answer_score = AnswerScoring.objects.first()
         self.answer_option = self.answer_score.answer_option
 
-        AnswerScoringNote.objects.create(scoring=self.answer_score, technology=self.technology_1, text="Some random text")
-        AnswerScoringNote.objects.create(scoring=self.answer_score, technology=self.technology_1, text="Some other text")
+        AnswerScoringNote.objects.create(scoring=self.answer_score, technology=self.technology_1, text="Text A")
+        AnswerScoringNote.objects.create(scoring=self.answer_score, technology=self.technology_1, text="Text 1.2b")
 
         # Inclusive single
         note = AnswerScoringNote.objects.create(scoring=self.answer_score,
@@ -446,6 +446,3 @@ class TechScoreNoteTestCase(TestCase):
 
         # 1 external (different technology)
         self.assertEqual(1, len(AnswerScoringNote.get_all_notes(self.technology_2, inquiry)))
-
-
-# Todo: External question sources
