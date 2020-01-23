@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Count
+from django.db.models import Count, F
 from django.urls import reverse
 
 from decimal import *
@@ -171,15 +171,15 @@ class AnswerScoring(models.Model):
                                                     question=question)
             if revert:
                 # Revert the result
-                score_obj.score = score_obj.score - Decimal(iqa.answer)
+                score_obj.score = F('score') - Decimal(iqa.answer)
             else:
-                score_obj.score = score_obj.score + Decimal(iqa.answer)
+                score_obj.score = F('score') + Decimal(iqa.answer)
 
         if revert:
             # Revert the result
-            score_obj.score = score_obj.score - self.score_change_value
+            score_obj.score = F('score') - self.score_change_value
         else:
-            score_obj.score = score_obj.score + self.score_change_value
+            score_obj.score = F('score') + self.score_change_value
 
     def __str__(self):
         return "{0}:{1} - {2}".format(self.answer_option.question.name, self.answer_option.answer, self.declaration.name)

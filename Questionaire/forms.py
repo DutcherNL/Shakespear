@@ -1,11 +1,14 @@
+import concurrent.futures
+
 from django import forms
-from .models import PageEntry, Inquirer, Inquiry, Question, InquiryQuestionAnswer
 
 from mailing.forms import MailForm
 from mailing.mails import send_templated_mail
 
-from .fields import QuestionFieldFactory, QuestionFieldMixin, IgnorableEmailField
+from .models import PageEntry, Inquirer, Question, InquiryQuestionAnswer
+from .fields import QuestionFieldFactory, IgnorableEmailField
 
+from .processors.timelogger import TimeLogger
 
 class QuestionPageForm(forms.Form):
     """
@@ -25,22 +28,36 @@ class QuestionPageForm(forms.Form):
 
         self.backward(inquiry)
 
+    def _save_raw(self, question, inquiry):
+        """ Saves a certain question in a raw format"""
+        answer = self.fields[question.name].widget.value_from_datadict(self.data,
+                                                                       self.files,
+                                                                       self.add_prefix(question.name))
+        question.answer_for_inquiry(inquiry, answer, False)
+
+    def _save_clean(self, question, inquiry):
+        """ Saves a certain question with cleaned data"""
+        answer = self.cleaned_data[question.name]
+        question.answer_for_inquiry(inquiry, answer, True)
+
     def save(self, inquiry, save_raw=False):
         if not save_raw and not self.is_valid():
             # Current state can't be saved as it is not valid
             return
 
-        for question in self.questions:
-            name = question.name
+        # Note: The current deconstred process is to ready for a future implemenation where this process is threaded
+        # However, I could not implement this locally without changing the database to e.g. Postgres due to table-locks
+        # occuring in the test case and thus failing.
 
-            if save_raw:
-                # Save the raw uncleaned data, as uncleaned data is not stored, re-retrieve it from the fields widget
-                answer = self.fields[name].widget.value_from_datadict(self.data, self.files, self.add_prefix(name))
-                question.answer_for_inquiry(inquiry, answer, False)
-            else:
-                # Answer the question normally
-                answer = self.cleaned_data[name]
-                question.answer_for_inquiry(inquiry, answer, True)
+        # Select the correct method to save the data (raw, or clean
+        if save_raw:
+            save_method = self._save_raw
+        else:
+            save_method = self._save_clean
+
+        # Save all questions
+        for question in self.questions:
+            save_method(question, inquiry)
 
         # Update the inquiry itself (to adjust the last_visited time
         inquiry.save()
