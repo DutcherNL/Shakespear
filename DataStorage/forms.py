@@ -80,10 +80,14 @@ class DataUploadForm(forms.ModelForm):
 
     def save(self, commit=True):
         result = super(DataUploadForm, self).save(commit=commit)
-        self.process_csv_file()
-        return result
+        false_entries = self.process_csv_file()
+        return result, false_entries
 
     def process_csv_file(self):
+        """
+        Processes the csv file and stores all data in that CSV file
+        :return: A list of any possible entries that had an incorrect code
+        """
         file = self.cleaned_data['csv_file']
         file.seek(0, 0)
         deliminator = self.cleaned_data['deliminator']
@@ -117,20 +121,43 @@ class DataUploadForm(forms.ModelForm):
 
         # Read all the data in the file
         data = read_as_csv(file, deliminator=deliminator)
+        faulty_codes = []
+        incomplete_entries = []
+        empty_entries = []
+
         while data is not None:
             # Create the Data code root object
-            code = StoredDataCode.objects.get_or_create(code_type=declarations[0],
-                                                        identification_code=data[0])[0]
-            code.save()
+            code = StoredDataCode(code_type=declarations[0], identification_code=data[0])
 
-            # Create all data entries on the object
-            for data_entry, data_decl in zip(data[1:], declarations[1:]):
-                # If data_entry does not have content, do not save it
-                if len(data_entry) > 0:
-                    sdc = StoredDataContent.objects.get_or_create(code=code, data_declaration=data_decl)[0]
-                    sdc.content = data_entry
-                    sdc.batch = batch
-                    sdc.save()
+            # Test that the code is valid, if so, process it. Otherwise don't.
+            try:
+                code.full_clean()
+            except ValidationError:
+                # Specific model was not valid, so shall not be saved, save the specific code for the log
+                faulty_codes.append(data[0])
+            else:
+                code = StoredDataCode.objects.get_or_create(code_type=declarations[0],
+                                                            identification_code=data[0])[0]
+
+                # Create all data entries on the object
+                if len(data) != len(declarations):
+                    incomplete_entries.append(data[0])
+
+                for data_entry, data_decl in zip(data[1:], declarations[1:]):
+                    # If data_entry does not have content, do not save it
+                    if len(data_entry) > 0:
+                        sdc = StoredDataContent.objects.get_or_create(code=code, data_declaration=data_decl)[0]
+                        sdc.content = data_entry
+                        sdc.batch = batch
+                        sdc.save()
+                    else:
+                        empty_entries.append(data[0])
 
             # Read the next line and loop
             data = read_as_csv(file, deliminator=deliminator)
+
+        faults = {'codes': faulty_codes,
+                  'empty': empty_entries,
+                  'incomplete': incomplete_entries}
+
+        return faults
