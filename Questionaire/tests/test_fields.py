@@ -1,12 +1,12 @@
-from decimal import Decimal
-
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
+from DataStorage.models import *
 from Questionaire.models import *
 from . import set_up_questionaire, set_up_inquiry, set_up_questionaire_scoring
 from Questionaire.fields import IntegerQuestionField, \
     DecimalQuestionField, ChoiceQuestionField, CharQuestionField, IgnorableEmailField, QuestionFieldFactory
+from Questionaire.widgets_question import ExternalDataInput, ExternalDataInputLocal
 
 """ For language convenience we only test if it fails, not the exact error it gives
     If at some point that is wanted implement Django's assertFieldOutput method
@@ -99,7 +99,8 @@ class FieldFactoryTestCase(FieldTestMixin, TestCase):
 
 
 class TestIgnorableTestCase(FieldTestMixin, TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         # Set up the database
         set_up_questionaire()
         set_up_questionaire_scoring()
@@ -171,7 +172,8 @@ class TestIgnorableTestCase(FieldTestMixin, TestCase):
 
 
 class FieldsTestCase(FieldTestMixin, TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         # Set up the database
         set_up_questionaire()
         set_up_questionaire_scoring()
@@ -302,6 +304,78 @@ class FieldsTestCase(FieldTestMixin, TestCase):
         self.assertNotValidates(field, options.last().value)
 
 
-class ExternalSourceTestCase(TestCase):
+class ExternalSourceTestCase(FieldTestMixin, TestCase):
     # Todo: this
-    pass
+    """"
+    Any field with a question that is 'linked' should have the external_source_widget implemented
+    The widget needs to be tested
+    """
+    @classmethod
+    def setUpTestData(cls):
+        cls.setUpDatsStorage()
+
+        cls.questions = {}
+
+        def make_linked_question(name, type, code_source):
+            question = Question.objects.create(name=f'Ext_Q_{name}',
+                                               question_type=type)
+            ExternalQuestionSource.objects.create(question=question,
+                                                  code_type=cls.sdcd_1,
+                                                  content_type=cls.sdcd_1_data[1],
+                                                  code_source=code_source)
+            return question
+
+        # Create base cases
+        cls.questions['int'] = make_linked_question("int", Question.TYPE_INT, "1234AB")
+        cls.questions['double'] = make_linked_question("double", Question.TYPE_DOUBLE, "1234AB")
+        cls.questions['char'] = make_linked_question("int", Question.TYPE_OPEN, "1234AB")
+        cls.questions['choice'] = make_linked_question("choice", Question.TYPE_CHOICE, "1234AB")
+
+        # Used for bouncing answers
+        cls.questions['int_bounce'] = make_linked_question("int_bounce", Question.TYPE_INT, "5875KH")
+
+        # Used for query testing
+        cls.questions['lookup'] = Question.objects.create(name="CharQ", question_type=Question.TYPE_OPEN)
+        cls.questions['int_query'] = make_linked_question("int_query", Question.TYPE_INT, "{q_CharQ}")
+
+    @classmethod
+    def setUpDatsStorage(cls):
+        cls.sdcd_1 = StoredDataCodeDeclaration.objects.create(name='postcode', code_regex='^[0-9]{4}[A-Z]{2}$')
+        cls.sdcd_1_data = []
+        cls.sdcd_1_data.append(StoredDataDeclaration.objects.create(code_type=cls.sdcd_1, name='eigenschap_1'))
+        cls.sdcd_1_data.append(StoredDataDeclaration.objects.create(code_type=cls.sdcd_1, name='eigenschap_2'))
+
+        sdc = StoredDataCode.objects.create(code_type=cls.sdcd_1, identification_code="1234AB")
+        StoredDataContent.objects.create(code=sdc, data_declaration=cls.sdcd_1_data[0], content="10")
+        StoredDataContent.objects.create(code=sdc, data_declaration=cls.sdcd_1_data[1], content="25")
+
+    def test_external_widget_presence(self):
+        """ Checks that the widget in the fields have been set to the correct widget """
+
+        inquiry = set_up_inquiry()
+        for key, question in self.questions.items():
+            if key in ['int', 'double', 'char', 'choice']:
+                field = QuestionFieldFactory.get_field_by_questionmodel(question=question, inquiry=inquiry)
+                # Test that the widget is correctly replaced
+                if not isinstance(field.widget, ExternalDataInput):
+                    raise AssertionError(f'Widget of {key} is not of type ExternalDataInput')
+
+    def test_widget_retrieval(self):
+        inquiry = set_up_inquiry()
+        widget = ExternalDataInputLocal(inquiry, self.questions['int'].externalquestionsource)
+        # This can all be empty, the look-up does not require intell from the POST data
+        self.assertEqual(widget.value_from_datadict(None, None, None), str(25))
+
+        # Test that a code that can't be found returns None
+        widget = ExternalDataInputLocal(inquiry, self.questions['int_bounce'].externalquestionsource)
+        self.assertIsNone(widget.value_from_datadict(None, None, None))
+
+        # Test that the widget uses the format from database processor
+        widget = ExternalDataInputLocal(inquiry, self.questions['int_query'].externalquestionsource)
+        # No answer is availlable, so it should return None
+        self.assertIsNone(widget.value_from_datadict(None, None, None))
+        # Set an answer and test it (should return 25)
+        iqa = InquiryQuestionAnswer.objects.create(question=self.questions['lookup'], inquiry=inquiry, answer="1234AB")
+        self.assertEqual(widget.value_from_datadict(None, None, None), str(25))
+
+

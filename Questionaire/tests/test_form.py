@@ -98,6 +98,7 @@ class QuestionFormTestCase(TestCase):
         # It is assumed that if this works, and the model base works, that the link works correctly
 
     def test_form_ignore_saving(self):
+        """ Tests whether an ignored question is indeed ignored"""
         data = {
             'IntQ1_ignore': 1,
             'ChoiceQ1': 'ChoiceQ1_ignore'
@@ -120,6 +121,7 @@ class QuestionFormTestCase(TestCase):
         self.assertNotEqual(inquiry.last_visited.timestamp(), time_sample.timestamp())
 
     def assertLastVisitedChanged(self, inquiry):
+        """ Asserts that the last visited in the query is saved """
         time_sample = inquiry.last_visited
         inquiry.refresh_from_db()
         self.assertNotEqual(inquiry.last_visited.timestamp(), time_sample.timestamp())
