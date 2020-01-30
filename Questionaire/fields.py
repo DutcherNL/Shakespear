@@ -1,13 +1,10 @@
 from django.forms import CharField, IntegerField, DecimalField, ChoiceField, Field, ValidationError, EmailField
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MaxValueValidator, MinValueValidator
 
 from .widgets_question import *
 from .widgets_question import IgnorableInputMixin
 from .models import ExternalQuestionSource, InquiryQuestionAnswer, Question
 from .processors.question_processors import get_answer_option_through_question
-
-import ast
 
 
 class QuestionFieldFactory:
@@ -40,8 +37,6 @@ class QuestionFieldFactory:
         :return:
         """
         q_type = question.question_type
-
-        # Todo: implement validators with field.validators
 
         if q_type == Question.TYPE_OPEN:
             # Text question
@@ -106,14 +101,13 @@ class QuestionFieldMixin:
                 self.widget.empty = True
 
         # Store the validators
-        self.validators = [*self.validators, *self.construct_validators()]
+        self.validators = [*self.validators, *self.construct_validators(self.question.options_dict)]
 
-    def construct_validators(self):
+    def construct_validators(self, validator_dict):
         """
         Constructs and returns the validators for the question
         :return: A list of validators
         """
-        validator_dict = self.get_question_options()
         validators = []
 
         keys = validator_dict.keys()
@@ -128,54 +122,6 @@ class QuestionFieldMixin:
             validators.append(RegexValidator(regex=regex, message=message))
 
         return validators
-
-    def get_question_options(self):
-        """
-        Gets all extra options stored at the question
-        :return:
-        """
-        # Read the options field as if it is a dictionary object
-        return ast.literal_eval(self.question.options)
-
-    def save(self, value, inquiry):
-        """ Save the answer of the question
-        As each field is it's unique question, the form would become convoluted in saving all results.
-        For that reason the field has become responsible instead as that has all the information stored to do so already
-
-        :param value: The answered value
-        :param inquiry: The inquiry object
-        :return:
-        """
-        if not self.is_empty_value(value):
-            # If the value is an actual answer
-            inquiry_question_answer_obj = InquiryQuestionAnswer.objects.get_or_create(question=self.question, inquiry=inquiry)[0]
-            if inquiry_question_answer_obj.answer != value:  # Answer has changed
-                # A check to make sure that the answer wasn't already processed
-                # This shouldn't happen at any point, but could happen when the questions are altered while an
-                # inquiry is being filled in.
-                if inquiry_question_answer_obj.processed:
-                    # If this occurs an incorrect change to the questions has occured while the questionaire was live
-                    # and serving. (e.g. the currently opened page now contains a question it previously somehow didn't
-                    # resulting in a non-reverted question on the currently active page
-                    raise RuntimeError("Inquiry is already processed and can't be altered")
-
-                inquiry_question_answer_obj.answer = value
-                inquiry_question_answer_obj.processed_answer = self.get_answer_option(value)
-                inquiry_question_answer_obj.save()
-
-        else:
-            # The question was left empty
-            inquiry_question_answer_obj_query = InquiryQuestionAnswer.objects.filter(question=self.question, inquiry=inquiry)
-            if inquiry_question_answer_obj_query.exists():
-                inquiry_question_answer_obj = inquiry_question_answer_obj_query.first()
-                # Revert the scoring if that has been processed
-                # This should not happen, but could happen when a specific race-condition occurs
-                if inquiry_question_answer_obj.processed:
-                    inquiry_question_answer_obj.backward(inquiry)
-
-                # Change the answer to the new value
-                inquiry_question_answer_obj.answer = value
-                inquiry_question_answer_obj.save()
 
     def get_answer_option(self, value):
         """ Returns the answer option associated with the question type """
@@ -203,12 +149,43 @@ class CharQuestionField(IgnorableQuestionFieldMixin, CharField):
         return value is None or value == ""
 
 
-class IntegerQuestionField(IgnorableQuestionFieldMixin, IntegerField):
+class ValueValidatorsOnQuestionMixin:
+    def construct_validators(self, validator_dict):
+        """
+        Constructs and returns the validators for the question
+        :return: A list of validators
+        """
+        validators = super().construct_validators(validator_dict)
+
+        keys = validator_dict.keys()
+
+        # There is a minimum validator
+        if 'minimum' in keys:
+            min_value = validator_dict.get('minimum')
+            message = f'Value must be at least {min_value}'
+            # Check if a custom regex message is present
+            if 'minimum_message' in keys:
+                message = validator_dict.get('minimum_message')
+            validators.append(MinValueValidator(limit_value=min_value, message=message))
+
+        # There is a maximum validator
+        if 'maximum' in keys:
+            max_value = validator_dict.get('maximum')
+            message = f'Value can not exceed {max_value}'
+            # Check if a custom regex message is present
+            if 'maximum_message' in keys:
+                message = validator_dict.get('maximum_message')
+            validators.append(MaxValueValidator(limit_value=max_value, message=message))
+
+        return validators
+
+
+class IntegerQuestionField(ValueValidatorsOnQuestionMixin, IgnorableQuestionFieldMixin, IntegerField):
     """ An IntField for a Int Question """
     widget = IgnorableNumberInput
 
 
-class DecimalQuestionField(IgnorableQuestionFieldMixin, DecimalField):
+class DecimalQuestionField(ValueValidatorsOnQuestionMixin, IgnorableQuestionFieldMixin, DecimalField):
     widget = IgnorableDoubleInput
 
 
@@ -232,7 +209,7 @@ class ChoiceQuestionField(IgnorableQuestionFieldMixin, ChoiceField):
         self.choices = choices
         self.widget.images = images
 
-        question_options = self.get_question_options()
+        question_options = self.question.options_dict
         # Set the height of the question
         if 'height' in question_options.keys():
             self.widget.answer_height = question_options['height']

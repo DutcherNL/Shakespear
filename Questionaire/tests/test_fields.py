@@ -1,15 +1,34 @@
+from decimal import Decimal
+
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from Questionaire.models import *
 from . import set_up_questionaire, set_up_inquiry, set_up_questionaire_scoring
-from Questionaire.fields import IntegerQuestionField,\
+from Questionaire.fields import IntegerQuestionField, \
     DecimalQuestionField, ChoiceQuestionField, CharQuestionField, IgnorableEmailField, QuestionFieldFactory
-
 
 """ For language convenience we only test if it fails, not the exact error it gives
     If at some point that is wanted implement Django's assertFieldOutput method
 """
+
+
+def adjust_question_options(question, update=True, **kwargs):
+    """ Adjusts the options of the question
+    :param question: The question changed
+    :param update: whether the current options need to be updated (False ignores any content present)
+    """
+    # If update, get the original options, otherwise start with an empty dict
+    if update:
+        options = question.options_dict
+    else:
+        options = {}
+
+    # Update the options with the defined options
+    options.update(kwargs)
+    # save the options in a string based form
+    question.options = str(kwargs)
+    question.save()
 
 
 class FieldTestMixin:
@@ -30,20 +49,25 @@ class FieldTestMixin:
                 result = value
                 field.clean(value)
         except ValidationError as e:
-            raise AssertionError("{value} was not deemed valid:".format(value=result))
+            raise AssertionError(f'"{result}" was not deemed valid')
 
     @staticmethod
-    def assertNotValidates(field, value):
+    def assertNotValidates(field, value, message=None):
         """
         Asserts that a validation error is raised, no matter what context
         :param field: The field that is being cleaned
         :param value: The value (singular) that needs to be checked
+        :param message: If a message is given, it will check if the given validation error matches this string
         :return: An AssertionError if no ValidationError was raised, otherwise nothing
         """
         try:
             result = field.clean(value)
             raise AssertionError("{result} was incorrectly deemed valid".format(result=result))
-        except ValidationError:
+        except ValidationError as error:
+            if message is not None:
+                if error.messages[0] != message:
+                    raise AssertionError(f'Wrong error message returned: "{error.messages}" instead of "{message}"')
+
             return
 
 
@@ -168,9 +192,21 @@ class FieldsTestCase(FieldTestMixin, TestCase):
         self.assertNotValidates(field, "Uh")
         self.assertNotValidates(field, "4b")
 
+        # Test validation options
+        question.options = str({
+            'minimum': 2,
+            'minimum_message': "MIN_MESSAGE",
+            'maximum': 7,
+            'maximum_message': "MAX_MESSAGE"
+        })
+        question.save()
 
+        field = IntegerQuestionField(question, inquiry, required=False)
 
-        # Todo: min/max validation implementation in question settings
+        # Ensure that the miniumm and maximum values are upheld (min and max are inclusive for itself
+        self.assertValidates(field, [2, 3, 7])
+        self.assertNotValidates(field, 1, message="MIN_MESSAGE")
+        self.assertNotValidates(field, 8, message="MAX_MESSAGE")
 
     def test_double_field(self):
         question = Question.objects.create(name="DblQ3", question_type=Question.TYPE_DOUBLE)
@@ -187,8 +223,19 @@ class FieldsTestCase(FieldTestMixin, TestCase):
         self.assertNotValidates(field, "Uh")
         self.assertNotValidates(field, "4b")
 
-        # Todo: min/max validation implementation in question settings
-        # Todo: Maximum number of decimals implementation in question settings
+        # Test validation options
+        adjust_question_options(question,
+                                minimum=2.3,
+                                minimum_message="MIN_MESSAGE_2",
+                                maximum=7.3,
+                                maximum_message="MAX_MESSAGE_2")
+
+        field = DecimalQuestionField(question, inquiry, required=False)
+
+        # Ensure that the miniumm and maximum values are upheld (min and max are inclusive for itself
+        self.assertValidates(field, [2.3, 3, 7.2, Decimal(7.3)])
+        self.assertNotValidates(field, 2.1, message="MIN_MESSAGE_2")
+        self.assertNotValidates(field, 7.4, message="MAX_MESSAGE_2")
 
     def test_char_field(self):
         question = Question.objects.create(name="OpenQ3", question_type=Question.TYPE_OPEN)
@@ -203,7 +250,24 @@ class FieldsTestCase(FieldTestMixin, TestCase):
         # Test validation
         self.assertValidates(field, ["-2.1", "Say", "Well hello"])
 
-        # Todo: Regex testing
+        # Test validation options
+        adjust_question_options(question,
+                                regex='^[0-9]{4}[A-Z]{2}$',
+                                regex_message="REGEX_FAIL")
+
+        field = CharQuestionField(question, inquiry, required=False)
+
+        # Another approach would be to validate the presence of a RegexValidator with the given regex.
+        # This was easier to implement imo XD
+
+        self.assertValidates(field, ['1234AB', '9929ZU'])
+
+        # These all should throw validation errors for non-matching regex patterns
+        self.assertNotValidates(field, '1234', message="REGEX_FAIL")  # Test incomplete validity
+        self.assertNotValidates(field, '567AI', message="REGEX_FAIL")  # Test incorrect number of elements
+        self.assertNotValidates(field, '2589nm', message="REGEX_FAIL")  # Test incorrect imput elements
+        self.assertNotValidates(field, 'not 8765AB', message="REGEX_FAIL")  # Test start marker workings
+        self.assertNotValidates(field, '8765AB yay', message="REGEX_FAIL")  # Test end marker workings
 
     def test_choice_field(self):
         """ Tests the retrieval logic of the choice fields.

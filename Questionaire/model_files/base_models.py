@@ -1,3 +1,4 @@
+import ast
 from django.db import models
 
 from Questionaire.processors.code_translation import inquiry_6encoder
@@ -29,6 +30,11 @@ class Question(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def options_dict(self):
+        """ Returns a dictionary of all defined options for this question"""
+        return ast.literal_eval(self.options)
 
     def question_is_answered(self, inquiry):
         """ Checks if the quesiton has an answer for a given inquiry
