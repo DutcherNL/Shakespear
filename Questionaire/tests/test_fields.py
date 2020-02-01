@@ -354,6 +354,7 @@ class ExternalSourceTestCase(FieldTestMixin, TestCase):
 
         inquiry = set_up_inquiry()
         for key, question in self.questions.items():
+            # Check for the four basic question types that it uses an externalDataInput Widget
             if key in ['int', 'double', 'char', 'choice']:
                 field = QuestionFieldFactory.get_field_by_questionmodel(question=question, inquiry=inquiry)
                 # Test that the widget is correctly replaced
@@ -361,6 +362,7 @@ class ExternalSourceTestCase(FieldTestMixin, TestCase):
                     raise AssertionError(f'Widget of {key} is not of type ExternalDataInput')
 
     def test_widget_retrieval(self):
+        """ Tests that the widget uses retrieval from the database """
         inquiry = set_up_inquiry()
         widget = ExternalDataInputLocal(inquiry, self.questions['int'].externalquestionsource)
         # This can all be empty, the look-up does not require intell from the POST data
@@ -372,7 +374,7 @@ class ExternalSourceTestCase(FieldTestMixin, TestCase):
 
         # Test that the widget uses the format from database processor
         widget = ExternalDataInputLocal(inquiry, self.questions['int_query'].externalquestionsource)
-        # No answer is availlable, so it should return None
+        # No answer is available, so it should return None
         self.assertIsNone(widget.value_from_datadict(None, None, None))
         # Set an answer and test it (should return 25)
         iqa = InquiryQuestionAnswer.objects.create(question=self.questions['lookup'], inquiry=inquiry, answer="1234AB")
