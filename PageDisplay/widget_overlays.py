@@ -39,7 +39,7 @@ class BaseWidgetOverlay:
 
     def use_overlay(self, **kwargs):
         """
-        A method whether the overaly should be used in the current context
+        A method whether the overlay should be used in the current context
         :param kwargs: A collection of given arguments from the render method
         :return: A boolean on whether the overlay is valid in this context
         """
@@ -71,6 +71,7 @@ class OverlayInContainerMixin:
     def use_overlay(self, **kwargs):
         if self._check_in_container(kwargs.get('active_container'), kwargs.get('current_container')):
             return super(OverlayInContainerMixin, self).use_overlay()
+        return False
 
 
 class ModuleSelectOverlay(OverlayInContainerMixin, BaseWidgetOverlay):
@@ -120,9 +121,12 @@ class ModuleAddOverlay(OverlayInContainerMixin, BaseWidgetOverlay):
         return context
 
 
-class ModuleEditOverlay(OverlayInContainerMixin, BaseWidgetOverlay):
+class ModuleEditOverlay(BaseWidgetOverlay):
     """ Displays the currently selected module """
     template_name = "pagedisplay/module_overlays/mo_selected.html"
+
+    def __init__(self, *args, **kwargs):
+        super(ModuleEditOverlay, self).__init__(*args, **kwargs)
 
     def use_overlay(self, module=None, selected_module=None, **kwargs):
         if super(ModuleEditOverlay, self).use_overlay(module=module, selected_module=selected_module, **kwargs):
@@ -130,11 +134,13 @@ class ModuleEditOverlay(OverlayInContainerMixin, BaseWidgetOverlay):
             if not isinstance(module, BaseModule):
                 return False
 
+            return True
+
             # If the current module is the selected module
             try:
                 ac_id = module.id
                 cc_id = selected_module.id
-                if ac_id == cc_id:
+                if ac_id != cc_id:
                     return True
             except AttributeError:
                 # Either of the modules was None, so they aren't equeal anyway

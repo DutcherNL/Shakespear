@@ -11,17 +11,14 @@
         <div class="row">
             <div class="pe_main col-sm-12">
                 <div class="container">
-                    {% autoescape off %}
-                        {% block page %}
-                            {% render_module page.layout %}
-                        {% endblock %}
-                    {% endautoescape %}
+                    {% block page %}
+                        {% render_module page.layout %}
+                    {% endblock %}
                     {% block bottom_addition %}
                     {% endblock %}
                 </div>
             </div>
             <div class="pe_sidebar">
-
                 <div>
                     <div class="row">
                         <div class="h2 col-12 my-0">

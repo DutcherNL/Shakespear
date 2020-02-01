@@ -95,7 +95,7 @@ class PageEditMixin(LoginRequiredMixin, PageMixin):
         """ Returns the initiated overlay object used in the view """
         try:
             # Enable more flexible mixing ordering by checking the parent
-            super().get_overlay()
+            return super().get_overlay()
         except AttributeError:
             return None
 
@@ -103,12 +103,13 @@ class PageEditMixin(LoginRequiredMixin, PageMixin):
         """ Returns the active (selected) container in which work is currently done """
         try:
             # Enable more flexible mixing ordering by checking the parent
-            super().get_active_container()
+            return super().get_active_container()
         except AttributeError:
             return self.page.layout
 
     def init_params(self, **kwargs):
         super(PageEditMixin, self).init_params(**kwargs)
+        print("Step B")
 
         if self.site is not None:
             # Create the View Page button
@@ -223,8 +224,17 @@ class ModuleEditMixin:
     def get_active_container(self):
         return self.selected_module.information
 
+    def init_params(self, **kwargs):
+        super(ModuleEditMixin, self).init_params(**kwargs)
 
-class ModuleEditBase(LoginRequiredMixin, ModuleEditMixin, PageMixin):
+        # Create the Edit Page button
+        namespace = self.request.resolver_match.namespace
+
+        kwargs.pop('module_id', None)
+        self.header_buttons['Edit Page'] = reverse(namespace+':edit_page', kwargs=kwargs, current_app=namespace)
+
+
+class ModuleEditBase(ModuleEditMixin, PageEditMixin):
     """ The general overlap for all module edit views """
     pass
 

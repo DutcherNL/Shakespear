@@ -1,6 +1,5 @@
 from django.utils.safestring import mark_safe
-from django.forms.renderers import get_default_renderer
-from django.template.loader import get_template, TemplateDoesNotExist
+from django.template.loader import get_template
 
 
 class BaseModuleWidget:
@@ -35,4 +34,17 @@ class TextWidget(BaseModuleWidget):
 
 class ImageWidget(BaseModuleWidget):
     template_name = "pagedisplay/modules/module_image.html"
+
+    def get_context(self, request=None, overlay=None, page_id=None):
+        context = super(ImageWidget, self).get_context(request, overlay, page_id)
+        img_mode = self.model.mode
+        if img_mode == "auto":
+            context['size'] = "contain"
+        elif img_mode == "full":
+            context['size'] = "cover"
+        else:
+            context['size'] = img_mode
+
+        return context
+
 

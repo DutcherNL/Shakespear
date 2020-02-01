@@ -207,6 +207,12 @@ class ImageModule(BasicModuleMixin, BaseModule):
     image = models.ImageField()
     caption = models.CharField(max_length=256, null=True, blank=True, default="")
     height = models.PositiveIntegerField(default=100)
+
+    mode_choices = [
+        ('auto', "Display full image"),
+        ('full', "Cover image")
+    ]
+    mode = models.SlugField(choices=mode_choices, default="auto")
     css = models.CharField(max_length=256, help_text="CSS classes in accordance with Bootstrap",
                            null=True, blank=True, default="")
 

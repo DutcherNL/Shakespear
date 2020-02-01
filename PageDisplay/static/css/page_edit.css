@@ -16,7 +16,7 @@
     border-width: 2px;
 }
 
-.page_edit_overlay>div:hover{
+.page_edit_overlay:not(.select)>div:hover{
     border-color: #6b9430;
 }
 

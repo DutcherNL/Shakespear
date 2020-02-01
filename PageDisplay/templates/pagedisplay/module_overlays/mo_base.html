@@ -3,6 +3,8 @@
 {% block overlay_start %} {% endblock %}
 
 {# Render the module #}
-{% render_module module use_overlay=False %}
+{% block module %}
+    {% render_module module use_overlay=False %}
+{% endblock %}
 
 {% block overlay_end %} {% endblock %}

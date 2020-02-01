@@ -1,8 +1,12 @@
 {% if module.image %}
-    <div class="thumbnail">
-        <img src="{{ module.image.url }}" class="{{ module.css }}" height="{{ module.height }}" width="auto">
+    <div class="{{ module.css }}">
+        <div class="" style="
+                background: url({{ module.image.url }}) no-repeat center;
+                background-size: {{ size }};
+                height: {{ module.height }}px;">
+        </div>
         {% if module.caption %}
-            <div class="caption">
+            <div class="caption text-center">
                 <p>{{ module.caption }}</p>
             </div>
         {% endif %}
