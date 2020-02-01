@@ -183,13 +183,13 @@ class PageAddModuleView(PageEditMixin, TemplateView):
         context = self.get_context_data(**kwargs)
 
         # Construct the root form
-        root_form = AddModuleForm(container=self.page.layout, data=self.request.POST)
+        root_form = AddModuleForm(container=self.page.layout, data=self.request.POST, files=self.request.FILES)
         context['root_form'] = root_form
 
         if root_form.is_valid():
             # Root form is valid, construct module_form
             instance = root_form.get_instance()
-            module_form = build_moduleform(instance=instance, data=request.POST)
+            module_form = build_moduleform(instance=instance, data=request.POST, files=self.request.FILES)
 
             if module_form.is_valid():
                 # Module_form is valid. Save the module and go back to the edit page
