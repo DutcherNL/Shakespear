@@ -1,0 +1,25 @@
+{% extends 'base_with_body.html' %}
+
+{% block body %}
+    <form method="post">
+        {% csrf_token %}
+        {% include "snippets/bootstrap_form.html" %}
+        <div class="row">
+            <div class="offset-3 col-9 btn-group ">
+                <input class="btn-primary btn" type="submit" value="Create">
+                <a href="{% url 'setup:reports:details' report_slug=report.slug %}" class="btn btn-secondary">
+                    Annuleren
+                </a>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block nav-bar-options %}
+    <a class="btn btn-secondary" href="{% url 'setup:home' %}">
+        Setup Home
+    </a>
+    <a class="btn btn-secondary" href="{% url 'setup:reports:details' report_slug=report.slug %}">
+        Report
+    </a>
+{% endblock %}

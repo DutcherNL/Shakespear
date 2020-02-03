@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.text import slugify
 
 from Questionaire.models import Technology
 # from PageDisplay.models import VerticalModuleContainer
@@ -7,13 +8,22 @@ from Questionaire.models import Technology
 
 
 class Report(models.Model):
-    report_name = models.CharField(max_length=128, blank=True, null=True)
+    report_name = models.CharField(max_length=128, unique=True)
     file_name = models.CharField(max_length=128)
+    slug = models.SlugField(editable=False, blank=True, max_length=128, unique=True)
+    description = models.TextField(default="", blank=True, null=True)
     is_live = models.BooleanField(default=False)
     last_edited = models.DateTimeField(auto_now=True)
 
+    def save(self, **kwargs):
+        self.slug = slugify(self.report_name)
+        super(Report, self).save(**kwargs)
 
-class Page(models.Model):
+    def get_pages(self):
+        return self.reportpage_set.order_by('page_number').all()
+
+
+class ReportPage(models.Model):
     report = models.ForeignKey(Report, on_delete=models.PROTECT)
     page_number = models.PositiveIntegerField(default=1)
     last_edited = models.DateTimeField(auto_now=True)
@@ -32,7 +42,7 @@ class Page(models.Model):
 
 class PageCriteria(models.Model):
     """ Adds the page in the report if a certain criteria is met """
-    page = models.ForeignKey(Page, on_delete=models.CASCADE)
+    page = models.ForeignKey(ReportPage, on_delete=models.CASCADE)
 
     def is_met(self, inquiry):
         return NotImplementedError

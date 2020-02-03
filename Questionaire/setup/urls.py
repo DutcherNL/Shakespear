@@ -16,4 +16,5 @@ urlpatterns = [
             path('page/', page_site.urls)
         ])),
     ])),
+    path('reports/', include('reports.urls'))
 ]

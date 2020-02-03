@@ -1,0 +1,55 @@
+{% extends 'base_with_body.html' %}
+
+{% block body %}
+    <h1>Reports</h1>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+            <tr class="font-weight-bold">
+                <td style="min-width: 10rem">Name</td>
+                <td style="min-width: 10rem">Link</td>
+                <td style="min-width: 10rem;">Is Live</td>
+                <td style="min-width: 10rem;">Last edited</td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for report in reports %}
+                <tr>
+                    <td>
+                        {{ report.name }}
+                    </td>
+                    <td>
+                        <a href="{% url 'setup:reports:details' report_slug=report.slug %}"
+                           class="btn btn-primary btn-block">
+                            View
+                        </a>
+                    </td>
+
+                    <td>
+                        {{ report.is_live }}
+                    </td>
+                    <td>
+                        {{ report.last_edited }}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">
+                        No reports yet
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <a href="{% url "setup:reports:add_report" %}" class="btn btn-primary">
+            Add report
+        </a>
+    </div>
+
+{% endblock %}
+
+{% block nav-bar-options %}
+    <a class="btn btn-secondary" href="{% url 'setup:home' %}">
+        Setup Home
+    </a>
+{% endblock %}

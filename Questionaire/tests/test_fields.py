@@ -305,7 +305,6 @@ class FieldsTestCase(FieldTestMixin, TestCase):
 
 
 class ExternalSourceTestCase(FieldTestMixin, TestCase):
-    # Todo: this
     """"
     Any field with a question that is 'linked' should have the external_source_widget implemented
     The widget needs to be tested

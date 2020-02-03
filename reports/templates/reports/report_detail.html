@@ -1,0 +1,64 @@
+{% extends 'base_with_body.html' %}
+
+{% block body %}
+    <h1>Report: {{ report.report_name }}</h1>
+    <div class="row">
+        <div class="col-md-3">
+            Description:
+        </div>
+        <div class="col-md-9">
+            {{ report.description }}
+        </div>
+    </div>
+    <br>
+
+    <h2>Pages</h2>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+            <tr class="font-weight-bold">
+                <td style="min-width: 10rem">Number</td>
+                <td style="min-width: 10rem">Name</td>
+                <td style="min-width: 10rem;">Last edited</td>
+                <td style="min-width: 10rem;">Options</td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for page in report.get_pages %}
+                <tr>
+                    <td>
+                        {{ page.page_number }}
+                    </td>
+                    <td>
+                        {{ page.name }}
+                    </td>
+                    <td>
+                        {{ page.last_edited }}
+                    </td>
+                    <td class="py-1">
+                        <a href="" class="py-1 btn btn-info">
+                            View
+                        </a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">
+                        No reports yet
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <a href="{% url "setup:reports:add_page" report_slug=report.slug %}" class="btn btn-primary">
+            Add page
+        </a>
+    </div>
+
+{% endblock %}
+
+{% block nav-bar-options %}
+    <a class="btn btn-secondary" href="{% url 'setup:reports:reports_overview' %}">
+        Reports overview
+    </a>
+{% endblock %}
