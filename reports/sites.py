@@ -16,7 +16,6 @@ class ReportDesignSite(PageSite):
         buttons = super(ReportDesignSite, self).get_header_buttons(view_class)
 
         def create_report_page_url(view_obj):
-            print(f"Test A {view_obj}")
             url_kwargs = {
                 'report_slug': view_obj.report_page.report.slug,
                 'report_page_id': view_obj.report_page.id,

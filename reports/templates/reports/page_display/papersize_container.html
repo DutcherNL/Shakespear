@@ -1,0 +1,13 @@
+{% load page_tags %}
+
+<div class="" style="width:{{ measurements.size.width }}; height:{{ measurements.size.height }}; border: 1px solid black;">
+    <div style="margin: {{ measurements.margins }};">
+        {% for module in modules %}
+            <div class="row">
+                <div class="col-12">
+                    {% render_module module %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>

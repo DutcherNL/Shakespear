@@ -35,9 +35,11 @@ class ModuleContainer(models.Model):
         :param kwargs: A collection of arguments used by the modules.
         :return: A rendered HTML Template
         """
-        if self.verticalmodulecontainer:
-            return self.verticalmodulecontainer._render(**kwargs)
-        return "Base container :/"
+        child = self.get_as_child()
+        if child == self:
+            return "Base container :/"
+        print(child)
+        return child._render(**kwargs)
 
     def _render(self, request=None, **kwargs):
         """
@@ -54,6 +56,15 @@ class ModuleContainer(models.Model):
         context = self.get_context_data(request, **kwargs)
         # Renders the template with the context data.
         return template.render(context)
+
+    def get_as_child(self):
+        """ Returns the child object of this class"""
+        # Loop over all children
+        for child in self.__class__.__subclasses__():
+            # If the child object exists
+            if child.objects.filter(id=self.id).exists():
+                return child.objects.get(id=self.id).get_as_child()
+        return self
 
 
 class VerticalModuleContainer(ModuleContainer):
