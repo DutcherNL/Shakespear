@@ -2,9 +2,10 @@ from django.db import models
 from django.utils.text import slugify
 
 from Questionaire.models import Technology
-# from PageDisplay.models import VerticalModuleContainer
+from PageDisplay.models import Page
 
-# Create your models here.
+# Import the modules and containers
+from .modules.containers import *
 
 
 class Report(models.Model):
@@ -24,12 +25,12 @@ class Report(models.Model):
 
 
 class ReportPage(models.Model):
+    name = models.CharField(max_length=128)
+    description = models.TextField()
     report = models.ForeignKey(Report, on_delete=models.PROTECT)
     page_number = models.PositiveIntegerField(default=1)
     last_edited = models.DateTimeField(auto_now=True)
-    #layout = models.ForeignKey(VerticalModuleContainer, on_delete=models.PROTECT, blank=True, null=True)
-    name = models.CharField(max_length=128)
-    description = models.TextField()
+    display_page = models.ForeignKey(Page, on_delete=models.PROTECT, blank=True, null=True)
 
     def is_valid(self, inquiry):
         """ Tests whether this page is valid for the given inquiry """
@@ -38,6 +39,13 @@ class ReportPage(models.Model):
         if self.layout:
             return self.layout.render()
         return "No layout defined for {0}".format(self.name)
+
+    def save(self, **kwargs):
+        if self.display_page is None:
+            page = Page(layout=A4_PageContainer, name=self.name)
+            page.save()
+            self.display_page = page
+        super(ReportPage, self).save(**kwargs)
 
 
 class PageCriteria(models.Model):
@@ -71,3 +79,6 @@ class LogicPageCriteria(PageCriteria):
         (5, 'XNOR'),
     ]
     logic = models.IntegerField(choices=_options, default=0)
+
+
+

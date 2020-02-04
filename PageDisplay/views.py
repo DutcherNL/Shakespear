@@ -57,9 +57,20 @@ class PageMixin:
         context['page'] = self.page
         context['page_id'] = self.page.id
         context['extends'] = self.extends
-        context['header_buttons'] = self.header_buttons
+        context['header_buttons'] = self.prep_buttons(self.header_buttons)
         context['url_kwargs'] = self.url_kwargs(self)
         return context
+
+    def prep_buttons(self, button_dict):
+        """ Checks if none of the buttons contains some kind of complex revere functionality that requires
+        this class'url kwargs """
+        new_dict = {}
+        for key, url in button_dict.items():
+            if callable(url):
+                new_dict[key] = url(self)
+            else:
+                new_dict[key] = url
+        return new_dict
 
     @staticmethod
     def url_kwargs(self):
@@ -109,14 +120,10 @@ class PageEditMixin(LoginRequiredMixin, PageMixin):
 
     def init_params(self, **kwargs):
         super(PageEditMixin, self).init_params(**kwargs)
-        print("Step B")
 
         if self.site is not None:
             # Create the View Page button
-            namespace = self.request.resolver_match.namespace
-            self.header_buttons['View Page'] = reverse(namespace+':view_page',
-                                                       kwargs={'tech_id': kwargs.get('tech_id')},
-                                                       current_app=namespace)
+            self.header_buttons['View Page'] = reverse_ns(self.request, 'view_page', kwargs=self.url_kwargs(self))
 
 
 class PageAlterView(PageEditMixin, TemplateView):

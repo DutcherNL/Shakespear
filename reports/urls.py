@@ -1,6 +1,7 @@
 from django.urls import path, include
 
 from reports import views, views_setup
+from reports.sites import report_site
 
 app_name = "reports"
 
@@ -13,6 +14,7 @@ urlpatterns = [
             path('add/', views_setup.AddReportPageView.as_view(), name='add_page'),
             path('<int:report_page_id>/', include([
                 path('', views_setup.ReportPageInfoView.as_view(), name='details'),
+                path('display/', report_site.urls)
             ]))
         ])),
     ])),

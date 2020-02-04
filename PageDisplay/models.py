@@ -70,6 +70,14 @@ class Page(models.Model):
     layout = models.ForeignKey(ModuleContainer, on_delete=models.PROTECT, blank=True)
     name = models.CharField(max_length=63)
 
+    def __init__(self, *args, **kwargs):
+        # If a different container class is defined, create that container class object
+        if 'layout' in kwargs.keys():
+            if isinstance(kwargs.get('layout'), type):
+                # If layout is a class, initiate and create the class model instance
+                kwargs['layout'] = kwargs['layout'].objects.create()
+        super(Page, self).__init__(*args, **kwargs)
+
     def get_absolute_url(self):
         return reverse('pages:view_page', kwargs={'page_id': self.id})
 
