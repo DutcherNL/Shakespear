@@ -24,7 +24,8 @@ class ModuleContainer(models.Model):
                    'current_container': self,
                    'active_container': kwargs.get('active_container', None),
                    'selected_module': kwargs.get('selected_module', None),
-                   'url_kwargs': kwargs.get('url_kwargs', None)
+                   'url_kwargs': kwargs.get('url_kwargs', None),
+                   'template_engine':  kwargs.get('template_engine', None),
                    }
         return context
     
@@ -38,7 +39,6 @@ class ModuleContainer(models.Model):
         child = self.get_as_child()
         if child == self:
             return "Base container :/"
-        print(child)
         return child._render(**kwargs)
 
     def _render(self, request=None, **kwargs):
@@ -50,7 +50,7 @@ class ModuleContainer(models.Model):
         """
         # Get the template
         from django.template.loader import get_template
-        template = get_template(self.template_name)
+        template = get_template(self.template_name, using=kwargs.get('template_engine', None))
 
         # Get the context
         context = self.get_context_data(request, **kwargs)
@@ -186,9 +186,9 @@ class BasicModuleMixin:
     """ A Mixin that overrides the _render method to limit the arguments in the widget render method """
 
     @staticmethod
-    def _render(widget, request, using=None, overlay=None, page_id=None, **kwargs):
+    def _render(widget, request, overlay=None, page_id=None, template_engine=None, **kwargs):
         # **kwargs catches all not relevant arguments
-        return widget.render(request, using=using, overlay=overlay, page_id=page_id)
+        return widget.render(request, overlay=overlay, page_id=page_id, template_engine=template_engine)
 
 
 class TitleModule(BasicModuleMixin, BaseModule):

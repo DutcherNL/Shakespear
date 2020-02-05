@@ -59,6 +59,7 @@ class PageMixin:
         context['extends'] = self.extends
         context['header_buttons'] = self.prep_buttons(self.header_buttons)
         context['url_kwargs'] = self.url_kwargs(self)
+        context['template_engine'] = self.site.template_engine
         return context
 
     def prep_buttons(self, button_dict):

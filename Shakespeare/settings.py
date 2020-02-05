@@ -65,6 +65,7 @@ ROOT_URLCONF = 'Shakespeare.urls'
 
 TEMPLATES = [
     {
+        'NAME': 'Default_Template',
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR, 'assets/templates'),
                  os.path.join(BASE_DIR, 'assets/../reports/reports')],
@@ -94,7 +95,6 @@ TEMPLATES = [
                 'Shakespeare.context_processors.questionaire_context'
             ],
             'builtins': ['reports.templatetags.pdf_tags'],
-            # TODO: Make sure that all modules use the same template with using=
         }
     },
     {

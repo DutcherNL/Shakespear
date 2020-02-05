@@ -18,6 +18,7 @@ class PageSite:
     extends = None
     use_overview = True
     use_page_keys = True
+    template_engine = None
 
     @property
     def urls(self):

@@ -10,6 +10,7 @@ class ReportDesignSite(PageSite):
     """ A custom site for the page display """
 
     use_page_keys = False
+    template_engine = "Default_Template"
 
     def get_header_buttons(self, view_class):
         from django.urls import reverse

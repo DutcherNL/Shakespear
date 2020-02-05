@@ -132,6 +132,11 @@ class PrintPageAsPDFView(ReportPageMixin, TemplateView):
 
         return response  # returns the response.
 
+    def get_context_data(self):
+        context = super(PrintPageAsPDFView, self).get_context_data()
+        context['template_engine'] = self.template_engine
+        return context
+
 
 class PrintPageAsHTMLView(ReportPageMixin, TemplateView):
     template_name = "reports/pdf_page.html"

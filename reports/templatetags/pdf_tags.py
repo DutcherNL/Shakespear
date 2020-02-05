@@ -10,15 +10,13 @@ register = template.Library()
 
 @register.filter
 def img(icon):
-    url = icon.path.replace('\\', '/')
-    return url
+    return icon.path.replace('\\', '/')
 
 
 class LocalStaticNode(static.StaticNode):
     def url(self, context):
         path = self.path.resolve(context)
         path = os.path.join(os.path.join(settings.BASE_DIR, 'assets/static/'), path).replace('\\', '/')
-        print(f'URL-path: {path}')
         return path
 
 

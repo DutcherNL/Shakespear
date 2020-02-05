@@ -33,7 +33,8 @@ class BaseWidgetOverlay:
                                       'overlay',
                                       'current_container',
                                       'active_container',
-                                      'url_kwargs')
+                                      'url_kwargs',
+                                      'template_engine')
         context['module'] = module
         return context
 
