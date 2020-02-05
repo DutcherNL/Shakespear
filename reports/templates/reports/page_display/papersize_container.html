@@ -1,7 +1,12 @@
 {% load page_tags %}
 
-<div class="" style="width:{{ measurements.size.width }}; height:{{ measurements.size.height }}; border: 1px solid black;">
-    <div style="margin: {{ measurements.margins }};">
+<div class="" style="
+        width:{{ measurements.size.width }};
+        height:{{ measurements.size.height }};
+        border: 1px solid black;
+        overflow: hidden;
+        padding: {{ measurements.margins }};">
+    <div style="height: 100%; overflow: hidden;">
         {% for module in modules %}
             <div class="row">
                 <div class="col-12">

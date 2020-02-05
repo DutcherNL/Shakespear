@@ -67,7 +67,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR, 'assets/templates'),
-                 os.path.join(BASE_DIR, 'assets/reports')],
+                 os.path.join(BASE_DIR, 'assets/../reports/reports')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -77,13 +77,13 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'Shakespeare.context_processors.questionaire_context'
             ],
-            'builtins': ['Questionaire.templatetags.pdf_tags_preview'],
+            'builtins': ['reports.templatetags.pdf_tags_preview'],
         },
     },
     {
         'NAME': 'PDFTemplates',
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'assets/reports')],
+        'DIRS': [os.path.join(BASE_DIR, 'assets/../reports/reports')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -93,7 +93,8 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'Shakespeare.context_processors.questionaire_context'
             ],
-            'builtins': ['Questionaire.templatetags.pdf_tags'],
+            'builtins': ['reports.templatetags.pdf_tags'],
+            # TODO: Make sure that all modules use the same template with using=
         }
     },
     {

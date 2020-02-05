@@ -1,6 +1,11 @@
-from django.views.generic import ListView, CreateView, DetailView, TemplateView
+import os
+
+from django.views.generic import ListView, CreateView, TemplateView, View
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.http import HttpResponse
+from django.conf import settings
+from django.utils import timezone
 
 from .models import Report, ReportPage
 
@@ -82,3 +87,52 @@ class ReportPageMixin(ReportMixin, ReportPageMixinPrep):
 class ReportPageInfoView(ReportPageMixin, TemplateView):
     template_name = "reports/reportpage_detail.html"
 
+
+class PrintPageAsPDFView(ReportPageMixin, TemplateView):
+    template_name = "reports/pdf_page.html"
+    template_engine = "PDFTemplates"
+
+    def dispatch(self, request, *args, **kwargs):
+        temp_response = super(PrintPageAsPDFView, self).dispatch(request, *args, **kwargs)
+
+        from django.template.loader import get_template
+        import pdfkit
+
+        template = get_template(self.template_name, using=self.template_engine)
+        context = self.get_context_data()
+        html = template.render(context)  # Renders the template with the context data.
+
+        timestamp = timezone.now().timestamp()
+        filename = "{id}-{timestamp}.pdf".format(id=self.report_page.id, timestamp=timestamp)
+        filepath = os.path.join(settings.REPORT_ROOT, filename)
+
+        #
+        #
+        options = {
+            'page-size': 'A4',
+            'orientation': 'Portrait',
+            'margin-top': '0in',
+            'margin-right': '0in',
+            'margin-bottom': '0in',
+            'margin-left': '0in',
+            'disable-smart-shrinking': None,
+            'zoom': 1,  # Correction for windows display due to different dpi (96dpi) with linux (75dpi)
+        }
+
+        #pdfkit.from_url('https://www.papersizes.org/a-paper-sizes.htm', filepath)
+        pdfkit.from_string(html, filepath, options=options)
+
+        pdf = open(filepath, 'rb')
+        response = HttpResponse(content=pdf)  # Generates the response as pdf response.
+        response['Content-Type'] = 'application/pdf'
+        response['Content-Disposition'] = 'attachment; filename={filename}'.format(filename=filename)
+        pdf.close()
+        # remove the locally created pdf file.
+        # os.remove(filepath)
+
+        return response  # returns the response.
+
+
+class PrintPageAsHTMLView(ReportPageMixin, TemplateView):
+    template_name = "reports/pdf_page.html"
+    template_engine = "PDFTemplates"

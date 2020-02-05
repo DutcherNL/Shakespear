@@ -1,7 +1,7 @@
 {% if module.image %}
     <div class="{{ module.css }}">
         <div class="" style="
-                background: url({{ module.image.url }}) no-repeat center;
+                background: url({{ module.image|img }}) no-repeat center;
                 background-size: {{ size }};
                 height: {{ module.height }}px;">
         </div>

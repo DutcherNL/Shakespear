@@ -14,6 +14,8 @@ urlpatterns = [
             path('add/', views_setup.AddReportPageView.as_view(), name='add_page'),
             path('<int:report_page_id>/', include([
                 path('', views_setup.ReportPageInfoView.as_view(), name='details'),
+                path('pdf/', views_setup.PrintPageAsPDFView.as_view(), name='pdf'),
+                path('pdf_preview/', views_setup.PrintPageAsHTMLView.as_view(), name='pdf_preview'),
                 path('display/', report_site.urls)
             ]))
         ])),

@@ -15,7 +15,14 @@
     <a href="{% url "setup:reports:pages:edit_page" report_slug=report.slug report_page_id=report_page.id %}"
         class="btn btn-primary">
         Edit page design
-
+    </a>
+    <a href="{% url "setup:reports:pdf" report_slug=report.slug report_page_id=report_page.id %}"
+       class="btn btn-warning">
+        Download as PDF
+    </a>
+    <a href="{% url "setup:reports:pdf_preview" report_slug=report.slug report_page_id=report_page.id %}"
+       class="btn btn-info">
+        Preview
     </a>
 
 {% endblock %}
