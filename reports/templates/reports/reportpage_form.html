@@ -6,7 +6,11 @@
         {% include "snippets/bootstrap_form.html" %}
         <div class="row">
             <div class="offset-3 col-9 btn-group ">
-                <input class="btn-primary btn" type="submit" value="Create">
+                {% if object %}
+                    <input class="btn-primary btn" type="submit" value="Save">
+                {% else %}
+                    <input class="btn-primary btn" type="submit" value="Create">
+                {% endif %}
                 <a href="{% url 'setup:reports:details' report_slug=report.slug %}" class="btn btn-secondary">
                     Annuleren
                 </a>

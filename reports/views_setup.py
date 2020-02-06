@@ -1,4 +1,4 @@
-from django.views.generic import ListView, CreateView, TemplateView, View
+from django.views.generic import ListView, CreateView, TemplateView, View, UpdateView
 from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -41,16 +41,29 @@ class ReportInfoView(ReportMixin, TemplateView):
     template_name = "reports/report_detail.html"
 
 
-class AddReportPageView(ReportMixin, CreateView):
+class ReportUpdateView(UpdateView):
+    model = Report
+    fields = ['description', 'file_name']
+    slug_url_kwarg = "report_slug"
+    template_name_field = "report"
+
+    def get_success_url(self):
+        url_kwargs = {
+            'report_slug': self.object.slug
+        }
+        return reverse("setup:reports:details", kwargs=url_kwargs)
+
+
+class CreateReportPageView(ReportMixin, CreateView):
     model = ReportPage
     fields = ['name', 'description', 'page_number']
 
     def form_valid(self, form):
         form.instance.report = self.report
-        return super(AddReportPageView, self).form_valid(form)
+        return super(CreateReportPageView, self).form_valid(form)
 
     def get_initial(self):
-        initials = super(AddReportPageView, self).get_initial()
+        initials = super(CreateReportPageView, self).get_initial()
         initials['report'] = self.report
         return initials
 
@@ -82,6 +95,20 @@ class ReportPageMixin(ReportMixin, ReportPageMixinPrep):
 
 class ReportPageInfoView(ReportPageMixin, TemplateView):
     template_name = "reports/reportpage_detail.html"
+
+
+class ReportPageUpdateView(ReportMixin, UpdateView):
+    model = ReportPage
+    fields = ['name', 'description', 'page_number']
+    pk_url_kwarg = "report_page_id"
+    template_name_field = "report_page"
+
+    def get_success_url(self):
+        url_kwargs = {
+            'report_slug': self.report.slug,
+            'report_page_id': self.object.id
+        }
+        return reverse("setup:reports:details", kwargs=url_kwargs)
 
 
 class PDFTemplateView(TemplateResponseMixin, ContextMixin, View):

@@ -10,6 +10,9 @@
             {{ report.description }}
         </div>
     </div>
+    <a href="{% url "setup:reports:edit_page" report_slug=report.slug report_page_id=report_page.id %}" class="btn btn-primary">
+        Edit page
+    </a>
 
     <h2>Page: {{ report_page.name }}</h2>
     <a href="{% url "setup:reports:pages:edit_page" report_slug=report.slug report_page_id=report_page.id %}"
