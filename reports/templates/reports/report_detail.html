@@ -54,6 +54,14 @@
         <a href="{% url "setup:reports:add_page" report_slug=report.slug %}" class="btn btn-primary">
             Add page
         </a>
+        <a href="{% url "setup:reports:pdf" report_slug=report.slug %}"
+           class="btn btn-warning">
+            Download as PDF
+        </a>
+        <a href="{% url "setup:reports:pdf_preview" report_slug=report.slug %}"
+           class="btn btn-info">
+            Preview
+        </a>
     </div>
 
 {% endblock %}

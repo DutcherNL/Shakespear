@@ -1,13 +1,10 @@
-import os
-
 from django.views.generic import ListView, CreateView, TemplateView, View
+from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.http import HttpResponse
-from django.conf import settings
-from django.utils import timezone
-
+from string import Formatter
 from .models import Report, ReportPage
+from .responses import PDFResponse
 
 
 class ReportsOverview(ListView):
@@ -69,7 +66,6 @@ class ReportPageMixinPrep:
     report_page = None
 
     def dispatch(self, request, *args, **kwargs):
-        print(f'KW: {kwargs}')
         self.report_page = get_object_or_404(ReportPage, id=kwargs.pop('report_page_id'), report=self.report)
         return super(ReportPageMixinPrep, self).dispatch(request, *args, **kwargs)
 
@@ -88,49 +84,57 @@ class ReportPageInfoView(ReportPageMixin, TemplateView):
     template_name = "reports/reportpage_detail.html"
 
 
-class PrintPageAsPDFView(ReportPageMixin, TemplateView):
-    template_name = "reports/pdf_page.html"
+class PDFTemplateView(TemplateResponseMixin, ContextMixin, View):
+    """A view that adjusts the templatemixin to display the template in PDF form.
+    It overrides all code from TemplateView class, thus does not inherit from it directly """
     template_engine = "PDFTemplates"
+    response_class = PDFResponse
+    file_name = 'test_file'
 
-    def dispatch(self, request, *args, **kwargs):
-        temp_response = super(PrintPageAsPDFView, self).dispatch(request, *args, **kwargs)
+    def get_file_name(self):
+        """ Construct the file name from the given file name replaced with local attributes """
 
-        from django.template.loader import get_template
-        import pdfkit
+        # Execute a manual f- replacing input elements with local variables
+        rep_string = self.file_name  # Set the sanalysed string
 
-        template = get_template(self.template_name, using=self.template_engine)
-        context = self.get_context_data()
-        html = template.render(context)  # Renders the template with the context data.
+        # Deconstruct the string to get the keys
+        formatter = Formatter()
+        keys = []
+        for literal, key, format, conversion in formatter.parse(self.file_name):
+            keys.append(key)
 
-        timestamp = timezone.now().timestamp()
-        filename = "{id}-{timestamp}.pdf".format(id=self.report_page.id, timestamp=timestamp)
-        filepath = os.path.join(settings.REPORT_ROOT, filename)
+        for key in keys:
+            # Split the chains (e.g. object.attribute1.attribute2)
+            attr_chain = key.split('.')
+            replacement = self  # The current selected object in the chain, start with the view
+            processed_key = 'view'  # Construct an identifying string for error reporting/ format clearing
+            for attr in attr_chain:
+                # Get the attribute
+                if hasattr(replacement, attr):
+                    replacement = replacement.__getattribute__(attr)
+                elif isinstance(replacement, dict) and attr in replacement:
+                    replacement = replacement.get(attr)
+                else:
+                    raise AttributeError(f'Incorrect file name"{attr}" was not an attribute of {processed_key}')
+                processed_key += '.' + attr  # Update the processed_key (successfully retrieved these parameters)
 
-        #
-        #
-        options = {
-            'page-size': 'A4',
-            'orientation': 'Portrait',
-            'margin-top': '0in',
-            'margin-right': '0in',
-            'margin-bottom': '0in',
-            'margin-left': '0in',
-            'disable-smart-shrinking': None,
-            'zoom': 1,  # Correction for windows display due to different dpi (96dpi) with linux (75dpi)
-        }
+                if callable(replacement):
+                    # Check if it is a function, if it is, use that function
+                    replacement = replacement()
 
-        #pdfkit.from_url('https://www.papersizes.org/a-paper-sizes.htm', filepath)
-        pdfkit.from_string(html, filepath, options=options)
+            # Replace the entry with the proper object
+            rep_string = rep_string.replace("{"+key+"}", str(replacement))
+        return rep_string
 
-        pdf = open(filepath, 'rb')
-        response = HttpResponse(content=pdf)  # Generates the response as pdf response.
-        response['Content-Type'] = 'application/pdf'
-        response['Content-Disposition'] = 'attachment; filename={filename}'.format(filename=filename)
-        pdf.close()
-        # remove the locally created pdf file.
-        # os.remove(filepath)
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        # Send along the file name of the file
+        return self.render_to_response(context, file_name=self.get_file_name())
 
-        return response  # returns the response.
+
+class PrintPageAsPDFView(ReportPageMixin, PDFTemplateView):
+    template_name = "reports/pdf_page.html"
+    file_name = 'Example_pdf_page_{report_page.id}'
 
     def get_context_data(self):
         context = super(PrintPageAsPDFView, self).get_context_data()
@@ -141,3 +145,24 @@ class PrintPageAsPDFView(ReportPageMixin, TemplateView):
 class PrintPageAsHTMLView(ReportPageMixin, TemplateView):
     template_name = "reports/pdf_page.html"
     template_engine = "PDFTemplates"
+
+
+class PrintReportAsPDFView(ReportMixin, PDFTemplateView):
+    template_name = "reports/pdf_report.html"
+    file_name = 'Example_report_{report.id}'
+
+    def get_context_data(self):
+        context = super(PrintReportAsPDFView, self).get_context_data()
+        context['template_engine'] = self.template_engine
+        context['pages'] = self.report.get_pages()
+        return context
+
+
+class PrintReportAsHTMLView(ReportMixin, TemplateView):
+    template_name = "reports/pdf_report.html"
+    template_engine = "PDFTemplates"
+
+    def get_context_data(self):
+        context = super(PrintReportAsHTMLView, self).get_context_data()
+        context['pages'] = self.report.get_pages()
+        return context

@@ -1,0 +1,8 @@
+{% extends 'report_base.html' %}
+{% load page_tags %}
+
+{% block base %}
+    {% for report_page in pages %}
+        {% render_module report_page.display_page.layout %}
+    {% endfor %}
+{% endblock %}
