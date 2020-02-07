@@ -3,6 +3,6 @@
 
 {% block base %}
     {% for report_page in pages %}
-        {% render_module report_page.display_page.layout %}
+        {% render_module report_page %}
     {% endfor %}
 {% endblock %}

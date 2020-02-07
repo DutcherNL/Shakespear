@@ -4,8 +4,6 @@ from PageDisplay.models import VerticalModuleContainer
 
 
 class PageContainer(VerticalModuleContainer):
-    template_name = 'reports/page_display/papersize_container.html'
-
     PAPER_SIZES = [
         ('A3', 'A3 (297 x 420mm)'),
         ('A4', 'A4 (210 x 297mm)'),
@@ -15,7 +13,6 @@ class PageContainer(VerticalModuleContainer):
     orientation = models.BooleanField(choices=[
         (True, "Standing"),
         (False, "Rotated")], default=True)
-
 
     def get_context_data(self, *args, **kwargs):
         context = super(PageContainer, self).get_context_data(*args, **kwargs)

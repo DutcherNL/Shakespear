@@ -2,7 +2,7 @@ from django.db import models
 from django.urls import reverse
 
 from .module_registry import registry
-from PageDisplay import widgets
+from PageDisplay import widgets, renderers
 
 # Create your models here.
 __all__ = ['ModuleContainer', 'VerticalModuleContainer',
@@ -81,6 +81,8 @@ class Page(models.Model):
     layout = models.ForeignKey(ModuleContainer, on_delete=models.PROTECT, blank=True)
     name = models.CharField(max_length=63)
 
+    renderer = renderers.BasePageRenderer
+
     def __init__(self, *args, **kwargs):
         # If a different container class is defined, create that container class object
         if 'layout' in kwargs.keys():
@@ -104,6 +106,34 @@ class Page(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_as_child(self):
+        """ Returns the child object of this class"""
+        # Loop over all children
+        for child in self.__class__.__subclasses__():
+            # If the child object exists
+            if child.objects.filter(id=self.id).exists():
+                return child.objects.get(id=self.id).get_as_child()
+        return self
+
+    def render(self, **kwargs):
+        """
+        Calls the render method in the correct subclass
+        'this' must be a registered subclass of ModuleContainer otherwise it will not detect the correct subclass.
+        :param kwargs: A collection of arguments used by the modules.
+        :return: A rendered HTML Template
+        """
+        child = self.get_as_child()
+        return child._render(**kwargs)
+
+    def _render(self, **kwargs):
+        """
+        Render the modules inside the container in a vertical manner
+        :param request: The Request object
+        :param kwargs: Other kwarg arguments that can be used somewhere in the render process (= contents of context)
+        :return:
+        """
+        return self.renderer(page=self).render(**kwargs)
 
 
 class BaseModule(models.Model):

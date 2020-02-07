@@ -41,7 +41,7 @@ class PageSite:
 
         # Whether the page id is determined by itself or something else
         if self.use_page_keys:
-            url_string = 'pages/<int:page_id>/'
+            url_string = '<int:page_id>/'
         else:
             url_string = ''
 

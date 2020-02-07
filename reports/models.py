@@ -6,6 +6,7 @@ from PageDisplay.models import Page
 
 # Import the modules and containers
 from .modules.containers import *
+from .renderers import ReportPageRenderer
 
 
 class Report(models.Model):
@@ -24,28 +25,20 @@ class Report(models.Model):
         return self.reportpage_set.order_by('page_number').all()
 
 
-class ReportPage(models.Model):
-    name = models.CharField(max_length=128)
+class ReportPage(Page):
     description = models.TextField()
     report = models.ForeignKey(Report, on_delete=models.PROTECT)
     page_number = models.PositiveIntegerField(default=1)
     last_edited = models.DateTimeField(auto_now=True)
-    display_page = models.ForeignKey(Page, on_delete=models.PROTECT, blank=True, null=True)
+
+    renderer = ReportPageRenderer
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('layout', PageContainer)
+        super(ReportPage, self).__init__(*args, **kwargs)
 
     def is_valid(self, inquiry):
         """ Tests whether this page is valid for the given inquiry """
-
-    def render(self):
-        if self.layout:
-            return self.layout.render()
-        return "No layout defined for {0}".format(self.name)
-
-    def save(self, **kwargs):
-        if self.display_page is None:
-            page = Page(layout=A4_PageContainer, name=self.name)
-            page.save()
-            self.display_page = page
-        super(ReportPage, self).save(**kwargs)
 
 
 class PageCriteria(models.Model):

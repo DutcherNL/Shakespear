@@ -32,10 +32,7 @@ class ReportDesignSite(PageSite):
         This methoed can also check access by raising a 404Error or 403Error
         """
         view_obj.report_page = get_object_or_404(ReportPage, id=kwargs['report_page_id'])
-        try:
-            view_obj.page = view_obj.report_page.display_page
-        except Page.DoesNotExist:
-            raise HttpResponseNotFound("ReportPage does not contain a displayable page")
+        view_obj.page = view_obj.report_page
 
     @staticmethod
     def get_url_kwargs(view_obj):

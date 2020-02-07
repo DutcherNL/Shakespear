@@ -7,12 +7,6 @@
         overflow: hidden;
         padding: {{ measurements.margins }};">
     <div style="height: 100%; overflow: hidden;">
-        {% for module in modules %}
-            <div class="row">
-                <div class="col-12">
-                    {% render_module module %}
-                </div>
-            </div>
-        {% endfor %}
+        {% render_module page.layout %}
     </div>
 </div>
