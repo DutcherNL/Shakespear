@@ -11,8 +11,6 @@ def render_module(context, module, use_overlay=True):
     """ Render a module on the page """
     overlay = context.get('overlay', None)
 
-    print(f'-- {module}')
-
     # Flatten the context to a single dictionary to be used in module render functions
     flattened_context = context.flatten()
 

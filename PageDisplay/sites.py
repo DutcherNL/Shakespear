@@ -96,7 +96,7 @@ class PageSite:
         """ A method that sets view specific parameters, triggered in each view upon dispatch
         This methoed can also check access by raising a 404Error or 403Error
         """
-        view_obj.page = Page.objects.get(pk=kwargs['page_id'])
+        view_obj.page = Page.objects.get(pk=kwargs['page_id']).get_as_child()
 
 
 page_site = PageSite()

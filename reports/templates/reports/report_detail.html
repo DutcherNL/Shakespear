@@ -11,7 +11,10 @@
         </div>
     </div>
     <a href="{% url "setup:reports:edit_report" report_slug=report.slug %}" class="btn btn-primary">
-        Edit page
+        Edit report options
+    </a>
+    <a href="{% url "setup:reports:edit_display" report_slug=report.slug %}" class="btn btn-primary">
+        Edit report display
     </a>
     <br>
 

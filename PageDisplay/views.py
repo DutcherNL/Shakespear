@@ -95,7 +95,6 @@ class PageInfoView(PageMixin, TemplateView):
 
 class PageEditMixin(LoginRequiredMixin, PageMixin):
     """ A mixin for the page editing back-end """
-    pass
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -138,14 +137,19 @@ class PageAlterView(PageEditMixin, TemplateView):
 class PageAlterSettingsView(PageEditMixin, UpdateView):
     """ Contains a form for page settings """
     template_name = 'pagedisplay/page_edit_settings.html'
-    fields = ['name']
-    model = Page
 
     def get_object(self, queryset=None):
         return self.page
 
     def get_success_url(self):
         return reverse_ns(self.request, 'edit_page', kwargs=self.url_kwargs(self))
+
+    def get_form_class(self):
+        # Set the model fields based on the model
+        self.fields = self.page.option_fields
+        self.model = self.page.__class__
+        # Below the modelform is automatically created
+        return super(PageAlterSettingsView, self).get_form_class()
 
 
 class PageAddModuleView(PageEditMixin, TemplateView):

@@ -3,7 +3,7 @@ from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from string import Formatter
-from .models import Report, ReportPage
+from .models import Report, ReportPage, ReportDisplayOptions
 from .responses import PDFResponse
 
 
@@ -50,6 +50,21 @@ class ReportUpdateView(UpdateView):
     def get_success_url(self):
         url_kwargs = {
             'report_slug': self.object.slug
+        }
+        return reverse("setup:reports:details", kwargs=url_kwargs)
+
+
+class ReportDisplayOptionsUpdateView(ReportMixin, UpdateView):
+    model = ReportDisplayOptions
+    fields = "__all__"
+    template_name = "reports/report_form.html"
+
+    def get_object(self, queryset=None):
+        return self.report.display_options
+
+    def get_success_url(self):
+        url_kwargs = {
+            'report_slug': self.report.slug
         }
         return reverse("setup:reports:details", kwargs=url_kwargs)
 
@@ -156,7 +171,10 @@ class PDFTemplateView(TemplateResponseMixin, ContextMixin, View):
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         # Send along the file name of the file
-        return self.render_to_response(context, file_name=self.get_file_name())
+        return self.render_to_response(context, file_name=self.get_file_name(), page_options=self.get_page_options())
+
+    def get_page_options(self):
+        return {}
 
 
 class PrintPageAsPDFView(ReportPageMixin, PDFTemplateView):
@@ -167,6 +185,16 @@ class PrintPageAsPDFView(ReportPageMixin, PDFTemplateView):
         context = super(PrintPageAsPDFView, self).get_context_data()
         context['template_engine'] = self.template_engine
         return context
+
+    def get_page_options(self):
+        options = super(PrintPageAsPDFView, self).get_page_options()
+        orientation = 'Portrait' if self.report_page.report.display_options.orientation else 'Landscape'
+
+        options.update({
+            'page-size': self.report_page.report.display_options.size,
+            'orientation': orientation,
+        })
+        return options
 
 
 class PrintPageAsHTMLView(ReportPageMixin, TemplateView):

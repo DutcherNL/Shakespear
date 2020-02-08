@@ -66,6 +66,10 @@ class ModuleContainer(models.Model):
                 return child.objects.get(id=self.id).get_as_child()
         return self
 
+    @property
+    def page(self):
+        return self.page_set.all()[0]
+
 
 class VerticalModuleContainer(ModuleContainer):
     """ Renders the modules in a vertical fashion """
@@ -81,6 +85,7 @@ class Page(models.Model):
     layout = models.ForeignKey(ModuleContainer, on_delete=models.PROTECT, blank=True)
     name = models.CharField(max_length=63)
 
+    option_fields = ['name']
     renderer = renderers.BasePageRenderer
 
     def __init__(self, *args, **kwargs):
