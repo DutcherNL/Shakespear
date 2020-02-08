@@ -11,8 +11,12 @@ register = template.Library()
 
 
 @register.filter
-def get_page_number(page):
-    ReportPage
+def get_page_number(text, page):
+    if "{page_number}" in text:
+        page_number = ReportPage.objects.filter(report=page.report, page_number__lt=page.page_number).count()
+        return text.replace("{page_number}", str(page_number))
+    return text
+
 
 @register.filter
 def img(icon):

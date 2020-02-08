@@ -1,7 +1,17 @@
 from django import template
 from django.templatetags import static
 
+from reports.models import ReportPage
+
 register = template.Library()
+
+
+@register.filter(takes_context=True)
+def get_page_number(text, page):
+    if "{page_number}" in text:
+        page_number = ReportPage.objects.filter(report=page.report, page_number__lt=page.page_number).count()
+        return text.replace("{page_number}", str(page_number))
+    return text
 
 
 @register.filter
