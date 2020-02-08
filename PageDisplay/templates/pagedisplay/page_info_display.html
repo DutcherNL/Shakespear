@@ -1,6 +1,15 @@
 {% extends 'base_with_body.html' %}
 {% load page_tags %}
 
+{% load django_bootstrap_breadcrumbs  %}
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% if breadcrumb_trail_template %}
+        {% include breadcrumb_trail_template %}
+    {% endif %}
+    {% breadcrumb "View page" "setup:home" %}
+{% endblock %}
+
 {% block body %}
     {% autoescape off %}
         {% render_module page %}

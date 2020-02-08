@@ -53,6 +53,12 @@ class ReportUpdateView(UpdateView):
         }
         return reverse("setup:reports:details", kwargs=url_kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super(ReportUpdateView, self).get_context_data(**kwargs)
+        context['crumb_name'] = "Edit general settings"
+        context['crumb_url'] = "setup:reports:edit_report"
+        return context
+
 
 class ReportDisplayOptionsUpdateView(ReportMixin, UpdateView):
     model = ReportDisplayOptions
@@ -61,6 +67,12 @@ class ReportDisplayOptionsUpdateView(ReportMixin, UpdateView):
 
     def get_object(self, queryset=None):
         return self.report.display_options
+
+    def get_context_data(self, **kwargs):
+        context = super(ReportDisplayOptionsUpdateView, self).get_context_data(**kwargs)
+        context['crumb_name'] = "Edit display options"
+        context['crumb_url'] = "setup:reports:edit_display"
+        return context
 
     def get_success_url(self):
         url_kwargs = {
@@ -72,6 +84,7 @@ class ReportDisplayOptionsUpdateView(ReportMixin, UpdateView):
 class CreateReportPageView(ReportMixin, CreateView):
     model = ReportPage
     fields = ['name', 'description', 'page_number']
+    template_name = "reports/reportpage_form_add.html"
 
     def form_valid(self, form):
         form.instance.report = self.report

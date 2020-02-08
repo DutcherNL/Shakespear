@@ -5,8 +5,8 @@
     {{ block.super }}
     {% breadcrumb "Setup" "setup:home" %}
     {% breadcrumb "Reports" "setup:reports:reports_overview" %}
-    {% breadcrumb report.report_name "setup:reports:details" report_slug=report.slug %}
-    {% breadcrumb crumb_name crumb_url report_slug=report.slug %}
+    {% breadcrumb report.report_name "setup:reports:details" %}
+    {% breadcrumb "Add page" "setup:reports:details" %}
 {% endblock %}
 
 {% block body %}
@@ -20,7 +20,6 @@
                 {% else %}
                     <input class="btn-primary btn" type="submit" value="Create">
                 {% endif %}
-
                 <a href="{% url 'setup:reports:details' report_slug=report.slug %}" class="btn btn-secondary">
                     Annuleren
                 </a>
@@ -33,7 +32,7 @@
     <a class="btn btn-secondary" href="{% url 'setup:home' %}">
         Setup Home
     </a>
-    <a class="btn btn-secondary" href="{% url 'setup:reports:reports_overview' %}">
-        Reports Home
+    <a class="btn btn-secondary" href="{% url 'setup:reports:details' report_slug=report.slug %}">
+        Report
     </a>
 {% endblock %}

@@ -1,6 +1,12 @@
 {% extends 'pagedisplay/page_edit_base.html' %}
 {% load page_tags %}
 
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Edit Module" "edit_page" module_id=selected_module.id %}
+    {% breadcrumb "Delete" "edit_page_delete_module" %}
+{% endblock %}
+
 {% block module_decor %}
     {% if selected_module.id == module.id %}
         <a class="page_edit_overlay select">

@@ -1,6 +1,11 @@
 {% extends 'pagedisplay/page_edit_base.html' %}
 {% load page_tags %}
 
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Add Module" "edit_page_add" %}
+{% endblock %}
+
 {% block module_decor %}
 
 {% endblock %}

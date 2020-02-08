@@ -1,6 +1,14 @@
 {% extends extends %}
 {% load page_tags %}
 
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% if breadcrumb_trail_template %}
+        {% include breadcrumb_trail_template %}
+    {% endif %}
+    {% breadcrumb "Edit page" "edit_page" %}
+{% endblock %}
+
 {% block head %}
     <link href="{% static "css/page_edit.css" %}" rel="stylesheet">
 {% endblock %}

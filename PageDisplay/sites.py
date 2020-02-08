@@ -19,6 +19,7 @@ class PageSite:
     use_overview = True
     use_page_keys = True
     template_engine = None
+    site_context_fields = []
 
     @property
     def urls(self):

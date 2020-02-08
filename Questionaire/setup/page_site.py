@@ -10,6 +10,8 @@ class TechPageSite(PageSite):
     """ A custom site for the page display """
 
     use_page_keys = False
+    breadcrumb_trail_template = "inquiry/setup/snippet_breadcrumb_trail_technologies.html"
+    site_context_fields = ['technology']
 
     def get_header_buttons(self, view_class):
         from django.urls import reverse_lazy
@@ -31,7 +33,7 @@ class TechPageSite(PageSite):
     @staticmethod
     def get_url_kwargs(view_obj):
         return {
-            'tech_id': view_obj.technology.id
+            'tech_id': view_obj.technology.id,
         }
 
 

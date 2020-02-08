@@ -30,6 +30,12 @@ class UpdateTechnologyView(UpdateView):
         form.fields['icon'].widget = IconInput()
         return form
 
+    def get_context_data(self, **kwargs):
+        context = super(UpdateTechnologyView, self).get_context_data(**kwargs)
+        context['breadcrumb_name'] = f"Edit {self.object}"
+        context['breadcrumb_url_name'] = "create_page"
+        return context
+
 
 class TechnologyMixin:
     def dispatch(self, request, *args, **kwargs):
@@ -46,13 +52,17 @@ class CreateTechPageView(TechnologyMixin, FormView):
         form_kwargs['initial'] = {'technology': self.technology}
         return form_kwargs
 
+    def get_context_data(self, **kwargs):
+        context = super(CreateTechPageView, self).get_context_data(**kwargs)
+        context['breadcrumb_name'] = "Add technology"
+        context['breadcrumb_url_name'] = "create_page"
+        return context
+
     def form_valid(self, form):
         form.save()
         return super(CreateTechPageView, self).form_valid(form)
 
     def get_success_url(self):
-        print(self.request.resolver_match)
-        print(self.request.resolver_match.namespace)
         return reverse('pages:edit_page',
                        kwargs={'page_id': Page.objects.get(technology=self.technology).id},
                        current_app=self.request.resolver_match.namespace)
@@ -60,8 +70,6 @@ class CreateTechPageView(TechnologyMixin, FormView):
 
 class RedirectTest(TechnologyMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
-        print(self.request.resolver_match)
-        print(self.request.resolver_match.namespace)
         return reverse('setup:pages:edit_page',
                        kwargs={'page_id': Page.objects.get(technology=self.technology).id},
                        current_app=self.request.resolver_match.namespace)

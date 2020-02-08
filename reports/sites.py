@@ -11,6 +11,8 @@ class ReportDesignSite(PageSite):
 
     use_page_keys = False
     template_engine = "Default_Template"
+    breadcrumb_trail_template = "reports/page_display/snippet_report_breadcrumbs.html"
+    site_context_fields = ['report_page']
 
     def get_header_buttons(self, view_class):
         from django.urls import reverse

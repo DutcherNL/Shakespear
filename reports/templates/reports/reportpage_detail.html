@@ -1,5 +1,14 @@
 {% extends 'base_with_body.html' %}
 
+{% load django_bootstrap_breadcrumbs  %}
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Setup" "setup:home" %}
+    {% breadcrumb "Reports" "setup:reports:reports_overview" %}
+    {% breadcrumb report.report_name "setup:reports:details" report_slug=report.slug %}
+    {% breadcrumb report_page.name "setup:reports:details" report_slug=report.slug %}
+{% endblock %}
+
 {% block body %}
     <h1>Report: {{ report.report_name }}</h1>
     <div class="row">

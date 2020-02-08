@@ -1,9 +1,30 @@
 from django import template
-from django.urls import reverse
+from django.utils.html import escape
+
+from django_bootstrap_breadcrumbs.templatetags.django_bootstrap_breadcrumbs import append_breadcrumb
+
 from PageDisplay import reverse_ns
 
 
 register = template.Library()
+
+
+@register.simple_tag(takes_context=True)
+def breadcrumb(context, label, viewname, *args, **kwargs):
+    """
+    Expands breadcrumb with local namespace fucntionality.
+    """
+
+    # Insert the namespace into the viewname
+    namespace = context.get('request').resolver_match.namespace
+    if len(namespace) > 0:
+        viewname = namespace + ":" + viewname
+
+    # Update the kwargs with the default url_kwargs
+    kwargs.update(context.get('url_kwargs', {}))
+
+    append_breadcrumb(context, escape(label), viewname, args, kwargs)
+    return ''
 
 
 @register.simple_tag(takes_context=True)

@@ -60,6 +60,16 @@ class PageMixin:
         context['header_buttons'] = self.prep_buttons(self.header_buttons)
         context['url_kwargs'] = self.url_kwargs(self)
         context['template_engine'] = self.site.template_engine
+
+        # Set an external template for the breadcrumbs
+        if hasattr(self.site, 'breadcrumb_trail_template'):
+            context['breadcrumb_trail_template'] = self.site.breadcrumb_trail_template
+
+        # Get additional context data
+        for property in self.site.site_context_fields:
+            if hasattr(self, property):
+                context[property] = self.__getattribute__(property)
+
         return context
 
     def prep_buttons(self, button_dict):

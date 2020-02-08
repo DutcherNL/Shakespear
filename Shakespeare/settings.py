@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.forms',
 
     'widget_tweaks',
+    'django_bootstrap_breadcrumbs',
 
     'Questionaire.apps.QuestionaireConfig',
     'DataStorage.apps.DataStorageConfig',

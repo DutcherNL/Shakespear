@@ -1,5 +1,13 @@
 {% extends 'base_with_body.html' %}
 
+{% load django_bootstrap_breadcrumbs  %}
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Setup" "setup:home" %}
+    {% breadcrumb "Technologies" "setup:tech_list" %}
+
+{% endblock %}
+
 {% block body %}
     <h1>Technologies</h1>
     <div class="table-responsive">

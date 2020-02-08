@@ -1,5 +1,15 @@
 {% extends 'base_with_body.html' %}
 
+{% load django_bootstrap_breadcrumbs  %}
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Setup" "setup:home" %}
+    {% breadcrumb "Reports" "setup:reports:reports_overview" %}
+    {% breadcrumb report.report_name "setup:reports:details" report_slug=report.slug  %}
+    {% breadcrumb object.name "setup:reports:details" report_slug=report.slug report_page_id=object.id %}
+    {% breadcrumb "Settings" "setup:reports:edit_page" report_slug=report.slug report_page_id=object.id %}
+{% endblock %}
+
 {% block body %}
     <form method="post">
         {% csrf_token %}

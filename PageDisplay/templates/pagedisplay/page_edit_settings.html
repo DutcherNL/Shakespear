@@ -1,6 +1,11 @@
 {% extends 'pagedisplay/page_edit_base.html' %}
 {% load page_tags %}
 
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Settings" "edit_page_settings" %}
+{% endblock %}
+
 {% block sidebar_title %}
     Edit page
 {% endblock %}

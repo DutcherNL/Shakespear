@@ -1,5 +1,14 @@
 {% extends 'base_with_body.html' %}
 
+{% load django_bootstrap_breadcrumbs  %}
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Setup" "setup:home" %}
+    {% breadcrumb "Technologies" "setup:tech_list" %}
+    {% breadcrumb breadcrumb_name breadcrumb_url_name %}
+
+{% endblock %}
+
 {% block body %}
     <form method="post">{% csrf_token %}
         {% include "snippets/bootstrap_form.html" %}
