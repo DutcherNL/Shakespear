@@ -274,6 +274,9 @@ class ImageModule(BasicModuleMixin, BaseModule):
 
 class WhiteSpaceModule(BasicModuleMixin, BaseModule):
     _type_id = 4
+    widget = widgets.WhiteSpaceWidget
+    verbose = "Whitespace"
+
     height = models.PositiveIntegerField(default=100, validators=[
         MinValueValidator(limit_value=25),
         MaxValueValidator(limit_value=1000)
