@@ -5,7 +5,6 @@ from Questionaire.models import Technology
 from PageDisplay.models import Page
 
 # Import the modules and containers
-from .modules.containers import *
 from .renderers import ReportPageRenderer
 
 
@@ -74,7 +73,6 @@ class ReportPage(Page):
     renderer = ReportPageRenderer
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('layout', PageContainer)
         super(ReportPage, self).__init__(*args, **kwargs)
 
     def is_valid(self, inquiry):

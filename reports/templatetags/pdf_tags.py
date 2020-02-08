@@ -4,9 +4,15 @@ from django.conf import settings
 
 import os
 
+from reports.models import ReportPage
+
 
 register = template.Library()
 
+
+@register.filter
+def get_page_number(page):
+    ReportPage
 
 @register.filter
 def img(icon):
