@@ -1,8 +1,6 @@
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponseNotFound
 
 from reports.models import ReportPage
-from PageDisplay.models import Page
 from PageDisplay.sites import PageSite
 
 
@@ -18,14 +16,34 @@ class ReportDesignSite(PageSite):
         from django.urls import reverse
         buttons = super(ReportDesignSite, self).get_header_buttons(view_class)
 
-        def create_report_page_url(view_obj):
-            url_kwargs = {
-                'report_slug': view_obj.report_page.report.slug,
-                'report_page_id': view_obj.report_page.id,
-            }
-            return reverse('setup:reports:details', kwargs=url_kwargs)
+        def reverse_url(target_page):
+            if target_page is None:
+                return None
 
-        buttons['Report Page Details'] = create_report_page_url
+            url_kwargs = {
+                'report_slug': target_page.report.slug,
+                'report_page_id': target_page.id,
+            }
+            return reverse('setup:reports:pages:edit_page', kwargs=url_kwargs)
+
+        def get_next_page_url(view_obj):
+            target_page = ReportPage.objects. \
+                filter(report=view_obj.report_page.report,
+                       page_number__gt=view_obj.report_page.page_number). \
+                order_by('page_number').first()
+            return reverse_url(target_page)
+
+        def get_prev_page_url(view_obj):
+            target_page = ReportPage.objects. \
+                filter(report=view_obj.report_page.report,
+                       page_number__lt=view_obj.report_page.page_number). \
+                order_by('page_number').last()
+            return reverse_url(target_page)
+
+        buttons['Next page'] = get_next_page_url
+        buttons['Previous page'] = get_prev_page_url
+        buttons['Previous page'].get_next = False
+        print(buttons['Previous page'].get_next)
         return buttons
 
     @staticmethod

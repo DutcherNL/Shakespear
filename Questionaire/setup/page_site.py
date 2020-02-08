@@ -13,12 +13,6 @@ class TechPageSite(PageSite):
     breadcrumb_trail_template = "inquiry/setup/snippet_breadcrumb_trail_technologies.html"
     site_context_fields = ['technology']
 
-    def get_header_buttons(self, view_class):
-        from django.urls import reverse_lazy
-        buttons = super(TechPageSite, self).get_header_buttons(view_class)
-        buttons['Tech overview page'] = reverse_lazy('setup:tech_list')
-        return buttons
-
     @staticmethod
     def init_view_params(view_obj, **kwargs):
         """ A method that sets view specific parameters, triggered in each view upon dispatch

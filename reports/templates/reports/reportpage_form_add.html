@@ -27,12 +27,3 @@
         </div>
     </form>
 {% endblock %}
-
-{% block nav-bar-options %}
-    <a class="btn btn-secondary" href="{% url 'setup:home' %}">
-        Setup Home
-    </a>
-    <a class="btn btn-secondary" href="{% url 'setup:reports:details' report_slug=report.slug %}">
-        Report
-    </a>
-{% endblock %}

@@ -246,15 +246,6 @@ class ModuleEditMixin:
     def get_active_container(self):
         return self.selected_module.information
 
-    def init_params(self, **kwargs):
-        super(ModuleEditMixin, self).init_params(**kwargs)
-
-        # Create the Edit Page button
-        namespace = self.request.resolver_match.namespace
-
-        kwargs.pop('module_id', None)
-        self.header_buttons['Edit Page'] = reverse(namespace+':edit_page', kwargs=kwargs, current_app=namespace)
-
 
 class ModuleEditBase(ModuleEditMixin, PageEditMixin):
     """ The general overlap for all module edit views """

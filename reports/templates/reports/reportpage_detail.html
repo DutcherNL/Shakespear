@@ -38,12 +38,3 @@
     </a>
 
 {% endblock %}
-
-{% block nav-bar-options %}
-    <a class="btn btn-secondary" href="{% url 'setup:reports:reports_overview' %}">
-        Reports overview
-    </a>
-    <a class="btn btn-secondary" href="{% url 'setup:reports:details' report_slug=report.slug %}">
-        Report
-    </a>
-{% endblock %}
