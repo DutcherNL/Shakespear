@@ -48,3 +48,6 @@ class ImageWidget(BaseModuleWidget):
         return context
 
 
+class WhiteSpaceWidget(BaseModuleWidget):
+    template_name = "pagedisplay/modules/module_whitespace.html"
+

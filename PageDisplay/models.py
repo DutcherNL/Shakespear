@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.urls import reverse
 
 from .module_registry import registry
@@ -271,6 +272,15 @@ class ImageModule(BasicModuleMixin, BaseModule):
                            null=True, blank=True, default="")
 
 
+class WhiteSpaceModule(BasicModuleMixin, BaseModule):
+    _type_id = 4
+    height = models.PositiveIntegerField(default=100, validators=[
+        MinValueValidator(limit_value=25),
+        MaxValueValidator(limit_value=1000)
+    ])
+
+
 registry.register(TitleModule)
 registry.register(TextModule)
 registry.register(ImageModule)
+registry.register(WhiteSpaceModule)
