@@ -1,7 +1,24 @@
 from django import forms
+from django.db.models import F
 
-from .models import BaseModule, TitleModule, TextModule, ImageModule
+from .models import BaseModule
 from .module_registry import registry
+
+
+def scootch_module_at(container_id, position):
+    if BaseModule.objects.filter(position=position+1, information_id=container_id).count() > 0:
+        scootch_module_at(container_id, position+1)
+    BaseModule.objects.filter(position=position, information_id=container_id).update(position=F('position')+1)
+
+
+def resolve_module_conflicts(module):
+    """ Resolves conflicts in positions between modules. Making sure that no module will be in the same position """
+    conflicted_modules = BaseModule.objects.filter(information_id=module.information_id,
+                                                   position=module.position).exclude(id=module.id)
+    for conflict in conflicted_modules:
+        scootch_module_at(module.information_id, module.position+1)
+        conflict.position = F('position')+1
+        conflict.save(update_fields=['position'])
 
 
 def build_moduleform(instance, get_as_class=False, **kwargs):
@@ -18,7 +35,12 @@ def build_moduleform(instance, get_as_class=False, **kwargs):
     class ModuleForm(forms.ModelForm):
         class Meta:
             model = class_type
-            exclude = ['_type', 'information']
+            exclude = ['_type', 'information', 'position']
+
+        def save(self, **kwargs):
+            # resolve positional conflicts
+            resolve_module_conflicts(self.instance)
+            super(ModuleForm, self).save(**kwargs)
 
     # If uninitiated form is desired
     if get_as_class:
@@ -66,13 +88,9 @@ class AddModuleForm(forms.Form):
         for key, field in self.fields.items():
             field.widget = forms.HiddenInput()
 
-    def get_obj_class(self):
-        """ Returns the module class of the selected module """
-        return registry.get_module(int(self.cleaned_data['module']))
-
     def get_instance(self):
         if self.is_valid():
-            class_type = self.get_obj_class()
+            class_type = registry.get_module(int(self.cleaned_data['module']))
             instance = class_type(position=self.cleaned_data['position'],
                                   information=self.container)
             return instance
