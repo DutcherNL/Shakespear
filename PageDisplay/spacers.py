@@ -5,6 +5,8 @@ import math
 
 from .models import VerticalModuleContainer
 
+__all__ = ['InsertModuleSpacer', 'InsertModuleMoveSpacer', 'InsertModuleMarkerSpacer']
+
 class BaseSpacer:
     """  Overlay for module functionality """
 
@@ -23,7 +25,7 @@ class BaseSpacer:
 
     def use(self, **kwargs):
         """
-        A method whether the filler should be used in the current context
+        A method whether the spacer should be used in the current context
         :param kwargs: A collection of given arguments from the render method
         :return: A boolean on whether the overlay is valid in this context
         """
@@ -34,21 +36,14 @@ class InsertModuleSpacer(BaseSpacer):
     template_name = "pagedisplay/module_overlays/mf_insert_selection.html"
     script_name = "javascript/filler_insert_module.js"
 
-    def get_context_data(self, prev_module=None, **kwargs):
-        context = super(InsertModuleSpacer, self).get_context_data(**kwargs)
-        current_container = kwargs['current_container']
-        context['container'] = current_container
-
-        # Create a unique id for the radio button
-        context['unique_radio_id'] = "insert_filler_selected_"+str(current_container.id)
-        if 'forloop' in kwargs.keys():
-            context['unique_radio_id'] += str(kwargs['forloop'].get('counter', 0))
-
+    @staticmethod
+    def compute_local_position(prev_module, current_container):
+        """ Computes the local position based on the parameters of the given surroundings """
         if prev_module:
             pos_low = prev_module.position
-            next_module = current_container.basemodule_set.\
-                filter(position__gte=prev_module.position).\
-                exclude(id=prev_module.id).\
+            next_module = current_container.basemodule_set. \
+                filter(position__gte=prev_module.position). \
+                exclude(id=prev_module.id). \
                 order_by('position').first()
 
             if next_module is not None:
@@ -65,13 +60,63 @@ class InsertModuleSpacer(BaseSpacer):
             else:
                 pos_high = 500
 
-        insert_position = pos_low + math.ceil((pos_high - pos_low) / 2)
+        return pos_low + math.ceil((pos_high - pos_low) / 2)
 
-        context['prev_loc'] = pos_low
-        context['next_loc'] = pos_high
+    def get_context_data(self, prev_module=None, **kwargs):
+        context = super(InsertModuleSpacer, self).get_context_data(**kwargs)
+        current_container = kwargs['current_container']
+        context['container'] = current_container
+
+        # Create a unique id for the radio button
+        context['unique_radio_id'] = "insert_filler_selected_"+str(current_container.id)
+        if 'forloop' in kwargs.keys():
+            context['unique_radio_id'] += str(kwargs['forloop'].get('counter', 0))
+
+        insert_position = self.compute_local_position(prev_module, current_container)
         context['insert_position'] = insert_position
 
         return context
+
+
+class InsertModuleMoveSpacer(InsertModuleSpacer):
+    template_name = "pagedisplay/module_overlays/mf_move_module.html"
+
+    def __init__(self, selected_module):
+        self.selected_module = selected_module
+        super(InsertModuleMoveSpacer, self).__init__()
+
+    def get_context_data(self, **kwargs):
+        context = super(InsertModuleMoveSpacer, self).get_context_data(**kwargs)
+        prev_key = kwargs.get('prev_module', None)
+        if prev_key is not None and prev_key.id == self.selected_module.id:
+            context['insert_position'] = self.selected_module.position
+            context['start_selected'] = True
+
+        return context
+
+    def use(self, prev_module=None, **kwargs):
+        """
+        A method whether the spacer should be used in the current context
+        :param kwargs: A collection of given arguments from the render method
+        :return: A boolean on whether the overlay is valid in this context
+        """
+        if prev_module:
+            cur_pos = prev_module.position
+        else:
+            cur_pos = 0
+        # If the current position is below the selected position
+        # Check if the next module is the selecetd module
+        if cur_pos < self.selected_module.position:
+            current_container = kwargs['current_container']
+            next_module = current_container.basemodule_set. \
+                filter(position__gt=cur_pos). \
+                order_by('position').first()
+            # Next module is this module, do not render this element
+            if next_module.id == self.selected_module.id:
+                return False
+
+
+        return True
 
 
 class InsertModuleMarkerSpacer(BaseSpacer):
@@ -119,3 +164,6 @@ class InsertModuleMarkerSpacer(BaseSpacer):
                 return self.position <= next_module.position
             else:
                 return True
+
+
+

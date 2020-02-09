@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Page, BaseModule, ModuleContainer
 from .forms import build_moduleform, AddModuleForm
-from .overlays import ModuleSelectOverlay, ModuleEditOverlay
+from .overlays import *
 from .spacers import *
 from . import reverse_ns
 
@@ -269,7 +269,6 @@ class ModuleEditBase(ModuleEditMixin, PageEditMixin):
 class PageAlterModuleView(ModuleEditBase, UpdateView):
     """ Adjust the details of a given module """
     template_name = 'pagedisplay/page_edit_module.html'
-    selected_module = None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -284,6 +283,27 @@ class PageAlterModuleView(ModuleEditBase, UpdateView):
 
     def get_form_class(self):
         return build_moduleform(instance=self.selected_module, get_as_class=True)
+
+
+class PageMoveModuleView(ModuleEditBase, UpdateView):
+    template_name = 'pagedisplay/page_edit_module_move.html'
+    fields = ['position']
+
+    def get_object(self, queryset=None):
+        return self.selected_module
+
+    def get_success_url(self):
+        return reverse_ns(self.request, 'edit_page', kwargs=self.url_kwargs(self))
+
+    def get_overlay(self):
+        return HideModuleOverlay(self.selected_module)
+
+    def get_spacer(self):
+        return InsertModuleMoveSpacer(self.selected_module)
+
+    def get_form_class(self):
+        self.model = type(self.selected_module)
+        return super(PageMoveModuleView, self).get_form_class()
 
 
 class PageDeleteModuleView(ModuleEditBase, DeleteView):

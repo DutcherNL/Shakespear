@@ -4,8 +4,10 @@ from django.template.loader import get_template
 from PageDisplay import create_limited_copy
 from PageDisplay.models import BaseModule, ModuleContainer
 
+__all__ = ['ModuleSelectOverlay', 'ModuleEditOverlay', 'HideModuleOverlay']
 
-class BaseWidgetOverlay:
+
+class BaseOverlay:
     """  Overlay for module functionality """
 
     def render(self, request=None, using=None, module=None, **kwargs):
@@ -41,15 +43,6 @@ class BaseWidgetOverlay:
         return True
 
 
-class ModuleOverlayMixin:
-    pass
-
-
-class SpaceOverlayMixin:
-    """ A mixin for overlays on spaces where modules can be """
-    pass
-
-
 class OverlayInContainerMixin:
     """ A mixin that limits the use of the overlay in the active container only"""
 
@@ -78,12 +71,12 @@ class OverlayInContainerMixin:
         return False
 
 
-class ModuleSelectOverlay(OverlayInContainerMixin, BaseWidgetOverlay):
+class ModuleSelectOverlay(OverlayInContainerMixin, BaseOverlay):
     """ Allows modules to be selected """
     template_name = "pagedisplay/module_overlays/mo_selection.html"
 
 
-class ModuleEditOverlay(BaseWidgetOverlay):
+class ModuleEditOverlay(BaseOverlay):
     """ Displays the currently selected module """
     template_name = "pagedisplay/module_overlays/mo_selected.html"
 
@@ -113,3 +106,18 @@ class ModuleEditOverlay(BaseWidgetOverlay):
         context = super(ModuleEditOverlay, self).get_context(module, **kwargs)
         context['selected_module'] = kwargs.get('selected_module', None)
         return context
+
+
+class HideModuleOverlay(BaseOverlay):
+    """ Renders an entire module non-existent (i.e. does not render a given module) """
+
+    def __init__(self, selected_module):
+        self.selected_module = selected_module
+
+    def render(self, **kwargs):
+        return ""
+
+    def use_overlay(self, module=None, **kwargs):
+        if module.id == self.selected_module.id:
+            return True
+        return False

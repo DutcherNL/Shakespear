@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block sidebar_title %}
-    Module opties
+    Module move
 {% endblock %}
 
 {% block sidebar_content %}
@@ -32,22 +32,10 @@
             {% csrf_token %}
             {% include "snippets/bootstrap_form.html" %}
         </form>
-        <div class=" col-md-9 offset-md-3">
-            <a href="{% ns_url 'edit_page_move_module' module_id=selected_module.id %}"
-               class="btn btn-warning btn-block">
-                Move
-            </a>
-        </div>
-        <div class=" col-md-9 offset-md-3 pt-3">
-                <a href="{% ns_url 'edit_page_delete_module' module_id=selected_module.id %}"
-                   class="btn btn-danger btn-block">
-                    Verwijderen
-                </a>
-        </div>
         <hr class="col-12 border-white my-2">
         <div class="btn-group col-12" role="group" aria-label="Opties">
             <input type="submit" class="btn btn-success" value="Opslaan" form="property_form">
-            <a class="btn btn-secondary" href="{% ns_url 'edit_page' %}">Terug</a>
+            <a class="btn btn-secondary" href="{% ns_url 'edit_page' module_id=selected_module.id %}">Terug</a>
         </div>
     </div>
 {% endblock %}
