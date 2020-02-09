@@ -67,10 +67,3 @@ class CreateTechPageView(TechnologyMixin, FormView):
                        kwargs={'page_id': Page.objects.get(technology=self.technology).id},
                        current_app=self.request.resolver_match.namespace)
 
-
-class RedirectTest(TechnologyMixin, RedirectView):
-    def get_redirect_url(self, *args, **kwargs):
-        return reverse('setup:pages:edit_page',
-                       kwargs={'page_id': Page.objects.get(technology=self.technology).id},
-                       current_app=self.request.resolver_match.namespace)
-
