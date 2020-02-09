@@ -6,7 +6,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Page, BaseModule, ModuleContainer
 from .forms import build_moduleform, AddModuleForm
-from .widget_overlays import ModuleSelectOverlay, ModuleEditOverlay, ModuleAddOverlay
+from .overlays import ModuleSelectOverlay, ModuleEditOverlay
+from .spacers import *
 from . import reverse_ns
 
 # ------------------------------------ """
@@ -109,6 +110,7 @@ class PageEditMixin(LoginRequiredMixin, PageMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['overlay'] = self.get_overlay()
+        context['spacer'] = self.get_spacer()
         context['active_container'] = self.get_active_container()
         return context
 
@@ -117,6 +119,14 @@ class PageEditMixin(LoginRequiredMixin, PageMixin):
         try:
             # Enable more flexible mixing ordering by checking the parent
             return super().get_overlay()
+        except AttributeError:
+            return None
+
+    def get_spacer(self):
+        """ Returns the initiated overlay object used in the view """
+        try:
+            # Enable more flexible mixing ordering by checking the parent
+            return super().get_spacer()
         except AttributeError:
             return None
 
@@ -176,10 +186,8 @@ class PageAddModuleView(PageEditMixin, TemplateView):
         self.container = None
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        self.container = ModuleContainer.objects.get(pk=self.kwargs['container_id'])
-        context['container'] = self.container
 
+        module_form = None
         # If there are no get parameters, initiate the root_form, otherwise. Get those paramaters and check validity
         if len(self.request.GET) == 0:
             root_form = AddModuleForm(container=self.page.layout, site=self.site)
@@ -192,13 +200,15 @@ class PageAddModuleView(PageEditMixin, TemplateView):
                 self.position = instance.position
                 root_form.make_hidden()
                 # Initiate the module form from the root_form instance
-                context['module_form'] = build_moduleform(instance=instance)
+                module_form = build_moduleform(instance=instance)
 
+
+        context = super().get_context_data(**kwargs)
+
+        self.container = ModuleContainer.objects.get(pk=self.kwargs['container_id'])
+        context['container'] = self.container
+        context['module_form'] = module_form
         context['root_form'] = root_form
-
-        # Get the item it is placed in front of:
-        if self.position:
-            context['overlay'].position = self.position
 
         return context
 
@@ -223,8 +233,12 @@ class PageAddModuleView(PageEditMixin, TemplateView):
 
         return self.render_to_response(context)
 
-    def get_overlay(self):
-        return ModuleAddOverlay(active_container=self.get_active_container())
+    def get_spacer(self):
+        if len(self.request.GET) == 0:
+            return InsertModuleSpacer()
+        else:
+            return InsertModuleMarkerSpacer(active_container=self.get_active_container(),
+                                            position=self.position)
 
 
 class ModuleEditMixin:

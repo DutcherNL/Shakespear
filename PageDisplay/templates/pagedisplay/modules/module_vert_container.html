@@ -1,9 +1,12 @@
 {% load page_tags %}
 
+{% render_spacer %}
+
 {% for module in modules %}
     <div class="row">
         <div class="col-12">
             {% render_module module %}
         </div>
     </div>
+    {% render_spacer prev_module=module %}
 {% endfor %}

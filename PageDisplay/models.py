@@ -23,11 +23,13 @@ class ModuleContainer(models.Model):
                    'overlay': overlay,
                    'page_id': page_id,
                    'current_container': self,
+                   'spacer': kwargs.get('spacer', None),
                    'active_container': kwargs.get('active_container', None),
                    'selected_module': kwargs.get('selected_module', None),
                    'url_kwargs': kwargs.get('url_kwargs', None),
                    'template_engine':  kwargs.get('template_engine', None),
                    }
+
         return context
     
     def render(self, **kwargs):

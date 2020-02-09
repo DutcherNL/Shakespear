@@ -47,6 +47,10 @@
 
         </div>
     </div>
+
+    {% if spacer.script_name %}
+        <script src="{% static spacer.script_name %}"></script>
+    {% endif %}
 {% endblock %}
 
 {% block nav-bar-options %}

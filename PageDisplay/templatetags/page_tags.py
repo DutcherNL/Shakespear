@@ -49,10 +49,26 @@ def render_module(context, module, use_overlay=True):
 
 
 @register.simple_tag(takes_context=True)
+def render_spacer(context, **kwargs):
+    spacer = context.get('spacer', None)
+
+    # No spacer was defined
+    if spacer is None:
+        return ''
+
+    # Combine the context and any additional parameters together
+    full_context = context.flatten()
+    full_context.update(kwargs)
+
+    if spacer.use(**full_context):
+        return spacer.render(**full_context)
+    return ''
+
+
+@register.simple_tag(takes_context=True)
 def ns_url(context, url, **kwargs):
     """ Returns the url with the appended current namespace
      Also uses the right arguments to create the default url reversing """
     # Update the kwargs with the default url_kwargs
     kwargs.update(context.get('url_kwargs', {}))
     return reverse_ns(context.get('request'), url, kwargs=kwargs)
-

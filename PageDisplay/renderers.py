@@ -27,6 +27,7 @@ class BasePageRenderer:
                    'overlay': overlay,
                    'page_id': page_id,
                    'page': self.page,
+                   'spacer': kwargs.get('spacer', None),
                    'current_container': self,
                    'active_container': kwargs.get('active_container', None),
                    'selected_module': kwargs.get('selected_module', None),

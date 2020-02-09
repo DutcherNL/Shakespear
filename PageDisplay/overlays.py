@@ -1,15 +1,8 @@
 from django.utils.safestring import mark_safe
 from django.template.loader import get_template
 
-from .models import BaseModule, ModuleContainer
-
-
-def create_limited_copy(dictionary, *args):
-    """ Creates a limited copy of the given dictionary containing the given arguments """
-    new_dict = {}
-    for arg in args:
-        new_dict[arg] = dictionary.get(arg, None)
-    return new_dict
+from PageDisplay import create_limited_copy
+from PageDisplay.models import BaseModule, ModuleContainer
 
 
 class BaseWidgetOverlay:
@@ -31,6 +24,7 @@ class BaseWidgetOverlay:
         context = create_limited_copy(kwargs,
                                       'page_id',
                                       'overlay',
+                                      'spacer'
                                       'current_container',
                                       'active_container',
                                       'url_kwargs',
@@ -45,6 +39,15 @@ class BaseWidgetOverlay:
         :return: A boolean on whether the overlay is valid in this context
         """
         return True
+
+
+class ModuleOverlayMixin:
+    pass
+
+
+class SpaceOverlayMixin:
+    """ A mixin for overlays on spaces where modules can be """
+    pass
 
 
 class OverlayInContainerMixin:
@@ -78,48 +81,6 @@ class OverlayInContainerMixin:
 class ModuleSelectOverlay(OverlayInContainerMixin, BaseWidgetOverlay):
     """ Allows modules to be selected """
     template_name = "pagedisplay/module_overlays/mo_selection.html"
-
-
-class ModuleAddOverlay(OverlayInContainerMixin, BaseWidgetOverlay):
-    """ Displays the relative location of the new module """
-    template_name = "pagedisplay/module_overlays/mo_add.html"
-
-    def __init__(self, *args, active_container=None, **kwargs):
-        # Create 'empty' attributes
-        self.append_to_end = False
-        self.position = -1
-        # Store the active container (i.e. in which a module will be added)
-        self.active_container = active_container
-
-        super(ModuleAddOverlay, self).__init__(*args, **kwargs)
-
-    def use_overlay(self, module=None, **kwargs):
-        if super(ModuleAddOverlay, self).use_overlay(module=module, **kwargs):
-            if module == self.get_neighbouring_module:
-                return True
-
-        return False
-
-    @property
-    def get_neighbouring_module(self):
-        """ Get the module that is neighbouring it
-        It assumes originally that the new module will be before another module
-        If it is added to the end. It will be displayed after the last availlable module
-        """
-        self.append_to_end = False
-        if self.position == -1:
-            return None
-
-        module = self.active_container.basemodule_set.filter(position__gte=self.position).order_by('position').first()
-        if module is None:
-            self.append_to_end = True
-            return self.active_container.basemodule_set.order_by('position').last()
-        return module
-
-    def get_context(self, **kwargs):
-        context = super(ModuleAddOverlay, self).get_context(**kwargs)
-        context['append_to_end'] = self.append_to_end
-        return context
 
 
 class ModuleEditOverlay(BaseWidgetOverlay):
