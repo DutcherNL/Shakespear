@@ -197,7 +197,6 @@ class BaseModule(models.Model):
         :param kwargs:
         :return:
         """
-        # TODO: Traceback if using is not stopped at the container render process
         # Get the child as deep as possible
         child = self.get_child()
         # Load the widget
