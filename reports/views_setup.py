@@ -16,6 +16,7 @@ class ReportsOverview(ListView):
 class AddReportView(CreateView):
     model = Report
     fields = ['report_name', 'description', 'file_name']
+    template_name = "reports/report_form_add.html"
 
     def get_success_url(self):
         url_kwargs = {
