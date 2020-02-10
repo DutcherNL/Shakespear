@@ -1,7 +1,10 @@
 from django import template
 from django.utils.html import escape
 
-from django_bootstrap_breadcrumbs.templatetags.django_bootstrap_breadcrumbs import append_breadcrumb
+try:    # Try importing the breadcrumb module. This is not a required module so can be absent
+    from django_bootstrap_breadcrumbs.templatetags.django_bootstrap_breadcrumbs import append_breadcrumb
+except ImportError:
+    append_breadcrumb = None
 
 from PageDisplay import reverse_ns
 
@@ -14,6 +17,8 @@ def breadcrumb(context, label, viewname, *args, **kwargs):
     """
     Expands breadcrumb with local namespace fucntionality.
     """
+    if append_breadcrumb == None:
+        return ''
 
     # Insert the namespace into the viewname
     namespace = context.get('request').resolver_match.namespace
