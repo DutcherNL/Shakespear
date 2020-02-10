@@ -1,20 +1,25 @@
-<div class="pe_filler">
-    <div class="pe_filler_insert_module_outer">
-        <input type="radio" name="insert_filler_radio" id="{{ unique_radio_id }}"
-               {% if start_selected %}checked{% endif %}
-               class="pe_filler_insert_module_radio">
-        <label name="insert_module_filler" for="{{ unique_radio_id }}"
-               class="pe_filler_insert_module_inner bg-light"
-               data-insert-position="{{ insert_position }}">
-            <span class="unchecked">
-                Click to insert model at this location
-            </span>
-            <span class="checked">
-                Module will be inserted here
-            </span>
-        </label>
-        <div class="filled_insert_icon bg-light">
-
+<div class="" style="">
+    <input type="radio" name="insert_filler_radio" id="{{ unique_radio_id }}"
+           {% if start_selected %}checked{% endif %}
+           class="pe_filler_insert_module_radio">
+    <div>
+        <div class="show_on_checked pe_filler_insert_module_outer" style="position: relative;">
+            <div class="pe_filler_insert_module_inner">
+                <span class="pe_filler_pop-over bg-light pe_mark_selected font-weight-bold">
+                    Module will be added here
+                </span>
+            </div>
+        </div>
+        <div class="hide_on_checked pe_filler_insert_module_outer">
+            <label name="insert_module_filler" for="{{ unique_radio_id }}"
+                   class="pe_filler_insert_module_inner"
+                   data-insert-position="{{ insert_position }}">
+                <div class="filled_insert_icon bg-light">
+                </div>
+                <span class="show_on_hover pe_filler_pop-over bg-light">
+                    Click to insert model at this location
+                </span>
+            </label>
         </div>
     </div>
 </div>
