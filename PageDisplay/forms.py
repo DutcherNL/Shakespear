@@ -3,6 +3,7 @@ from django.db.models import F
 
 from .models import BaseModule
 from .module_registry import registry
+from .widgets import ModulePositionInput
 
 
 def scootch_module_at(container_id, position):
@@ -65,8 +66,10 @@ def get_module_choices(site):
 
 class AddModuleForm(forms.Form):
     """ A form that selects a specific module in a specific location """
-    module = forms.ChoiceField(required=True) #choices are defined in __init__
-    position = forms.IntegerField(required=True, min_value=1)
+    module = forms.ChoiceField(required=True) # choices are defined in __init__
+    position = forms.IntegerField(required=True, min_value=1, widget=ModulePositionInput)
+    container = forms.IntegerField(min_value=1, widget=forms.HiddenInput)
+    field_name = forms.CharField(max_length=64, widget=forms.HiddenInput)
 
     def __init__(self, container=None, site=None, *args, **kwargs):
         """

@@ -130,10 +130,14 @@
     display: None;
 }
 
-.pe_filler_insert_module_radio:not(:checked)+* .show_on_checked{
-    display: None;
+.show_on_checked {
+    display: none;
 }
 
-.pe_filler_insert_module_radio:checked+* .hide_on_checked, .selected+* .hide_on_checked{
+input:checked+div .show_on_checked{
+    display: inherit;
+}
+
+input:checked+div .hide_on_checked, .selected+* .hide_on_checked{
     display: None;
 }

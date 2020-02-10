@@ -10,9 +10,9 @@ __all__ = ['InsertModuleSpacer', 'InsertModuleMoveSpacer', 'InsertModuleMarkerSp
 class BaseSpacer:
     """  Overlay for module functionality """
 
-    def render(self, request=None, using=None, module=None, **kwargs):
+    def render(self, request=None, using=None, **kwargs):
         # Render the module
-        context = self.get_context_data(module=module, **kwargs)
+        context = self.get_context_data(**kwargs)
         template = get_template(self.template_name, using=using)
         rendered_result = template.render(context, request)
 
@@ -65,17 +65,17 @@ class InsertModuleSpacer(BaseSpacer):
 
         return pos_low + math.ceil((pos_high - pos_low) / 2)
 
-    def get_context_data(self, prev_module=None, **kwargs):
+    def get_context_data(self, prev_module=None, container=None, field_name=None, **kwargs):
         context = super(InsertModuleSpacer, self).get_context_data(**kwargs)
-        current_container = kwargs['current_container']
-        context['container'] = current_container
+        context['insert_container'] = container
+        context['insert_field_name'] = field_name
 
         # Create a unique id for the radio button
-        context['unique_radio_id'] = "insert_filler_selected_"+str(current_container.id)
+        context['unique_radio_id'] = "insert_filler_selected_"+str(container.id)
         if 'forloop' in kwargs.keys():
             context['unique_radio_id'] += str(kwargs['forloop'].get('counter', 0))
 
-        insert_position = self.compute_local_position(prev_module, current_container)
+        insert_position = self.compute_local_position(prev_module, container)
         context['insert_position'] = insert_position
 
         return context
@@ -103,8 +103,11 @@ class InsertModuleMoveSpacer(InsertModuleSpacer):
             self.rendered_module = self.selected_module.render(**kwargs)
         context['selected_module_layout'] = self.rendered_module
 
+        # Check if this spacer contains the current position of the selected module
         if prev_key is not None and prev_key.id == self.selected_module.id:
+            # Change the insert position to represent the current position (in case the module isn't moved)
             context['insert_position'] = self.selected_module.position
+            # Mark the current version as the original position
             context['start_selected'] = True
 
         return context

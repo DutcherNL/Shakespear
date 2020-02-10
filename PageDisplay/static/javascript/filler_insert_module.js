@@ -3,6 +3,12 @@
 // The onClick event. When clicked the position data needs to be changed in the form
 function setInsertLocation() {
     document.getElementById('id_position').value = this.dataset.insertPosition;
+    try {
+        document.getElementById('id_container').value = this.dataset.insertContainer;
+        document.getElementById('id_field_name').value = this.dataset.insertField_name;
+    }
+    catch(err){}
+    document.getElementById('id_position_selected_marker').checked = true;
 }
 
 // Get all fillters and create event listeners on the above method

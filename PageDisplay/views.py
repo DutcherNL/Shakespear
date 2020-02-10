@@ -8,6 +8,7 @@ from .models import Page, BaseModule, ModuleContainer
 from .forms import build_moduleform, AddModuleForm
 from .overlays import *
 from .spacers import *
+from .widgets import ModulePositionInput
 from . import reverse_ns
 
 # ------------------------------------ """
@@ -288,6 +289,11 @@ class PageAlterModuleView(ModuleEditBase, UpdateView):
 class PageMoveModuleView(ModuleEditBase, UpdateView):
     template_name = 'pagedisplay/page_edit_module_move.html'
     fields = ['position']
+
+    def get_form(self, form_class=None):
+        form = super(PageMoveModuleView, self).get_form(form_class)
+        form.fields['position'].widget = ModulePositionInput()
+        return form
 
     def get_object(self, queryset=None):
         return self.selected_module

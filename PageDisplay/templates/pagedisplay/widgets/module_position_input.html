@@ -1,0 +1,18 @@
+
+
+<input type="hidden"
+       name="{{ widget.name }}"
+        {% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"
+        {% endif %}{% include "django/forms/widgets/attrs.html" %}>
+
+<input type="checkbox" id="id_position_selected_marker"
+       style="display: none" required
+        {% if widget.value != None %} checked {% endif %}>
+<div class="p-2">
+    <div class="show_on_checked">
+        Position selected
+    </div>
+    <div class="hide_on_checked">
+        Select a location to insert the module
+    </div>
+</div>

@@ -54,7 +54,15 @@ def render_module(context, module, use_overlay=True):
 
 
 @register.simple_tag(takes_context=True)
-def render_spacer(context, **kwargs):
+def render_spacer(context, prev_module=None, container=None, field_name=None):
+    """
+    Renders the spacer (overlay for the empty spaces between modules)
+    :param context: The current context (auto-inserted)
+    :param container: the current module container
+    :param field_name: the field_name on the module potentially edited
+    :param prev_module: the rendered module just before this
+    :return:
+    """
     spacer = context.get('spacer', None)
 
     # No spacer was defined
@@ -63,7 +71,11 @@ def render_spacer(context, **kwargs):
 
     # Combine the context and any additional parameters together
     full_context = context.flatten()
-    full_context.update(kwargs)
+    full_context.update({
+        'container': container,
+        'field_name': field_name,
+        'prev_module': prev_module,
+    })
 
     if spacer.use(**full_context):
         return spacer.render(**full_context)

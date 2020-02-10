@@ -1,4 +1,4 @@
-from PageDisplay.widgets import BaseModuleWidget
+from PageDisplay.module_widgets import BaseModuleWidget
 
 from Questionaire.models import Inquiry
 

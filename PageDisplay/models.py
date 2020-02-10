@@ -3,7 +3,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.urls import reverse
 
 from .module_registry import registry
-from PageDisplay import widgets, renderers
+from PageDisplay import module_widgets, renderers
 
 # Create your models here.
 __all__ = ['ModuleContainer', 'VerticalModuleContainer',
@@ -231,7 +231,7 @@ class BasicModuleMixin:
 class TitleModule(BasicModuleMixin, BaseModule):
     """ A module that renders a title """
     verbose = "Title"
-    widget = widgets.TitleWidget
+    widget = module_widgets.TitleWidget
     _type_id = 1
 
     title = models.CharField(max_length=127)
@@ -244,7 +244,7 @@ class TextModule(BasicModuleMixin, BaseModule):
     """ A module that renders simple text """
     verbose = "Text"
     _type_id = 2
-    widget = widgets.TextWidget
+    widget = module_widgets.TextWidget
 
     text = models.TextField()
     css = models.CharField(max_length=256, help_text="CSS classes in accordance with Bootstrap",
@@ -258,7 +258,7 @@ class ImageModule(BasicModuleMixin, BaseModule):
     """ A module that displays an image """
     verbose = "Image"
     _type_id = 3
-    widget = widgets.ImageWidget
+    widget = module_widgets.ImageWidget
 
     image = models.ImageField()
     caption = models.CharField(max_length=256, null=True, blank=True, default="")
@@ -275,7 +275,7 @@ class ImageModule(BasicModuleMixin, BaseModule):
 
 class WhiteSpaceModule(BasicModuleMixin, BaseModule):
     _type_id = 4
-    widget = widgets.WhiteSpaceWidget
+    widget = module_widgets.WhiteSpaceWidget
     verbose = "Whitespace"
 
     height = models.PositiveIntegerField(default=100, validators=[
