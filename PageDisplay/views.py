@@ -293,7 +293,9 @@ class PageMoveModuleView(ModuleEditBase, UpdateView):
         return self.selected_module
 
     def get_success_url(self):
-        return reverse_ns(self.request, 'edit_page', kwargs=self.url_kwargs(self))
+        url_kwargs = self.url_kwargs(self)
+        url_kwargs['module_id'] = self.selected_module.id
+        return reverse_ns(self.request, 'edit_page', kwargs=url_kwargs)
 
     def get_overlay(self):
         return HideModuleOverlay(self.selected_module)
