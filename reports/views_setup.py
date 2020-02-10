@@ -18,6 +18,11 @@ class AddReportView(CreateView):
     fields = ['report_name', 'description', 'file_name']
     template_name = "reports/report_form_add.html"
 
+    def form_valid(self, form):
+        result = super(AddReportView, self).form_valid(form)
+        ReportDisplayOptions.objects.create(report=self.object)
+        return result
+
     def get_success_url(self):
         url_kwargs = {
             'report_slug': self.object.slug
@@ -67,7 +72,8 @@ class ReportDisplayOptionsUpdateView(ReportMixin, UpdateView):
     template_name = "reports/report_form.html"
 
     def get_object(self, queryset=None):
-        return self.report.display_options
+        # If the report has no display options, create the display options
+        return ReportDisplayOptions.objects.get_or_create(report=self.report)[0]
 
     def get_context_data(self, **kwargs):
         context = super(ReportDisplayOptionsUpdateView, self).get_context_data(**kwargs)
