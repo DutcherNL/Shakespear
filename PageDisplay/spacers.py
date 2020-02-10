@@ -36,8 +36,11 @@ class InsertModuleSpacer(BaseSpacer):
     template_name = "pagedisplay/module_overlays/mf_insert_selection.html"
     script_name = "javascript/filler_insert_module.js"
 
-    @staticmethod
-    def compute_local_position(prev_module, current_container):
+    local_maximum = 200  # the default maximum range
+    maximum_overstep = 20  # the step size when the maximum has been reached
+    db_maximum = 1000  # the maximum position size on the database
+
+    def compute_local_position(self, prev_module, current_container):
         """ Computes the local position based on the parameters of the given surroundings """
         if prev_module:
             pos_low = prev_module.position
@@ -49,7 +52,7 @@ class InsertModuleSpacer(BaseSpacer):
             if next_module is not None:
                 pos_high = next_module.position
             else:
-                pos_high = 500
+                pos_high = max(self.local_maximum, prev_module.position + self.maximum_overstep)
         else:
             # It is before the first in
             next_module = current_container.basemodule_set.order_by('position').first()
@@ -58,7 +61,7 @@ class InsertModuleSpacer(BaseSpacer):
             if next_module is not None:
                 pos_high = next_module.position
             else:
-                pos_high = 500
+                pos_high = self.local_maximum
 
         return pos_low + math.ceil((pos_high - pos_low) / 2)
 
@@ -77,17 +80,29 @@ class InsertModuleSpacer(BaseSpacer):
 
         return context
 
+    def use(self, prev_module=None, **kwargs):
+        if prev_module is not None:
+            if prev_module.position >=self.db_maximum:
+                return False
+        return super(InsertModuleSpacer, self).use(**kwargs)
+
 
 class InsertModuleMoveSpacer(InsertModuleSpacer):
     template_name = "pagedisplay/module_overlays/mf_move_module.html"
 
     def __init__(self, selected_module):
         self.selected_module = selected_module
+        self.rendered_module = None
         super(InsertModuleMoveSpacer, self).__init__()
 
     def get_context_data(self, **kwargs):
         context = super(InsertModuleMoveSpacer, self).get_context_data(**kwargs)
         prev_key = kwargs.get('prev_module', None)
+
+        if self.rendered_module is None:
+            self.rendered_module = self.selected_module.render(**kwargs)
+        context['selected_module_layout'] = self.rendered_module
+
         if prev_key is not None and prev_key.id == self.selected_module.id:
             context['insert_position'] = self.selected_module.position
             context['start_selected'] = True
@@ -97,6 +112,7 @@ class InsertModuleMoveSpacer(InsertModuleSpacer):
     def use(self, prev_module=None, **kwargs):
         """
         A method whether the spacer should be used in the current context
+        :param prev_module: The module that has been rendered before this gap
         :param kwargs: A collection of given arguments from the render method
         :return: A boolean on whether the overlay is valid in this context
         """
@@ -115,8 +131,7 @@ class InsertModuleMoveSpacer(InsertModuleSpacer):
             if next_module.id == self.selected_module.id:
                 return False
 
-
-        return True
+        return super(InsertModuleMoveSpacer, self).use(prev_module=prev_module, **kwargs)
 
 
 class InsertModuleMarkerSpacer(BaseSpacer):
