@@ -63,7 +63,7 @@ class CreateTechPageView(TechnologyMixin, FormView):
         return super(CreateTechPageView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse('pages:edit_page',
-                       kwargs={'page_id': Page.objects.get(technology=self.technology).id},
+        return reverse('setup:pages:edit_page',
+                       kwargs={'tech_id': self.technology.id},
                        current_app=self.request.resolver_match.namespace)
 
