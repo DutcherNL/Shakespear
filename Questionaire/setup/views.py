@@ -1,25 +1,32 @@
-from django.views.generic import TemplateView, ListView, FormView, RedirectView
+from django.views.generic import TemplateView, ListView, FormView
 from django.views.generic.edit import UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse
 
 from Questionaire.models import Technology
 from Questionaire.widgets import IconInput
-from PageDisplay.models import Page
 from Questionaire.setup.forms import CreatePageForTechForm
 
 
-class SetUpOverview(TemplateView):
+class AccessabilityMixin(LoginRequiredMixin):
+    """ A united mixin that applies for all the reports set-up views
+    It is done like this because it makes changing accessiblity (future implementation of permissions) easeier
+    """
+    pass
+
+
+class SetUpOverview(AccessabilityMixin, TemplateView):
     template_name = "inquiry/setup/overview.html"
 
 
-class SetUpTechPageOverview(ListView):
+class SetUpTechPageOverview(AccessabilityMixin, ListView):
     template_name = "inquiry/setup/tech_overview.html"
     context_object_name = "technologies"
     model = Technology
 
 
-class UpdateTechnologyView(UpdateView):
+class UpdateTechnologyView(AccessabilityMixin, UpdateView):
     template_name = "inquiry/setup/tech_update.html"
     pk_url_kwarg = "tech_id"
     model = Technology
@@ -43,7 +50,7 @@ class TechnologyMixin:
         return super(TechnologyMixin, self).dispatch(request, *args, *kwargs)
 
 
-class CreateTechPageView(TechnologyMixin, FormView):
+class CreateTechPageView(AccessabilityMixin, TechnologyMixin, FormView):
     template_name = "inquiry/setup/create_tech_page.html"
     form_class = CreatePageForTechForm
 

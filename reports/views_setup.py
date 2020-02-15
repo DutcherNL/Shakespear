@@ -1,5 +1,6 @@
 from django.views.generic import ListView, CreateView, TemplateView, View, UpdateView
 from django.views.generic.base import ContextMixin, TemplateResponseMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from string import Formatter
@@ -7,13 +8,20 @@ from .models import Report, ReportPage, ReportDisplayOptions
 from .responses import PDFResponse
 
 
-class ReportsOverview(ListView):
+class AccessabilityMixin(LoginRequiredMixin):
+    """ A united mixin that applies for all the reports set-up views
+    It is done like this because it makes changing accessiblity (future implementation of permissions) easeier
+    """
+    pass
+
+
+class ReportsOverview(AccessabilityMixin, ListView):
     template_name = "reports/reports_overview.html"
     context_object_name = "reports"
     model = Report
 
 
-class AddReportView(CreateView):
+class AddReportView(AccessabilityMixin, CreateView):
     model = Report
     fields = ['report_name', 'description', 'file_name']
     template_name = "reports/report_form_add.html"
@@ -43,11 +51,11 @@ class ReportMixin:
         return context
 
 
-class ReportInfoView(ReportMixin, TemplateView):
+class ReportInfoView(AccessabilityMixin, ReportMixin, TemplateView):
     template_name = "reports/report_detail.html"
 
 
-class ReportUpdateView(UpdateView):
+class ReportUpdateView(AccessabilityMixin, UpdateView):
     model = Report
     fields = ['description', 'file_name']
     slug_url_kwarg = "report_slug"
@@ -66,7 +74,7 @@ class ReportUpdateView(UpdateView):
         return context
 
 
-class ReportDisplayOptionsUpdateView(ReportMixin, UpdateView):
+class ReportDisplayOptionsUpdateView(AccessabilityMixin, ReportMixin, UpdateView):
     model = ReportDisplayOptions
     fields = "__all__"
     template_name = "reports/report_form.html"
@@ -88,7 +96,7 @@ class ReportDisplayOptionsUpdateView(ReportMixin, UpdateView):
         return reverse("setup:reports:details", kwargs=url_kwargs)
 
 
-class CreateReportPageView(ReportMixin, CreateView):
+class CreateReportPageView(AccessabilityMixin, ReportMixin, CreateView):
     model = ReportPage
     fields = ['name', 'description', 'page_number']
     template_name = "reports/reportpage_form_add.html"
@@ -123,16 +131,16 @@ class ReportPageMixinPrep:
         return context
 
 
-class ReportPageMixin(ReportMixin, ReportPageMixinPrep):
+class ReportPageMixin(AccessabilityMixin, ReportMixin, ReportPageMixinPrep):
     # It is done this way to ensure that the link report_page and report is confirmed before anything else is done
     pass
 
 
-class ReportPageInfoView(ReportPageMixin, TemplateView):
+class ReportPageInfoView(AccessabilityMixin, ReportPageMixin, TemplateView):
     template_name = "reports/reportpage_detail.html"
 
 
-class ReportPageUpdateView(ReportMixin, UpdateView):
+class ReportPageUpdateView(AccessabilityMixin, ReportMixin, UpdateView):
     model = ReportPage
     fields = ['name', 'description', 'page_number']
     pk_url_kwarg = "report_page_id"
@@ -146,7 +154,7 @@ class ReportPageUpdateView(ReportMixin, UpdateView):
         return reverse("setup:reports:details", kwargs=url_kwargs)
 
 
-class PDFTemplateView(TemplateResponseMixin, ContextMixin, View):
+class PDFTemplateView(AccessabilityMixin, TemplateResponseMixin, ContextMixin, View):
     """A view that adjusts the templatemixin to display the template in PDF form.
     It overrides all code from TemplateView class, thus does not inherit from it directly """
     template_engine = "PDFTemplates"
@@ -197,7 +205,7 @@ class PDFTemplateView(TemplateResponseMixin, ContextMixin, View):
         return {}
 
 
-class PrintPageAsPDFView(ReportPageMixin, PDFTemplateView):
+class PrintPageAsPDFView(AccessabilityMixin, ReportPageMixin, PDFTemplateView):
     template_name = "reports/pdf_page.html"
     file_name = 'Example_pdf_page_{report_page.id}'
 
@@ -217,12 +225,12 @@ class PrintPageAsPDFView(ReportPageMixin, PDFTemplateView):
         return options
 
 
-class PrintPageAsHTMLView(ReportPageMixin, TemplateView):
+class PrintPageAsHTMLView(AccessabilityMixin, ReportPageMixin, TemplateView):
     template_name = "reports/pdf_page.html"
     template_engine = "PDFTemplates"
 
 
-class PrintReportAsPDFView(ReportMixin, PDFTemplateView):
+class PrintReportAsPDFView(AccessabilityMixin, ReportMixin, PDFTemplateView):
     template_name = "reports/pdf_report.html"
     file_name = 'Example_report_{report.id}'
 
@@ -233,7 +241,7 @@ class PrintReportAsPDFView(ReportMixin, PDFTemplateView):
         return context
 
 
-class PrintReportAsHTMLView(ReportMixin, TemplateView):
+class PrintReportAsHTMLView(AccessabilityMixin, ReportMixin, TemplateView):
     template_name = "reports/pdf_report.html"
     template_engine = "PDFTemplates"
 
