@@ -1,6 +1,7 @@
 from functools import update_wrapper
 
 from django.urls import path, include
+from django.http import HttpResponseForbidden
 
 from PageDisplay import views
 from PageDisplay.module_registry import registry
@@ -21,6 +22,11 @@ class PageSite:
     template_engine = None
     site_context_fields = []
 
+    view_requires_login = True
+    edit_requires_login = True
+    view_requires_permissions = []
+    edit_requires_permissions = []
+
     @property
     def urls(self):
         return self.get_urls(), 'PageDisplay', self.name
@@ -30,8 +36,14 @@ class PageSite:
 
         # A wrapper to allow class get_view do reverse url functions when setting up a view class
         def wrap(view_class):
-            def wrapper(*args, **kwargs):
-                return self.get_view(view_class)(*args, **kwargs)
+            def wrapper(request, *args, **kwargs):
+                # Block access if it needs to be blocked
+                if not self.can_access(request, view_class):
+                    return HttpResponseForbidden("You are not allowed to access this page")
+
+                # Construct the view
+                init_values = self.get_view_init_kwargs(view_class)
+                return view_class.as_view(**init_values)(request, *args, **kwargs)
             return update_wrapper(wrapper, view_class)
 
         urlpatterns = []
@@ -64,11 +76,6 @@ class PageSite:
 
         return urlpatterns
 
-    def get_view(self, view_class):
-        """ Returns a customised view """
-        inits = self.get_view_init_kwargs(view_class)
-        return view_class.as_view(**inits)
-
     def get_view_init_kwargs(self, view_class):
         return {
             'site': self,
@@ -77,6 +84,32 @@ class PageSite:
             'init_view_params': self.init_view_params,
             'url_kwargs': self.get_url_kwargs
         }
+
+    def can_access(self, request, view_class):
+        """
+        Checks whether the current requeset is valid. Allows checking for logged_in, permissions etc
+        :param view_obj:
+        :param request:
+        :return:
+        """
+        if view_class is views.PageInfoView:
+            # Check user logged in requirement
+            if not request.user.is_authenticated and self.view_requires_login:
+                return False
+            # Check all persmissions
+            for permission in self.view_requires_permissions:
+                if not request.user.has_perm(permission):
+                    return False
+        else:
+            if not request.user.is_authenticated and self.edit_requires_login:
+                return False
+            # Check all persmissions
+            for permission in self.edit_requires_permissions:
+                if not request.user.has_perm(permission):
+                    return False
+
+        return True
+
 
     @staticmethod
     def get_url_kwargs(view_obj):

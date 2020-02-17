@@ -136,7 +136,7 @@ class ReportPageMixin(AccessabilityMixin, ReportMixin, ReportPageMixinPrep):
     pass
 
 
-class ReportPageInfoView(AccessabilityMixin, ReportPageMixin, TemplateView):
+class ReportPageInfoView(ReportPageMixin, TemplateView):
     template_name = "reports/reportpage_detail.html"
 
 
@@ -205,7 +205,7 @@ class PDFTemplateView(AccessabilityMixin, TemplateResponseMixin, ContextMixin, V
         return {}
 
 
-class PrintPageAsPDFView(AccessabilityMixin, ReportPageMixin, PDFTemplateView):
+class PrintPageAsPDFView(ReportPageMixin, PDFTemplateView):
     template_name = "reports/pdf_page.html"
     file_name = 'Example_pdf_page_{report_page.id}'
 
@@ -225,12 +225,12 @@ class PrintPageAsPDFView(AccessabilityMixin, ReportPageMixin, PDFTemplateView):
         return options
 
 
-class PrintPageAsHTMLView(AccessabilityMixin, ReportPageMixin, TemplateView):
+class PrintPageAsHTMLView(ReportPageMixin, TemplateView):
     template_name = "reports/pdf_page.html"
     template_engine = "PDFTemplates"
 
 
-class PrintReportAsPDFView(AccessabilityMixin, ReportMixin, PDFTemplateView):
+class PrintReportAsPDFView(ReportMixin, PDFTemplateView):
     template_name = "reports/pdf_report.html"
     file_name = 'Example_report_{report.id}'
 
