@@ -167,7 +167,9 @@ ENV/
 
 uploads/
 Socrates/config.py
-created_reports/
+reports/created_reports/*
+!reports/created_reports/.gitkeep
+local_settings.py
 .idea/
 *.iml
 ignore/*
