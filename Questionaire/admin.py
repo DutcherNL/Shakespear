@@ -3,11 +3,14 @@ from django.conf import settings
 from django.db.models import ProtectedError
 
 from .models import *
+from tools.csv_translations import ExportCsvMixin
 
 # Register your models here.
 
 
-class QuestionAdmin(admin.ModelAdmin):
+class QuestionAdmin(ExportCsvMixin, admin.ModelAdmin):
+    exclude_csv_fields = ['options']
+    add_csv_fields = ['page_set']
 
     class QuestionAnwerOptionsInlines(admin.TabularInline):
         model = AnswerOption
@@ -52,7 +55,10 @@ class AnswerScoringFilter(admin.SimpleListFilter):
         return queryset
 
 
-class AnswerOptionAdmin(admin.ModelAdmin):
+class AnswerOptionAdmin(ExportCsvMixin, admin.ModelAdmin):
+    exclude_csv_fields = ['question']
+    add_csv_fields = ['question__name', 'question__question_type']
+
     class AnswerScoringInlines(admin.TabularInline):
         model = AnswerScoring
         extra = 0

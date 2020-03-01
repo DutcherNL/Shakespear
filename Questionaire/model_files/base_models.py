@@ -8,7 +8,7 @@ from Questionaire.processors import question_processors
 class Question(models.Model):
     """ A model for a question, can be of multiple types """
 
-    name = models.SlugField(max_length=10)
+    name = models.SlugField(max_length=25, unique=True)
     description = models.CharField(max_length=256)
     question_text = models.CharField(max_length=128)
     help_text = models.CharField(max_length=255, default="", blank=True, null=True)

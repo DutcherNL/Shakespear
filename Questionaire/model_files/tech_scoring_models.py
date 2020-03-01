@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Count, F
 from django.urls import reverse
+from django.utils.text import slugify
 
 from decimal import *
 
@@ -21,7 +22,8 @@ class ScoringDeclaration(models.Model):
 
 class Technology(models.Model):
     """ Gives all information related to a technology """
-    name = models.CharField(max_length=32)
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(max_length=50)
     short_text = models.CharField(max_length=256)
     icon = models.ImageField(blank=True, null=True)
     score_declarations = models.ManyToManyField(ScoringDeclaration,
@@ -36,6 +38,10 @@ class Technology(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, **kwargs):
+        self.slug = slugify(self.name)
+        return super(Technology, self).save(**kwargs)
 
     def get_score(self, inquiry=None):
         """ Returns the resulting score for the specefic technology
