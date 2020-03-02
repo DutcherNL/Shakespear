@@ -9,9 +9,6 @@ from tools.csv_translations import ExportCsvMixin
 
 
 class QuestionAdmin(ExportCsvMixin, admin.ModelAdmin):
-    exclude_csv_fields = ['options']
-    add_csv_fields = ['page_set']
-
     class QuestionAnwerOptionsInlines(admin.TabularInline):
         model = AnswerOption
         extra = 0
@@ -56,8 +53,7 @@ class AnswerScoringFilter(admin.SimpleListFilter):
 
 
 class AnswerOptionAdmin(ExportCsvMixin, admin.ModelAdmin):
-    exclude_csv_fields = ['question']
-    add_csv_fields = ['question__name', 'question__question_type']
+    exclude_csv_fields = ['image']
 
     class AnswerScoringInlines(admin.TabularInline):
         model = AnswerScoring
@@ -69,7 +65,9 @@ class AnswerOptionAdmin(ExportCsvMixin, admin.ModelAdmin):
     list_filter = ('question', AnswerScoringFilter)
 
 
-class TechnologyAdmin(admin.ModelAdmin):
+class TechnologyAdmin(ExportCsvMixin, admin.ModelAdmin):
+    exclude_csv_fields = ['icon', 'information_page']
+
     class TechScoreLinkInlines(admin.TabularInline):
         model = TechScoreLink
         extra = 1
@@ -125,13 +123,28 @@ class TechnologyAdmin(admin.ModelAdmin):
                       format(number=merge_succesful))
 
 
-class AnswerScoringAdmin(admin.ModelAdmin):
+class AnswerScoringAdmin(ExportCsvMixin, admin.ModelAdmin):
+    exclude_csv_fields = ['answer_option']
+    add_csv_fields = ['answer_option__question__name', 'answer_option__answer']
+
     class AnswerScoreNoteInlines(admin.TabularInline):
         model = AnswerScoringNote
         extra = 0
         filter_horizontal = ('exclude_on', 'include_on',)
 
     inlines = [AnswerScoreNoteInlines]
+
+
+class AnswerNoteAdmin(ExportCsvMixin, admin.ModelAdmin):
+    exclude_csv_fields = ['scoring']
+    add_csv_fields = ['scoring__answer_option__question__name',
+                      'scoring__answer_option__answer',
+                      'scoring__declaration__name']
+
+    filter_horizontal = ('exclude_on', 'include_on',)
+
+    list_display = ('__str__', 'scoring', 'technology',)
+    list_filter = ('technology',)
 
 
 class PageAdmin(admin.ModelAdmin):
@@ -152,11 +165,8 @@ class PageAdmin(admin.ModelAdmin):
     inlines = [PageTextsInlines, PageQuestionsInlines, PageReqTechUsefulnessInlines]
 
 
-class AnswerNoteAdmin(admin.ModelAdmin):
-    filter_horizontal = ('exclude_on', 'include_on',)
-
-    list_display = ('__str__', 'scoring', 'technology',)
-    list_filter = ('technology',)
+class ScoreDeclarationMixin(ExportCsvMixin, admin.ModelAdmin):
+    list_display = ('name', 'display_name', 'score_start_value',)
 
 
 class InquirerAdmin(admin.ModelAdmin):
@@ -172,7 +182,7 @@ class InquiryAdmin(admin.ModelAdmin):
 admin.site.register(Page, PageAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(AnswerOption, AnswerOptionAdmin)
-admin.site.register(ScoringDeclaration)
+admin.site.register(ScoringDeclaration, ScoreDeclarationMixin)
 admin.site.register(Technology, TechnologyAdmin)
 admin.site.register(TechGroup, TechnologyAdmin)
 admin.site.register(AnswerScoring, AnswerScoringAdmin)

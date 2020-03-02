@@ -2,16 +2,18 @@
 
 {% block object-tools-items %}
     {{ block.super }}
-    {% if has_add_permission %}
+    {% if perms.app.can_import_csv %}
         <li>
             <a href="import-csv/" class="addlink">
                 Import CSV
             </a>
         </li>
     {% endif %}
+    {% if perms.app.can_export_csv %}
     <li>
         <a href="export-csv/" class="viewlink">
             Export CSV
         </a>
     </li>
+    {% endif %}
 {% endblock %}
