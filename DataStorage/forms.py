@@ -78,12 +78,19 @@ class DataUploadForm(forms.ModelForm):
                                           format(data_type=repr(data_entry)))
         return cleaned_data
 
-    def save(self, commit=True):
+    def save(self, commit=True, return_with_errors=False):
         result = super(DataUploadForm, self).save(commit=commit)
-        false_entries = self.process_csv_file()
-        return result, false_entries
+        if commit:
+            false_entries = self.process_csv_file()
+        else:
+            false_entries = None
+        if return_with_errors:
+            return result, false_entries
+        else:
+            print(false_entries)
+            return result
 
-    def process_csv_file(self):
+    def process_csv_file(self, commit=True):
         """
         Processes the csv file and stores all data in that CSV file
         :return: A list of any possible entries that had an incorrect code
@@ -117,7 +124,8 @@ class DataUploadForm(forms.ModelForm):
 
         # Create a new batch identifier
         batch = self.instance
-        batch.save()
+        if commit:
+            batch.save()
 
         # Read all the data in the file
         data = read_as_csv(file, deliminator=deliminator)
@@ -136,8 +144,12 @@ class DataUploadForm(forms.ModelForm):
                 # Specific model was not valid, so shall not be saved, save the specific code for the log
                 faulty_codes.append(data[0])
             else:
-                code = StoredDataCode.objects.get_or_create(code_type=declarations[0],
-                                                            identification_code=data[0])[0]
+                if commit:
+                    code = StoredDataCode.objects.get_or_create(code_type=declarations[0],
+                                                                identification_code=data[0])[0]
+                else:
+                    code = StoredDataCode(code_type=declarations[0],
+                                          identification_code=data[0])
 
                 # Create all data entries on the object
                 if len(data) != len(declarations):
@@ -146,18 +158,19 @@ class DataUploadForm(forms.ModelForm):
                 for data_entry, data_decl in zip(data[1:], declarations[1:]):
                     # If data_entry does not have content, do not save it
                     if len(data_entry) > 0:
-                        sdc = StoredDataContent.objects.get_or_create(code=code, data_declaration=data_decl)[0]
-                        sdc.content = data_entry
-                        sdc.batch = batch
-                        sdc.save()
+                        if commit:
+                            sdc = StoredDataContent.objects.get_or_create(code=code, data_declaration=data_decl)[0]
+                            sdc.content = data_entry
+                            sdc.batch = batch
+                            sdc.save()
                     else:
                         empty_entries.append(data[0])
 
             # Read the next line and loop
             data = read_as_csv(file, deliminator=deliminator)
 
-        faults = {'codes': faulty_codes,
-                  'empty': empty_entries,
-                  'incomplete': incomplete_entries}
+        # Return  errors if any error is discovered
+        if len(faulty_codes + empty_entries + incomplete_entries) > 0:
+            return {'faulty_codes': faulty_codes, 'empty': empty_entries, 'incomplete': incomplete_entries}
 
-        return faults
+        return {'faulty_codes': faulty_codes, 'empty': empty_entries, 'incomplete': incomplete_entries}
