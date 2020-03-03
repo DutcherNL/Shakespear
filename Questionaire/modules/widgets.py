@@ -1,6 +1,6 @@
 from PageDisplay.module_widgets import BaseModuleWidget
 
-from Questionaire.models import Inquiry
+from Questionaire.models import Inquirer
 
 
 class TechScoreWidget(BaseModuleWidget):
@@ -9,12 +9,13 @@ class TechScoreWidget(BaseModuleWidget):
     def get_context(self, request=None, **kwargs):
         context = super(TechScoreWidget, self).get_context(request)
         context['technology'] = self.model.technology
+        context['inquiry'] = None
         if request:
             try:
-                inquiry_id = context['inquiry'] = request.session.get('inquiry_id', None)
-                if inquiry_id:
-                    context['inquiry'] = Inquiry.objects.get(id=inquiry_id)
-            except Inquiry.DoesNotExist:
+                inquirer_id = request.session.get('inquirer_id', None)
+                if inquirer_id:
+                    context['inquiry'] = Inquirer.objects.get(id=inquirer_id).active_inquiry
+            except Inquirer.DoesNotExist:
                 pass
 
         return context
