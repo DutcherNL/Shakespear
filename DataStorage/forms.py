@@ -173,4 +173,4 @@ class DataUploadForm(forms.ModelForm):
         if len(faulty_codes + empty_entries + incomplete_entries) > 0:
             return {'faulty_codes': faulty_codes, 'empty': empty_entries, 'incomplete': incomplete_entries}
 
-        return None
+        return {'faulty_codes': faulty_codes, 'empty': empty_entries, 'incomplete': incomplete_entries}

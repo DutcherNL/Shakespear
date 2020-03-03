@@ -28,14 +28,14 @@ class DataBatchAdmin(admin.ModelAdmin):
     def response_add(self, request, obj, post_url_continue=None):
         if self.csv_errors is None:
             return super(DataBatchAdmin, self).response_add(request, obj, post_url_continue)
-        return self.render_batch_errors(request)
+        return self.render_batch_errors(request, obj)
 
     def response_change(self, request, obj):
         if self.csv_errors is None:
             return super(DataBatchAdmin, self).response_change(request, obj)
-        return self.render_batch_errors(request)
+        return self.render_batch_errors(request, obj)
 
-    def render_batch_errors(self, request):
+    def render_batch_errors(self, request, obj):
         opts = self.model._meta
 
         print(self.media)
@@ -44,6 +44,7 @@ class DataBatchAdmin(admin.ModelAdmin):
             **self.admin_site.each_context(request),
             'module_name': str(opts.verbose_name_plural),
             'opts': opts,
+            'original': obj,
             'media': self.media,
             'actions_on_top': self.actions_on_top,
             'actions_on_bottom': self.actions_on_bottom,

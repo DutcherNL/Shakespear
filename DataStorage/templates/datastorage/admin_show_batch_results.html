@@ -51,7 +51,7 @@
         {% endif %}
 
         <div class="submit-row">
-            <p class="deletelink-box"><a href="{% add_preserved_filters delete_url %}" class="deletelink">Undo batch</a></p>
+            <p class="deletelink-box"><a href="{% url opts|admin_urlname:'delete' original.pk|admin_urlquote %}" class="deletelink">Undo batch</a></p>
             <p><a class="button closelink" style="background-color: #417690" href="{% url opts|admin_urlname:'changelist' %}">Continue</a></p>
         </div>
     </div>
