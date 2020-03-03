@@ -1,0 +1,22 @@
+    -   -   -   Phase 1
+Vernieuwde openingspagina
+    Footer met logo's
+    Contact pagina
+Questionaire view processing testcase
+
+Report live display
+
+
+    -   -   -   Phase 2
+Pop up bij icoontjes met hun naam als je erover beweegt met je muis
+Niet scrollen van links naar rechts bij de icoontjes maar dat ze onder elkaar komen te staan
+Login/ logout options
+Advanced Permission handling
+
+
+
+    -   -   -   Phase 3
+Automatische mails versturen
+Facebook sharing message, Linkedin sharing message
+Rewrite question pages to pagedisplay pages
+Plaatje in tekst op welkomscherm te kunnen verwerken
