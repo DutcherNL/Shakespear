@@ -18,7 +18,9 @@
 
 {% block nav-bar-options %}
     {% for name, url in header_buttons.items %}
-        <a class="btn btn-secondary" href="{{ url }}">
+        <a class="btn btn-secondary
+            {% if not url %} disabled {% endif %}
+            " href="{{ url }}">
             {{ name }}
         </a>
     {% endfor %}

@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 
 from reports.models import ReportPage
 from PageDisplay.sites import PageSite
+from PageDisplay.views import PageInfoView
 
 
 class ReportDesignSite(PageSite):
@@ -24,7 +25,10 @@ class ReportDesignSite(PageSite):
                 'report_slug': target_page.report.slug,
                 'report_page_id': target_page.id,
             }
-            return reverse('setup:reports:pages:edit_page', kwargs=url_kwargs)
+            if view_class == PageInfoView:
+                return reverse('setup:reports:pages:view_page', kwargs=url_kwargs)
+            else:
+                return reverse('setup:reports:pages:edit_page', kwargs=url_kwargs)
 
         def get_next_page_url(view_obj):
             target_page = ReportPage.objects. \
@@ -43,7 +47,6 @@ class ReportDesignSite(PageSite):
         buttons['Next page'] = get_next_page_url
         buttons['Previous page'] = get_prev_page_url
         buttons['Previous page'].get_next = False
-        print(buttons['Previous page'].get_next)
         return buttons
 
     @staticmethod
