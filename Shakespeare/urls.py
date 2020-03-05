@@ -19,7 +19,7 @@ from django.contrib import admin
 from django.urls import path, include
 from .index import index
 
-from Questionaire import views as q_views
+from Questionaire.techpages import tech_page_site
 
 urlpatterns = [
     path('', index, name='index'),
@@ -29,6 +29,5 @@ urlpatterns = [
     path('mails/', include('mailing.urls')),
     path('pages/', include('PageDisplay.urls')),
     path('data/', include('DataStorage.urls')),
-    path('techs/', include('PageDisplay.urls')),
-    path('techs/<int:tech_id>', q_views.TechDetailsView.as_view(), name='tech_details'),
+    path('techs/<slug:slug>/', tech_page_site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -69,7 +69,7 @@ class Technology(models.Model):
 
     def get_absolute_url(self):
         if self.information_page:
-            return reverse('tech_details', kwargs={'tech_id': self.id})
+            return reverse('technologies:view_page', kwargs={'slug': self.slug})
         else:
             return None
 

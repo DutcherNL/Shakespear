@@ -99,7 +99,7 @@ class PageInfoView(PageMixin, TemplateView):
     def init_params(self, **kwargs):
         super(PageInfoView, self).init_params(**kwargs)
 
-        if self.site is not None:
+        if self.site is not None and self.site.editable:
             # Create the Edit Page button
             namespace = self.request.resolver_match.namespace
             self.header_buttons['Edit Page'] = reverse(namespace+':edit_page', kwargs=kwargs, current_app=namespace)

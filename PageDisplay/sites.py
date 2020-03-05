@@ -7,7 +7,6 @@ from PageDisplay import views
 from PageDisplay.module_registry import registry
 from PageDisplay.models import Page
 
-
 __all__ = ['PageSite']
 
 
@@ -16,8 +15,9 @@ class PageSite:
     The PageSite object encapsulates an instance of the PageDisplay application
     """
     name = 'pages'
-    extends = None
+    extends_template = None
     use_overview = True
+    editable = True
     use_page_keys = True
     template_engine = None
     site_context_fields = []
@@ -44,6 +44,7 @@ class PageSite:
                 # Construct the view
                 init_values = self.get_view_init_kwargs(view_class)
                 return view_class.as_view(**init_values)(request, *args, **kwargs)
+
             return update_wrapper(wrapper, view_class)
 
         urlpatterns = []
@@ -58,28 +59,38 @@ class PageSite:
         else:
             url_string = ''
 
-        urlpatterns += [
-            path(url_string, include([
-                path('', wrap(views.PageInfoView), name='view_page'),
-                path('edit/', include([
-                    path('', wrap(views.PageAlterView), name='edit_page'),
-                    path('settings/', wrap(views.PageAlterSettingsView), name='edit_page_settings'),
-                    path('add/<int:container_id>/', wrap(views.PageAddModuleView), name='edit_page_add'),
-                    path('<int:module_id>/', include([
-                        path('', wrap(views.PageAlterModuleView), name='edit_page'),
-                        path('move/', wrap(views.PageMoveModuleView), name='edit_page_move_module'),
-                        path('delete/', wrap(views.PageDeleteModuleView), name='edit_page_delete_module'),
-                    ])),
+        if self.editable:
+            edit_urls = path('edit/', include([
+                path('', wrap(views.PageAlterView), name='edit_page'),
+                path('settings/', wrap(views.PageAlterSettingsView), name='edit_page_settings'),
+                path('add/<int:container_id>/', wrap(views.PageAddModuleView), name='edit_page_add'),
+                path('<int:module_id>/', include([
+                    path('', wrap(views.PageAlterModuleView), name='edit_page'),
+                    path('move/', wrap(views.PageMoveModuleView), name='edit_page_move_module'),
+                    path('delete/', wrap(views.PageDeleteModuleView), name='edit_page_delete_module'),
                 ])),
-            ])),
-        ]
+            ]))
+
+            urlpatterns += [
+                path(url_string, include([
+                    path('', wrap(views.PageInfoView), name='view_page'),
+                    edit_urls
+                ])),
+            ]
+        else:
+            urlpatterns += [
+                path(url_string, include([
+                    path('', wrap(views.PageInfoView), name='view_page')
+                ]
+                )),
+            ]
 
         return urlpatterns
 
     def get_view_init_kwargs(self, view_class):
         return {
             'site': self,
-            'extends': self.extends,
+            'extends': self.extends_template,
             'header_buttons': self.get_header_buttons(view_class),
             'init_view_params': self.init_view_params,
             'url_kwargs': self.get_url_kwargs
