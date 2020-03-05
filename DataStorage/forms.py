@@ -87,7 +87,6 @@ class DataUploadForm(forms.ModelForm):
         if return_with_errors:
             return result, false_entries
         else:
-            print(false_entries)
             return result
 
     def process_csv_file(self, commit=True):
@@ -128,49 +127,47 @@ class DataUploadForm(forms.ModelForm):
             batch.save()
 
         # Read all the data in the file
-        data = read_as_csv(file, deliminator=deliminator)
-        faulty_codes = []
-        incomplete_entries = []
-        empty_entries = []
+        if commit:
+            i = 0
+            data = read_as_csv(file, deliminator=deliminator)
 
-        while data is not None:
-            # Create the Data code root object
-            code = StoredDataCode(code_type=declarations[0], identification_code=data[0])
+            faulty_codes = []
+            incomplete_entries = []
+            empty_entries = []
 
-            # Test that the code is valid, if so, process it. Otherwise don't.
-            try:
-                code.full_clean()
-            except ValidationError:
-                # Specific model was not valid, so shall not be saved, save the specific code for the log
-                faulty_codes.append(data[0])
-            else:
-                if commit:
+            while data is not None:
+                # Create the Data code root object
+                code = StoredDataCode(code_type=declarations[0], identification_code=data[0])
+
+                # Test that the code is valid, if so, process it. Otherwise don't.
+                try:
+                    code.full_clean()
+                except ValidationError:
+                    # Specific model was not valid, so shall not be saved, save the specific code for the log
+                    faulty_codes.append(data[0])
+                else:
                     code = StoredDataCode.objects.get_or_create(code_type=declarations[0],
                                                                 identification_code=data[0])[0]
-                else:
-                    code = StoredDataCode(code_type=declarations[0],
-                                          identification_code=data[0])
 
-                # Create all data entries on the object
-                if len(data) != len(declarations):
-                    incomplete_entries.append(data[0])
+                    # Create all data entries on the object
+                    if len(data) != len(declarations):
+                        incomplete_entries.append(data[0])
 
-                for data_entry, data_decl in zip(data[1:], declarations[1:]):
-                    # If data_entry does not have content, do not save it
-                    if len(data_entry) > 0:
-                        if commit:
+                    for data_entry, data_decl in zip(data[1:], declarations[1:]):
+                        # If data_entry does not have content, do not save it
+                        if len(data_entry) > 0:
                             sdc = StoredDataContent.objects.get_or_create(code=code, data_declaration=data_decl)[0]
                             sdc.content = data_entry
                             sdc.batch = batch
                             sdc.save()
-                    else:
-                        empty_entries.append(data[0])
+                        else:
+                            empty_entries.append(data[0])
 
-            # Read the next line and loop
-            data = read_as_csv(file, deliminator=deliminator)
+                # Read the next line and loop
+                data = read_as_csv(file, deliminator=deliminator)
 
-        # Return  errors if any error is discovered
-        if len(faulty_codes + empty_entries + incomplete_entries) > 0:
-            return {'faulty_codes': faulty_codes, 'empty': empty_entries, 'incomplete': incomplete_entries}
+            # Return  errors if any error is discovered
+            if len(faulty_codes + empty_entries + incomplete_entries) > 0:
+                return {'faulty_codes': faulty_codes, 'empty': empty_entries, 'incomplete': incomplete_entries}
 
         return None

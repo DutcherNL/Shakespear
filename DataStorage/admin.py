@@ -38,8 +38,6 @@ class DataBatchAdmin(admin.ModelAdmin):
     def render_batch_errors(self, request, obj):
         opts = self.model._meta
 
-        print(self.media)
-
         context = {
             **self.admin_site.each_context(request),
             'module_name': str(opts.verbose_name_plural),
