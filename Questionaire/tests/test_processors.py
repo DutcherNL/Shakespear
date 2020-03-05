@@ -151,3 +151,20 @@ class TextFormattingFromDbTestCase(TestCase):
         test_message = format_from_database(message, inquiry=inquiry)
         correct_message = message.format(q_ChoiceQ1__code=code_answer)
         self.assertEqual(test_message, correct_message)
+
+    def test_question_regex_filter(self):
+        q_name = 'q_Postcode__regex=[0-9]/{4/}'
+        message = "The code of tech_1_score is {"+q_name+"}"
+
+        inquiry = set_up_inquiry()
+        question = Question.objects.create(name="Postcode", question_type=Question.TYPE_OPEN)
+
+        test_message = format_from_database(message, inquiry=inquiry)
+        correct_message = message.replace('{'+q_name+'}', "")
+        self.assertEqual(test_message, correct_message)
+
+        iqa = InquiryQuestionAnswer.objects.create(question=question, inquiry=inquiry, answer="5612AH")
+
+        test_message = format_from_database(message, inquiry=inquiry)
+        correct_message = message.replace('{'+q_name+'}', "5612")
+        self.assertEqual(test_message, correct_message)
