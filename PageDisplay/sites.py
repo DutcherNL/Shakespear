@@ -110,7 +110,6 @@ class PageSite:
 
         return True
 
-
     @staticmethod
     def get_url_kwargs(view_obj):
         """ A method that extracts all the required url arguments from the view object 'view_obj'.
