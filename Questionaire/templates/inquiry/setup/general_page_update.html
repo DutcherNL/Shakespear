@@ -1,0 +1,24 @@
+{% extends 'base_with_body.html' %}
+
+{% load django_bootstrap_breadcrumbs  %}
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Setup" "setup:home" %}
+    {% breadcrumb "General pages" "setup:general_pages_list" %}
+    {% breadcrumb breadcrumb_name breadcrumb_url_name %}
+
+{% endblock %}
+
+{% block body %}
+    <form method="post">{% csrf_token %}
+        {% include "snippets/bootstrap_form.html" %}
+        <div class="row">
+            <div class="offset-3 col-9 btn-group ">
+                <input class="btn-primary btn" type="submit" value="Update">
+                <a href="{% url 'setup:tech_list' %}" class="btn btn-secondary">
+                    Annuleren
+                </a>
+            </div>
+        </div>
+    </form>
+{% endblock %}

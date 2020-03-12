@@ -15,5 +15,11 @@ urlpatterns = [
             path('page/', page_site.urls)
         ])),
     ])),
-    path('reports/', include('reports.urls'))
+    path('reports/', include('reports.urls')),
+    path('general/', include([
+        path('', views.GeneralPageListView.as_view(), name='general_pages_list'),
+        path('<slug:slug>/', include([
+            path('edit/', views.UpdateGeneralPageView.as_view(), name='general_page_edit')
+        ])),
+    ])),
 ]

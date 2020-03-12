@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
+from general.models import BasePageURL
 from Questionaire.models import Technology
 from Questionaire.widgets import IconInput
 from Questionaire.setup.forms import CreatePageForTechForm
@@ -74,3 +75,24 @@ class CreateTechPageView(AccessabilityMixin, TechnologyMixin, FormView):
                        kwargs={'tech_id': self.technology.id},
                        current_app=self.request.resolver_match.namespace)
 
+
+class GeneralPageListView(AccessabilityMixin, ListView):
+    template_name = "inquiry/setup/general_page_overview.html"
+    context_object_name = "pages"
+    model = BasePageURL
+
+
+class UpdateGeneralPageView(AccessabilityMixin, UpdateView):
+    template_name = "inquiry/setup/general_page_update.html"
+    pk_url_kwarg = "tech_id"
+    model = BasePageURL
+    fields = ['name', 'slug', 'description', 'in_footer', 'footer_order']
+
+    def get_context_data(self, **kwargs):
+        context = super(UpdateGeneralPageView, self).get_context_data(**kwargs)
+        context['breadcrumb_name'] = f"Edit {self.object.name}"
+        context['breadcrumb_url_name'] = "create_page"
+        return context
+
+    def get_success_url(self):
+        return reverse('setup:general_pages_list')

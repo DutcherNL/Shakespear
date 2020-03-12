@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'django_bootstrap_breadcrumbs',
 
+    'general.apps.ShakespeareGeneralConfig',
     'Questionaire.apps.QuestionaireConfig',
     'DataStorage.apps.DataStorageConfig',
     'PageDisplay.apps.PagedisplayConfig',
