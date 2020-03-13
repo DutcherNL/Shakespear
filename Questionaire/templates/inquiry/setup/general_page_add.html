@@ -5,8 +5,7 @@
     {{ block.super }}
     {% breadcrumb "Setup" "setup:home" %}
     {% breadcrumb "General pages" "setup:general_pages_list" %}
-    {% breadcrumb object.name "" %}
-    {% breadcrumb "Edit" breadcrumb_url_name %}
+    {% breadcrumb "Add" "" %}
 
 {% endblock %}
 
@@ -15,12 +14,9 @@
         {% include "snippets/bootstrap_form.html" %}
         <div class="row">
             <div class="offset-3 col-9 btn-group ">
-                <input class="btn-primary btn" type="submit" value="Update">
+                <input class="btn-primary btn" type="submit" value="Add page">
                 <a href="{% url 'setup:tech_list' %}" class="btn btn-secondary">
                     Annuleren
-                </a>
-                <a href="{% url 'setup:general_page_delete' slug=object.slug %}" class="btn btn-danger">
-                    Delete
                 </a>
             </div>
         </div>

@@ -1,8 +1,8 @@
 from django.views.generic import TemplateView, ListView, FormView
-from django.views.generic.edit import UpdateView
+from django.views.generic.edit import UpdateView, DeleteView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 
 from general.models import BasePageURL
 from Questionaire.models import Technology
@@ -82,6 +82,13 @@ class GeneralPageListView(AccessabilityMixin, ListView):
     model = BasePageURL
 
 
+class AddGeneralPageView(AccessabilityMixin, CreateView):
+    model = BasePageURL
+    success_url = reverse_lazy('setup:general_pages_list')
+    template_name = "inquiry/setup/general_page_add.html"
+    fields = ['name', 'slug', 'description', 'in_footer', 'footer_order']
+
+
 class UpdateGeneralPageView(AccessabilityMixin, UpdateView):
     template_name = "inquiry/setup/general_page_update.html"
     pk_url_kwarg = "tech_id"
@@ -96,3 +103,9 @@ class UpdateGeneralPageView(AccessabilityMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('setup:general_pages_list')
+
+
+class DeleteGeneralPageView(DeleteView):
+    model = BasePageURL
+    success_url = reverse_lazy('setup:general_pages_list')
+    template_name = "inquiry/setup/general_page_delete.html"

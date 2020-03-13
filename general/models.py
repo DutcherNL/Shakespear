@@ -10,7 +10,7 @@ class BasePageURL(models.Model):
     slug = models.SlugField(max_length=60, default="", unique=True, blank=True,
                             help_text="De naam in de url, laat leeg om automatisch te genereren ut de titel")
     description = models.CharField(default="", max_length=128)
-    in_footer = models.BooleanField(default=True)
+    in_footer = models.BooleanField(default=True, verbose_name="Whether the page is linked in the footer")
     footer_order = models.IntegerField(default=0, verbose_name="Order of appearance in the footer")
 
     page = models.ForeignKey('PageDisplay.Page', on_delete=models.CASCADE, blank=True, editable=False)
@@ -30,3 +30,9 @@ class BasePageURL(models.Model):
 
     def __str__(self):
         return self.name
+
+    def delete(self, **kwargs):
+        page = self.page
+        result = super(BasePageURL, self).delete(**kwargs)
+        page.delete()
+        return result

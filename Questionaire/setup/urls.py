@@ -18,8 +18,10 @@ urlpatterns = [
     path('reports/', include('reports.urls')),
     path('general/', include([
         path('', views.GeneralPageListView.as_view(), name='general_pages_list'),
+        path('add/', views.AddGeneralPageView.as_view(), name='general_page_add'),
         path('<slug:slug>/', include([
-            path('edit/', views.UpdateGeneralPageView.as_view(), name='general_page_edit')
+            path('edit/', views.UpdateGeneralPageView.as_view(), name='general_page_edit'),
+            path('delete/', views.DeleteGeneralPageView.as_view(), name='general_page_delete'),
         ])),
     ])),
 ]

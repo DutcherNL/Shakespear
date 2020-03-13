@@ -9,14 +9,14 @@
 {% endblock %}
 
 {% block body %}
-    <h1>Technologies</h1>
+    <h1>General site pages</h1>
     <div class="table-responsive">
         <table class="table table-hover">
             <thead>
             <tr class="font-weight-bold">
                 <td style="min-width: 10rem">Name</td>
-                <td style="min-width: 10rem">Settings</td>
                 <td style="">In footer</td>
+                <td style="min-width: 10rem">Settings</td>
                 <td style="min-width: 15rem;">Page</td>
             </tr>
             </thead>
@@ -27,12 +27,12 @@
                         <b>{{ page.name }}</b><br>{{ page.description }}
                     </td>
                     <td>
+                        {{ page.in_footer }}
+                    </td>
+                    <td>
                         <a href="{% url 'setup:general_page_edit' slug=page.slug %}" class="btn btn-primary btn-block">
                             Settings
                         </a>
-                    </td>
-                    <td>
-                        {{ page.in_footer }}
                     </td>
                     <td>
                         <div class="btn-group w-100" role="group" aria-label="Opties">
@@ -47,11 +47,12 @@
                 </tr>
             {% empty %}
                 <td rowspan="3">
-                    No spaces yet
+                    No pages yet
                 </td>
             {% endfor %}
             </tbody>
         </table>
+        <a class="btn btn-block btn-primary" href="{% url "setup:general_page_add" %}">Add new page</a>
     </div>
 
 {% endblock %}
