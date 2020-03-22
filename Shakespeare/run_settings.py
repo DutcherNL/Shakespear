@@ -3,7 +3,7 @@
 SHOW_DEBUG_CLASSES = True
 
 # Display the actual progress scores in the view
-DISPLAY_TECH_SCORES_IN_VIEW = True
+DISPLAY_TECH_SCORES_IN_VIEW = False
 
 DOMAIN_NAME = ""
 

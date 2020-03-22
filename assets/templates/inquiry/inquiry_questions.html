@@ -1,5 +1,10 @@
 {% extends 'base_with_body.html' %}
 
+{% block css %}
+    {{ block.super }}
+    <link href="{% static "css/progress_tabs.css" %}" rel="stylesheet">
+{% endblock %}
+
 {% block body %}
     <h1 class="row col-12">Vragen</h1>
     <form method="post" class="row">
@@ -26,7 +31,7 @@
     </form>
 
 
-    <h1 class="mt-4">Voortgang</h1>
+    <br>
     {% include "inquiry/snippets/progress_tabs.html" %}
 {% endblock %}
 

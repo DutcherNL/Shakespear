@@ -1,31 +1,52 @@
 {% load score_result_tags %}
 {% load static %}
 
-<div class="table-responsive">
-<table class="table tab border-0">
-    <tbody>
-        <tr>
-            {% for technology in techs %}
-                <td class="m-0 p-0 border-0">
-                    <button onclick="toggleTab(event, 'tech_{{ technology.id }}')" class="tablinks
+{# Top title tap #}
+<div class="skp_progress_titlebox">
+    <span class="h1">
+        Voortgang
+    </span>
+</div>
+
+
+
+<div onmouseout="hideTitle(event)">
+
+    {# Display the current hovered technology #}
+    <div class="skp_progress_hover_display d-none d-md-block">
+
+    </div>
+
+    {# The technology buttons #}
+    <div class="skp_progress_button_container" style="">
+        {% for technology in techs %}
+            <div class="col col-md-2 p-0 tab"
+                 style="min-width: 80px;">
+                <div class="skp_progress_button
                     {% with technology|get_tech_score:inquiry as score %}
                         {% if score == technology.TECH_SUCCESS %} accept
                         {% elif score == technology.TECH_FAIL %} deny
                         {% elif score == technology.TECH_VARIES %} maybe
                         {% endif %}
-                    {% endwith %}
-                    ">
-                    {% if technology.icon %}
-                        <img src="{{ technology.icon.url }}" width="50" height="50">
-                    {% endif %}
-                    </button>
-                </td>
-            {% endfor %}
-        </tr>
-    </tbody>
-</table>
+                     {% endwith %}"
+                        style="display:flex;justify-content:center;align-items:center;"
+                        onclick="toggleTab(event, 'tech_{{ technology.id }}')"
+                        onmouseover="showTitle(event, '{{ technology.name }}')">
+                    <div  class="m-auto">
+                        {% if technology.icon %}
+                            <img src="{{ technology.icon.url }}" width="50" height="50">
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+        {% endfor %}
+    </div>
+
 </div>
 
+
+{# Technology information #}
 {% for technology in techs %}
     <div id="tech_{{ technology.id }}" class="tabcontent">
         {% include "inquiry/inquiry_snippets/snippet_tech_group_info.html" %}
@@ -36,37 +57,40 @@
             <table class="table table-hover">
                 {# Table header #}
                 <thead>
-                    <tr class="">
-                        <td style="min-width: 10rem">Name</td>
-                        <td style="min-width: 10rem;">Score</td>
-                        <td>Threshold approve</td>
-                        <td>Threshold deny</td>
-                    </tr>
+                <tr class="">
+                    <td style="min-width: 10rem">Name</td>
+                    <td style="min-width: 10rem;">Score</td>
+                    <td>Threshold approve</td>
+                    <td>Threshold deny</td>
+                </tr>
                 </thead>
 
                 <tbody>
-                    {% for tech_score_link in technology.techscorelink_set.all %}
-                        <tr>
-                            <td>
-                                {{ tech_score_link.score_declaration.name }}
-                            </td>
-                            <td>
-                                {% with tech_score_link|get_as_score:inquiry as score %}
-                                    {{ score.score }}
-                                {% endwith %}
-                            </td>
-                            <td>
-                                {{ tech_score_link.score_threshold_approve }}
-                            </td>
-                            <td>
-                                {{ tech_score_link.score_threshold_deny }}
-                            </td>
-                        </tr>
-                    {% endfor %}
+                {% for tech_score_link in technology.techscorelink_set.all %}
+                    <tr>
+                        <td>
+                            {{ tech_score_link.score_declaration.name }}
+                        </td>
+                        <td>
+                            {% with tech_score_link|get_as_score:inquiry as score %}
+                                {{ score.score }}
+                            {% endwith %}
+                        </td>
+                        <td>
+                            {{ tech_score_link.score_threshold_approve }}
+                        </td>
+                        <td>
+                            {{ tech_score_link.score_threshold_deny }}
+                        </td>
+                    </tr>
+                {% endfor %}
                 </tbody>
             </table>
         {% endif %}
     </div>
 {% endfor %}
 
-<script src="{% static "javascript/tabs_script.js" %}"></script>
+<script src="{% static "javascript/progress_tabs_script.js" %}"></script>
+
+
+

@@ -1,0 +1,71 @@
+/* Style the tab */
+
+.skp_progress_titlebox{
+    padding-bottom: 13px;
+}
+
+.skp_progress_titlebox span{
+    border-radius: 15px 15px 0 0;
+    border: 1px solid #ccc;
+    padding: 0px 0.5em 10px 5px;
+}
+
+.skp_progress_container{
+    width: 100%;
+    border-radius: 0 15px 15px 15px;
+    border: 1px solid #ccc;
+    overflow: hidden;
+}
+
+.skp_progress_button_container{
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    border: 1px solid #ccc;
+}
+
+.skp_progress_hover_display{
+    padding: 0.2em 0 0.2em 10px;
+    border: 1px solid #ccc;
+    box-sizing: content-box;
+    height: 1.5em;
+}
+
+/* Style the buttons inside the tab */
+.skp_progress_button{
+    background-color: white;
+    border: 3px solid #eee;
+    cursor: pointer;
+}
+
+/* Change background color of buttons on hover */
+.skp_progress_button:hover{
+    border-color: #ccc;
+}
+
+/* Create an active/current tablink class */
+.skp_progress_button.active {
+    border-color: #007bff;
+}
+
+.skp_progress_button.accept {
+    background-color: #80b139;
+}
+
+.skp_progress_button.deny {
+    background-color: #d9534f;
+}
+
+.skp_progress_button.maybe {
+    background-color: #FFA500;
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+}
