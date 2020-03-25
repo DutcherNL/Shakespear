@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'PageDisplay.apps.PagedisplayConfig',
     'reports.apps.ReportsConfig',
     'mailing.apps.MailingConfig',
+    'questionaire_mailing',
 
 
 

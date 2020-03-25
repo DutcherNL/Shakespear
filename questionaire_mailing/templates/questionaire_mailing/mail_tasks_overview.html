@@ -1,0 +1,62 @@
+{% extends 'base_with_body.html' %}
+
+{% load django_bootstrap_breadcrumbs  %}
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Setup" "setup:home" %}
+    {% breadcrumb "Mail tasks" "setup:mailings:overview" %}
+
+{% endblock %}
+
+{% block body %}
+    <h1>Mailing tasks</h1>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+            <tr class="font-weight-bold">
+                <td style="min-width: 10rem">Name</td>
+                <td>Info</td>
+                <td style="">Active</td>
+                <td>Settings</td>
+                <td style="min-width: 15rem;">Layout</td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for mail_task in mails %}
+                <tr>
+                    <td>
+                        <b>{{ mail_task.name }}</b><br>{{ page.description }}
+                    </td>
+                    <td>
+                        {{ mail_task.type }} / {{ mail_task.get_as_child.days_after }} dagen na {{ mail_task.get_as_child.trigger }}
+                    </td>
+                    <td>
+                        {{ mail_task.active }}
+                    </td>
+                    <td>
+                        <a href="{% url 'setup:mailings:update' mail_id=mail_task.id %}" class="btn btn-primary">
+                            Edit settings
+                        </a>
+                    </td>
+                    <td>
+                        <div class="btn-group w-100" role="group" aria-label="Opties">
+                            <a href="{% url 'setup:mailings:pages:view_page' mail_id=mail_task.id %}" class="btn btn-secondary">
+                                View mail
+                            </a>
+                            <a href="{% url 'setup:mailings:pages:edit_page' mail_id=mail_task.id %}" class="btn btn-warning">
+                                Edit mail
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            {% empty %}
+                <td rowspan="3">
+                    No pages yet
+                </td>
+            {% endfor %}
+            </tbody>
+        </table>
+        <a class="btn btn-block btn-primary" href="{% url "setup:mailings:add_timed" %}">Add timed mail task</a>
+    </div>
+
+{% endblock %}

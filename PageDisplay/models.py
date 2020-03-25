@@ -141,7 +141,23 @@ class Page(models.Model):
         :param kwargs: Other kwarg arguments that can be used somewhere in the render process (= contents of context)
         :return:
         """
-        return self.renderer(page=self).render(**kwargs)
+        # Give priority if the renderer is in the kwarg arguments
+        renderer = kwargs.pop('renderer', self.renderer)
+        return renderer(page=self).render(**kwargs)
+
+    def add_basic_module(self, moduleclass, **kwargs):
+        """
+        Adds the basic module to the layout. Should be used to add some default modules without having to concern about
+        the structure of the page.
+        :param moduleclass: The class that the module needs to be
+        :param kwargs: The keyword arguments used for module class initiation
+        :return: Returns the created module
+        """
+        assert 'information' not in kwargs.keys()
+
+        module = moduleclass(information=self.layout, **kwargs)
+        module.save()
+        return module
 
 
 class BaseModule(models.Model):
