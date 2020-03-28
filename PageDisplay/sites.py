@@ -27,6 +27,10 @@ class PageSite:
     view_requires_permissions = []
     edit_requires_permissions = []
 
+    # Limit the creation of modules that can be created
+    include_modules = None
+    exclude_modules = None
+
     @property
     def urls(self):
         return self.get_urls(), 'PageDisplay', self.name
@@ -160,7 +164,11 @@ class PageSite:
 
     def get_availlable_modules(self):
         """ Returns availlable modules """
-        return registry.get_all_modules()
+        if self.include_modules and self.exclude_modules:
+            raise AssertionError("get_module_list in module registry can not have both an include and exclude list")
+
+        return registry.get_module_list(include=self.include_modules,
+                                        exclude=self.exclude_modules)
 
 
 page_site = PageSite()

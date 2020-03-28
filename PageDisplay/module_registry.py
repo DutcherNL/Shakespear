@@ -20,13 +20,23 @@ class ModuleRegister:
         # Store the module locally
         self._modules[module._type_id] = module
 
-    def get_all_modules(self):
+    def get_module_list(self, include=None, exclude=None):
         """
         :return: Returns all registered modules (class)
         """
+        if include and exclude:
+            raise AssertionError("get_module_list in module registry can not have both an include and exclude list")
+
+        # Set exclude as default list
+        exclude = exclude or []
+
         modules = []
         for key, module in self._modules.items():
-            modules.append(module)
+            if include:
+                if module.__name__ in include:
+                    modules.append(module)
+            elif module.__name__ not in exclude:
+                modules.append(module)
 
         return modules
 

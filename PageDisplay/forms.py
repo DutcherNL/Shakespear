@@ -55,7 +55,7 @@ def get_module_choices(site):
     """ Returns a list of all availlable modules that can be selected """
     module_list = []
     if site is None:
-        module_classes = registry.get_all_modules()
+        module_classes = registry.get_module_list()
     else:
         module_classes = site.get_availlable_modules()
 

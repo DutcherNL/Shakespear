@@ -11,6 +11,7 @@ class MailSite(PageSite):
     use_page_keys = False
     breadcrumb_trail_template = "questionaire_mailing/snippet_breadcrumb_trail_mailings.html"
     site_context_fields = ['mail_task']
+    include_modules = ['TextModule', 'TitleModule']
 
     @staticmethod
     def init_view_params(view_obj, **kwargs):

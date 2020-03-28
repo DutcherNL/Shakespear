@@ -31,9 +31,6 @@ class ModuleContainer(models.Model):
                    'template_engine':  kwargs.get('template_engine', None),
                    }
 
-        #todo remove
-        print(f'container render: {context}')
-
         return context
     
     def render(self, **kwargs):
@@ -44,7 +41,7 @@ class ModuleContainer(models.Model):
         :return: A rendered HTML Template
         """
         child = self.get_as_child()
-        if child == self:
+        if child == self and self.__class__ == ModuleContainer:
             return "Base container :/"
         return child._render(**kwargs)
 
