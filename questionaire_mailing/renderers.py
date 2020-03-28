@@ -1,5 +1,21 @@
 from PageDisplay.renderers import BasePageRenderer
+from PageDisplay.models import TextModule, TitleModule
+from questionaire_mailing.module_widgets.module_widgets import *
 
 
-class MailRenderer(BasePageRenderer):
-    template_name = "questionaire_mailing/mails/base.html"
+class MailHTMLRenderer(BasePageRenderer):
+    template_name = "questionaire_mailing/mails/base_html.html"
+
+    replaced_module_widgets = [
+        (TitleModule, MailedHTMLTitleWidget),
+        (TextModule, MailedHTMLTextWidget)
+    ]
+
+
+class MailPlainRenderer(BasePageRenderer):
+    template_name = "questionaire_mailing/mails/base_plain.txt"
+
+    replaced_module_widgets = [
+        (TitleModule, MailedPlainTitleWidget),
+        (TextModule, MailedPlainTextWidget)
+    ]

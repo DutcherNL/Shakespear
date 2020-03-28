@@ -1,0 +1,6 @@
+{% load page_tags %}
+{% render_module page.layout %}
+
+----
+
+Wilt u geen e-mails meer ontvangen? Dan kunt u zich afmelden bij uw instellingen.

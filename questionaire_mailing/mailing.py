@@ -1,13 +1,15 @@
 from django.core.mail import EmailMultiAlternatives, get_connection
-from django.template.loader import get_template, TemplateDoesNotExist
+
+from questionaire_mailing.renderers import MailPlainRenderer
 
 
 def construct_and_send_mail(mail_page, context, to, **kwargs):
-    rendered_page = mail_page.render(**context)
+    rendered_html_page = mail_page.render(**context)
+    rendered_plain_page = mail_page.render(renderer=MailPlainRenderer, **context)
 
     send_mail(subject=mail_page.title,
-              txt_template="Temporary placeholder",
-              html_template=rendered_page,
+              txt_template=rendered_plain_page,
+              html_template=rendered_html_page,
               to=[to], **kwargs)
     pass
 

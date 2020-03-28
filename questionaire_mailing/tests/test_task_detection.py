@@ -60,6 +60,8 @@ class TimedMailTaskTest(TestCase):
         self.assertEqual(mail_obj.subject, self.timed_task_1.layout.title)
         self.assertEqual(mail_obj.alternatives[0][1], 'text/html')
 
+        print(mail_obj.message())
+
 
 
 

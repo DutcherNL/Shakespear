@@ -5,14 +5,14 @@ from django.utils import timezone
 
 from Questionaire.models import Inquiry
 from PageDisplay.models import Page, TextModule
-from questionaire_mailing.renderers import MailRenderer
+from questionaire_mailing.renderers import MailHTMLRenderer
 
 from questionaire_mailing.mailing import construct_and_send_mail
 
 
 class MailPage(Page):
     title = models.CharField(max_length=100)
-    renderer = MailRenderer
+    renderer = MailHTMLRenderer
 
 
 class MailTask(models.Model):
