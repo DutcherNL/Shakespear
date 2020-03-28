@@ -23,12 +23,16 @@ class ModuleContainer(models.Model):
                    'overlay': overlay,
                    'page_id': page_id,
                    'current_container': self,
+                   'renderer': kwargs.get('renderer', None),
                    'spacer': kwargs.get('spacer', None),
                    'active_container': kwargs.get('active_container', None),
                    'selected_module': kwargs.get('selected_module', None),
                    'url_kwargs': kwargs.get('url_kwargs', None),
                    'template_engine':  kwargs.get('template_engine', None),
                    }
+
+        #todo remove
+        print(f'container render: {context}')
 
         return context
     
@@ -217,6 +221,7 @@ class BaseModule(models.Model):
         child = self.get_child()
         # Load the widget
         widget_inst = child._init_widget(widget)
+        print(f'widget: {widget_inst}')
         # Load the widget and render it
         return child._render(widget_inst, request, **kwargs)
 

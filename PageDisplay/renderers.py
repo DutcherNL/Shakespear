@@ -4,6 +4,8 @@ from django.template.loader import get_template
 class BasePageRenderer:
     template_name = "pagedisplay/modules/page.html"
 
+    replaced_module_widgets = []
+
     def __init__(self, page=None):
         self.page = page
 
@@ -27,6 +29,7 @@ class BasePageRenderer:
                    'overlay': overlay,
                    'page_id': page_id,
                    'page': self.page,
+                   'renderer': self,
                    'spacer': kwargs.get('spacer', None),
                    'current_container': self,
                    'active_container': kwargs.get('active_container', None),
@@ -35,3 +38,11 @@ class BasePageRenderer:
                    'template_engine':  kwargs.get('template_engine', None),
                    }
         return context
+
+    @property
+    def replaced_widgets_dict(self):
+        """ Construct a dictionairy of modules with theire altered widgets """
+        dict = {}
+        for couple in self.replaced_module_widgets:
+            dict[couple[0].__name__] = couple[1]
+        return dict

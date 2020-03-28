@@ -7,6 +7,7 @@ except ImportError:
     append_breadcrumb = None
 
 from PageDisplay import reverse_ns
+from PageDisplay.models import BaseModule
 
 
 register = template.Library()
@@ -49,8 +50,18 @@ def render_module(context, module, use_overlay=True):
         if overlay.use_overlay(**flattened_context):
             return overlay.render(**flattened_context)
 
+    # Replace the widget according to the renderer. If widget == None it will default to the default widget
+    widget = None
+    # the page_tags function is occasionally used to render pages and module containers as well
+    # so we need to assure it is a module before treating it as such
+    if type(module) == BaseModule:
+        # Get the name of the class type it actually is and not just a BaseModule
+        module_class_name = type(module.get_child()).__name__
+        if module_class_name in context['renderer'].replaced_widgets_dict.keys():
+            widget = context['renderer'].replaced_widgets_dict[module_class_name]
+
     # Overlay should not be rendered, so just render the module itself
-    return module.render(**flattened_context)
+    return module.render(widget=widget, **flattened_context)
 
 
 @register.simple_tag(takes_context=True)

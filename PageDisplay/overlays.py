@@ -29,6 +29,7 @@ class BaseOverlay:
                                       'spacer'
                                       'current_container',
                                       'active_container',
+                                      'renderer',
                                       'url_kwargs',
                                       'template_engine')
         context['module'] = module
