@@ -1,5 +1,6 @@
 import ast
 from django.db import models
+from django.utils import timezone
 
 from Questionaire.processors.code_translation import inquiry_6encoder
 from Questionaire.processors import question_processors
@@ -181,6 +182,8 @@ class Inquiry(models.Model):
     """ Combines the result of a single question set added by the user """
     current_page = models.ForeignKey(Page, null=True, blank=True, on_delete=models.SET_NULL)
     is_complete = models.BooleanField(default=False)
+    completed_on = models.DateTimeField(null=True, blank=True)
+    # Todo, addition and test case for completed on tracking
     created_on = models.DateTimeField(auto_now_add=True)
     last_visited = models.DateTimeField(auto_now=True)
 
@@ -202,6 +205,7 @@ class Inquiry(models.Model):
     def complete(self):
         """ A script that is called when the questionaire is completed """
         self.is_complete = True
+        self.completed_on = timezone.now()
         self.current_page = None
         self.save()
 
