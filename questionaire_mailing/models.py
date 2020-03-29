@@ -43,6 +43,19 @@ class MailTask(models.Model):
                 return child.objects.get(id=self.id).get_as_child()
         return self
 
+    def activate(self):
+        """ Activates the task and assures that already applicable inquiries don't suddenly get spammed."""
+        if not self.active:
+            self.active = True
+            self.save()
+            # Switch states by pretending to send mail, without sending mail
+            self.generate_mail(send_mail=False)
+
+    def deactivate(self):
+        if self.active:
+            self.active = False
+            self.save()
+
 
 class ProcessedMail(models.Model):
     """ A tracker to track which mails have been send and which ones have not."""

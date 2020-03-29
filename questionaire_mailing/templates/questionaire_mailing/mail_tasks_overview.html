@@ -34,9 +34,15 @@
                         {{ mail_task.active }}
                     </td>
                     <td>
-                        <a href="{% url 'setup:mailings:update' mail_id=mail_task.id %}" class="btn btn-primary">
-                            Edit settings
-                        </a>
+                        {% if mail_task.active %}
+                            <a href="{% url 'setup:mailings:deactivate' mail_id=mail_task.id %}" class="btn btn-danger">
+                                Deactivate
+                            </a>
+                        {% else %}
+                            <a href="{% url 'setup:mailings:update' mail_id=mail_task.id %}" class="btn btn-primary">
+                                Edit settings
+                            </a>
+                        {% endif %}
                     </td>
                     <td>
                         <div class="btn-group w-100" role="group" aria-label="Opties">

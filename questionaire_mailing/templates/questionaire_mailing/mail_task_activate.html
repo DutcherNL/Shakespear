@@ -5,26 +5,22 @@
     {{ block.super }}
     {% breadcrumb "Setup" "setup:home" %}
     {% breadcrumb "Mail tasks" "setup:mailings:overview" %}
-    {% if object %}
-        {% breadcrumb  object.name "" %}
-        {% breadcrumb "Update" "" %}
-    {% else %}
-        {% breadcrumb "Add" "" %}
-    {% endif %}
+    {% breadcrumb  object.name "" %}
+    {% breadcrumb "Deactivate" "" %}
 
 {% endblock %}
 
 {% block body %}
+    <h1>Activeer {{ object.name }}</h1>
     <form method="post">{% csrf_token %}
+        Weet je zeker dat je deze mail task wilt activeren?
+        Je kan de settings niet meer wijzigen tot je het deactiveert.
+        De inhoud van de mail kan wel nog worden gewijzigd.
         {% include "snippets/bootstrap_form.html" %}
         <div class="row">
-            <div class="offset-3 col-9 btn-group ">
-                {% if object %}
-                    <input class="btn-primary btn" type="submit" value="Save">
-                    <input class="btn-warning btn" type="submit" name="save-and-activate" value="Save & Activate">
-                {% else %}
-                    <input class="btn-primary btn" type="submit" value="Create">
-                {% endif %}
+            <div class="col-md-5 btn-group ">
+                <input class="btn-success btn" type="submit" value="Ja, activeer deze taak">
+
                 <a href="{% url 'setup:mailings:overview' %}" class="btn btn-secondary">
                     Annuleren
                 </a>
