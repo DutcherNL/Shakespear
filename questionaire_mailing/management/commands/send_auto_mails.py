@@ -6,22 +6,19 @@ class Command(BaseCommand):
     help = 'Constructs and sends automatic e-mails'
 
     def add_arguments(self, parser):
-        parser.add_argument('poll_ids', nargs='+', type=int)
-
         # Named (optional) arguments
         parser.add_argument(
             '--no-mail',
+            action='store_false',
             help='Do not actually send the e-mails, but merely construct them',
         )
 
     def handle(self, *args, **options):
-        for poll_id in options['poll_ids']:
-            try:
-                poll = Poll.objects.get(pk=poll_id)
-            except Poll.DoesNotExist:
-                raise CommandError('Poll "%s" does not exist' % poll_id)
+        print(options)
+        send_mail = options['no_mail']
 
-            poll.opened = False
-            poll.save()
+        processed = 0
 
-            self.stdout.write(self.style.SUCCESS('Successfully closed poll "%s"' % poll_id))
+        for timed_task in TimedMailTask.objects.filter(active=True):
+            processed += timed_task.generate_mail(send_mail=send_mail)
+        print(f'Processed {processed} mails')

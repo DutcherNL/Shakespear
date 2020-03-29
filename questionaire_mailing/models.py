@@ -111,8 +111,16 @@ class TimedMailTask(MailTask):
         return queryset
 
     def generate_mail(self, send_mail=True):
+        """
+        Generates mail for all applicable inquiries that apply for this task
+        :param send_mail: Whether actual mails should be send.
+        If False, mails won't be created, but ProcessedMail instances will be created. defaults True.
+        :return: The number of instances processed
+        """
         # Get all inquiries that need to be mailed
         inquiries = self.get_all_sendable_inquiries()
+
+        processed = 0
 
         for inquiry in inquiries:
             mail_send = send_mail
@@ -128,6 +136,9 @@ class TimedMailTask(MailTask):
 
             # For each inquiry send the mail, and process it as send (or not)
             ProcessedMail.objects.create(mail=self, inquiry=inquiry, was_applicable=mail_send)
+            processed += 1
+        return processed
+
 
 
 
