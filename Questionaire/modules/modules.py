@@ -9,7 +9,7 @@ from Questionaire.modules.widgets import TechScoreWidget
 
 class TechScoreModule(BaseModule):
     """ A module that displays the scores of a technology """
-    type_id = 11
+    type_id = 101
     verbose = "TechScore"
     widget = TechScoreWidget
 
