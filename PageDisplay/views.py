@@ -256,7 +256,8 @@ class ModuleEditMixin:
         return context
 
     def get_overlay(self):
-        return ModuleEditOverlay()
+        print(f' ------------ {self.selected_module}')
+        return ModuleEditOverlay(selected_module=self.selected_module)
 
     def get_active_container(self):
         return self.selected_module.information

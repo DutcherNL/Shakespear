@@ -6,8 +6,6 @@ from .module_registry import registry
 from PageDisplay import module_widgets, renderers
 
 # Create your models here.
-__all__ = ['ModuleContainer', 'VerticalModuleContainer',
-           'Page', 'BaseModule']
 
 
 class ModuleContainer(models.Model):
@@ -87,6 +85,7 @@ class Page(models.Model):
     Is a wrapper of sorts for root module container contained in layout
     """
     layout = models.ForeignKey(ModuleContainer, on_delete=models.PROTECT, blank=True)
+    root_module = models.ForeignKey('BaseModule', on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=63)
 
     option_fields = ['name']
@@ -143,7 +142,7 @@ class Page(models.Model):
         :return:
         """
         # Give priority if the renderer is in the kwarg arguments
-        renderer = kwargs.pop('renderer', self.renderer)
+        renderer = kwargs.pop('renderer', None) or self.renderer
         return renderer(page=self).render(**kwargs)
 
     def add_basic_module(self, moduleclass, **kwargs):
@@ -174,8 +173,8 @@ class BaseModule(models.Model):
     _type_id = 0
 
     # Database fields
-    information = models.ForeignKey(ModuleContainer, on_delete=models.PROTECT)
-    position = models.PositiveIntegerField(default=999)
+    information = models.ForeignKey(ModuleContainer, on_delete=models.PROTECT, blank=True, null=True)
+    position = models.PositiveIntegerField(default=999, blank=True, null=True)
     _type = models.PositiveIntegerField() # A number to optimise the search for the specific module table.
 
     @property
@@ -203,14 +202,11 @@ class BaseModule(models.Model):
             widget = widget(model=self)
         return widget
 
-    def render(self, widget=None, request=None, using=None, overlay=None, page_id=None, **kwargs):
+    def render(self, widget=None, request=None, **kwargs):
         """
         Renders the module
         :param widget: The widget the module uses. Defaults if none is given
         :param request: The Request object
-        :param using: The template engine
-        :param overlay: The ModuleOverlay instance
-        :param page_id: The id of the page
         :param kwargs:
         :return:
         """
@@ -218,13 +214,12 @@ class BaseModule(models.Model):
         child = self.get_child()
         # Load the widget
         widget_inst = child._init_widget(widget)
-        print(f'widget: {widget_inst}')
         # Load the widget and render it
         return child._render(widget_inst, request, **kwargs)
 
     @staticmethod
     def _render(widget, request, **kwargs):
-        return widget.render(request, **kwargs)
+        return widget.render(request, context=kwargs)
 
     def get_fixed_properties(self):
         """ Get fixed properties to display in the fixed properties window """
@@ -235,6 +230,41 @@ class BaseModule(models.Model):
         # Guarantee that the _type_id is stored correctly on all objects
         self._type = self._type_id
         super(BaseModule, self).save(**kwargs)
+
+
+class ContainerModuleMixin:
+    """ Superclass for basic container modules
+    A ContainerModule is an advanced level module that can contain other modules
+    """
+    pass
+
+
+class OrderedContainerModule(ContainerModuleMixin, BaseModule):
+    module_list = models.ManyToManyField(BaseModule,
+                                         through='ContainerModulePositionalLink',
+                                         through_fields=('container', 'module'),
+                                         related_name='container')
+
+    def get_modules(self, direct_only=True, filter_class_type=None):
+        """ Returns all modules"""
+        # Todo: chain reactions
+        # Todo: filter class types
+        modules = []
+        for module in self.module_list.all():
+            modules.append(module.get_child())
+        return modules
+
+
+class ContainerModulePositionalLink(models.Model):
+    """ Illustrates a link between a module container and its modules"""
+    container = models.ForeignKey(OrderedContainerModule, on_delete=models.PROTECT, related_name='module_link')
+    position = models.PositiveIntegerField(default=999)
+    module = models.ForeignKey(BaseModule, on_delete=models.CASCADE, related_name='container_link')
+
+
+class VerticalContainerModule(OrderedContainerModule):
+    widget = module_widgets.VerticalContainerWidget
+    _type_id = 10
 
 
 class BasicModuleMixin:
@@ -302,6 +332,7 @@ class WhiteSpaceModule(BasicModuleMixin, BaseModule):
     ])
 
 
+registry.register(VerticalContainerModule, in_default=False)
 registry.register(TitleModule)
 registry.register(TextModule)
 registry.register(ImageModule)

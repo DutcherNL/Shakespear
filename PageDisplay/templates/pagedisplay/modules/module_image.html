@@ -1,13 +1,13 @@
-{% if module.image %}
-    <div style="{{ module.css }}">
+{% if widget.module.image %}
+    <div style="{{ widget.module.css }}">
         <div class="" style="
-                background: url({{ module.image|img }}) no-repeat center;
-                background-size: {{ size }};
-                height: {{ module.height }}px;">
+                background: url({{ widget.module.image|img }}) no-repeat center;
+                background-size: {{ widget.size }};
+                height: {{ widget.module.height }}px;">
         </div>
-        {% if module.caption %}
+        {% if widget.module.caption %}
             <div class="caption text-center">
-                <p>{{ module.caption }}</p>
+                <p>{{ widget.module.caption }}</p>
             </div>
         {% endif %}
     </div>

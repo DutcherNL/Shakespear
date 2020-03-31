@@ -1,0 +1,12 @@
+{% load page_tags %}
+
+{% render_spacer container=current_container field_name="modules_top"  %}
+
+{% for sub_module in widget.module.get_modules %}
+    <div class="row">
+        <div class="col-12">
+            {% render_module sub_module %}
+        </div>
+    </div>
+    {% render_spacer prev_module=sub_module container=current_container field_name="modules" %}
+{% endfor %}

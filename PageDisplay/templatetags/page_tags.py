@@ -47,8 +47,9 @@ def render_module(context, module, use_overlay=True):
     # Whether to use the overlay on the modules
     if overlay and use_overlay:
         # Check if overlay allows itself to be used
-        if overlay.use_overlay(**flattened_context):
-            return overlay.render(**flattened_context)
+        if overlay.use_overlay(context=flattened_context, module=module):
+
+            return overlay.render(context=flattened_context, module=module)
 
     # Replace the widget according to the renderer. If widget == None it will default to the default widget
     widget = None
@@ -61,7 +62,13 @@ def render_module(context, module, use_overlay=True):
             widget = context['renderer'].replaced_widgets_dict[module_class_name]
 
     # Overlay should not be rendered, so just render the module itself
+    # Pop widget, this is not needed in rendering the next module
+    flattened_context.pop('widget', None)
     return module.render(widget=widget, **flattened_context)
+
+@register.simple_tag(takes_context=True)
+def render_page(context, page):
+    return page.render(**context.flatten())
 
 
 @register.simple_tag(takes_context=True)

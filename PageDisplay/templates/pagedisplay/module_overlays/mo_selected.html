@@ -1,7 +1,7 @@
 {% extends 'pagedisplay/module_overlays/mo_base.html' %}
 
 {% block overlay_start %}
-    {% if module.id == selected_module.id %}
+    {% if widget.module.id == widget.selected_module.id %}
     <div class="page_edit_overlay select">
         <div></div>
     </div>
@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block module %}
-    {% if module.id != selected_module.id %}
+    {% if widget.module.id != widget.selected_module.id %}
         <div style="opacity: 0.5">
         {{ block.super }}
         </div>

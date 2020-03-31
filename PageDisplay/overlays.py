@@ -2,45 +2,48 @@ from django.utils.safestring import mark_safe
 from django.template.loader import get_template
 
 from PageDisplay import create_limited_copy
-from PageDisplay.models import BaseModule, ModuleContainer
+from PageDisplay.models import BasicModuleMixin, ModuleContainer
 
 __all__ = ['ModuleSelectOverlay', 'ModuleEditOverlay', 'HideModuleOverlay']
 
 
 class BaseOverlay:
     """  Overlay for module functionality """
+    exclude_containers = True
 
-    def render(self, request=None, using=None, module=None, **kwargs):
-        if not self.use_overlay(module=module, **kwargs):
-            return module.render(request=request, using=using, **kwargs)
-
+    def render(self, context=None, module=None):
         # Render the module
-        context = self.get_context(module=module, **kwargs)
-        template = get_template(self.template_name, using=using)
-        rendered_result = template.render(context, request)
+        context['widget'] = self.get_context(module=module)
+        template = get_template(self.template_name, using=context.get('using', None))
+        rendered_result = template.render(context, request=context.get('request'))
 
         # Return the result as safe
         return mark_safe(rendered_result)
 
-    def get_context(self, module=None, **kwargs):
-        context = create_limited_copy(kwargs,
-                                      'page_id',
-                                      'overlay',
-                                      'spacer'
-                                      'current_container',
-                                      'active_container',
-                                      'renderer',
-                                      'url_kwargs',
-                                      'template_engine')
-        context['module'] = module
-        return context
+    def get_context(self, module=None):
+        return {'module': module}
 
-    def use_overlay(self, **kwargs):
+    def use_overlay(self, context=None, module=None):
         """
         A method whether the overlay should be used in the current context
-        :param kwargs: A collection of given arguments from the render method
+        :param context: A collection of given arguments from the render method
         :return: A boolean on whether the overlay is valid in this context
         """
+        print(context)
+        if self.exclude_containers:
+            try:
+                print("---- Overlay test")
+                if module:
+                    # Get the root form
+                    module = module.get_child()
+                print(module)
+                print(issubclass(type(module), BasicModuleMixin))
+                if not issubclass(type(module), BasicModuleMixin):
+                    return False
+            except KeyError:
+                # Widget does not exist, so it's the root module
+                return False
+
         return True
 
 
@@ -66,28 +69,31 @@ class OverlayInContainerMixin:
 
         return False
 
-    def use_overlay(self, **kwargs):
-        if self._check_in_container(kwargs.get('active_container'), kwargs.get('current_container')):
-            return super(OverlayInContainerMixin, self).use_overlay()
+    def use_overlay(self, context=None):
+        if self._check_in_container(context.get('active_container'), context.get('current_container')):
+            return super(OverlayInContainerMixin, self).use_overlay(context=context)
         return False
 
 
-class ModuleSelectOverlay(OverlayInContainerMixin, BaseOverlay):
+class ModuleSelectOverlay(BaseOverlay):
     """ Allows modules to be selected """
     template_name = "pagedisplay/module_overlays/mo_selection.html"
+    exclude_container = True
 
 
 class ModuleEditOverlay(BaseOverlay):
     """ Displays the currently selected module """
     template_name = "pagedisplay/module_overlays/mo_selected.html"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, selected_module=None, **kwargs):
         super(ModuleEditOverlay, self).__init__(*args, **kwargs)
+        self.selected_module = selected_module
 
-    def use_overlay(self, module=None, selected_module=None, **kwargs):
-        if super(ModuleEditOverlay, self).use_overlay(module=module, selected_module=selected_module, **kwargs):
+    def use_overlay(self, context=None, module=None):
+        if super(ModuleEditOverlay, self).use_overlay(context=context, module=module):
+            selected_module = context.get('selected_module', None)
             # Make sure that the module instance is of the type BaseModule (catch in case of coding error)
-            if not isinstance(module, BaseModule):
+            if not isinstance(module, BasicModuleMixin):
                 return False
 
             return True
@@ -102,10 +108,11 @@ class ModuleEditOverlay(BaseOverlay):
                 # Either of the modules was None, so they aren't equeal anyway
                 pass
             return False
+        return False
 
     def get_context(self, module=None, **kwargs):
         context = super(ModuleEditOverlay, self).get_context(module, **kwargs)
-        context['selected_module'] = kwargs.get('selected_module', None)
+        context['selected_module'] = self.selected_module
         return context
 
 
@@ -118,7 +125,7 @@ class HideModuleOverlay(BaseOverlay):
     def render(self, **kwargs):
         return ""
 
-    def use_overlay(self, module=None, **kwargs):
+    def use_overlay(self, context=None, module=None, **kwargs):
         if module.id == self.selected_module.id:
             return True
         return False

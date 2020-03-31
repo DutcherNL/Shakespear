@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import VerticalModuleContainer, Page, TitleModule, TextModule, ImageModule, ModuleContainer
+from .models import *
 
 # Register your models here.
 
@@ -30,3 +30,6 @@ admin.site.register(Page)
 admin.site.register(TitleModule)
 admin.site.register(TextModule)
 admin.site.register(ImageModule)
+
+admin.site.register(ContainerModulePositionalLink)
+admin.site.register(VerticalContainerModule)
