@@ -170,17 +170,20 @@ class InsertModuleMarkerSpacer(BaseSpacer):
             return False
 
         if prev_module:
-            next_module = self.active_container.module_link. \
-                filter(position__gte=prev_module.position). \
-                exclude(module_id=prev_module.id). \
+            prev_module_link = prev_module.container_link.first()
+
+            next_module_link = self.active_container.module_link. \
+                filter(position__gte=prev_module_link.position). \
+                exclude(id=prev_module_link.id). \
                 order_by('position').first()
 
-            if next_module is not None:
-                high_check = self.position <= next_module.position
+            if next_module_link is not None:
+                high_check = self.position <= next_module_link.position
             else:
                 high_check = True
 
-            return high_check and self.position > prev_module.position
+            print(f'{high_check} - {self.position} - {prev_module_link.position}')
+            return high_check and self.position > prev_module_link.position
         else:
             # It is before the first in
             next_module = self.active_container.module_link.order_by('position').first()

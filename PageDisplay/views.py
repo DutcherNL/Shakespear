@@ -192,13 +192,15 @@ class PageAddModuleView(PageEditMixin, TemplateView):
         # If there are no get parameters, initiate the root_form, otherwise. Get those paramaters and check validity
         if len(self.request.GET) == 0:
             root_form = AddModuleForm(container=self.page.layout, site=self.site)
+            position_form = ModuleLinkForm()
         else:
             root_form = AddModuleForm(container=self.page.layout, site=self.site, data=self.request.GET)
+            position_form = ModuleLinkForm(data=self.request.GET)
 
-            if root_form.is_valid():
+            if root_form.is_valid() and position_form.is_valid():
                 # Basic parameters are valid so hide the root_form from now on.
                 instance = root_form.get_instance()
-                self.position = instance.position
+                self.position = position_form.cleaned_data['position']
                 root_form.make_hidden()
                 # Initiate the module form from the root_form instance
                 module_form = build_moduleform(instance=instance)
@@ -209,6 +211,7 @@ class PageAddModuleView(PageEditMixin, TemplateView):
         context['container'] = self.container
         context['module_form'] = module_form
         context['root_form'] = root_form
+        context['position_form'] = position_form
 
         return context
 
@@ -218,8 +221,10 @@ class PageAddModuleView(PageEditMixin, TemplateView):
         # Construct the root form
         root_form = AddModuleForm(container=self.page.layout, data=self.request.POST, files=self.request.FILES)
         context['root_form'] = root_form
+        position_form = ModuleLinkForm(data=self.request.POST)
+        context['position_form'] = position_form
 
-        if root_form.is_valid():
+        if root_form.is_valid() and position_form.is_valid():
             # Root form is valid, construct module_form
             instance = root_form.get_instance()
             module_form = build_moduleform(instance=instance, data=request.POST, files=self.request.FILES)
@@ -227,6 +232,7 @@ class PageAddModuleView(PageEditMixin, TemplateView):
             if module_form.is_valid():
                 # Module_form is valid. Save the module and go back to the edit page
                 module_form.save()
+                position_form.save(module_form.instance)
                 return HttpResponseRedirect(reverse_ns(self.request, 'edit_page', kwargs=self.url_kwargs(self)))
 
             context['module_form'] = module_form
@@ -234,11 +240,11 @@ class PageAddModuleView(PageEditMixin, TemplateView):
         return self.render_to_response(context)
 
     def get_spacer(self):
-        if len(self.request.GET) == 0:
-            return InsertModuleSpacer()
-        else:
-            return InsertModuleMarkerSpacer(active_container=self.get_active_container(),
-                                            position=self.position)
+        if len(self.request.GET) > 0:
+            if ModuleLinkForm(data=self.request.GET).is_valid():
+                return InsertModuleMarkerSpacer(active_container=self.get_active_container(),
+                                                position=self.position)
+        return InsertModuleSpacer()
 
 
 class ModuleEditMixin:

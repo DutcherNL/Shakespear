@@ -62,8 +62,6 @@ def get_module_choices(site):
 class AddModuleForm(forms.Form):
     """ A form that selects a specific module in a specific location """
     module = forms.ChoiceField(required=True) # choices are defined in __init__
-    position = forms.IntegerField(required=True, min_value=1, widget=ModulePositionInput)
-    container = forms.IntegerField(min_value=1, widget=forms.HiddenInput)
     field_name = forms.CharField(max_length=64, widget=forms.HiddenInput)
 
     def __init__(self, container=None, site=None, *args, **kwargs):
@@ -89,8 +87,7 @@ class AddModuleForm(forms.Form):
     def get_instance(self):
         if self.is_valid():
             class_type = registry.get_module(int(self.cleaned_data['module']))
-            instance = class_type(position=self.cleaned_data['position'],
-                                  information=self.container)
+            instance = class_type()
             return instance
         return None
 
@@ -110,6 +107,7 @@ class ModuleLinkForm(forms.ModelForm):
         try:
             link = ContainerModulePositionalLink.objects.get(module=module, container=self.cleaned_data['container'])
         except ContainerModulePositionalLink.DoesNotExist:
-            link = ContainerModulePositionalLink(module=module, container=self.container)
+            link = ContainerModulePositionalLink(module=module, container=self.cleaned_data['container'])
         link.position = self.cleaned_data['position']
         link.save()
+        return link
