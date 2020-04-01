@@ -3,7 +3,8 @@
 
 {% block breadcrumbs %}
     {{ block.super }}
-    {% breadcrumb "Edit Module" "edit_page" %}
+    {% breadcrumb "Edit Module" "edit_page" module_id=selected_module.id %}
+    {% breadcrumb "Edit Module" "edit_page_move_module" %}
 {% endblock %}
 
 {% block sidebar_title %}
