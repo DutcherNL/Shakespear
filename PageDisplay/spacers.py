@@ -3,7 +3,7 @@ from django.template.loader import get_template
 
 import math
 
-from .models import VerticalModuleContainer
+from .models import ContainerModulePositionalLink
 
 __all__ = ['InsertModuleSpacer', 'InsertModuleMoveSpacer', 'InsertModuleMarkerSpacer']
 
@@ -12,7 +12,6 @@ class BaseSpacer:
     """  Overlay for module functionality """
 
     def render(self, context=None, **kwargs):
-        print(kwargs)
         # Render the module
         request = context['request']
         context['widget'] = self.get_context_data(**kwargs)
@@ -49,16 +48,18 @@ class InsertModuleSpacer(BaseSpacer):
     def compute_local_position(self, prev_module, current_container):
         """ Computes the local position based on the parameters of the given surroundings """
         if prev_module:
-            pos_low = prev_module.position
+            prev_module_link = prev_module.container_link.first()
+
+            pos_low = prev_module_link.position
             next_module = current_container.module_link. \
-                filter(position__gte=prev_module.position). \
+                filter(position__gte=prev_module_link.position). \
                 exclude(module_id=prev_module.id). \
                 order_by('position').first()
 
             if next_module is not None:
                 pos_high = next_module.position
             else:
-                pos_high = max(self.local_maximum, prev_module.position + self.maximum_overstep)
+                pos_high = max(self.local_maximum, prev_module_link.position + self.maximum_overstep)
         else:
             # It is before the first in
             next_module = current_container.module_link.order_by('position').first()
@@ -72,19 +73,13 @@ class InsertModuleSpacer(BaseSpacer):
         return pos_low + math.ceil((pos_high - pos_low) / 2)
 
     def get_context_data(self, **kwargs):
-        prev_module = kwargs.get('prev_module')
-        print(prev_module)
-        container = kwargs.get('container')
-
         context = super(InsertModuleSpacer, self).get_context_data(**kwargs)
 
-        insert_position = self.compute_local_position(prev_module, container)
+        insert_position = self.compute_local_position(context['prev_module'], context['container'])
         context['insert_position'] = insert_position
 
         # Create a unique id for the radio button
-        context['unique_radio_id'] = f"insert_filler_selected_{container.id}_{insert_position}"
-        if 'forloop' in kwargs.keys():
-            context['unique_radio_id'] += str(kwargs['forloop'].get('counter', 0))
+        context['unique_radio_id'] = f"insert_filler_selected_{context['container'].id}_{insert_position}"
 
         return context
 
@@ -100,27 +95,29 @@ class InsertModuleMoveSpacer(InsertModuleSpacer):
 
     def __init__(self, selected_module):
         self.selected_module = selected_module
+        self.selected_module_link = selected_module.container_link.first()
         self.rendered_module = None
         super(InsertModuleMoveSpacer, self).__init__()
 
     def get_context_data(self, **kwargs):
         context = super(InsertModuleMoveSpacer, self).get_context_data(**kwargs)
-        prev_key = kwargs.get('prev_module', None)
+        prev_module = context.get('prev_module', None)
 
         if self.rendered_module is None:
             self.rendered_module = self.selected_module.render(**kwargs)
         context['selected_module_layout'] = self.rendered_module
 
         # Check if this spacer contains the current position of the selected module
-        if prev_key is not None and prev_key.id == self.selected_module.id:
+        if prev_module is not None and prev_module.id == self.selected_module.id:
+            print("Yeah")
             # Change the insert position to represent the current position (in case the module isn't moved)
-            context['insert_position'] = self.selected_module.position
+            context['insert_position'] = self.selected_module_link.position
             # Mark the current version as the original position
             context['start_selected'] = True
 
         return context
 
-    def use(self, prev_module=None, **kwargs):
+    def use(self, prev_module=None, container=None, **kwargs):
         """
         A method whether the spacer should be used in the current context
         :param prev_module: The module that has been rendered before this gap
@@ -128,19 +125,21 @@ class InsertModuleMoveSpacer(InsertModuleSpacer):
         :return: A boolean on whether the overlay is valid in this context
         """
         if prev_module:
-            cur_pos = prev_module.position
+            cur_pos = prev_module.container_link.first().position
         else:
             cur_pos = 0
+
         # If the current position is below the selected position
         # Check if the next module is the selecetd module
-        if cur_pos < self.selected_module.position:
-            current_container = kwargs['current_container']
-            next_module = current_container.basemodule_set. \
+        print(f'{cur_pos} - {self.selected_module_link.position}')
+        if cur_pos < self.selected_module_link.position:
+            next_module_link = container.module_link. \
                 filter(position__gt=cur_pos). \
                 order_by('position').first()
-            # Next module is this module, do not render this element
-            if next_module.id == self.selected_module.id:
-                return False
+            if next_module_link:
+                if next_module_link.id == self.selected_module_link.id:
+                    # The same link is being observed, do not render this module
+                    return False
 
         return super(InsertModuleMoveSpacer, self).use(prev_module=prev_module, **kwargs)
 

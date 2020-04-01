@@ -250,8 +250,8 @@ class OrderedContainerModule(ContainerModuleMixin, BaseModule):
         # Todo: chain reactions
         # Todo: filter class types
         modules = []
-        for module in self.module_list.all():
-            modules.append(module.get_child())
+        for module_link in self.module_link.order_by('position'):
+            modules.append(module_link.module.get_child())
         return modules
 
 
@@ -260,6 +260,9 @@ class ContainerModulePositionalLink(models.Model):
     container = models.ForeignKey(OrderedContainerModule, on_delete=models.PROTECT, related_name='module_link')
     position = models.PositiveIntegerField(default=999)
     module = models.ForeignKey(BaseModule, on_delete=models.CASCADE, related_name='container_link')
+
+    class Meta:
+        ordering = ['-position']
 
 
 class VerticalContainerModule(OrderedContainerModule):

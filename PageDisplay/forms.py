@@ -38,11 +38,6 @@ def build_moduleform(instance, get_as_class=False, **kwargs):
             model = class_type
             exclude = ['_type', 'information', 'position']
 
-        def save(self, **kwargs):
-            # resolve positional conflicts
-            resolve_module_conflicts(self.instance)
-            super(ModuleForm, self).save(**kwargs)
-
     # If uninitiated form is desired
     if get_as_class:
         return ModuleForm
@@ -98,3 +93,23 @@ class AddModuleForm(forms.Form):
                                   information=self.container)
             return instance
         return None
+
+
+class ModuleLinkForm(forms.ModelForm):
+    class Meta:
+        model = ContainerModulePositionalLink
+        fields = ('container', 'position')
+        widgets = {
+            'position': ModulePositionInput,
+            'container': forms.HiddenInput,
+        }
+
+    def save(self, module):
+        print(f"Saving position {module}")
+
+        try:
+            link = ContainerModulePositionalLink.objects.get(module=module, container=self.cleaned_data['container'])
+        except ContainerModulePositionalLink.DoesNotExist:
+            link = ContainerModulePositionalLink(module=module, container=self.container)
+        link.position = self.cleaned_data['position']
+        link.save()

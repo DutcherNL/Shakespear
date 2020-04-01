@@ -1,11 +1,11 @@
-from django.views.generic import TemplateView, UpdateView, DeleteView
+from django.views.generic import TemplateView, UpdateView, DeleteView, FormView
 from django.views.generic.list import ListView
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Page, BaseModule, ModuleContainer
-from .forms import build_moduleform, AddModuleForm
+from .forms import build_moduleform, AddModuleForm, ModuleLinkForm
 from .overlays import *
 from .spacers import *
 from .widgets import ModulePositionInput
@@ -255,11 +255,9 @@ class ModuleEditMixin:
         return context
 
     def get_overlay(self):
-        print(f' ------------ {self.selected_module}')
         return ModuleEditOverlay(selected_module=self.selected_module)
 
     def get_active_container(self):
-        print("We are here now")
         return self.selected_module.information
 
 
@@ -287,17 +285,24 @@ class PageAlterModuleView(ModuleEditBase, UpdateView):
         return build_moduleform(instance=self.selected_module, get_as_class=True)
 
 
-class PageMoveModuleView(ModuleEditBase, UpdateView):
+class PageMoveModuleView(ModuleEditBase, FormView):
     template_name = 'pagedisplay/page_edit_module_move.html'
-    fields = ['position']
+    form_class = ModuleLinkForm
 
-    def get_form(self, form_class=None):
-        form = super(PageMoveModuleView, self).get_form(form_class)
-        form.fields['position'].widget = ModulePositionInput()
-        return form
+    def post(self, request, *args, **kwargs):
+        print(f"POST {request.POST}")
+        return super(PageMoveModuleView, self).post(request,*args, **kwargs)
 
-    def get_object(self, queryset=None):
-        return self.selected_module
+    def form_valid(self, form):
+        print("Form valid")
+        form.save(self.selected_module)
+        return super(PageMoveModuleView, self).form_valid(form)
+
+    def form_invalid(self, form):
+        print("Invalid")
+        print(form.errors)
+
+        return super(PageMoveModuleView, self).form_invalid(form)
 
     def get_success_url(self):
         url_kwargs = self.url_kwargs(self)
@@ -309,10 +314,6 @@ class PageMoveModuleView(ModuleEditBase, UpdateView):
 
     def get_spacer(self):
         return InsertModuleMoveSpacer(self.selected_module)
-
-    def get_form_class(self):
-        self.model = type(self.selected_module)
-        return super(PageMoveModuleView, self).get_form_class()
 
 
 class PageDeleteModuleView(ModuleEditBase, DeleteView):

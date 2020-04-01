@@ -29,15 +29,11 @@ class BaseOverlay:
         :param context: A collection of given arguments from the render method
         :return: A boolean on whether the overlay is valid in this context
         """
-        print(context)
         if self.exclude_containers:
             try:
-                print("---- Overlay test")
                 if module:
                     # Get the root form
                     module = module.get_child()
-                print(module)
-                print(issubclass(type(module), BasicModuleMixin))
                 if not issubclass(type(module), BasicModuleMixin):
                     return False
             except KeyError:
@@ -93,21 +89,8 @@ class ModuleEditOverlay(BaseOverlay):
         if super(ModuleEditOverlay, self).use_overlay(context=context, module=module):
             selected_module = context.get('selected_module', None)
             # Make sure that the module instance is of the type BaseModule (catch in case of coding error)
-            if not isinstance(module, BasicModuleMixin):
-                return False
-
-            return True
-
-            # If the current module is the selected module
-            try:
-                ac_id = module.id
-                cc_id = selected_module.id
-                if ac_id != cc_id:
-                    return True
-            except AttributeError:
-                # Either of the modules was None, so they aren't equeal anyway
-                pass
-            return False
+            if isinstance(module, BasicModuleMixin):
+                return True
         return False
 
     def get_context(self, module=None, **kwargs):
