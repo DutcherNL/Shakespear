@@ -1,6 +1,6 @@
 <div class="" style="">
-    <input type="radio" name="insert_filler_radio" id="{{ unique_radio_id }}"
-           {% if start_selected %}checked{% endif %}
+    <input type="radio" name="insert_filler_radio" id="{{ widget.unique_radio_id }}"
+           {% if widget.start_selected %}checked{% endif %}
            class="pe_filler_insert_module_radio">
     <div>
         <div class="show_on_checked pe_filler_insert_module_outer" style="position: relative;">
@@ -11,11 +11,11 @@
             </div>
         </div>
         <div class="hide_on_checked pe_filler_insert_module_outer">
-            <label name="insert_module_filler" for="{{ unique_radio_id }}"
+            <label name="insert_module_filler" for="{{ widget.unique_radio_id }}"
                    class="pe_filler_insert_module_inner"
-                   data-insert-position="{{ insert_position }}"
-                   data-insert-container="{{ insert_container.id }}"
-                   data-insert-field_name="{{ insert_field_name }}">
+                   data-insert-position="{{ widget.insert_position }}"
+                   data-insert-container="{{ widget.container.id }}"
+                   data-insert-field_name="{{ widget.field_name }}">
                 <div class="filled_insert_icon bg-light">
                 </div>
                 <span class="show_on_hover pe_filler_pop-over bg-light">

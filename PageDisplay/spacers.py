@@ -7,21 +7,27 @@ from .models import VerticalModuleContainer
 
 __all__ = ['InsertModuleSpacer', 'InsertModuleMoveSpacer', 'InsertModuleMarkerSpacer']
 
+
 class BaseSpacer:
     """  Overlay for module functionality """
 
-    def render(self, request=None, using=None, **kwargs):
+    def render(self, context=None, **kwargs):
+        print(kwargs)
         # Render the module
-        context = self.get_context_data(**kwargs)
-        template = get_template(self.template_name, using=using)
+        request = context['request']
+        context['widget'] = self.get_context_data(**kwargs)
+        template = get_template(self.template_name, using=context.get('using', None))
         rendered_result = template.render(context, request)
 
         # Return the result as safe
         return mark_safe(rendered_result)
 
-    def get_context_data(self, **kwargs):
-        context = kwargs
-        return context
+    def get_context_data(self, prev_module=None, container=None, field_name=None):
+        return {
+            'container': container,
+            'field_name': field_name,
+            'prev_module': prev_module,
+        }
 
     def use(self, **kwargs):
         """
@@ -44,9 +50,9 @@ class InsertModuleSpacer(BaseSpacer):
         """ Computes the local position based on the parameters of the given surroundings """
         if prev_module:
             pos_low = prev_module.position
-            next_module = current_container.basemodule_set. \
+            next_module = current_container.module_link. \
                 filter(position__gte=prev_module.position). \
-                exclude(id=prev_module.id). \
+                exclude(module_id=prev_module.id). \
                 order_by('position').first()
 
             if next_module is not None:
@@ -55,7 +61,7 @@ class InsertModuleSpacer(BaseSpacer):
                 pos_high = max(self.local_maximum, prev_module.position + self.maximum_overstep)
         else:
             # It is before the first in
-            next_module = current_container.basemodule_set.order_by('position').first()
+            next_module = current_container.module_link.order_by('position').first()
             pos_low = 1
 
             if next_module is not None:
@@ -65,18 +71,20 @@ class InsertModuleSpacer(BaseSpacer):
 
         return pos_low + math.ceil((pos_high - pos_low) / 2)
 
-    def get_context_data(self, prev_module=None, container=None, field_name=None, **kwargs):
-        context = super(InsertModuleSpacer, self).get_context_data(**kwargs)
-        context['insert_container'] = container
-        context['insert_field_name'] = field_name
+    def get_context_data(self, **kwargs):
+        prev_module = kwargs.get('prev_module')
+        print(prev_module)
+        container = kwargs.get('container')
 
-        # Create a unique id for the radio button
-        context['unique_radio_id'] = "insert_filler_selected_"+str(container.id)
-        if 'forloop' in kwargs.keys():
-            context['unique_radio_id'] += str(kwargs['forloop'].get('counter', 0))
+        context = super(InsertModuleSpacer, self).get_context_data(**kwargs)
 
         insert_position = self.compute_local_position(prev_module, container)
         context['insert_position'] = insert_position
+
+        # Create a unique id for the radio button
+        context['unique_radio_id'] = f"insert_filler_selected_{container.id}_{insert_position}"
+        if 'forloop' in kwargs.keys():
+            context['unique_radio_id'] += str(kwargs['forloop'].get('counter', 0))
 
         return context
 
@@ -146,7 +154,7 @@ class InsertModuleMarkerSpacer(BaseSpacer):
         self.append_to_end = False
         self.position = position
         # Store the active container (i.e. in which a module will be added)
-        self.active_container = active_container
+        self.active_container = active_container.get_child()
 
         super(InsertModuleMarkerSpacer, self).__init__(*args, **kwargs)
 
@@ -155,17 +163,17 @@ class InsertModuleMarkerSpacer(BaseSpacer):
         context['append_to_end'] = self.append_to_end
         return context
 
-    def use(self, prev_module=None, current_container=None, **kwargs):
+    def use(self, prev_module=None, container=None, **kwargs):
         if not super(InsertModuleMarkerSpacer, self).use(**kwargs):
             return False
 
-        if current_container.id != self.active_container.id:
+        if container.id != self.active_container.id:
             return False
 
         if prev_module:
-            next_module = self.active_container.basemodule_set. \
+            next_module = self.active_container.module_link. \
                 filter(position__gte=prev_module.position). \
-                exclude(id=prev_module.id). \
+                exclude(module_id=prev_module.id). \
                 order_by('position').first()
 
             if next_module is not None:
@@ -176,7 +184,7 @@ class InsertModuleMarkerSpacer(BaseSpacer):
             return high_check and self.position > prev_module.position
         else:
             # It is before the first in
-            next_module = current_container.basemodule_set.order_by('position').first()
+            next_module = self.active_container.module_link.order_by('position').first()
 
             if next_module is not None:
                 return self.position <= next_module.position

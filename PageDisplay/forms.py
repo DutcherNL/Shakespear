@@ -1,20 +1,20 @@
 from django import forms
 from django.db.models import F
 
-from .models import BaseModule
+from .models import BaseModule, ContainerModulePositionalLink
 from .module_registry import registry
 from .widgets import ModulePositionInput
 
 
 def scootch_module_at(container_id, position):
-    if BaseModule.objects.filter(position=position+1, information_id=container_id).count() > 0:
+    if ContainerModulePositionalLink.objects.filter(position=position+1, container_id=container_id).count() > 0:
         scootch_module_at(container_id, position+1)
-    BaseModule.objects.filter(position=position, information_id=container_id).update(position=F('position')+1)
+    ContainerModulePositionalLink.objects.filter(position=position, container_id=container_id).update(position=F('position')+1)
 
 
-def resolve_module_conflicts(module):
+def resolve_module_conflicts(module, container_id):
     """ Resolves conflicts in positions between modules. Making sure that no module will be in the same position """
-    conflicted_modules = BaseModule.objects.filter(information_id=module.information_id,
+    conflicted_modules = ContainerModulePositionalLink.objects.filter(container_id=module.information_id,
                                                    position=module.position).exclude(id=module.id)
     for conflict in conflicted_modules:
         scootch_module_at(module.information_id, module.position+1)

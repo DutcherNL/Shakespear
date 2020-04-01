@@ -137,7 +137,7 @@ class PageEditMixin(LoginRequiredMixin, PageMixin):
             # Enable more flexible mixing ordering by checking the parent
             return super().get_active_container()
         except AttributeError:
-            return self.page.layout
+            return self.page.root_module
 
     def init_params(self, **kwargs):
         super(PageEditMixin, self).init_params(**kwargs)
@@ -203,7 +203,6 @@ class PageAddModuleView(PageEditMixin, TemplateView):
                 # Initiate the module form from the root_form instance
                 module_form = build_moduleform(instance=instance)
 
-
         context = super().get_context_data(**kwargs)
 
         self.container = ModuleContainer.objects.get(pk=self.kwargs['container_id'])
@@ -260,6 +259,7 @@ class ModuleEditMixin:
         return ModuleEditOverlay(selected_module=self.selected_module)
 
     def get_active_container(self):
+        print("We are here now")
         return self.selected_module.information
 
 

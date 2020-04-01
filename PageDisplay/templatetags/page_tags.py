@@ -89,14 +89,15 @@ def render_spacer(context, prev_module=None, container=None, field_name=None):
 
     # Combine the context and any additional parameters together
     full_context = context.flatten()
-    full_context.update({
+    local_context = {
         'container': container,
         'field_name': field_name,
         'prev_module': prev_module,
-    })
+    }
+    full_context['spacer_context'] = local_context
 
-    if spacer.use(**full_context):
-        return spacer.render(**full_context)
+    if spacer.use(context=full_context, **local_context):
+        return spacer.render(context=full_context, **local_context)
     return ''
 
 
