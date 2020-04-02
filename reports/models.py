@@ -72,9 +72,6 @@ class ReportPage(Page):
     option_fields = ['name', 'description', 'has_header_footer']
     renderer = ReportPageRenderer
 
-    def __init__(self, *args, **kwargs):
-        super(ReportPage, self).__init__(*args, **kwargs)
-
     def is_valid(self, inquiry):
         """ Tests whether this page is valid for the given inquiry """
         return True

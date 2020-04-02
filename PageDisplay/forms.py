@@ -36,7 +36,7 @@ def build_moduleform(instance, get_as_class=False, **kwargs):
     class ModuleForm(forms.ModelForm):
         class Meta:
             model = class_type
-            exclude = ['_type', 'information', 'position']
+            exclude = ['_type']
 
     # If uninitiated form is desired
     if get_as_class:
@@ -64,14 +64,13 @@ class AddModuleForm(forms.Form):
     module = forms.ChoiceField(required=True) # choices are defined in __init__
     field_name = forms.CharField(max_length=64, widget=forms.HiddenInput)
 
-    def __init__(self, container=None, site=None, *args, **kwargs):
+    def __init__(self, site=None, *args, **kwargs):
         """
         Form that opts uses for basic shared module information
         :param container: The container the module is to be placed in
         :param args: Form arguments
         :param kwargs: Form dict arguments
         """
-        self.container = container
         super(AddModuleForm, self).__init__(*args, **kwargs)
         self.fields['module'].choices = get_module_choices(site)
 
@@ -102,8 +101,6 @@ class ModuleLinkForm(forms.ModelForm):
         }
 
     def save(self, module):
-        print(f"Saving position {module}")
-
         try:
             link = ContainerModulePositionalLink.objects.get(module=module, container=self.cleaned_data['container'])
         except ContainerModulePositionalLink.DoesNotExist:

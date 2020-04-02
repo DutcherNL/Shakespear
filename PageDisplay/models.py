@@ -8,84 +8,13 @@ from PageDisplay import module_widgets, renderers
 # Create your models here.
 
 
-class ModuleContainer(models.Model):
-    """
-    Contains a collection of modules
-    
-    A container could technically nest other containers createing a deep rooted structure.
-    """
-
-    def get_context_data(self, request=None, overlay=None, page_id=None, **kwargs):
-        context = {'request': request,
-                   'modules': self.basemodule_set.order_by('position'),
-                   'overlay': overlay,
-                   'page_id': page_id,
-                   'current_container': self,
-                   'renderer': kwargs.get('renderer', None),
-                   'spacer': kwargs.get('spacer', None),
-                   'active_container': kwargs.get('active_container', None),
-                   'selected_module': kwargs.get('selected_module', None),
-                   'url_kwargs': kwargs.get('url_kwargs', None),
-                   'template_engine':  kwargs.get('template_engine', None),
-                   }
-
-        return context
-    
-    def render(self, **kwargs):
-        """
-        Calls the render method in the correct subclass
-        'this' must be a registered subclass of ModuleContainer otherwise it will not detect the correct subclass. 
-        :param kwargs: A collection of arguments used by the modules.
-        :return: A rendered HTML Template
-        """
-        child = self.get_as_child()
-        if child == self and self.__class__ == ModuleContainer:
-            return "Base container :/"
-        return child._render(**kwargs)
-
-    def _render(self, request=None, **kwargs):
-        """
-        Render the modules inside the container in a vertical manner
-        :param request: The Request object
-        :param kwargs: Other kwarg arguments that can be used somewhere in the render process (= contents of context)
-        :return:
-        """
-        # Get the template
-        from django.template.loader import get_template
-        template = get_template(self.template_name, using=kwargs.get('template_engine', None))
-
-        # Get the context
-        context = self.get_context_data(request, **kwargs)
-        # Renders the template with the context data.
-        return template.render(context)
-
-    def get_as_child(self):
-        """ Returns the child object of this class"""
-        # Loop over all children
-        for child in self.__class__.__subclasses__():
-            # If the child object exists
-            if child.objects.filter(id=self.id).exists():
-                return child.objects.get(id=self.id).get_as_child()
-        return self
-
-    @property
-    def page(self):
-        return self.page_set.all()[0]
-
-
-class VerticalModuleContainer(ModuleContainer):
-    """ Renders the modules in a vertical fashion """
-    template_name = 'pagedisplay/modules/module_vert_container.html'
-
-
 class Page(models.Model):
     """
     A visible page, contains a unique url to display the page
 
     Is a wrapper of sorts for root module container contained in layout
     """
-    layout = models.ForeignKey(ModuleContainer, on_delete=models.PROTECT, blank=True)
-    root_module = models.ForeignKey('BaseModule', on_delete=models.CASCADE, null=True)
+    root_module = models.ForeignKey('BaseModule', on_delete=models.CASCADE, blank=True, null=True)
     name = models.CharField(max_length=63)
 
     option_fields = ['name']
@@ -104,11 +33,11 @@ class Page(models.Model):
 
     def save(self, *args, **kwargs):
         try:
-            if self.layout is None:
+            if self.root_module is None:
                 # If there is no container, default to a basic container
-                self.layout = VerticalModuleContainer.objects.create()
-        except ModuleContainer.DoesNotExist:
-            self.layout = VerticalModuleContainer.objects.create()
+                self.root_module = VerticalContainerModule.objects.create()
+        except VerticalContainerModule.DoesNotExist:
+            self.root_module = VerticalContainerModule.objects.create()
 
         return super(Page, self).save(*args, **kwargs)
 
@@ -155,8 +84,19 @@ class Page(models.Model):
         """
         assert 'information' not in kwargs.keys()
 
-        module = moduleclass(information=self.layout, **kwargs)
+        module = moduleclass(**kwargs)
         module.save()
+        end_position = ContainerModulePositionalLink.objects.filter(container=self.root_module)\
+            .order_by('position').last()
+        if end_position:
+            end_position = end_position.position + 5
+        else:
+            end_position = 100
+
+        ContainerModulePositionalLink.objects.create(container=self.root_module,
+                                                     module=module,
+                                                     position=end_position)
+        # Todo, correct position in line with approach of inserting modules in GUI
         return module
 
 
@@ -167,15 +107,15 @@ class BaseModule(models.Model):
     A module is a small puzzlepiece from which pages can be build. E.g. Titles, text, images.
     More complex features like interactive plugins are also possible.
     """
+    # DATABASE FIELDS
+    # A number to optimise the search for the specific module table.
+    _type = models.PositiveIntegerField()
+
+    # OTHER CONSTANTS
     # A verbose name for the specific module
     verbose = "-Abstract module-"
     # A unique number to identify the type of module
     _type_id = 0
-
-    # Database fields
-    information = models.ForeignKey(ModuleContainer, on_delete=models.PROTECT, blank=True, null=True)
-    position = models.PositiveIntegerField(default=999, blank=True, null=True)
-    _type = models.PositiveIntegerField() # A number to optimise the search for the specific module table.
 
     @property
     def type(self):
@@ -223,7 +163,7 @@ class BaseModule(models.Model):
 
     def get_fixed_properties(self):
         """ Get fixed properties to display in the fixed properties window """
-        properties = [('type', self.type), ('position', self.position)]
+        properties = [('type', self.type)]
         return properties
 
     def save(self, **kwargs):

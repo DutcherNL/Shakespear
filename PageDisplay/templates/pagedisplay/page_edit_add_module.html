@@ -38,7 +38,7 @@
         <div class="btn-group col-12" role="group" aria-label="Opties">
             {% if module_form %}
                 <input type="submit" class="btn btn-success" value="Toevoegen">
-                <a class="btn btn-secondary" href="{% ns_url 'edit_page_add' container_id=container.id %}">Terug</a>
+                <a class="btn btn-secondary" href="{% ns_url 'edit_page_add' %}">Terug</a>
             {% else %}
                 <input type="submit" class="btn btn-primary" value="Volgende">
                 <a class="btn btn-secondary" href="{% ns_url 'edit_page' %}">Terug</a>

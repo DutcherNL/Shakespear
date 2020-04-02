@@ -4,11 +4,10 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import Page, BaseModule, ModuleContainer
+from .models import Page, BaseModule
 from .forms import build_moduleform, AddModuleForm, ModuleLinkForm
 from .overlays import *
 from .spacers import *
-from .widgets import ModulePositionInput
 from . import reverse_ns
 
 # ------------------------------------ """
@@ -191,10 +190,10 @@ class PageAddModuleView(PageEditMixin, TemplateView):
         module_form = None
         # If there are no get parameters, initiate the root_form, otherwise. Get those paramaters and check validity
         if len(self.request.GET) == 0:
-            root_form = AddModuleForm(container=self.page.layout, site=self.site)
+            root_form = AddModuleForm(site=self.site)
             position_form = ModuleLinkForm()
         else:
-            root_form = AddModuleForm(container=self.page.layout, site=self.site, data=self.request.GET)
+            root_form = AddModuleForm(site=self.site, data=self.request.GET)
             position_form = ModuleLinkForm(data=self.request.GET)
 
             if root_form.is_valid() and position_form.is_valid():
@@ -206,8 +205,6 @@ class PageAddModuleView(PageEditMixin, TemplateView):
                 module_form = build_moduleform(instance=instance)
 
         context = super().get_context_data(**kwargs)
-
-        self.container = ModuleContainer.objects.get(pk=self.kwargs['container_id'])
         context['container'] = self.container
         context['module_form'] = module_form
         context['root_form'] = root_form
@@ -219,7 +216,7 @@ class PageAddModuleView(PageEditMixin, TemplateView):
         context = self.get_context_data(**kwargs)
 
         # Construct the root form
-        root_form = AddModuleForm(container=self.page.layout, data=self.request.POST, files=self.request.FILES)
+        root_form = AddModuleForm(data=self.request.POST, files=self.request.FILES)
         context['root_form'] = root_form
         position_form = ModuleLinkForm(data=self.request.POST)
         context['position_form'] = position_form
@@ -264,7 +261,7 @@ class ModuleEditMixin:
         return ModuleEditOverlay(selected_module=self.selected_module)
 
     def get_active_container(self):
-        return self.selected_module.information
+        return self.selected_module.container.first()
 
 
 class ModuleEditBase(ModuleEditMixin, PageEditMixin):

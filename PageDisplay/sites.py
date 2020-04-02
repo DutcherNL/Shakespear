@@ -67,7 +67,7 @@ class PageSite:
             edit_urls = path('edit/', include([
                 path('', wrap(views.PageAlterView), name='edit_page'),
                 path('settings/', wrap(views.PageAlterSettingsView), name='edit_page_settings'),
-                path('add/<int:container_id>/', wrap(views.PageAddModuleView), name='edit_page_add'),
+                path('add/', wrap(views.PageAddModuleView), name='edit_page_add'),
                 path('<int:module_id>/', include([
                     path('', wrap(views.PageAlterModuleView), name='edit_page'),
                     path('move/', wrap(views.PageMoveModuleView), name='edit_page_move_module'),

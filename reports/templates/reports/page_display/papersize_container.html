@@ -12,7 +12,7 @@
             {% if footer %} padding-bottom: 10mm; {% endif %}
         ">
         <div style="height: 100%; overflow: hidden;">
-            {% render_module page.layout %}
+            {% render_module page.root_module use_overlay=False %}
         </div>
 
         {% if header %}

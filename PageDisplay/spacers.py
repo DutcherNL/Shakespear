@@ -83,11 +83,15 @@ class InsertModuleSpacer(BaseSpacer):
 
         return context
 
-    def use(self, prev_module=None, **kwargs):
+    def use(self, context=None, **kwargs):
+        prev_module = kwargs.get('prev_module')
+        container = context.get('active_container')
+
         if prev_module is not None:
-            if prev_module.position >=self.db_maximum:
+            prev_module_link = ContainerModulePositionalLink.objects.filter(module=prev_module, container=container).first()
+            if prev_module_link.position >= self.db_maximum:
                 return False
-        return super(InsertModuleSpacer, self).use(**kwargs)
+        return super(InsertModuleSpacer, self).use(context=context, **kwargs)
 
 
 class InsertModuleMoveSpacer(InsertModuleSpacer):

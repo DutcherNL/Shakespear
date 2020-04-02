@@ -24,8 +24,6 @@ class VertContainerAdmin(admin.ModelAdmin):
     inlines = [TitleInlines, TextsInlines, ImageInlines]
 
 
-admin.site.register(VerticalModuleContainer, VertContainerAdmin)
-admin.site.register(ModuleContainer)
 admin.site.register(Page)
 admin.site.register(TitleModule)
 admin.site.register(TextModule)
