@@ -1,8 +1,7 @@
 from django.utils.safestring import mark_safe
 from django.template.loader import get_template
 
-from PageDisplay import create_limited_copy
-from PageDisplay.models import BasicModuleMixin, ModuleContainer
+from PageDisplay.models import BasicModuleMixin, ContainerModuleMixin
 
 __all__ = ['ModuleSelectOverlay', 'ModuleEditOverlay', 'HideModuleOverlay']
 
@@ -29,12 +28,13 @@ class BaseOverlay:
         :param context: A collection of given arguments from the render method
         :return: A boolean on whether the overlay is valid in this context
         """
+
         if self.exclude_containers:
             try:
                 if module:
                     # Get the root form
                     module = module.get_child()
-                if not issubclass(type(module), BasicModuleMixin):
+                if issubclass(type(module), ContainerModuleMixin):
                     return False
             except KeyError:
                 # Widget does not exist, so it's the root module

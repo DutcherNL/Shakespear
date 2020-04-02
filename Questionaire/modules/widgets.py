@@ -4,7 +4,7 @@ from Questionaire.models import Inquirer
 
 
 class TechScoreWidget(BaseModuleWidget):
-    template_name = "pagedisplay/modules/module_tech_score.html"
+    template_name = "inquiry/modules/module_tech_score.html"
 
     def get_context_data(self, request=None, **kwargs):
         context = super(TechScoreWidget, self).get_context_data(request)
