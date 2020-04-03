@@ -1,0 +1,28 @@
+{% extends 'base_with_body.html' %}
+
+{% load django_bootstrap_breadcrumbs  %}
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Setup" "setup:home" %}
+    {% breadcrumb "Local Data Storage" "setup:local_data_storage:data_domain_overview" %}
+    {% breadcrumb object.name "setup:local_data_storage:data_table_info" table_slug=data_table.slug %}
+    {% breadcrumb "Update column" "" %}
+
+{% endblock %}
+
+{% block body %}
+    <form method="post">{% csrf_token %}
+        {% include "snippets/bootstrap_form.html" %}
+        <div class="row">
+            <div class="offset-3 col-9 btn-group ">
+                <input class="btn-primary btn" type="submit" value="Update">
+                <a href="{% url 'setup:local_data_storage:data_table_info' table_slug=data_table.slug %}" class="btn btn-secondary">
+                    Annuleren
+                </a>
+                <a href="{% url 'setup:local_data_storage:delete_data_column' table_slug=data_table.slug column_slug=object.slug %}" class="btn btn-danger">
+                    Delete
+                </a>
+            </div>
+        </div>
+    </form>
+{% endblock %}

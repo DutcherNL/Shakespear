@@ -1,0 +1,47 @@
+{% extends 'base_with_body.html' %}
+
+{% load django_bootstrap_breadcrumbs  %}
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Setup" "setup:home" %}
+    {% breadcrumb "Local Data Storage" "setup:local_data_storage:data_domain_overview" %}
+
+{% endblock %}
+
+{% block body %}
+    <h1>Local Data Storage</h1>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+            <tr class="font-weight-bold">
+                <td style="min-width: 10rem">Name</td>
+                <td style="">Active</td>
+                <td style="min-width: 10rem">Settings</td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for datatable in datatables %}
+                <tr>
+                    <td>
+                        <b>{{ datatable.name }}</b><br>{{ datatable.description }}
+                    </td>
+                    <td>
+                        {{ datatable.is_active }}
+                    </td>
+                    <td>
+                        <a href="{% url 'setup:local_data_storage:data_table_info' table_slug=datatable.slug %}" class="btn btn-primary btn-block">
+                            View
+                        </a>
+                    </td>
+                </tr>
+            {% empty %}
+                <td rowspan="3">
+                    No datatables yet
+                </td>
+            {% endfor %}
+            </tbody>
+        </table>
+        <a class="btn btn-block btn-primary" href="{% url "setup:local_data_storage:add_local_data_domain" %}">Add new datatable</a>
+    </div>
+
+{% endblock %}

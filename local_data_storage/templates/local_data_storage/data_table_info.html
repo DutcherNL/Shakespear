@@ -1,0 +1,73 @@
+{% extends 'base_with_body.html' %}
+
+{% load django_bootstrap_breadcrumbs  %}
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Setup" "setup:home" %}
+    {% breadcrumb "Local Data Storage" "setup:local_data_storage:data_domain_overview" %}
+    {% breadcrumb object.name "setup:local_data_storage:" %}
+{% endblock %}
+
+{% block body %}
+    <h1>Data Table: {{ data_table.name}}</h1>
+    <div class="row">
+        <div class="col-md-3">
+            Description:
+        </div>
+        <div class="col-md-9">
+            {{ data_table.description }}
+        </div>
+    </div>
+    <a href="{% url "setup:local_data_storage:data_table_edit" table_slug=data_table.slug %}" class="btn btn-primary">
+        Edit
+    </a>
+    <br>
+
+    <h2>Columns</h2>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+            <tr class="font-weight-bold">
+                <td style="min-width: 10rem">Name</td>
+                <td style="min-width: 10rem">Type</td>
+                <td style="min-width: 10rem;">Edit</td>
+                <td style="min-width: 10rem;">Delete</td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for data_column in data_table.datacolumn_set.all %}
+                <tr>
+                    <td>
+                        {{ data_column.name }}
+                    </td>
+                    <td>
+                        T.b.d.
+                    </td>
+                    <td>
+                        <a href="{% url "setup:local_data_storage:edit_data_column" table_slug=data_table.slug column_slug=data_column.slug %}"
+                           class="py-1 btn btn-info">
+                            Edit
+                        </a>
+                    </td>
+                    <td class="py-1">
+                        <a href="{% url "setup:local_data_storage:delete_data_column" table_slug=data_table.slug column_slug=data_column.slug %}"
+                           class="py-1 btn btn-info">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">
+                        No columns yet
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <a href="{% url "setup:local_data_storage:add_data_column" table_slug=data_table.slug %}" class="btn btn-primary">
+            Add column
+        </a>
+    </div>
+
+{% endblock %}

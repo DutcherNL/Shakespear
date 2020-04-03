@@ -1,0 +1,29 @@
+{% extends 'base_with_body.html' %}
+
+{% load django_bootstrap_breadcrumbs  %}
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Setup" "setup:home" %}
+    {% breadcrumb "Local Data Storage" "setup:local_data_storage:data_domain_overview" %}
+    {% breadcrumb data_table.name "setup:local_data_storage:data_table_info" table_slug=data_table.slug %}
+    {% breadcrumb "Delete column "|add:object.name "" %}
+
+{% endblock %}
+
+{% block body %}
+    <h1>Delete "{{ object.name }}" column</h1>
+    <p>
+        Are you sure you want to remove this column? This can not be undone.
+    </p>
+    <form method="post">{% csrf_token %}
+
+        <div class="row">
+            <div class="col btn-group ">
+                <input class="btn-danger btn" type="submit" value="Yes, delete it.">
+                <a href="{{ data_table.get_absolute_url }}" class="btn btn-secondary">
+                    No, keep it.
+                </a>
+            </div>
+        </div>
+    </form>
+{% endblock %}

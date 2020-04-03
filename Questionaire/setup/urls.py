@@ -24,5 +24,7 @@ urlpatterns = [
             path('delete/', views.DeleteGeneralPageView.as_view(), name='general_page_delete'),
         ])),
     ])),
-    path('mailings/', include('questionaire_mailing.urls'))
+    path('mailings/', include('questionaire_mailing.urls')),
+    path('data_storage/', include('local_data_storage.urls')),
+
 ]

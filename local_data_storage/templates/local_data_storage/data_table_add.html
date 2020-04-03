@@ -1,0 +1,23 @@
+{% extends 'base_with_body.html' %}
+
+{% load django_bootstrap_breadcrumbs  %}
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Setup" "setup:home" %}
+    {% breadcrumb "Local Data Storage" "setup:local_data_storage:data_domain_overview" %}
+
+{% endblock %}
+
+{% block body %}
+    <form method="post">{% csrf_token %}
+        {% include "snippets/bootstrap_form.html" %}
+        <div class="row">
+            <div class="offset-3 col-9 btn-group ">
+                <input class="btn-primary btn" type="submit" value="Add page">
+                <a href="{% url 'setup:local_data_storage:data_domain_overview' %}" class="btn btn-secondary">
+                    Annuleren
+                </a>
+            </div>
+        </div>
+    </form>
+{% endblock %}
