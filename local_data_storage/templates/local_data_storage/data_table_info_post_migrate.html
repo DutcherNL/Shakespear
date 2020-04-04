@@ -33,6 +33,9 @@
                     {% for data_column in columns %}
                         <td style="min-width: 10rem">{{ data_column.name }}</td>
                     {% endfor %}
+                    <td>
+                        Opties
+                    </td>
                 </tr>
                 </thead>
                 <tbody>
@@ -43,6 +46,11 @@
                                 {{ entry|get_attribute:data_column.slug }}
                             </td>
                         {% endfor %}
+                        <td>
+                            <a href="{% url "setup:local_data_storage:update_data_entry" table_slug=data_table.slug data_id=entry.id %}" class="btn btn-info">
+                                Edit
+                            </a>
+                        </td>
                     </tr>
                 {% endfor %}
                 </tbody>

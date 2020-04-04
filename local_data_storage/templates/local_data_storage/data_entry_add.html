@@ -6,17 +6,17 @@
     {% breadcrumb "Setup" "setup:home" %}
     {% breadcrumb "Local Data Storage" "setup:local_data_storage:data_domain_overview" %}
     {% breadcrumb data_table.name "setup:local_data_storage:data_table_info" table_slug=object.slug %}
-    {% breadcrumb "Add column" "" %}
+    {% breadcrumb "Add data entry" "" %}
 
 {% endblock %}
 
 {% block body %}
-    <h1>Add data entry to {{ data_table.name }}</h1>
+    <h1>Add entry to {{ data_table.name }}</h1>
     <form method="post">{% csrf_token %}
         {% include "snippets/bootstrap_form.html" %}
         <div class="row">
             <div class="offset-3 col-9 btn-group ">
-                <input class="btn-primary btn" type="submit" value="Add column">
+                <input class="btn-primary btn" type="submit" value="Add entry">
                 <a href="{{ data_table.get_absolute_url }}" class="btn btn-secondary">
                     Annuleren
                 </a>

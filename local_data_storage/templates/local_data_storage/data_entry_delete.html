@@ -5,20 +5,23 @@
     {{ block.super }}
     {% breadcrumb "Setup" "setup:home" %}
     {% breadcrumb "Local Data Storage" "setup:local_data_storage:data_domain_overview" %}
-    {% breadcrumb data_table.name "setup:local_data_storage:data_table_info" table_slug=object.slug %}
-    {% breadcrumb "Add column" "" %}
+    {% breadcrumb data_table.name "setup:local_data_storage:data_table_info" table_slug=data_table.slug %}
+    {% breadcrumb "Delete data entry " "" %}
 
 {% endblock %}
 
 {% block body %}
-    <h1>Add data entry to {{ data_table.name }}</h1>
+    <h1>Delete "{{ object.name }}" column</h1>
+    <p>
+        Are you sure you want to remove this column? This can not be undone.
+    </p>
     <form method="post">{% csrf_token %}
-        {% include "snippets/bootstrap_form.html" %}
+
         <div class="row">
-            <div class="offset-3 col-9 btn-group ">
-                <input class="btn-primary btn" type="submit" value="Add column">
+            <div class="col btn-group ">
+                <input class="btn-danger btn" type="submit" value="Yes, delete it.">
                 <a href="{{ data_table.get_absolute_url }}" class="btn btn-secondary">
-                    Annuleren
+                    No, keep it.
                 </a>
             </div>
         </div>

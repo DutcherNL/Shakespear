@@ -53,6 +53,9 @@ class DataTable(models.Model):
             DataModel = get_data_model(self)
             return DataModel.objects.all()
 
+    def get_data_class(self):
+        return get_data_model(self)
+
 
 class DataColumn(models.Model):
     """ Content identified with a given code in accordance to the code declaration """

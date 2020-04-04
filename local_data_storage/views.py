@@ -115,3 +115,39 @@ class MigrateView(DataTableMixin, TemplateView):
             self.data_table.destroy_table_on_db()
 
         return HttpResponseRedirect(self.data_table.get_absolute_url())
+
+
+##########################
+
+class DataEditMixin:
+    def dispatch(self, *args, **kwargs):
+        self.model = self.data_table.get_data_class()
+
+        if not self.data_table.is_active:
+            return HttpResponseForbidden("Datatable is not active and thus data can not be altered")
+        return super(DataEditMixin, self).dispatch(*args, **kwargs)
+
+
+class AddDataView(DataTableMixin, DataEditMixin, CreateView):
+    template_name = "local_data_storage/data_entry_add.html"
+
+    def get_form_class(self):
+        self.fields = []
+        for column in self.data_table.datacolumn_set.all():
+            self.fields.append(column.slug)
+        return super(AddDataView, self).get_form_class()
+
+
+class UpdateDataView(DataTableMixin, DataEditMixin, UpdateView):
+    template_name = "local_data_storage/data_entry_update.html"
+    pk_url_kwarg = 'data_id'
+
+    def get_form_class(self):
+        self.fields = []
+        for column in self.data_table.datacolumn_set.all():
+            self.fields.append(column.slug)
+        return super(UpdateDataView, self).get_form_class()
+
+
+class DeleteDataView(DataTableMixin, DataEditMixin, DeleteView):
+    pk_url_kwarg = 'data_id'

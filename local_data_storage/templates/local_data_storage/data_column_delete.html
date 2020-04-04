@@ -11,9 +11,9 @@
 {% endblock %}
 
 {% block body %}
-    <h1>Delete "{{ object.name }}" column</h1>
+    <h1>Delete "{{ object }}" column</h1>
     <p>
-        Are you sure you want to remove this column? This can not be undone.
+        Are you sure you want to remove this data? This can not be undone.
     </p>
     <form method="post">{% csrf_token %}
 

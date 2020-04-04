@@ -14,9 +14,16 @@ urlpatterns = [
             path('delete/', views.DeleteLocalDataStorageView.as_view(), name='data_table_delete'),
             path('migrate/', views.MigrateView.as_view(), name='data_table_migrate'),
             path('add_column/', views.AddDataColumnView.as_view(), name='add_data_column'),
-            path('<slug:column_slug>/', include([
+            path('column/<slug:column_slug>/', include([
                 path('edit/', views.UpdateDataColumnView.as_view(), name='edit_data_column'),
                 path('delete/', views.DeleteDataColumnView.as_view(), name='delete_data_column'),
+            ])),
+            path('data/', include([
+                path('add/', views.AddDataView.as_view(), name='add_data_entry'),
+                path('<int:data_id>/', include([
+                    path('edit/', views.UpdateDataView.as_view(), name='update_data_entry'),
+                    path('delete/', views.DeleteDataView.as_view(), name='delete_data_entry'),
+                ]))
             ]))
         ])),
     ])),
