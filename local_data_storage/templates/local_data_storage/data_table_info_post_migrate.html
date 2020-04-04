@@ -1,0 +1,56 @@
+{% extends 'base_with_body.html' %}
+{% load local_data_storage_tags %}
+
+{% load django_bootstrap_breadcrumbs  %}
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Setup" "setup:home" %}
+    {% breadcrumb "Local Data Storage" "setup:local_data_storage:data_domain_overview" %}
+    {% breadcrumb data_table.name "setup:local_data_storage:data_table_info" table_slug=data_table.slug %}
+{% endblock %}
+
+{% block body %}
+    <h1>Data Table: {{ data_table.name}}</h1>
+    <div class="row">
+        <div class="col-md-3">
+            Description:
+        </div>
+        <div class="col-md-9">
+            {{ data_table.description }}
+        </div>
+    </div>
+    <a href="{% url "setup:local_data_storage:data_table_edit" table_slug=data_table.slug %}" class="btn btn-primary">
+        Edit
+    </a>
+    <br>
+
+    <h2>Columns</h2>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+            {% with data_table.datacolumn_set.all as columns %}
+                <tr class="font-weight-bold">
+                    {% for data_column in columns %}
+                        <td style="min-width: 10rem">{{ data_column.name }}</td>
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for entry in data_table.get_data_table_entries %}
+                    <tr>
+                        {% for data_column in data_table.datacolumn_set.all %}
+                            <td>
+                                {{ entry|get_attribute:data_column.slug }}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            {% endwith %}
+        </table>
+        <a href="{% url "setup:local_data_storage:data_table_migrate" table_slug=data_table.slug %}" class="btn btn-danger">
+            Migrate
+        </a>
+    </div>
+
+{% endblock %}

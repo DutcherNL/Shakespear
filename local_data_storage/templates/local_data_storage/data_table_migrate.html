@@ -1,0 +1,23 @@
+{% extends 'base_with_body.html' %}
+
+{% load django_bootstrap_breadcrumbs  %}
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Setup" "setup:home" %}
+    {% breadcrumb "Local Data Storage" "setup:local_data_storage:data_domain_overview" %}
+    {% breadcrumb data_table.name "setup:local_data_storage:data_table_info" table_slug=data_table.slug %}
+    {% breadcrumb "Migrate" "" %}
+{% endblock %}
+
+{% block body %}
+    <form method="post">{% csrf_token %}
+        <div class="row">
+            <div class="offset-3 col-9 btn-group ">
+                <input class="btn-primary btn" type="submit" value="Migrate test">
+                <a href="{{ data_table.get_absolute_url }}" class="btn btn-secondary">
+                    Annuleren
+                </a>
+            </div>
+        </div>
+    </form>
+{% endblock %}

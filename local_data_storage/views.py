@@ -3,6 +3,7 @@ from django.views.generic.edit import UpdateView, DeleteView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
+from django.http import HttpResponseRedirect, HttpResponseForbidden
 
 from local_data_storage import models
 
@@ -27,10 +28,15 @@ class AddLocalDataStorageView(AccessabilityMixin, CreateView):
 
 
 class DataTableDetailView(AccessabilityMixin, DetailView):
-    template_name = "local_data_storage/data_table_info.html"
     slug_url_kwarg = "table_slug"
     model = models.DataTable
     context_object_name = "data_table"
+
+    def get_template_names(self):
+        if not self.object.is_active:
+            return "local_data_storage/data_table_info_pre_migrate.html"
+        else:
+            return "local_data_storage/data_table_info_post_migrate.html"
 
 
 class UpdateLocalDataStorageView(AccessabilityMixin, UpdateView):
@@ -66,7 +72,13 @@ class DataTableMixin:
         return self.data_table.get_absolute_url()
 
 
-class AddDataColumnView(AccessabilityMixin, DataTableMixin, CreateView):
+class DataTableDeclarationEditMixin:
+    def dispatch(self, request, *args, **kwargs):
+        if self.data_table.is_active:
+            return HttpResponseForbidden("Datatable is active and can not be edited")
+
+
+class AddDataColumnView(AccessabilityMixin, DataTableMixin, DataTableDeclarationEditMixin, CreateView):
     model = models.DataColumn
     template_name = "local_data_storage/data_column_add.html"
     fields = ['name']
@@ -76,7 +88,7 @@ class AddDataColumnView(AccessabilityMixin, DataTableMixin, CreateView):
         return super(AddDataColumnView, self).form_valid(form)
 
 
-class UpdateDataColumnView(AccessabilityMixin, DataTableMixin, UpdateView):
+class UpdateDataColumnView(AccessabilityMixin, DataTableMixin, DataTableDeclarationEditMixin, UpdateView):
     template_name = "local_data_storage/data_column_update.html"
     slug_url_kwarg = "column_slug"
     model = models.DataColumn
@@ -84,7 +96,7 @@ class UpdateDataColumnView(AccessabilityMixin, DataTableMixin, UpdateView):
     success_url = reverse_lazy('setup:local_data_storage:data_domain_overview')
 
 
-class DeleteDataColumnView(AccessabilityMixin, DataTableMixin, DeleteView):
+class DeleteDataColumnView(AccessabilityMixin, DataTableMixin, DataTableDeclarationEditMixin, DeleteView):
     model = models.DataColumn
     slug_url_kwarg = "column_slug"
     template_name = "local_data_storage/data_column_delete.html"
@@ -94,4 +106,12 @@ class DeleteDataColumnView(AccessabilityMixin, DataTableMixin, DeleteView):
 
 
 class MigrateView(DataTableMixin, TemplateView):
-    template_name = ""
+    template_name = "local_data_storage/data_table_migrate.html"
+
+    def post(self, request, *args, **kwargs):
+        if not self.data_table.is_active:
+            self.data_table.create_table_on_db()
+        else:
+            self.data_table.destroy_table_on_db()
+
+        return HttpResponseRedirect(self.data_table.get_absolute_url())

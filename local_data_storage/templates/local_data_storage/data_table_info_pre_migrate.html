@@ -5,7 +5,7 @@
     {{ block.super }}
     {% breadcrumb "Setup" "setup:home" %}
     {% breadcrumb "Local Data Storage" "setup:local_data_storage:data_domain_overview" %}
-    {% breadcrumb object.name "setup:local_data_storage:" %}
+    {% breadcrumb data_table.name "setup:local_data_storage:data_table_info" table_slug=data_table.slug %}
 {% endblock %}
 
 {% block body %}
@@ -67,6 +67,9 @@
         </table>
         <a href="{% url "setup:local_data_storage:add_data_column" table_slug=data_table.slug %}" class="btn btn-primary">
             Add column
+        </a>
+        <a href="{% url "setup:local_data_storage:data_table_migrate" table_slug=data_table.slug %}" class="btn btn-danger">
+            Migrate
         </a>
     </div>
 
