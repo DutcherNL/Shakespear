@@ -20,6 +20,7 @@ urlpatterns = [
             ])),
             path('data/', include([
                 path('add/', views.AddDataView.as_view(), name='add_data_entry'),
+                path('add_csv/', views.AddDataView.as_view(), name='add_data_entries_csv'),
                 path('<int:data_id>/', include([
                     path('edit/', views.UpdateDataView.as_view(), name='update_data_entry'),
                     path('delete/', views.DeleteDataView.as_view(), name='delete_data_entry'),

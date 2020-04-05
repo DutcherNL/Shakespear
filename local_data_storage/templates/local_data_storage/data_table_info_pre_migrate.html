@@ -35,13 +35,31 @@
             </tr>
             </thead>
             <tbody>
+                <tr>
+                    <td>{{ data_table.key_column_name }}</td>
+                    <td>
+                        key
+                        {% if data_table.key_regex %}
+                            with regex: '{{ data_table.key_regex }}'
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url "setup:local_data_storage:data_table_edit" table_slug=data_table.slug %}" class="py-1 btn btn-info">
+                            Edit
+                        </a>
+                    </td>
+                    <td>
+                        Mandatory
+                    </td>
+
+                </tr>
             {% for data_column in data_table.datacolumn_set.all %}
                 <tr>
                     <td>
                         {{ data_column.name }}
                     </td>
                     <td>
-                        T.b.d.
+                        {{ data_column.get_column_type_display }}
                     </td>
                     <td>
                         <a href="{% url "setup:local_data_storage:edit_data_column" table_slug=data_table.slug column_slug=data_column.slug %}"

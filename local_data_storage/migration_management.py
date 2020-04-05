@@ -1,4 +1,10 @@
 from django.db import models, connection
+from django.utils.text import slugify
+
+
+def get_as_db_name(name):
+    name = slugify(name, allow_unicode=False)
+    return name.replace('-', '_')
 
 
 def get_data_model(data_table_obj):
@@ -12,10 +18,8 @@ def get_data_model(data_table_obj):
     return type(data_table_obj.slug, (models.Model, ), model_fields)
 
 
-def migrate_to_database(data_table_obj):
+def migrate_to_database(DataModel):
     """ Creates a database table corresponding with the DataTable object """
-    DataModel = get_data_model(data_table_obj)
-
     with connection.schema_editor() as schema_editor:
         schema_editor.create_model(DataModel)
 

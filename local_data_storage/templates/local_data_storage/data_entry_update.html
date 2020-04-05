@@ -5,12 +5,13 @@
     {{ block.super }}
     {% breadcrumb "Setup" "setup:home" %}
     {% breadcrumb "Local Data Storage" "setup:local_data_storage:data_domain_overview" %}
-    {% breadcrumb object.name "setup:local_data_storage:data_table_info" table_slug=data_table.slug %}
+    {% breadcrumb data_table.name "setup:local_data_storage:data_table_info" table_slug=data_table.slug %}
     {% breadcrumb "Update data entry" "" %}
 
 {% endblock %}
 
 {% block body %}
+    <h1>Update for entry: {{ object.get_key }}</h1>
     <form method="post">{% csrf_token %}
         {% include "snippets/bootstrap_form.html" %}
         <div class="row">

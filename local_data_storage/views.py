@@ -24,7 +24,7 @@ class LocalDataStorageOverview(AccessabilityMixin, ListView):
 class AddLocalDataStorageView(AccessabilityMixin, CreateView):
     model = models.DataTable
     template_name = "local_data_storage/data_table_add.html"
-    fields = ['name', 'description']
+    fields = ['name', 'description', 'key_column_name', 'key_regex']
 
 
 class DataTableDetailView(AccessabilityMixin, DetailView):
@@ -43,7 +43,7 @@ class UpdateLocalDataStorageView(AccessabilityMixin, UpdateView):
     template_name = "local_data_storage/data_table_update.html"
     slug_url_kwarg = "table_slug"
     model = models.DataTable
-    fields = ['name', 'description']
+    fields = ['name', 'description', 'key_column_name', 'key_regex']
 
 
 class DeleteLocalDataStorageView(AccessabilityMixin, DeleteView):
@@ -76,12 +76,14 @@ class DataTableDeclarationEditMixin:
     def dispatch(self, request, *args, **kwargs):
         if self.data_table.is_active:
             return HttpResponseForbidden("Datatable is active and can not be edited")
+        else:
+            return super(DataTableDeclarationEditMixin, self).dispatch(request, *args, **kwargs)
 
 
 class AddDataColumnView(AccessabilityMixin, DataTableMixin, DataTableDeclarationEditMixin, CreateView):
     model = models.DataColumn
     template_name = "local_data_storage/data_column_add.html"
-    fields = ['name']
+    fields = ['name', 'column_type']
 
     def form_valid(self, form):
         form.instance.table = self.data_table
@@ -92,7 +94,7 @@ class UpdateDataColumnView(AccessabilityMixin, DataTableMixin, DataTableDeclarat
     template_name = "local_data_storage/data_column_update.html"
     slug_url_kwarg = "column_slug"
     model = models.DataColumn
-    fields = ['name']
+    fields = ['name', 'column_type']
     success_url = reverse_lazy('setup:local_data_storage:data_domain_overview')
 
 
@@ -133,9 +135,15 @@ class AddDataView(DataTableMixin, DataEditMixin, CreateView):
 
     def get_form_class(self):
         self.fields = []
+        self.fields.append(self.data_table.db_key_column_name)
         for column in self.data_table.datacolumn_set.all():
-            self.fields.append(column.slug)
+            self.fields.append(column.db_column_name)
         return super(AddDataView, self).get_form_class()
+
+
+class AddCSVDataView(DataTableMixin, DataEditMixin, FormView):
+    # Todo: This class
+    pass
 
 
 class UpdateDataView(DataTableMixin, DataEditMixin, UpdateView):
@@ -145,7 +153,7 @@ class UpdateDataView(DataTableMixin, DataEditMixin, UpdateView):
     def get_form_class(self):
         self.fields = []
         for column in self.data_table.datacolumn_set.all():
-            self.fields.append(column.slug)
+            self.fields.append(column.db_column_name)
         return super(UpdateDataView, self).get_form_class()
 
 

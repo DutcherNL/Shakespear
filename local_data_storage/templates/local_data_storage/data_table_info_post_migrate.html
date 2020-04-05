@@ -24,14 +24,20 @@
     </a>
     <br>
 
-    <h2>Columns</h2>
+    <h2>Data</h2>
     <div class="table-responsive">
         <table class="table table-hover">
             <thead>
             {% with data_table.datacolumn_set.all as columns %}
                 <tr class="font-weight-bold">
+                    <td>
+                        {{ data_table.key_column_name }}
+                        {% if data_table.key_regex %}<br><small>re:({{ data_table.key_regex }})</small>{% endif %}
+                    </td>
                     {% for data_column in columns %}
-                        <td style="min-width: 10rem">{{ data_column.name }}</td>
+                        <td style="min-width: 10rem">{{ data_column.name }}
+                            <br><small>({{ data_column|get_column_type_shorthand }})</small>
+                        </td>
                     {% endfor %}
                     <td>
                         Opties
@@ -41,9 +47,12 @@
                 <tbody>
                 {% for entry in data_table.get_data_table_entries %}
                     <tr>
+                        <td>
+                            {{ entry.get_key }}
+                        </td>
                         {% for data_column in data_table.datacolumn_set.all %}
                             <td>
-                                {{ entry|get_attribute:data_column.slug }}
+                                {{ entry|get_column_value:data_column }}
                             </td>
                         {% endfor %}
                         <td>
@@ -56,6 +65,15 @@
                 </tbody>
             {% endwith %}
         </table>
+        <div class="btn-group" role="group" aria-label="Basic example">
+            <a href="{% url "setup:local_data_storage:add_data_entry" table_slug=data_table.slug %}"
+               class="btn btn-primary"> Add new data entry
+            </a>
+            <a href="{% url "setup:local_data_storage:add_data_entries_csv" table_slug=data_table.slug %}"
+               class="btn btn-primary"> Import CSV
+            </a>
+        </div>
+
         <a href="{% url "setup:local_data_storage:data_table_migrate" table_slug=data_table.slug %}" class="btn btn-danger">
             Migrate
         </a>
