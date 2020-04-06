@@ -135,7 +135,6 @@ class DataContent(models.Model):
     def get_key(self):
         return self.__getattribute__(str(self._key_name))
 
-
     def clean(self):
         # Validate that the given code adheres the regex structure
         regex = self.data_table_obj.key_regex

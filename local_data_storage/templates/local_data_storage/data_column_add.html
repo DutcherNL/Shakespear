@@ -5,7 +5,7 @@
     {{ block.super }}
     {% breadcrumb "Setup" "setup:home" %}
     {% breadcrumb "Local Data Storage" "setup:local_data_storage:data_domain_overview" %}
-    {% breadcrumb data_table.name "setup:local_data_storage:data_table_info" table_slug=object.slug %}
+    {% breadcrumb data_table.name "setup:local_data_storage:data_table_info" table_slug=data_table.slug %}
     {% breadcrumb "Add column" "" %}
 
 {% endblock %}

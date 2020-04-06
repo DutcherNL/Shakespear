@@ -6,13 +6,14 @@
     {% breadcrumb "Setup" "setup:home" %}
     {% breadcrumb "Local Data Storage" "setup:local_data_storage:data_domain_overview" %}
     {% breadcrumb data_table.name "setup:local_data_storage:data_table_info" table_slug=data_table.slug %}
-    {% breadcrumb "Add data entry" "" %}
+    {% breadcrumb "Add CSV data" "" %}
 
 {% endblock %}
 
 {% block body %}
-    <h1>Add entry to {{ data_table.name }}</h1>
-    <form method="post">{% csrf_token %}
+    <h1>Add entries to {{ data_table.name }}</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
         {% include "snippets/bootstrap_form.html" %}
         <div class="row">
             <div class="offset-3 col-9 btn-group ">

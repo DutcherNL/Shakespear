@@ -25,6 +25,20 @@
     <br>
 
     <h2>Data</h2>
+    <div class="text-right">
+        <div class="btn-group" role="group" aria-label="Basic example">
+            <a href="{% url "setup:local_data_storage:add_data_entry" table_slug=data_table.slug %}"
+               class="btn btn-primary"> Add new data entry
+            </a>
+            <a href="{% url "setup:local_data_storage:add_data_entries_csv" table_slug=data_table.slug %}"
+               class="btn btn-secondary"> Import CSV
+            </a>
+        </div>
+        <a href="{% url "setup:local_data_storage:data_table_migrate" table_slug=data_table.slug %}" class="btn btn-danger">
+            Migrate
+        </a>
+    </div>
+
     <div class="table-responsive">
         <table class="table table-hover">
             <thead>
@@ -43,9 +57,24 @@
                         Opties
                     </td>
                 </tr>
+                <tr>
+                    <form method="get" action="">
+                    <td>
+                        {% render_filter_field filter_form class='form-control py-0' %}
+                    </td>
+                    {% for data_column in columns %}
+                        <td>
+                            {% render_filter_field filter_form column=data_column class='form-control' %}
+                        </td>
+                    {% endfor %}
+                    <td>
+                        <input class="btn-primary btn" type="submit" value="Filter">
+                    </td>
+                    </form>
+                </tr>
                 </thead>
                 <tbody>
-                {% for entry in data_table.get_data_table_entries %}
+                {% for entry in data_objects %}
                     <tr>
                         <td>
                             {{ entry.get_key }}
@@ -65,18 +94,7 @@
                 </tbody>
             {% endwith %}
         </table>
-        <div class="btn-group" role="group" aria-label="Basic example">
-            <a href="{% url "setup:local_data_storage:add_data_entry" table_slug=data_table.slug %}"
-               class="btn btn-primary"> Add new data entry
-            </a>
-            <a href="{% url "setup:local_data_storage:add_data_entries_csv" table_slug=data_table.slug %}"
-               class="btn btn-primary"> Import CSV
-            </a>
-        </div>
-
-        <a href="{% url "setup:local_data_storage:data_table_migrate" table_slug=data_table.slug %}" class="btn btn-danger">
-            Migrate
-        </a>
+        {% include "snippets/paginator.html" with data_objects=objects_list %}
     </div>
 
 {% endblock %}

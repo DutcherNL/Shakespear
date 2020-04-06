@@ -1,4 +1,4 @@
-from django.views.generic import TemplateView, ListView, FormView, DetailView
+from django.views.generic import View, TemplateView, ListView, FormView, DetailView
 from django.views.generic.edit import UpdateView, DeleteView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
@@ -6,6 +6,7 @@ from django.urls import reverse, reverse_lazy
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 
 from local_data_storage import models
+from local_data_storage.forms import DataUploadForm, FilterDataForm
 
 
 class AccessabilityMixin(LoginRequiredMixin):
@@ -27,7 +28,20 @@ class AddLocalDataStorageView(AccessabilityMixin, CreateView):
     fields = ['name', 'description', 'key_column_name', 'key_regex']
 
 
-class DataTableDetailView(AccessabilityMixin, DetailView):
+class DataTableDetailRedirectView:
+    """ A view that acts as a shell for internal view redirection"""
+    @classmethod
+    def as_view(cls, **initkwargs):
+        def view(request, *args, **kwargs):
+            data_table = get_object_or_404(models.DataTable, slug=kwargs['table_slug'])
+            if data_table.is_active:
+                return DataTableActiveView.as_view(**initkwargs)(request, *args, **kwargs)
+            else:
+                return DataTableInactiveView.as_view(**initkwargs)(request, *args, **kwargs)
+        return view
+
+
+class DataTableInactiveView(AccessabilityMixin, DetailView):
     slug_url_kwarg = "table_slug"
     model = models.DataTable
     context_object_name = "data_table"
@@ -107,6 +121,30 @@ class DeleteDataColumnView(AccessabilityMixin, DataTableMixin, DataTableDeclarat
 ##########################
 
 
+class FilterDataMixin:
+    def dispatch(self, request, *args, **kwargs):
+        self.filter_form = FilterDataForm(data_table=self.data_table, data=self.request.GET)
+        return super(FilterDataMixin, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(FilterDataMixin, self).get_context_data(**kwargs)
+        context.update({
+            'filter_form': self.filter_form,
+            'search_q': self.filter_form.filter_url_kwargs,
+        })
+        return context
+
+
+class DataTableActiveView(AccessabilityMixin, DataTableMixin, FilterDataMixin, ListView):
+    template_name = "local_data_storage/data_table_info_post_migrate.html"
+    context_object_name = "data_objects"
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = self.data_table.get_data_table_entries()
+        return self.filter_form.filter(queryset)
+
+
 class MigrateView(DataTableMixin, TemplateView):
     template_name = "local_data_storage/data_table_migrate.html"
 
@@ -142,8 +180,19 @@ class AddDataView(DataTableMixin, DataEditMixin, CreateView):
 
 
 class AddCSVDataView(DataTableMixin, DataEditMixin, FormView):
-    # Todo: This class
-    pass
+    template_name = 'local_data_storage/data_entry_csv_add.html'
+    form_class = DataUploadForm
+
+    def get_form_kwargs(self):
+        kwargs = super(AddCSVDataView, self).get_form_kwargs()
+        kwargs['data_table'] = self.data_table
+        return kwargs
+
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        form.process_csv_file()
+        return super().form_valid(form)
 
 
 class UpdateDataView(DataTableMixin, DataEditMixin, UpdateView):
@@ -158,4 +207,5 @@ class UpdateDataView(DataTableMixin, DataEditMixin, UpdateView):
 
 
 class DeleteDataView(DataTableMixin, DataEditMixin, DeleteView):
+    template_name = "local_data_storage/data_entry_delete.html"
     pk_url_kwarg = 'data_id'
