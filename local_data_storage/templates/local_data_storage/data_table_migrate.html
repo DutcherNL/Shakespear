@@ -11,13 +11,30 @@
 
 {% block body %}
     <form method="post">{% csrf_token %}
-        <div class="row">
-            <div class="offset-3 col-9 btn-group ">
-                <input class="btn-primary btn" type="submit" value="Migrate test">
+        {% if data_table.is_active %}
+            <h1>Remove table {{ data_table.name }} from database</h1>
+            <p> Are you really sure you want to do this? Removing this table from the database removes ALL DATA entries
+            from the database. There are currently {{ data_table.get_data_table_entries.count }} entries stored here.
+            These will all be removed.
+            </p>
+            <p>After deleteion on the database you can alter add or remove additional columns.</p>
+
+            <div class="btn-group ">
+                <input class="btn-danger btn" type="submit" value="Yes, remove all data">
                 <a href="{{ data_table.get_absolute_url }}" class="btn btn-secondary">
                     Annuleren
                 </a>
             </div>
-        </div>
+        {% else %}
+            <h1>Activate table {{ data_table.name }}</h1>
+            <p>Activating this data table will disable further editing of the columns and data in this table. Are you
+            sure it is set up as you want it to be?</p>
+            <div class="btn-group">
+                <input class="btn-success btn" type="submit" value="Yes, activate the data table">
+                <a href="{{ data_table.get_absolute_url }}" class="btn btn-secondary">
+                    Annuleren
+                </a>
+            </div>
+        {% endif %}
     </form>
 {% endblock %}

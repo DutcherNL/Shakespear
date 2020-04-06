@@ -24,9 +24,7 @@ def migrate_to_database(DataModel):
         schema_editor.create_model(DataModel)
 
 
-def destroy_table_on_db(data_table_obj):
-    DataModel = get_data_model(data_table_obj)
-
+def destroy_table_on_db(DataModel):
     with connection.schema_editor() as schema_editor:
         schema_editor.delete_model(DataModel)
 

@@ -69,7 +69,13 @@ class DataTable(models.Model):
             raise RuntimeError("The datatable is not active, thus there is no database table to destroy")
         destroy_table_on_db(self.get_data_class())
         self.is_active = False
+        self._db_table_class_name = None
+        self._db_key_column_name = None
         self.save()
+
+        for column in self.datacolumn_set.all():
+            column._db_column_name = None
+            column.save()
 
     def get_absolute_url(self):
         return reverse('setup:local_data_storage:data_table_info', kwargs={'table_slug': self.slug})
