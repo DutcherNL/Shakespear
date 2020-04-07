@@ -10,7 +10,7 @@ from local_data_storage.migration_management import migrate_to_database, destroy
 class DataTable(models.Model):
     """ Contains an overall code declaration """
     name = models.CharField(max_length=32, unique=True)
-    slug = models.SlugField(editable=False)
+    slug = models.SlugField()
     description = models.CharField(max_length=255)
 
     key_column_name = models.CharField(max_length=32, default="key", verbose_name="Name of the key column")
