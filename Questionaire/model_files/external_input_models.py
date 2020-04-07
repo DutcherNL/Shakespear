@@ -2,17 +2,14 @@ from django.db import models
 
 from Questionaire.processors.replace_text_from_database import format_from_database
 from Questionaire.model_files.base_models import Question
-from DataStorage.models import StoredDataCodeDeclaration, StoredDataDeclaration, StoredDataContent
 from local_data_storage.models import DataTable, DataColumn
 
 
 class ExternalQuestionSource(models.Model):
     """ Inserts answers on questions from external locations"""
     question = models.OneToOneField(Question, on_delete=models.CASCADE)
-    code_type = models.ForeignKey(StoredDataCodeDeclaration, on_delete=models.CASCADE, null=True, blank=True)
-    content_type = models.ForeignKey(StoredDataDeclaration, on_delete=models.CASCADE, null=True, blank=True)
-    local_table = models.ForeignKey(DataTable, on_delete=models.CASCADE, null=True, blank=True)
-    local_attribute = models.ForeignKey(DataColumn, on_delete=models.CASCADE, null=True, blank=True)
+    local_table = models.ForeignKey(DataTable, on_delete=models.SET_NULL, null=True, blank=True)
+    local_attribute = models.ForeignKey(DataColumn, on_delete=models.SET_NULL, null=True, blank=True)
 
     code_source = models.CharField(max_length=256)
 

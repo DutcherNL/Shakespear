@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'general.apps.ShakespeareGeneralConfig',
     'local_data_storage.apps.LocalDataStorageConfig',
     'Questionaire.apps.QuestionaireConfig',
-    'DataStorage.apps.DataStorageConfig',
     'PageDisplay.apps.PagedisplayConfig',
     'reports.apps.ReportsConfig',
     'mailing.apps.MailingConfig',

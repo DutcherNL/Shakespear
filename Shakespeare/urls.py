@@ -29,7 +29,6 @@ urlpatterns = [
     path('setup/', include('Questionaire.setup.urls')),
     path('mails/', include('mailing.urls')),
     path('pages/', include('PageDisplay.urls')),
-    path('data/', include('DataStorage.urls')),
     path('techs/<slug:slug>/', tech_page_site.urls),
     path('<slug:slug>/', page_site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
