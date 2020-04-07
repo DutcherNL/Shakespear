@@ -3,6 +3,7 @@ from functools import update_wrapper
 
 from django.http import HttpResponse
 from django.db.models import ForeignKey
+from django.db import OperationalError
 from django.forms import forms
 from django.urls import path
 from django.shortcuts import render
@@ -31,17 +32,22 @@ class ExportCsvMixin:
 
     @staticmethod
     def create_model_csv_permissions(model):
-        content_type = ContentType.objects.get_for_model(model)
-        Permission.objects.get_or_create(
-            codename='can_import_csv',
-            name='Can import csv files',
-            content_type=content_type,
-        )
-        Permission.objects.get_or_create(
-            codename='can_export_csv',
-            name='Can export csv files',
-            content_type=content_type,
-        )
+        try:
+            # This method can be called prior to the database being set-up, thus the content-type does not exist yet.
+            # So catch that error
+            content_type = ContentType.objects.get_for_model(model)
+            Permission.objects.get_or_create(
+                codename='can_import_csv',
+                name='Can import csv files',
+                content_type=content_type,
+            )
+            Permission.objects.get_or_create(
+                codename='can_export_csv',
+                name='Can export csv files',
+                content_type=content_type,
+            )
+        except OperationalError:
+            pass
 
     @staticmethod
     def delete_model_csv_permissions(model):
