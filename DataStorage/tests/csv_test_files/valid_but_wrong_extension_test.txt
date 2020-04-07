@@ -1,3 +1,0 @@
-postcode,eigenschap_1,eigenschap_2
-1234AB,10,20
-1234AC,5,3

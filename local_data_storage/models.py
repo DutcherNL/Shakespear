@@ -10,7 +10,7 @@ from local_data_storage.migration_management import migrate_to_database, destroy
 class DataTable(models.Model):
     """ Contains an overall code declaration """
     name = models.CharField(max_length=32, unique=True)
-    slug = models.SlugField()
+    slug = models.SlugField(editable=False)
     description = models.CharField(max_length=255)
 
     key_column_name = models.CharField(max_length=32, default="key", verbose_name="Name of the key column")
@@ -98,7 +98,7 @@ class DataColumn(models.Model):
     """ Content identified with a given code in accordance to the code declaration """
     table = models.ForeignKey(DataTable, on_delete=models.CASCADE)
     name = models.CharField(max_length=32)
-    slug = models.SlugField()
+    slug = models.SlugField(editable=False)
     _db_column_name = models.CharField(max_length=50, null=True)
 
     CHARFIELD = 'CH'
