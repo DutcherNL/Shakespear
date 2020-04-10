@@ -80,19 +80,19 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='VerticalContainerModule',
-            fields=[
-                ('orderedcontainermodule_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='PageDisplay.OrderedContainerModule')),
-            ],
-            bases=('PageDisplay.orderedcontainermodule',),
-        ),
-        migrations.CreateModel(
             name='OrderedContainerModule',
             fields=[
                 ('basemodule_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='PageDisplay.BaseModule')),
                 ('module_list', models.ManyToManyField(related_name='container', through='PageDisplay.ContainerModulePositionalLink', to='PageDisplay.BaseModule')),
             ],
             bases=(PageDisplay.models.ContainerModuleMixin, 'PageDisplay.basemodule'),
+        ),
+        migrations.CreateModel(
+            name='VerticalContainerModule',
+            fields=[
+                ('orderedcontainermodule_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='PageDisplay.OrderedContainerModule')),
+            ],
+            bases=('PageDisplay.orderedcontainermodule',),
         ),
         migrations.AddField(
             model_name='containermodulepositionallink',

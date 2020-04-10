@@ -87,14 +87,6 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='PageEntryText',
-            fields=[
-                ('pageentry_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='Questionaire.PageEntry')),
-                ('text', models.TextField(default='')),
-            ],
-            bases=('Questionaire.pageentry',),
-        ),
-        migrations.CreateModel(
             name='TechScoreModule',
             fields=[
                 ('basemodule_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='PageDisplay.BaseModule')),
@@ -144,6 +136,14 @@ class Migration(migrations.Migration):
                 ('entry_type', models.PositiveIntegerField(blank=True, choices=[(1, 'General information'), (2, 'Question')])),
                 ('page', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='Questionaire.Page')),
             ],
+        ),
+        migrations.CreateModel(
+            name='PageEntryText',
+            fields=[
+                ('pageentry_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='Questionaire.PageEntry')),
+                ('text', models.TextField(default='')),
+            ],
+            bases=('Questionaire.pageentry',),
         ),
         migrations.AddField(
             model_name='page',
