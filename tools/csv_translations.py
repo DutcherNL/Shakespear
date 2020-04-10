@@ -46,7 +46,7 @@ class ExportCsvMixin:
                 name='Can export csv files',
                 content_type=content_type,
             )
-        except OperationalError:
+        except Exception:
             pass
 
     @staticmethod
