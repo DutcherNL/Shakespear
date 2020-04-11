@@ -130,6 +130,9 @@ class DataColumn(models.Model):
         elif self.column_type == self.FLOATFIELD:
             return models.FloatField(verbose_name=self.name, blank=True, null=True)
 
+    def __str__(self):
+        return self.name
+
 
 class DataContent(models.Model):
     """ This class will be mixed in the actual content classes during runtime"""

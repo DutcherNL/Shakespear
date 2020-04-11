@@ -173,6 +173,10 @@ class TechScoreLinkAdmin(ExportCsvMixin, admin.ModelAdmin):
     list_display = ('score_declaration', 'technology', 'score_threshold_approve', 'score_threshold_deny')
 
 
+class ExternalQuestionAdmin(admin.ModelAdmin):
+    list_display = ('question', 'local_table', 'local_attribute', 'code_source')
+
+
 class InquirerAdmin(admin.ModelAdmin):
     list_display = ('get_email', 'created_on',)
     list_filter = ('created_on',)
