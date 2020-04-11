@@ -1,33 +1,55 @@
 <nav aria-label="Page navigation example">
-    <ul class="pagination justify-content-center pagination-m">
-        {% if page_obj.has_previous %}
-            <!-- If it ain't a search result display, don't append the search query
-                 to the URL. -->
-            <!-- Append the searched query to the URL, so that on a search results page,
-                 the pagination don't revert to listing all the listview items. -->
-            <li class="page-item">
-                <a class="page-link" href="?{{search_q}}&page={{ page_obj.previous_page_number }}" tabindex="-1">Previous</a>
-            </li>
-        {% else %}
-            <li class="page-item disabled">
-                <a class="page-link" href="#" tabindex="-1">Previous</a>
-            </li>
-        {% endif %}
-        {% for object in page_obj.paginator.page_range %}
-            {% if forloop.counter == page_obj.number %}
-                <li class="page-item disabled"><a class="page-link">{{ forloop.counter }}</a></li>
+    <div class="justify-content-center">
+        <ul class="pagination justify-content-center pagination-m">
+            {% if page_obj.number != 1 %}
+                <!-- If it ain't a search result display, don't append the search query
+                     to the URL. -->
+                <!-- Append the searched query to the URL, so that on a search results page,
+                     the pagination don't revert to listing all the listview items. -->
+                <li class="page-item">
+                    <a class="page-link" href="?{{search_q}}&page=1" tabindex="-1">First</a>
+                </li>
             {% else %}
-                <li class="page-item"><a class="page-link" href="?{{search_q}}page={{ forloop.counter }}">{{ forloop.counter }}</a></li>
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">First</a>
+                </li>
             {% endif %}
-        {% endfor %}
-        {% if page_obj.has_next %}
-            <li class="page-item">
-                <a class="page-link" href="?{{search_q}}page={{ page_obj.next_page_number }}">Next</a>
-            </li>
-        {% else %}
+
+
+
+            {% for page_number in page_obj.get_option_range %}
+                {% if page_number == page_obj.number %}
+                    <li class="page-item active"><a class="page-link">{{ page_number }}</a></li>
+                {% else %}
+                    <li class="page-item"><a class="page-link" href="?{{search_q}}page={{ page_number }}">{{ page_number }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+
+
+            {% if page_obj.number != page_obj.paginator.num_pages %}
+                <li class="page-item">
+                    <a class="page-link" href="?{{search_q}}page={{ page_obj.paginator.num_pages }}">Last</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">Last</a>
+                </li>
+            {% endif %}
+        </ul>
+        <form id="page_select_form" action="{{ request.path }}">
+
+        </form>
+        <ul class="pagination justify-content-center pagination-m">
             <li class="page-item disabled">
-                <a class="page-link" href="#">Next</a>
+                <input type="number" min="1" max="{{ page_obj.paginator.num_pages }}" form="page_select_form"
+                       class="form-control" value="{{ page_obj.number }}" style="width: 5em;">
+
             </li>
-        {% endif %}
-    </ul>
+            <li class="page-item disabled">
+                <a class="page-link">/ {{ page_obj.paginator.num_pages }}</a>
+
+            </li>
+        </ul>
+    </div>
 </nav>

@@ -2,11 +2,13 @@ from django.views.generic import View, TemplateView, ListView, FormView, DetailV
 from django.views.generic.edit import UpdateView, DeleteView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 
 from local_data_storage import models
 from local_data_storage.forms import DataUploadForm, FilterDataForm
+
+from tools import pagination
 
 
 class AccessabilityMixin(LoginRequiredMixin):
@@ -122,12 +124,18 @@ class DeleteDataColumnView(AccessabilityMixin, DataTableMixin, DataTableDeclarat
 
 
 class FilterDataMixin:
+    paginator_class = pagination.FlexPaginator
+
     def dispatch(self, request, *args, **kwargs):
         self.filter_form = FilterDataForm(data_table=self.data_table, data=self.request.GET)
         return super(FilterDataMixin, self).dispatch(request, *args, **kwargs)
 
+    def get_page_list(self):
+        return range()
+
     def get_context_data(self, **kwargs):
         context = super(FilterDataMixin, self).get_context_data(**kwargs)
+
         context.update({
             'filter_form': self.filter_form,
             'search_q': self.filter_form.filter_url_kwargs,
@@ -138,7 +146,7 @@ class FilterDataMixin:
 class DataTableActiveView(AccessabilityMixin, DataTableMixin, FilterDataMixin, ListView):
     template_name = "local_data_storage/data_table_info_post_migrate.html"
     context_object_name = "data_objects"
-    paginate_by = 10
+    paginate_by = 25
 
     def get_queryset(self):
         queryset = self.data_table.get_data_table_entries()
