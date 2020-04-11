@@ -13,13 +13,19 @@
                 <a class="page-link" href="#" tabindex="-1">Previous</a>
             </li>
         {% endif %}
-        {% for object in page_obj.paginator.page_range %}
-            {% if forloop.counter == page_obj.number %}
-                <li class="page-item disabled"><a class="page-link">{{ forloop.counter }}</a></li>
+
+
+
+        {% for page_number in page_obj.get_option_range %}
+            {% if page_number == page_obj.number %}
+                <li class="page-item disabled"><a class="page-link">{{ page_number }}</a></li>
             {% else %}
-                <li class="page-item"><a class="page-link" href="?{{search_q}}page={{ forloop.counter }}">{{ forloop.counter }}</a></li>
+                <li class="page-item"><a class="page-link" href="?{{search_q}}page={{ page_number }}">{{ page_number }}</a></li>
             {% endif %}
         {% endfor %}
+
+
+
         {% if page_obj.has_next %}
             <li class="page-item">
                 <a class="page-link" href="?{{search_q}}page={{ page_obj.next_page_number }}">Next</a>

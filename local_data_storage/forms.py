@@ -137,7 +137,6 @@ class DataUploadForm(forms.Form):
 
                 # Read the next line and loop
                 data = read_as_csv(file, deliminator=deliminator)
-
         return None
 
 
