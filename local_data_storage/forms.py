@@ -132,7 +132,6 @@ class DataUploadForm(forms.Form):
                     # overwrite any similar entry.
                     key = entry_kwargs.pop(db_key_column_name)
                     num_adjusted = self.DataModel.objects.filter(**{db_key_column_name: key}).update(**entry_kwargs)
-                    print(f'Adjusted = {num_adjusted}')
                     if num_adjusted == 0:
                         data_entry.save()
 
