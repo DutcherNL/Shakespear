@@ -169,6 +169,10 @@ class ScoreDeclarationMixin(ExportCsvMixin, admin.ModelAdmin):
     list_display = ('name', 'display_name', 'score_start_value',)
 
 
+class TechScoreLinkAdmin(ExportCsvMixin, admin.ModelAdmin):
+    list_display = ('score_declaration', 'technology', 'score_threshold_approve', 'score_threshold_deny')
+
+
 class InquirerAdmin(admin.ModelAdmin):
     list_display = ('get_email', 'created_on',)
     list_filter = ('created_on',)
@@ -188,12 +192,13 @@ admin.site.register(TechGroup, TechnologyAdmin)
 admin.site.register(AnswerScoring, AnswerScoringAdmin)
 admin.site.register(AnswerScoringNote, AnswerNoteAdmin)
 admin.site.register(ExternalQuestionSource)
+admin.site.register(TechScoreLink, TechScoreLinkAdmin)
 
 admin.site.register(Inquiry, InquiryAdmin)
 admin.site.register(Inquirer, InquirerAdmin)
 
+
 if settings.SHOW_DEBUG_CLASSES:
     admin.site.register(Score)
     admin.site.register(InquiryQuestionAnswer)
-    admin.site.register(TechScoreLink)
 
