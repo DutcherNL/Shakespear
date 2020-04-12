@@ -71,7 +71,7 @@ class CSVDataUploadProcessor(TaskProcessor):
             i += 1
             data = self.read_as_csv(file, deliminator=deliminator)
 
-            if i % self.counter == 0:
+            if i % self.space_counter == 0:
                 self.update_progress(i)
 
         return f'Processed and stored {self.num_lines} entries.'

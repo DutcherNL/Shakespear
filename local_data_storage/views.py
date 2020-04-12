@@ -207,7 +207,7 @@ class AddDataView(DataTableMixin, DataEditMixin, CreateView):
 class AddCSVDataView(AccessabilityMixin, DataTableMixin, CreateView):
     model = QueuedCSVDataProcessingTask
     template_name = 'local_data_storage/data_entry_csv_add.html'
-    fields = ['csv_file', 'data_table', 'overwrite_with_empty', 'deliminator']
+    fields = ['csv_file', 'overwrite_with_empty', 'deliminator']
 
     def form_valid(self, form):
         form.instance.data_table = self.data_table
