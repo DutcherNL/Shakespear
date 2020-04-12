@@ -22,3 +22,7 @@ class FlexPaginator(Paginator):
         Overwrite the page instances
         """
         return FlexPage(*args, **kwargs)
+
+
+class FlexPaginationMixin:
+    paginator_class = FlexPaginator

@@ -23,7 +23,7 @@
             {% for task in tasks %}
                 <tr>
                     <td>
-                        {{ task }}
+                        {{ task.id }} {{ task }}
                     </td>
                     <td>
                         {{ task.added_on }}
@@ -44,5 +44,6 @@
             </tbody>
         </table>
     </div>
+    {% include "snippets/paginator.html" with data_objects=tasks %}
 
 {% endblock %}
