@@ -67,7 +67,7 @@ class QueuedCSVDataProcessingTask(QueuedTask):
     csv_file = models.FileField(blank=True, null=True)
     data_table = models.ForeignKey(DataTable, on_delete=models.CASCADE)
     overwrite_with_empty = models.BooleanField(default=False)
-    deliminator = models.CharField(max_length=1, default=';')
+    deliminator = models.CharField(max_length=1, default=',')
 
     processor = CSVDataUploadProcessor
 
