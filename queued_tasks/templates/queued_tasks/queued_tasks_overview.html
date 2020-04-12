@@ -16,6 +16,7 @@
             <tr class="font-weight-bold">
                 <td style="min-width: 10rem">Name</td>
                 <td>Added on</td>
+                <td>Info</td>
                 <td style="">Status</td>
             </tr>
             </thead>
@@ -23,10 +24,17 @@
             {% for task in tasks %}
                 <tr>
                     <td>
-                        {{ task.id }} {{ task }}
+                        {{ task }}<br>
+                        <small>{{ task.get_as_child.csv_file.name }}</small>
                     </td>
                     <td>
-                        {{ task.added_on }}
+                        {{ task.added_on|date:'j/n/y H:i' }}
+                    </td>
+                    <td>
+                        {% if task.completed_on %}
+                            Completed: {{ task.completed_on|date:'j/n/y H:i' }}<br>
+                            {{ task.feedback }}
+                        {% endif %}
                     </td>
                     <td>
                         {% if task.state == task.PROCESSING %}
