@@ -3,6 +3,8 @@ from django.forms import ValidationError
 
 from .models import DataTable, DataColumn, DataContent
 
+from queued_tasks.models import QueuedCSVDataProcessingTask
+
 
 def read_as_csv(file, deliminator=';'):
     """
@@ -140,6 +142,12 @@ class DataUploadForm(forms.Form):
         return None
 
 
+class DataQueueProcessForm(forms.ModelForm):
+    class Meta:
+        model = QueuedCSVDataProcessingTask
+        fields = ['csv_file', 'data_table', 'overwrite_with_empty', 'deliminator']
+
+
 class FilterDataForm(forms.Form):
     search_data = {}
     search_query_filters = {}
@@ -181,8 +189,6 @@ class FilterDataForm(forms.Form):
         url = ""
         for key, value in self.search_data.items():
             url += f'{key}={value}&'
-
-        print(f'URL {url}')
 
         return url
 

@@ -1,0 +1,48 @@
+{% extends 'base_with_body.html' %}
+
+{% load django_bootstrap_breadcrumbs  %}
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Setup" "setup:home" %}
+    {% breadcrumb "Queued Tasks overview" "setup:mailings:overview" %}
+
+{% endblock %}
+
+{% block body %}
+    <h1>Currently Processing queue</h1>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+            <tr class="font-weight-bold">
+                <td style="min-width: 10rem">Name</td>
+                <td>Added on</td>
+                <td style="">Status</td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for task in tasks %}
+                <tr>
+                    <td>
+                        {{ task }}
+                    </td>
+                    <td>
+                        {{ task.added_on }}
+                    </td>
+                    <td>
+                        {% if task.state == task.PROCESSING %}
+                            {{ task.progress }}
+                        {% else %}
+                            {{ task.get_state_display }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <td rowspan="3">
+                    No pages yet
+                </td>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

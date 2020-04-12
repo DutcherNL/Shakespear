@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'reports.apps.ReportsConfig',
     'mailing.apps.MailingConfig',
     'questionaire_mailing',
+    'queued_tasks',
 
 
 

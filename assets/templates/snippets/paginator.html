@@ -2,10 +2,6 @@
     <div class="justify-content-center">
         <ul class="pagination justify-content-center pagination-m">
             {% if page_obj.number != 1 %}
-                <!-- If it ain't a search result display, don't append the search query
-                     to the URL. -->
-                <!-- Append the searched query to the URL, so that on a search results page,
-                     the pagination don't revert to listing all the listview items. -->
                 <li class="page-item">
                     <a class="page-link" href="?{{search_q}}&page=1" tabindex="-1">First</a>
                 </li>

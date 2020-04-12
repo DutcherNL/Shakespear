@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect, HttpResponseForbidden
 
 from local_data_storage import models
 from local_data_storage.forms import DataUploadForm, FilterDataForm
+from queued_tasks.models import QueuedCSVDataProcessingTask
 
 from tools import pagination
 
@@ -187,20 +188,31 @@ class AddDataView(DataTableMixin, DataEditMixin, CreateView):
         return super(AddDataView, self).get_form_class()
 
 
-class AddCSVDataView(DataTableMixin, DataEditMixin, FormView):
-    template_name = 'local_data_storage/data_entry_csv_add.html'
-    form_class = DataUploadForm
+# class AddCSVDataView(DataTableMixin, DataEditMixin, FormView):
+#     template_name = 'local_data_storage/data_entry_csv_add.html'
+#     form_class = DataUploadForm
+#
+#     def get_form_kwargs(self):
+#         kwargs = super(AddCSVDataView, self).get_form_kwargs()
+#         kwargs['data_table'] = self.data_table
+#         return kwargs
+#
+#     def form_valid(self, form):
+#         # This method is called when valid form data has been POSTed.
+#         # It should return an HttpResponse.
+#         form.process_csv_file()
+#         return super().form_valid(form)
 
-    def get_form_kwargs(self):
-        kwargs = super(AddCSVDataView, self).get_form_kwargs()
-        kwargs['data_table'] = self.data_table
-        return kwargs
+
+class AddCSVDataView(AccessabilityMixin, DataTableMixin, CreateView):
+    model = QueuedCSVDataProcessingTask
+    template_name = 'local_data_storage/data_entry_csv_add.html'
+    fields = ['csv_file', 'data_table', 'overwrite_with_empty', 'deliminator']
 
     def form_valid(self, form):
-        # This method is called when valid form data has been POSTed.
-        # It should return an HttpResponse.
-        form.process_csv_file()
-        return super().form_valid(form)
+        form.instance.data_table = self.data_table
+        return super(AddCSVDataView, self).form_valid(form)
+
 
 
 class UpdateDataView(DataTableMixin, DataEditMixin, UpdateView):

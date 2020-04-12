@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 
 from questionaire_mailing.models import TimedMailTask
 
+
 class Command(BaseCommand):
     help = 'Constructs and sends automatic e-mails'
 
