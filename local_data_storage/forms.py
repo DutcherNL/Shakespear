@@ -145,7 +145,60 @@ class DataUploadForm(forms.Form):
 class DataQueueProcessForm(forms.ModelForm):
     class Meta:
         model = QueuedCSVDataProcessingTask
-        fields = ['csv_file', 'data_table', 'overwrite_with_empty', 'deliminator']
+        fields = ['csv_file', 'overwrite_with_empty', 'deliminator']
+
+    def __init__(self, *args, data_table=None, **kwargs):
+        self.data_table = data_table
+        super(DataQueueProcessForm, self).__init__(*args, **kwargs)
+
+    def clean_csv_file(self):
+        csv_file = self.cleaned_data['csv_file']
+
+        if csv_file is None:
+            return None
+
+        if not csv_file.name.endswith('.csv'):
+            raise ValidationError("File is not a csv")
+
+        return csv_file
+
+    def clean(self):
+        cleaned_data = super(DataQueueProcessForm, self).clean()
+        # Set up veriables
+        column_keys = []  # A list of all the field names in order of appearance
+        data_columns = self.data_table.datacolumn_set.all()  # A queryset of all data columns
+        db_key_column_name = self.data_table.db_key_column_name  # The name of the key column
+        key_detected = False  # Whether the key was detected in the file
+        overwrite_with_empty = cleaned_data['overwrite_with_empty']
+
+        # The first row, which are the column headers
+        headers = read_as_csv(cleaned_data['csv_file'], deliminator=cleaned_data['deliminator'])
+
+        # Loop over all columns in the header and determine what database column they represent
+        for entry in headers:
+            if entry == self.data_table.key_column_name or entry == "key":
+                column_keys.append(db_key_column_name)
+                key_detected = True
+            else:
+                column_name = None
+                for column in data_columns:
+                    if entry == column.name:
+                        column_name = column._db_column_name
+                        break
+                if column_name:
+                    column_keys.append(column_name)
+                else:
+                    raise ValidationError(f"Column '{entry}' not associated with database table")
+
+        if not key_detected:
+            raise ValidationError(f"File did not contain the column key name '{self.data_table.key_column_name}'. "
+                                  f"Ensure that is in the file or a column is named 'key'")
+        return cleaned_data
+
+    def save(self, commit=True):
+        # Set the data_table property to the instance
+        self.instance.data_table = self.data_table
+        return super(DataQueueProcessForm, self).save(commit=commit)
 
 
 class FilterDataForm(forms.Form):

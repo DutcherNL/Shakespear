@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 
 from local_data_storage import models
-from local_data_storage.forms import DataUploadForm, FilterDataForm
+from local_data_storage.forms import DataUploadForm, FilterDataForm, DataQueueProcessForm
 from queued_tasks.models import QueuedCSVDataProcessingTask
 
 from tools import pagination
@@ -124,15 +124,11 @@ class DeleteDataColumnView(AccessabilityMixin, DataTableMixin, DataTableDeclarat
 ##########################
 
 
-class FilterDataMixin:
-    paginator_class = pagination.FlexPaginator
+class FilterDataMixin(pagination.FlexPaginationMixin):
 
     def dispatch(self, request, *args, **kwargs):
         self.filter_form = FilterDataForm(data_table=self.data_table, data=self.request.GET)
         return super(FilterDataMixin, self).dispatch(request, *args, **kwargs)
-
-    def get_page_list(self):
-        return range()
 
     def get_context_data(self, **kwargs):
         context = super(FilterDataMixin, self).get_context_data(**kwargs)
@@ -188,31 +184,16 @@ class AddDataView(DataTableMixin, DataEditMixin, CreateView):
         return super(AddDataView, self).get_form_class()
 
 
-# class AddCSVDataView(DataTableMixin, DataEditMixin, FormView):
-#     template_name = 'local_data_storage/data_entry_csv_add.html'
-#     form_class = DataUploadForm
-#
-#     def get_form_kwargs(self):
-#         kwargs = super(AddCSVDataView, self).get_form_kwargs()
-#         kwargs['data_table'] = self.data_table
-#         return kwargs
-#
-#     def form_valid(self, form):
-#         # This method is called when valid form data has been POSTed.
-#         # It should return an HttpResponse.
-#         form.process_csv_file()
-#         return super().form_valid(form)
-
-
 class AddCSVDataView(AccessabilityMixin, DataTableMixin, CreateView):
-    model = QueuedCSVDataProcessingTask
     template_name = 'local_data_storage/data_entry_csv_add.html'
-    fields = ['csv_file', 'overwrite_with_empty', 'deliminator']
+    form_class = DataQueueProcessForm
 
-    def form_valid(self, form):
-        form.instance.data_table = self.data_table
-        return super(AddCSVDataView, self).form_valid(form)
-
+    def get_form_kwargs(self):
+        kwargs = super(AddCSVDataView, self).get_form_kwargs()
+        kwargs.update({
+            'data_table': self.data_table
+        })
+        return kwargs
 
 
 class UpdateDataView(DataTableMixin, DataEditMixin, UpdateView):
