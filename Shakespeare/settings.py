@@ -31,7 +31,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -42,6 +41,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'django_bootstrap_breadcrumbs',
 
+    'general.apps.MyAdminConfig',
     'general.apps.ShakespeareGeneralConfig',
     'local_data_storage.apps.LocalDataStorageConfig',
     'Questionaire.apps.QuestionaireConfig',

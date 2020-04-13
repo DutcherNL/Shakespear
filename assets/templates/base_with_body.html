@@ -8,9 +8,9 @@
         <nav class="navbar navbar-expand navbar-dark bg-primary my-0 py-0">
             <a href="{% url 'index' %}" class="navbar-brand mr-auto">
                 <span class="h3 d-none d-lg-inline"
-                      style="line-height: 40px; vertical-align: middle; margin: 0 0 0 10px"> ENLEB</span>
+                      style="line-height: 40px; vertical-align: middle; margin: 0 0 0 10px"> {{ SITE_DISPLAY_NAME }}</span>
                 <span class="h5 d-none d-md-inline d-lg-none"
-                      style="line-height: 40px; vertical-align: middle; margin: 0 0 0 10px"> ENLEB</span>
+                      style="line-height: 40px; vertical-align: middle; margin: 0 0 0 10px"> {{ SITE_DISPLAY_NAME }}</span>
             </a>
             <div class="mr-auto">
                 {% block nav-bar-options %}

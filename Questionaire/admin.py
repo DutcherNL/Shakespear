@@ -8,6 +8,7 @@ from tools.csv_translations import ExportCsvMixin
 # Register your models here.
 
 
+@admin.register(Question)
 class QuestionAdmin(ExportCsvMixin, admin.ModelAdmin):
     class QuestionAnwerOptionsInlines(admin.TabularInline):
         model = AnswerOption
@@ -52,6 +53,7 @@ class AnswerScoringFilter(admin.SimpleListFilter):
         return queryset
 
 
+@admin.register(AnswerOption)
 class AnswerOptionAdmin(ExportCsvMixin, admin.ModelAdmin):
     exclude_csv_fields = ['image']
 
@@ -65,6 +67,7 @@ class AnswerOptionAdmin(ExportCsvMixin, admin.ModelAdmin):
     list_filter = ('question', AnswerScoringFilter)
 
 
+@admin.register(Technology, TechGroup)
 class TechnologyAdmin(ExportCsvMixin, admin.ModelAdmin):
     exclude_csv_fields = ['icon', 'information_page']
 
@@ -123,6 +126,7 @@ class TechnologyAdmin(ExportCsvMixin, admin.ModelAdmin):
                       format(number=merge_succesful))
 
 
+@admin.register(AnswerScoring)
 class AnswerScoringAdmin(ExportCsvMixin, admin.ModelAdmin):
     exclude_csv_fields = ['answer_option']
     add_csv_fields = ['answer_option__question__name', 'answer_option__answer']
@@ -135,6 +139,7 @@ class AnswerScoringAdmin(ExportCsvMixin, admin.ModelAdmin):
     inlines = [AnswerScoreNoteInlines]
 
 
+@admin.register(AnswerScoringNote)
 class AnswerNoteAdmin(ExportCsvMixin, admin.ModelAdmin):
     exclude_csv_fields = ['scoring']
     add_csv_fields = ['scoring__answer_option__question__name',
@@ -147,6 +152,7 @@ class AnswerNoteAdmin(ExportCsvMixin, admin.ModelAdmin):
     list_filter = ('technology',)
 
 
+@admin.register(Page)
 class PageAdmin(admin.ModelAdmin):
     class PageQuestionsInlines(admin.TabularInline):
         model = PageEntryQuestion
@@ -165,41 +171,31 @@ class PageAdmin(admin.ModelAdmin):
     inlines = [PageTextsInlines, PageQuestionsInlines, PageReqTechUsefulnessInlines]
 
 
+@admin.register(ScoringDeclaration)
 class ScoreDeclarationMixin(ExportCsvMixin, admin.ModelAdmin):
     list_display = ('name', 'display_name', 'score_start_value',)
 
 
+@admin.register(TechScoreLink)
 class TechScoreLinkAdmin(ExportCsvMixin, admin.ModelAdmin):
     list_display = ('score_declaration', 'technology', 'score_threshold_approve', 'score_threshold_deny')
 
 
+@admin.register(ExternalQuestionSource)
 class ExternalQuestionAdmin(admin.ModelAdmin):
     list_display = ('question', 'local_table', 'local_attribute', 'code_source')
 
 
+@admin.register(Inquirer)
 class InquirerAdmin(admin.ModelAdmin):
     list_display = ('get_email', 'created_on',)
     list_filter = ('created_on',)
 
 
+@admin.register(Inquiry)
 class InquiryAdmin(admin.ModelAdmin):
     list_display = ('get_owner', 'current_page', 'is_complete', 'last_visited')
     list_filter = ('is_complete', 'created_on')
-
-
-admin.site.register(Page, PageAdmin)
-admin.site.register(Question, QuestionAdmin)
-admin.site.register(AnswerOption, AnswerOptionAdmin)
-admin.site.register(ScoringDeclaration, ScoreDeclarationMixin)
-admin.site.register(Technology, TechnologyAdmin)
-admin.site.register(TechGroup, TechnologyAdmin)
-admin.site.register(AnswerScoring, AnswerScoringAdmin)
-admin.site.register(AnswerScoringNote, AnswerNoteAdmin)
-admin.site.register(ExternalQuestionSource)
-admin.site.register(TechScoreLink, TechScoreLinkAdmin)
-
-admin.site.register(Inquiry, InquiryAdmin)
-admin.site.register(Inquirer, InquirerAdmin)
 
 
 if settings.SHOW_DEBUG_CLASSES:

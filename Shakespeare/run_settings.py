@@ -9,3 +9,6 @@ DOMAIN_NAME = ""
 
 
 SESSION_COOKIE_AGE = 86400
+
+# The display name on the site
+SITE_DISPLAY_NAME = "ENLEB BE"
