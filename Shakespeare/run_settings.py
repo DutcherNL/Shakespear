@@ -7,7 +7,6 @@ DISPLAY_TECH_SCORES_IN_VIEW = False
 
 DOMAIN_NAME = ""
 
-
 SESSION_COOKIE_AGE = 86400
 
 # The display name on the site
