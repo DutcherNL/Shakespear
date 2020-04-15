@@ -5,6 +5,7 @@ from Questionaire.modules.widgets import TechScoreWidget
 class TechScorePDFWidget(TechScoreWidget):
     template_name = "modules/module_tech_score_forPDF.html"
 
+
 class TechScorePreviewPDFWidget(TechScoreWidget):
     template_name = "modules/module_tech_score_forPDF_preview.html"
 

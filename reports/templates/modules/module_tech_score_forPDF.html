@@ -14,8 +14,8 @@
 
                 <div class="text-right py-3" style="-webkit-box-flex: 1; -webkit-flex: 1; flex:1;">
                     {% with widget.technology|get_tech_score:widget.inquiry as score %}
-                        <div class="{{ widget.score|get_font_class_for_score }}">
-                        {{ widget.score|get_text_base_score }}
+                        <div class="{{ score|get_font_class_for_score }}">
+                        {{ score|get_text_base_score }}
                         </div>
                     {% endwith %}
                 </div>

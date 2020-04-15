@@ -15,8 +15,8 @@
                     </div>
                 {% else %}
                     {% with widget.technology|get_tech_score:widget.inquiry as score %}
-                        <div class="col text-right py-3 {{ widget.score|get_font_class_for_score }}">
-                            {{ widget.score|get_text_base_score }}
+                        <div class="col text-right py-3 {{ score|get_font_class_for_score }}">
+                            {{ score|get_text_base_score }}
                         </div>
                     {% endwith %}
                 {% endif %}
