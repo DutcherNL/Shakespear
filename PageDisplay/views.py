@@ -293,19 +293,11 @@ class PageMoveModuleView(ModuleEditBase, FormView):
     form_class = ModuleLinkForm
 
     def post(self, request, *args, **kwargs):
-        print(f"POST {request.POST}")
         return super(PageMoveModuleView, self).post(request,*args, **kwargs)
 
     def form_valid(self, form):
-        print("Form valid")
         form.save(self.selected_module)
         return super(PageMoveModuleView, self).form_valid(form)
-
-    def form_invalid(self, form):
-        print("Invalid")
-        print(form.errors)
-
-        return super(PageMoveModuleView, self).form_invalid(form)
 
     def get_success_url(self):
         url_kwargs = self.url_kwargs(self)

@@ -12,6 +12,7 @@ class TechPageSite(PageSite):
     site_context_fields = ['technology']
     use_page_keys = False
     name = "technologies"
+    extends_template = "base_public.html"
 
     @staticmethod
     def init_view_params(view_obj, **kwargs):
