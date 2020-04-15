@@ -1,0 +1,15 @@
+{% load pdf_tags %}
+{% if widget.module.image %}
+    <div style="{{ widget.module.css }}">
+        <div class="" style="
+                background: url({{ widget.module.image.path|fix_url_string }}) no-repeat center;
+                background-size: {{ widget.size }};
+                height: {{ widget.module.height }}px;">
+        </div>
+        {% if widget.module.caption %}
+            <div class="caption text-center">
+                <p>{{ widget.module.caption }}</p>
+            </div>
+        {% endif %}
+    </div>
+{% endif %}

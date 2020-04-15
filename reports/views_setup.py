@@ -4,8 +4,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from string import Formatter
+
 from .models import Report, ReportPage, ReportDisplayOptions
 from .responses import PDFResponse
+from .renderers import ReportPagePDFRenderer, ReportPageRenderer
 
 
 class AccessabilityMixin(LoginRequiredMixin):
@@ -160,6 +162,7 @@ class PDFTemplateView(AccessabilityMixin, TemplateResponseMixin, ContextMixin, V
     template_engine = "PDFTemplates"
     response_class = PDFResponse
     file_name = 'test_file'
+    page_renderer_class = ReportPagePDFRenderer
 
     def get_file_name(self):
         """ Construct the file name from the given file name replaced with local attributes """
@@ -195,6 +198,11 @@ class PDFTemplateView(AccessabilityMixin, TemplateResponseMixin, ContextMixin, V
             # Replace the entry with the proper object
             rep_string = rep_string.replace("{"+key+"}", str(replacement))
         return rep_string
+
+    def get_context_data(self, **kwargs):
+        context = super(PDFTemplateView, self).get_context_data(**kwargs)
+        context['renderer'] = self.page_renderer_class
+        return context
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)

@@ -53,18 +53,17 @@ def render_module(context, module, use_overlay=True):
 
     # Replace the widget according to the renderer. If widget == None it will default to the default widget
     widget = None
-    # the page_tags function is occasionally used to render pages and module containers as well
-    # so we need to assure it is a module before treating it as such
-    if type(module) == BaseModule:
-        # Get the name of the class type it actually is and not just a BaseModule
-        module_class_name = type(module.get_child()).__name__
-        if module_class_name in context['renderer'].replaced_widgets_dict.keys():
-            widget = context['renderer'].replaced_widgets_dict[module_class_name]
+
+    # Get the name of the class type it actually is and not just a BaseModule
+    module_class_name = type(module.get_child()).__name__
+    if module_class_name in context['renderer'].replaced_widgets_dict.keys():
+        widget = context['renderer'].replaced_widgets_dict[module_class_name]
 
     # Overlay should not be rendered, so just render the module itself
     # Pop widget, this is not needed in rendering the next module
     flattened_context.pop('widget', None)
     return module.render(widget=widget, **flattened_context)
+
 
 @register.simple_tag(takes_context=True)
 def render_page(context, page):
