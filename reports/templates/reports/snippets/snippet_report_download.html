@@ -1,0 +1,19 @@
+<div class="row">
+    <div class="col-12">
+        <h3>
+        {{ report.report_name }}
+        </h3>
+    </div>
+    {% if report.promotion_text %}
+        <div class="col-12">
+            {{ report.promotion_text }}
+        </div>
+    {% endif %}
+
+    <div class="col-12">
+        <a href="{% url "setup:reports:pdf" report_slug=report.slug %}"
+           class="btn btn-info">
+            <i class="fas fa-file-download"></i> Download {{ report.report_name }}
+        </a>
+    </div>
+</div>

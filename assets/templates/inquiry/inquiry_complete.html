@@ -1,4 +1,4 @@
-{% extends 'base_with_body.html' %}
+{% extends 'base_public.html' %}
 {% load score_result_tags %}
 {% load static %}
 
@@ -97,23 +97,40 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-12">
-            <h3>Opties</h3>
-            Hieronder staan twee opties die nog (deels) worden geimplementeerd
-
+    <div class="mt-5">
+        <h1>Opties</h1>
+        <div class="my-4">
+            <hr>
+            <h2>Verander uw antwoorden</h2>
+            <p>Wilt u uw vragenlijst aanpassen? Dat kan door op onderstaande knop te drukken.</p>
+            <a href="{% url 'reset_inquiry' %}" class="btn btn-primary">Herstart vragenlijst</a>
+            <hr>
         </div>
-        <div class="col-12">
-            <a href="{% url 'reset_inquiry' %}" class="btn btn-block btn-primary">Herstart vragenlijst</a>
-        </div>
 
-        <div class="col-12 pt-2 d-none">
-            <div class="row">
-                <div class="col">
-                    <a href="" class="btn btn-block btn-disabled">Mail resultaten</a>
+        <div  class="my-4">
+            {% if applicable_reports %}
+                {% if applicable_reports|length_is:1 %}
+                    <h2>Download PDF verslag</h2>
+                    <div>
+                        Onderstaande verslag kan mogelijk nuttig voor u zijn
+                    </div>
+                {% else %}
+                    <h2>Download PDF verslagen</h2>
+                    <div>
+                        Onderstaande verslagen kunnen mogelijk interessant voor u zijn
+                    </div>
+                {% endif %}
+
+                <div class="p-3">
+                {% for report in applicable_reports %}
+                    {% include "reports/snippets/snippet_report_download.html" %}
+                {% endfor %}
                 </div>
-            </div>
+            {% endif %}
         </div>
+
     </div>
+
+    <div class="py-5"></div>
 {% endblock %}
 

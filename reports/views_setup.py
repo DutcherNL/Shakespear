@@ -59,7 +59,7 @@ class ReportInfoView(AccessabilityMixin, ReportMixin, TemplateView):
 
 class ReportUpdateView(AccessabilityMixin, UpdateView):
     model = Report
-    fields = ['description', 'file_name']
+    fields = ['report_name', 'description', 'promotion_text', 'file_name', 'is_live']
     slug_url_kwarg = "report_slug"
     template_name_field = "report"
 
@@ -156,7 +156,7 @@ class ReportPageUpdateView(AccessabilityMixin, ReportMixin, UpdateView):
         return reverse("setup:reports:details", kwargs=url_kwargs)
 
 
-class PDFTemplateView(AccessabilityMixin, TemplateResponseMixin, ContextMixin, View):
+class PDFTemplateView(TemplateResponseMixin, ContextMixin, View):
     """A view that adjusts the templatemixin to display the template in PDF form.
     It overrides all code from TemplateView class, thus does not inherit from it directly """
     template_engine = "PDFTemplates"

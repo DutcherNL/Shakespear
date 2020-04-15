@@ -1,4 +1,3 @@
-from django.views import View
 from django.views.generic import TemplateView, CreateView, FormView
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
@@ -8,6 +7,7 @@ from .models import Page, Inquiry, Technology, Inquirer, TechGroup
 from .forms import QuestionPageForm, EmailForm, InquirerLoadForm
 
 from PageDisplay.views import PageInfoView
+from reports.models import Report
 
 # Create your views here.
 
@@ -321,7 +321,12 @@ class QuestionaireCompleteView(BaseTemplateView):
         context['techs_varies'] = techs_varies
         context['techs_unknown'] = techs_unknown
 
+        context['applicable_reports'] = self.get_applicable_reports()
+
         return context
+
+    def get_applicable_reports(self):
+        return Report.objects.filter(is_live=True)
 
 
 class ResetQueryView(BaseTemplateView):

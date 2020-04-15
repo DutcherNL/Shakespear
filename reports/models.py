@@ -13,6 +13,7 @@ class Report(models.Model):
     file_name = models.CharField(max_length=128)
     slug = models.SlugField(editable=False, blank=True, max_length=128, unique=True)
     description = models.TextField(default="", blank=True, null=True)
+    promotion_text = models.TextField(blank=True, null=True, verbose_name="Text displayed near download option")
     is_live = models.BooleanField(default=False)
     last_edited = models.DateTimeField(auto_now=True)
 
