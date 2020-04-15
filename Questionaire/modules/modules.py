@@ -14,6 +14,9 @@ class TechScoreModule(BasicModuleMixin, BaseModule):
     widget = TechScoreWidget
 
     technology = models.ForeignKey(Technology, on_delete=models.CASCADE)
+    display_description = models.BooleanField(default=True, verbose_name="Display tech description")
+    display_notes = models.BooleanField(default=True, verbose_name="Display scoring notes")
+    display_sub_technologies = models.BooleanField(default=False, verbose_name="Display underlying technologies")
 
 
 registry.register(TechScoreModule)

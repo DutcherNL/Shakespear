@@ -73,6 +73,13 @@ class Technology(models.Model):
         else:
             return None
 
+    @property
+    def get_as_techgroup(self):
+        try:
+            return self.techgroup
+        except TechGroup.DoesNotExist:
+            return None
+
 
 class TechGroup(Technology):
     """ The presented tech group, combines and presents several technologies as one """

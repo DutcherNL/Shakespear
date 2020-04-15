@@ -16,6 +16,11 @@ def get_tech_score(technology, inquiry):
         # In case the inquiry is unknown
         return Technology.TECH_UNKNOWN
 
+    # Get the technology as a tech group as that means the score needs to be computed differently
+    technology_as_tech_group = technology.get_as_techgroup
+    if technology_as_tech_group:
+        technology = technology_as_tech_group
+
     return technology.get_score(inquiry=inquiry)
 
 
@@ -68,6 +73,8 @@ def get_text_base_score(value):
         return "Aanbevolen"
     if value == 0:
         return "Niet aanbevolen"
+    if value == 2:
+        return "Wisselend"
     return "Onbekend"
 
 
@@ -75,6 +82,8 @@ def get_text_base_score(value):
 def get_font_class_for_score(value):
     if value == 1:
         return "text-success"
+    if value == 2:
+        return "text-warning"
     if value == 0:
         return "text-danger"
     return ""

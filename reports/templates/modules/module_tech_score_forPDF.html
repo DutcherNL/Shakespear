@@ -1,6 +1,6 @@
 {% load score_result_tags %}
 
-<div class="card {{ widget.extra_card_class }}">
+<div class="card {{ widget.extra_card_class }}  my-2">
     <div class="card-header py-0 {{ widget.extra_header_class }}" id="{{ widget.tech_id }}">
         <h5 class="mb-0">
             <div class="" style="display: -webkit-box; display: flex; -webkit-box-pack: center;
@@ -19,45 +19,54 @@
                         </div>
                     {% endwith %}
                 </div>
-
             </div>
         </h5>
     </div>
-</div>
-<div class="p-2">
-    <h3>{{ widget.technology.name }}</h3>
-    <p>
-        {{ widget.technology.short_text }}
-    </p>
 
-    {% if widget.technology.sub_technologies.exists %}
-        {% for tech_score in widget.technology|get_tech_scores:widget.inquiry %}
-            {% for note in widget.tech_score|get_score_notes:widget.technology %}
+    {% if widget.module.display_description or widget.module.display_sub_technologies or widget.module.display_notes %}
+        <div class="p-2">
+            {% if widget.module.display_description %}
+                <h3>{{ widget.technology.name }}</h3>
                 <p>
-                    {{ widget.note|get_prepped_text:widget.inquiry }}
+                    {{ widget.technology.short_text }}
                 </p>
-            {% endfor %}
-        {% endfor %}
+            {% endif %}
 
-        Er zijn verscheidene maatregelen die mogelijk zijn. Hieronder zetten wij uit welke maatregelen wij aanraden:
-        {% with widget.technology|create_sub_tech_accordion_name as accordion_id %}
-            <div id="{{ accordion_id }}">
-                {% for subtech in widget.technology.sub_technologies.all %}
-                    {% with subtech|get_subtech_html_id:widget.technology as tech_id %}
-                        {% include "inquiry/inquiry_snippets/snippet_tech_group_accordion.html" with is_subtech=1 technology=subtech extra_card_class='text-dark' extra_header_class='' %}
-                    {% endwith %}
-                {% endfor %}
+            {% if widget.technology.get_as_techgroup.sub_technologies.exists and widget.module.display_sub_technologies  %}
+                {% if widget.module.display_notes %}
+                    {% for tech_score in widget.technology|get_tech_scores:widget.inquiry %}
+                        {% for note in widget.tech_score|get_score_notes:widget.technology %}
+                            <p>
+                                {{ note|get_prepped_text:widget.inquiry }}
+                            </p>
+                        {% endfor %}
+                    {% endfor %}
+                {% endif %}
 
-            </div>
-        {% endwith %}
-    {% else %}
-        <h4>Ons advies: {{ widget.technology|get_tech_score:widget.inquiry|get_text_base_score }}</h4>
-        {% for tech_score in widget.technology|get_tech_scores:widget.inquiry %}
-            {% for note in tech_score|get_score_notes:widget.technology %}
-                <p>
-                    {{ note|get_prepped_text:widget.inquiry }}
-                </p>
-            {% endfor %}
-        {% endfor %}
+                Er zijn verscheidene maatregelen die mogelijk zijn. Hieronder zetten wij uit welke maatregelen wij aanraden:
+                {% with widget.technology|create_sub_tech_accordion_name as accordion_id %}
+                    <div id="{{ accordion_id }}" class="my-3">
+                        {% for subtech in widget.technology.get_as_techgroup.sub_technologies.all %}
+                            <div class="my-2">
+                            {% with subtech|get_subtech_html_id:widget.technology as tech_id %}
+                                {% include "modules/snippets/snippet_tech_group_accordion_forPDF.html" with is_subtech=1 technology=subtech extra_card_class='text-dark' extra_header_class='' inquiry=widget.inquiry  %}
+                            {% endwith %}
+                        {% endfor %}
+                        </div>
+                    </div>
+                {% endwith %}
+            {% else %}
+                {% if widget.module.display_notes %}
+                    <h4>Ons advies: {{ widget.technology|get_tech_score:widget.inquiry|get_text_base_score }}</h4>
+                    {% for tech_score in widget.technology|get_tech_scores:widget.inquiry %}
+                        {% for note in tech_score|get_score_notes:widget.technology %}
+                            <p>
+                                {{ note|get_prepped_text:widget.inquiry }}
+                            </p>
+                        {% endfor %}
+                    {% endfor %}
+                {% endif %}
+            {% endif %}
+        </div>
     {% endif %}
 </div>

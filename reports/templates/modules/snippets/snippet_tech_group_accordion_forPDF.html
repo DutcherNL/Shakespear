@@ -1,0 +1,40 @@
+{% load score_result_tags %}
+
+<div class="card {{ extra_card_class }}">
+    <div class="card-header py-0 {{ extra_header_class }}" id="{{ tech_id }}">
+        <h5 class="mb-0">
+            <div class="" style="display: -webkit-box; display: flex; -webkit-box-pack: center;
+                                    justify-content: center;">
+                {% if technology.icon %}
+                    <img class="" src="{{ technology.icon.path }}" width="50" height="50">
+                {% endif %}
+                <div class="p-3" style="-webkit-box-flex: 1; -webkit-flex: 1; flex:1;">
+                    {{ technology.name }}
+                </div>
+
+                <div class="text-right py-3" style="-webkit-box-flex: 1; -webkit-flex: 1; flex:1;">
+                    {% with technology|get_tech_score:inquiry as score %}
+                        <div class="{{ score|get_font_class_for_score }}">
+                            {{ score|get_text_base_score }}
+                        </div>
+                    {% endwith %}
+                </div>
+            </div>
+        </h5>
+    </div>
+
+    <div class="p-2">
+        <p>
+            {{ technology.short_text }}
+        </p>
+        {% if widget.module.display_notes %}
+            {% for tech_score in widget.technology|get_tech_scores:widget.inquiry %}
+                {% for note in tech_score|get_score_notes:widget.technology %}
+                    <p>
+                        {{ note|get_prepped_text:widget.inquiry }}
+                    </p>
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
