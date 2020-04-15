@@ -44,5 +44,10 @@ class BasePageRenderer:
         """ Construct a dictionairy of modules with theire altered widgets """
         dict = {}
         for couple in self.replaced_module_widgets:
-            dict[couple[0].__name__] = couple[1]
+            if isinstance(couple[0], str):
+                # The name of the module is given, instead of the class
+                dict[couple[0]] = couple[1]
+            else:
+                # Assume a class is given directly instead of the name
+                dict[couple[0].__name__] = couple[1]
         return dict

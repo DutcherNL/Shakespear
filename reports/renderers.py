@@ -1,6 +1,4 @@
 from PageDisplay.renderers import BasePageRenderer
-from PageDisplay.models import TextModule, TitleModule, ImageModule
-from Questionaire.modules.modules import TechScoreModule
 from reports.modules.widgets import TechScorePDFWidget, ImagePDFWidget, TechScorePreviewPDFWidget
 
 
@@ -8,7 +6,8 @@ class ReportPageRenderer(BasePageRenderer):
     template_name = "reports/page_display/papersize_container.html"
 
     replaced_module_widgets = [
-        (TechScoreModule, TechScorePreviewPDFWidget),
+        ('TechScoreModule', TechScorePreviewPDFWidget),
+        ('ImageModule', ImagePDFWidget)
     ]
 
     def get_context_data(self, **kwargs):
@@ -27,6 +26,6 @@ class ReportPageRenderer(BasePageRenderer):
 
 class ReportPagePDFRenderer(ReportPageRenderer):
     replaced_module_widgets = [
-        (ImageModule, ImagePDFWidget),
-        (TechScoreModule, TechScorePDFWidget),
+        ('ImageModule', ImagePDFWidget),
+        ('TechScoreModule', TechScorePDFWidget),
     ]
