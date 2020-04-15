@@ -60,7 +60,7 @@
         {% for tech_score in widget.technology|get_tech_scores:widget.inquiry %}
             {% for note in tech_score|get_score_notes:widget.technology %}
                 <p>
-                    {{ widget.note|get_prepped_text:widget.inquiry }}
+                    {{ note|get_prepped_text:widget.inquiry }}
                 </p>
             {% endfor %}
         {% endfor %}
