@@ -30,7 +30,8 @@ class ExternalQuestionSource(models.Model):
         DataClass = self.local_table.get_data_class()
         try:
             data_object = DataClass.objects.get(**{self.local_table.db_key_column_name: code})
-            data_object.__getattribute__(self.local_attribute.db_column_name)
+            data_result = data_object.__getattribute__(self.local_attribute.db_column_name)
+            return data_result
         except DataClass.DoesNotExist:
             return None
 

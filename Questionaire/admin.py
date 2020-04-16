@@ -170,6 +170,8 @@ class AnswerNoteAdmin(ExportCsvMixin, admin.ModelAdmin):
 
 @admin.register(Page)
 class PageAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'position', 'auto_process')
+
     class PageQuestionsInlines(admin.TabularInline):
         model = PageEntryQuestion
         exclude = ("entry_type",)
