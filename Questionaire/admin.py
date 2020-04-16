@@ -67,7 +67,7 @@ class AnswerOptionAdmin(ExportCsvMixin, admin.ModelAdmin):
     list_filter = ('question', AnswerScoringFilter)
 
 
-@admin.register(Technology, TechGroup)
+@admin.register(Technology)
 class TechnologyAdmin(ExportCsvMixin, admin.ModelAdmin):
     exclude_csv_fields = ['icon', 'information_page']
 
@@ -124,6 +124,22 @@ class TechnologyAdmin(ExportCsvMixin, admin.ModelAdmin):
 
         messages.info(request, "Successfully converted {number} technologies to technologygroups".
                       format(number=merge_succesful))
+
+
+@admin.register(TechGroup)
+class TechGroupAdmin(admin.ModelAdmin):
+    actions = ['unlink_as_techgroup']
+
+    def unlink_as_techgroup(self, request, queryset):
+        """ Converts a technology to a tech group """
+        delete_succesful = 0
+
+        for obj in queryset:
+            obj.delete(keep_parents=True)
+            delete_succesful = delete_succesful + 1
+
+        messages.info(request, "Successfully converted {number} technologies to technologygroups".
+                      format(number=delete_succesful))
 
 
 @admin.register(AnswerScoring)
