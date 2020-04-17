@@ -1,0 +1,21 @@
+{% extends 'base_with_body.html' %}
+
+{% block body %}
+    <h1>Login</h1>
+    {% if user.is_authenticated %}
+        <p>Je hebt geen toegang tot deze pagina. Log in met een account dat wel toegang heeft.</p>
+    {% else %}
+        <p>Vul uw inloggegevens in om toegang tot de site te verkrijgen.</p>
+    {% endif %}
+    <form method="post">{% csrf_token %}
+        {% include "snippets/bootstrap_form.html" %}
+        <div class="row">
+            <div class="offset-3 col-9 btn-group ">
+                <input class="btn-primary btn" type="submit" value="Login">
+                <a href="{% url 'setup:tech_list' %}" class="btn btn-secondary">
+                    Annuleren
+                </a>
+            </div>
+        </div>
+    </form>
+{% endblock %}

@@ -11,6 +11,8 @@ class GeneralPagesSite(PageSite):
 
     name = 'general'
     use_page_keys = False
+    view_requires_login = False
+    extends_template = "base_public.html"
 
     @staticmethod
     def init_view_params(view_obj, **kwargs):

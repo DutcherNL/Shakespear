@@ -7,7 +7,15 @@ DISPLAY_TECH_SCORES_IN_VIEW = False
 
 DOMAIN_NAME = ""
 
+# Sessions settings
 SESSION_COOKIE_AGE = 86400
+SESSION_SAVE_EVERY_REQUEST = True
 
 # The display name on the site
 SITE_DISPLAY_NAME = "ENLEB BE"
+
+# User authentication
+LOGIN_URL = 'general:login'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+

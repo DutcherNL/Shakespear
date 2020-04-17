@@ -30,5 +30,5 @@ urlpatterns = [
     path('mails/', include('mailing.urls')),
     path('pages/', include('PageDisplay.urls')),
     path('techs/<slug:slug>/', tech_page_site.urls),
-    path('<slug:slug>/', page_site.urls),
+    path('', include('general.urls'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

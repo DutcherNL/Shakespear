@@ -26,7 +26,7 @@ class BasePageURL(models.Model):
         return super(BasePageURL, self).save(**kwargs)
 
     def get_absolute_url(self):
-        return reverse("general:view_page", kwargs={'slug': self.slug})
+        return reverse("general:general:view_page", kwargs={'slug': self.slug})
 
     def __str__(self):
         return self.name
