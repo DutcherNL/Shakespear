@@ -9,7 +9,7 @@ from PageDisplay.sites import PageSite
 class GeneralPagesSite(PageSite):
     """ A custom site for the page display """
 
-    name = 'general'
+    name = 'general_pages'
     use_page_keys = False
     view_requires_login = False
     extends_template = "base_public.html"

@@ -36,10 +36,10 @@
                     </td>
                     <td>
                         <div class="btn-group w-100" role="group" aria-label="Opties">
-                            <a href="{% url 'general:view_page' slug=page.slug %}" class="btn btn-secondary">
+                            <a href="{% url 'general:general_pages:view_page' slug=page.slug %}" class="btn btn-secondary">
                                 View page
                             </a>
-                            <a href="{% url 'general:edit_page' slug=page.slug %}" class="btn btn-warning">
+                            <a href="{% url 'general:general_pages:edit_page' slug=page.slug %}" class="btn btn-warning">
                                 Edit page
                             </a>
                         </div>
