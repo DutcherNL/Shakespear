@@ -8,6 +8,7 @@ from .forms import QuestionPageForm, EmailForm, InquirerLoadForm
 
 from PageDisplay.views import PageInfoView
 from reports.models import Report
+from questionaire_mailing.models import TriggeredMailTask
 
 # Create your views here.
 
@@ -210,6 +211,7 @@ class QPageView(FlexCssMixin, FormView):
         elif get_next:
             # There is no next page, so the end is reached; complete the inquiry
             self.inquiry.complete()
+            TriggeredMailTask.trigger(TriggeredMailTask.TRIGGER_INQUIRY_COMPLETE, inquiry=self.inquiry)
             return reverse('results_display')
 
         return reverse('run_query')

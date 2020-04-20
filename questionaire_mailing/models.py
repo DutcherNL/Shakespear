@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
-from Questionaire.models import Inquiry
+from Questionaire.models import Inquiry, Inquirer
 from PageDisplay.models import Page, TextModule
 from questionaire_mailing.renderers import MailHTMLRenderer
 
@@ -18,7 +19,7 @@ class MailPage(Page):
 class MailTask(models.Model):
     name = models.CharField(max_length=56)
     description = models.CharField(max_length=512)
-    active = models.BooleanField(default=False, verbose_name="Whether these mails are being send")
+    active = models.BooleanField(default=False, verbose_name="Tigger is active")
     layout = models.ForeignKey(Page, on_delete=models.CASCADE, blank=True, editable=False)
 
     def save(self, *args, **kwargs):
@@ -60,12 +61,17 @@ class MailTask(models.Model):
 class ProcessedMail(models.Model):
     """ A tracker to track which mails have been send and which ones have not."""
     mail = models.ForeignKey(to=MailTask, on_delete=models.CASCADE)
-    inquiry = models.ForeignKey(to=Inquiry, on_delete=models.CASCADE)
+    inquiry = models.ForeignKey(to=Inquiry, on_delete=models.CASCADE, blank=True, null=True)
+    inquirer = models.ForeignKey(to=Inquirer, on_delete=models.CASCADE, blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     was_applicable = models.BooleanField(verbose_name="Whether the mail has been send")
 
     class Meta:
         unique_together = ['mail', 'inquiry']
+
+    def clean(self):
+        if not (self.inquirer or self.inquiry):
+            raise ValidationError("Either inquirer or inquiry needs to have a value")
 
 
 class TimedMailTask(MailTask):
@@ -86,6 +92,10 @@ class TimedMailTask(MailTask):
     @property
     def type(self):
         return "Timed mail"
+
+    @property
+    def display_general_info(self):
+        return f'{self.days_after} dagen na {self.get_trigger_display()}'
 
     def get_all_sendable_inquiries(self, datetime=None):
         if datetime is None:
@@ -122,15 +132,17 @@ class TimedMailTask(MailTask):
 
         processed = 0
 
+        page_obj = self.layout.get_as_child()
+
         for inquiry in inquiries:
             mail_send = send_mail
 
             if send_mail:
                 # For each inquiry, construct the mail
                 # Send the mail
-                email = "test@test.nl"
+                email = inquiry.inquirer.email
                 if email:
-                    construct_and_send_mail(self.layout, {}, email)
+                    construct_and_send_mail(page_obj, {}, email)
                 else:
                     mail_send = False
 
@@ -140,5 +152,67 @@ class TimedMailTask(MailTask):
         return processed
 
 
+class TriggeredMailTask(MailTask):
+    TRIGGER_MAIL_REGISTERED = "MR"
+    TRIGGER_INQUIRY_COMPLETE = "IC"
+    EVENT_CHOICES = [
+        (TRIGGER_MAIL_REGISTERED, 'After mail registration'),
+        (TRIGGER_INQUIRY_COMPLETE, 'After inquiry completion'),
+    ]
+    event = models.CharField(max_length=3, choices=EVENT_CHOICES)
+
+    @property
+    def type(self):
+        return "Triggered mail"
+
+    @classmethod
+    def trigger(cls, event_type, inquiry=None, inquirer=None):
+        if not (inquirer or inquiry):
+            raise AssertionError("Either an inquiry or inquirer should be given")
+
+        active_mail_task = cls.objects.filter(event=event_type, active=True).first()
+        active_mail_task.generate_mail(inquiry=inquiry, inquirer=inquirer, send_mail=True)
+
+    @property
+    def display_general_info(self):
+        return f'{self.get_event_display()}'
+
+    def activate(self):
+        # Disable any other active mail triggers of the same type.
+        if not self.active:
+            TriggeredMailTask.objects.filter(event=self.event, active=True).update(active=False)
+        # Call the super
+        return super(TriggeredMailTask, self).activate()
+
+    def generate_mail(self, inquiry=None, inquirer=None, send_mail=False):
+        """
+        Creates the email from the given inquiry
+        :param inquiry:
+        :param inquirer:
+        :param send_mail:
+        :return:
+        """
+        if not send_mail:
+            # Mail should not be send, for triggers we do not track if triggers should have been triggered in the past
+            # Because it can not activate again by any other means than the actual event trigger.
+            return
+
+        # Get the email
+        email = None
+        if inquirer:
+            email = inquirer.email
+        elif inquiry:
+            email = inquiry.inquirer.email
+
+        if email:
+            context = {
+                'inquiry': inquiry,
+                'inquirer': inquirer,
+            }
+
+            construct_and_send_mail(self.layout.get_as_child(), context, email)
+            ProcessedMail.objects.create(mail=self, inquiry=inquiry, inquirer=inquirer, was_applicable=True)
 
 
+# Import the modules
+from questionaire_mailing.modules.modules import *

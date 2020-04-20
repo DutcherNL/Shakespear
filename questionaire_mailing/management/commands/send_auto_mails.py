@@ -15,11 +15,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        print(options)
         send_mail = options['no_mail']
 
         processed = 0
 
         for timed_task in TimedMailTask.objects.filter(active=True):
             processed += timed_task.generate_mail(send_mail=send_mail)
-        print(f'Processed {processed} mails')

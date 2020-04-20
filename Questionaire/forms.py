@@ -9,6 +9,7 @@ from .models import PageEntry, Inquirer, Question, InquiryQuestionAnswer
 from .fields import QuestionFieldFactory, IgnorableEmailField
 
 from .processors.timelogger import TimeLogger
+from questionaire_mailing.models import TriggeredMailTask
 
 class QuestionPageForm(forms.Form):
     """
@@ -110,14 +111,7 @@ class EmailForm(forms.Form):
         self.inquirer.email = self.cleaned_data.get('email', None)
         self.inquirer.save()
 
-        subject = "Welkom bij de menukaart"
-        template = "questionaire/welcome_code"
-        context = {'code': self.inquirer.get_inquiry_code()}
-
-        send_templated_mail(subject=subject,
-                            template_name=template,
-                            context_data=context,
-                            recipient=self.inquirer.email)
+        TriggeredMailTask.trigger(TriggeredMailTask.TRIGGER_MAIL_REGISTERED, inquirer=self.inquirer)
 
 
 class InquirerLoadForm(forms.Form):

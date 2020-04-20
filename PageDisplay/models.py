@@ -216,7 +216,17 @@ class BasicModuleMixin:
     @staticmethod
     def _render(widget, request, overlay=None, page_id=None, template_engine=None, **kwargs):
         # **kwargs catches all not relevant arguments
-        return widget.render(request, overlay=overlay, page_id=page_id, template_engine=template_engine)
+        # Construct local subset from global context
+        # This approach is used to prevent sudden adjustments in the global context_data
+        local_context = {}
+        for kwarg_name in widget.use_from_context:
+            local_context[kwarg_name] = kwargs.get(kwarg_name, None)
+
+        return widget.render(request,
+                             overlay=overlay,
+                             page_id=page_id,
+                             template_engine=template_engine,
+                             **local_context)
 
 
 class TitleModule(BasicModuleMixin, BaseModule):

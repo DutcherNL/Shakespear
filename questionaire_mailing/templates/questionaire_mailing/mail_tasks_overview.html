@@ -28,7 +28,7 @@
                         <b>{{ mail_task.name }}</b><br>{{ page.description }}
                     </td>
                     <td>
-                        {{ mail_task.type }} / {{ mail_task.get_as_child.days_after }} dagen na {{ mail_task.get_as_child.trigger }}
+                        {{ mail_task.type }} / {{ mail_task.get_as_child.display_general_info }}
                     </td>
                     <td>
                         {{ mail_task.active }}
@@ -62,7 +62,11 @@
             {% endfor %}
             </tbody>
         </table>
-        <a class="btn btn-block btn-primary" href="{% url "setup:mailings:add_timed" %}">Add timed mail task</a>
+        <div class="btn-group" role="group" aria-label="Mail creation">
+            <a class="btn btn-primary" href="{% url "setup:mailings:add_timed" %}">Add timed mail task</a>
+            <a class="btn btn-primary" href="{% url "setup:mailings:add_triggered" %}">Add triggered mail task</a>
+        </div>
+
     </div>
 
 {% endblock %}

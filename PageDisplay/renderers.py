@@ -24,19 +24,13 @@ class BasePageRenderer:
         # Renders the template with the context data.
         return template.render(context)
 
-    def get_context_data(self, request=None, overlay=None, page_id=None, **kwargs):
+    def get_context_data(self, request=None, **kwargs):
         context = {'request': request,
-                   'overlay': overlay,
-                   'page_id': page_id,
                    'page': self.page,
                    'renderer': self,
-                   'spacer': kwargs.get('spacer', None),
                    'current_container': self,
-                   'active_container': kwargs.get('active_container', None),
-                   'selected_module': kwargs.get('selected_module', None),
-                   'url_kwargs': kwargs.get('url_kwargs', None),
-                   'template_engine':  kwargs.get('template_engine', None),
                    }
+        context.update(kwargs)
         return context
 
     @property

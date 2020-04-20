@@ -9,6 +9,7 @@ from Questionaire.modules.widgets import TechScoreWidget
 
 class TechScoreModule(BasicModuleMixin, BaseModule):
     """ A module that displays the scores of a technology """
+    # Todo, change this to _type_id, currently its in the database as id 0
     type_id = 101
     verbose = "TechScore"
     widget = TechScoreWidget

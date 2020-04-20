@@ -1,0 +1,10 @@
+{% load page_tags %}
+
+{% render_spacer container=widget.module field_name="modules_top"  %}
+
+{% for sub_module in widget.module.get_modules %}
+    <div style="display: flex; position: relative">
+        {% render_module sub_module %}
+    </div>
+    {% render_spacer prev_module=sub_module container=widget.module field_name="modules" %}
+{% endfor %}

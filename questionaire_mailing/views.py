@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 
-from questionaire_mailing.models import MailTask, TimedMailTask
+from questionaire_mailing.models import MailTask, TimedMailTask, TriggeredMailTask
 
 
 class AccessabilityMixin(LoginRequiredMixin):
@@ -27,6 +27,13 @@ class AddTimedMailView(AccessabilityMixin, CreateView):
     success_url = reverse_lazy('setup:mailings:overview')
     template_name = "questionaire_mailing/mail_task_form.html"
     fields = ['name', 'days_after', 'trigger']
+
+
+class AddTriggeredMailView(AccessabilityMixin, CreateView):
+    model = TriggeredMailTask
+    success_url = reverse_lazy('setup:mailings:overview')
+    template_name = "questionaire_mailing/mail_task_form.html"
+    fields = ['name', 'description', 'event']
 
 
 class MailTaskUpdateMixin:
@@ -50,7 +57,10 @@ class UpdateMailTaskView(AccessabilityMixin, MailTaskUpdateMixin, UpdateView):
     def get_form_class(self):
         if isinstance(self.object, TimedMailTask):
             # Set the fields for the TimedMailTask
-            self.fields = ['name', 'days_after', 'trigger']
+            self.fields = ['name', 'description', 'days_after', 'trigger']
+        elif isinstance(self.object, TriggeredMailTask):
+            # Set the fields for the TimedMailTask
+            self.fields = ['name', 'description', 'event']
 
         return super(UpdateMailTaskView, self).get_form_class()
 

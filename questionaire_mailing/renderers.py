@@ -1,5 +1,5 @@
 from PageDisplay.renderers import BasePageRenderer
-from questionaire_mailing.module_widgets.module_widgets import *
+from questionaire_mailing.modules.module_widgets import *
 
 
 class MailHTMLRenderer(BasePageRenderer):
@@ -7,7 +7,8 @@ class MailHTMLRenderer(BasePageRenderer):
 
     replaced_module_widgets = [
         ('TitleModule', MailedHTMLTitleWidget),
-        ('TextModule', MailedHTMLTextWidget)
+        ('TextModule', MailedHTMLTextWidget),
+        ('VerticalContainerModule', MailedHTMLVerticalContainerWidget)
     ]
 
 
@@ -16,5 +17,7 @@ class MailPlainRenderer(BasePageRenderer):
 
     replaced_module_widgets = [
         ('TitleModule', MailedPlainTitleWidget),
-        ('TextModule', MailedPlainTextWidget)
+        ('TextModule', MailedPlainTextWidget),
+        ('InquirerCodeModule', MailedPlainInquirerCodeWidget),
+        ('VerticalContainerModule', MailedPlainVerticalContainerWidget)
     ]

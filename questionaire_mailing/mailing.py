@@ -1,10 +1,10 @@
 from django.core.mail import EmailMultiAlternatives, get_connection
 
-from questionaire_mailing.renderers import MailPlainRenderer
+from questionaire_mailing.renderers import MailPlainRenderer, MailHTMLRenderer
 
 
 def construct_and_send_mail(mail_page, context, to, **kwargs):
-    rendered_html_page = mail_page.render(**context)
+    rendered_html_page = mail_page.render(renderer=MailHTMLRenderer, **context)
     rendered_plain_page = mail_page.render(renderer=MailPlainRenderer, **context)
 
     send_mail(subject=mail_page.title,
