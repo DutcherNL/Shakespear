@@ -160,7 +160,12 @@ class QPageView(FlexCssMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['has_prev_page'] = Page.objects.filter(position__lt=self.page.position).exists()
+        total_page_count = Page.objects.count()
+        processed_pages = Page.objects.filter(position__lt=self.page.position)
+
+        context['progress_percentage'] = int(processed_pages.count() / total_page_count * 100)
+
+        context['has_prev_page'] = processed_pages.exists()
         context['has_next_page'] = Page.objects.filter(position__gt=self.page.position).exists()
 
         context['inquiry'] = self.inquiry

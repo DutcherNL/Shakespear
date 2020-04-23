@@ -25,10 +25,10 @@
                 {% with accordion_id='accordion_good' %}
                     <div id="{{ accordion_id }}">
                         {% for technology in techs_recommanded %}
-                            {% include "inquiry/inquiry_snippets/snippet_tech_group_accordion.html" with tech_id=technology.id extra_header_class='bg-success text-white' %}
+                            {% include "inquiry/inquiry_snippets/snippet_tech_group_accordion.html" with tech_id=technology.id %}
                         {% endfor %}
                         {% for technology in techs_varies %}
-                                {% include "inquiry/inquiry_snippets/snippet_tech_group_accordion.html" with tech_id=technology.id extra_header_class='bg-success text-white' %}
+                                {% include "inquiry/inquiry_snippets/snippet_tech_group_accordion.html" with tech_id=technology.id %}
                         {% endfor %}
                     </div>
                 {% endwith %}
@@ -66,9 +66,7 @@
             {% with 'accordion_bad' as accordion_id %}
                 <div id="{{ accordion_id }}">
                     {% for technology in techs_discouraged %}
-                        {% with extra_card_class='bg-danger text-white' %}
-                            {% include "inquiry/inquiry_snippets/snippet_tech_group_accordion.html" with tech_id=technology.id extra_header_class='bg-danger text-white' %}
-                        {% endwith %}
+                        {% include "inquiry/inquiry_snippets/snippet_tech_group_accordion.html" with tech_id=technology.id %}
                     {% endfor %}
                 </div>
             {% endwith %}

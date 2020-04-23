@@ -7,6 +7,19 @@
 
 {% block body %}
     <h1 class="row col-12">Vragen</h1>
+    <div class="row justify-content-center my-3">
+        <div class="col-12 col-md-10">
+            <!-- Progress bar -->
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="{{ progress_percentage }}"
+                     aria-valuemin="0" aria-valuemax="100" style="width:{{ progress_percentage }}%">
+                    <span class="sr-only">{{ progress_percentage }}% Complete</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{ progress_percentage }}%
+
     <form method="post" class="row">
         {% csrf_token %}
         <div class="col-12">
