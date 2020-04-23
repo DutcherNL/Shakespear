@@ -171,7 +171,8 @@ class TriggeredMailTask(MailTask):
             raise AssertionError("Either an inquiry or inquirer should be given")
 
         active_mail_task = cls.objects.filter(event=event_type, active=True).first()
-        active_mail_task.generate_mail(inquiry=inquiry, inquirer=inquirer, send_mail=True)
+        if active_mail_task is not None:
+            active_mail_task.generate_mail(inquiry=inquiry, inquirer=inquirer, send_mail=True)
 
     @property
     def display_general_info(self):
