@@ -9,7 +9,7 @@ from PageDisplay.sites import PageSite
 class TechPageSite(PageSite):
     """ A custom site for the page display """
 
-    name = 'pages'
+    namespace = 'pages'
     use_page_keys = False
     breadcrumb_trail_template = "inquiry/setup/snippet_breadcrumb_trail_technologies.html"
     site_context_fields = ['technology']

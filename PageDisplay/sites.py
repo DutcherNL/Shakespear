@@ -1,7 +1,7 @@
 from functools import update_wrapper
 
 from django.urls import path, include
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, Http404
 
 from PageDisplay import views
 from PageDisplay.module_registry import registry
@@ -11,14 +11,26 @@ __all__ = ['PageSite']
 
 
 class PageSite:
+    """ The PageSite object encapsulates an instance of the PageDisplay application
+
+    A PageSite is the 'admin of Pages'. It allows control of who can edit/view what pages and how they can be edited.
+
+    use_overview: add an overview page at '/all/' in the url
+    use_page_keys: adds a page key identifier in the url. Set False if you want to implement your own
+    can_be_edited: Whether this site can be used to edit page layouts
+
+    extends_template: adjust the default template it is build upon with your own design
+    template_engine: the template engine when rendering the page.
+    site_context_fields: a list of argument names that will be copied from the view object into the template context
     """
-    The PageSite object encapsulates an instance of the PageDisplay application
-    """
-    name = 'pages'
-    extends_template = None
-    use_overview = True
-    editable = True
+    namespace = 'pages'
+
+    # Broad controls
+    use_overview = False
     use_page_keys = True
+    can_be_edited = True
+
+    extends_template = None
     template_engine = None
     site_context_fields = []
 
@@ -27,13 +39,13 @@ class PageSite:
     view_requires_permissions = []
     edit_requires_permissions = []
 
-    # Limit the creation of modules that can be created
+    # Limit the type  of modules that can be created
     include_modules = None
     exclude_modules = None
 
     @property
     def urls(self):
-        return self.get_urls(), 'PageDisplay', self.name
+        return self.get_urls(), 'PageDisplay', self.namespace
 
     def get_urls(self):
         """ Returns the urls for the page module """
@@ -41,10 +53,6 @@ class PageSite:
         # A wrapper to allow class get_view do reverse url functions when setting up a view class
         def wrap(view_class):
             def wrapper(request, *args, **kwargs):
-                # Block access if it needs to be blocked
-                if not self.can_access(request, view_class):
-                    return HttpResponseForbidden("You are not allowed to access this page")
-
                 # Construct the view
                 init_values = self.get_view_init_kwargs(view_class)
                 return view_class.as_view(**init_values)(request, *args, **kwargs)
@@ -55,7 +63,10 @@ class PageSite:
 
         # Whether an overview page of all pages is present
         if self.use_overview:
-            urlpatterns += [path('all/', views.PageOverview.as_view(), name='overview')]
+            init_values = {
+                'site': self,
+            }
+            urlpatterns += [path('all/', views.PageOverview.as_view(**init_values), name='overview')]
 
         # Whether the page id is determined by itself or something else
         if self.use_page_keys:
@@ -63,7 +74,7 @@ class PageSite:
         else:
             url_string = ''
 
-        if self.editable:
+        if self.can_be_edited:
             edit_urls = path('edit/', include([
                 path('', wrap(views.PageAlterView), name='edit_page'),
                 path('settings/', wrap(views.PageAlterSettingsView), name='edit_page_settings'),
@@ -100,14 +111,12 @@ class PageSite:
             'url_kwargs': self.get_url_kwargs
         }
 
-    def can_access(self, request, view_class):
+    def can_access(self, request, view_obj):
         """
-        Checks whether the current requeset is valid. Allows checking for logged_in, permissions etc
-        :param view_obj:
-        :param request:
-        :return:
+        Checks whether the current requeset is valid. Allows checking for logged_in, permissions etc.
+        Raises HttpForbidden if access is restricted
         """
-        if view_class is views.PageInfoView:
+        if isinstance(view_obj, views.PageInfoView):
             # Check user logged in requirement
             if not request.user.is_authenticated and self.view_requires_login:
                 return False
@@ -115,14 +124,20 @@ class PageSite:
             for permission in self.view_requires_permissions:
                 if not request.user.has_perm(permission):
                     return False
-        else:
-            if not request.user.is_authenticated and self.edit_requires_login:
+        elif isinstance(view_obj, views.PageOverview):
+            if not request.user.is_authenticated and self.view_requires_login:
                 return False
+            for permission in self.view_requires_permissions:
+                if not request.user.has_perm(permission):
+                    return False
+        else:
+            print("-------------")
+            if not request.user.is_authenticated and self.edit_requires_login:
+                raise False
             # Check all persmissions
             for permission in self.edit_requires_permissions:
                 if not request.user.has_perm(permission):
-                    return False
-
+                    raise False
         return True
 
     @staticmethod
@@ -136,9 +151,12 @@ class PageSite:
         get_url_kwargs(view_obj):
             return {'blog_id': view_obj.blog}
         """
-        return {
-            'page_id': view_obj.page.id
-        }
+        if view_obj.site.use_page_keys:
+            return {
+                'page_id': view_obj.page.id
+            }
+        else:
+            return {}
 
     @staticmethod
     def init_view_params(view_obj, **kwargs):
@@ -153,7 +171,16 @@ class PageSite:
             view_obj.blog_id = SpecialBlogPost.objects.get(pk=kwargs['blog_id'])
             view_obj.page = blog_id.page # set the page parameter
         """
-        view_obj.page = Page.objects.get(pk=kwargs['page_id']).get_as_child()
+        if view_obj.site.use_page_keys:
+            page = view_obj.site.get_queryset().filter(pk=kwargs['page_id']).first()
+            # Make sure it is the right sub-class (if applicable)
+            if page:
+                view_obj.page = page.get_as_child()
+            else:
+                if isinstance(view_obj, views.PageOverview):
+                    pass
+                else:
+                    raise Http404
 
     def get_header_buttons(self, view_class):
         """ Returns a dictionary of urls to craft buttons that will be displayed in the header in all situations
@@ -169,6 +196,13 @@ class PageSite:
 
         return registry.get_module_list(include=self.include_modules,
                                         exclude=self.exclude_modules)
+
+    def get_queryset(self):
+        """ Returns the queryset of availlable page objects.
+        In order to limit the possible Page objects to your liking overwrite this method.
+        Note: This method only applies when use_page_keys is set to True or when use_overview is True
+        """
+        return Page.objects.all()
 
 
 page_site = PageSite()

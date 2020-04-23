@@ -8,10 +8,10 @@ from PageDisplay.sites import PageSite
 
 class TechPageSite(PageSite):
     """ A custom site for the page display """
-    editable = False
+    can_be_edited = False
     site_context_fields = ['technology']
     use_page_keys = False
-    name = "technologies"
+    namespace = "technologies"
     extends_template = "base_public.html"
     view_requires_login = False
 

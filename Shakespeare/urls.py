@@ -20,7 +20,7 @@ from django.urls import path, include
 from .index import index
 
 from Questionaire.techpages import tech_page_site
-from general.site import page_site
+from PageDisplay.sites import page_site
 
 urlpatterns = [
     path('', index, name='index'),
@@ -30,5 +30,6 @@ urlpatterns = [
     path('mails/', include('mailing.urls')),
     path('pages/', include('PageDisplay.urls')),
     path('techs/<slug:slug>/', tech_page_site.urls),
+    path('test/', page_site.urls),
     path('', include('general.urls'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

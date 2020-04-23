@@ -1,6 +1,6 @@
 from django.views.generic import TemplateView, UpdateView, DeleteView, FormView
 from django.views.generic.list import ListView
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -15,10 +15,21 @@ from . import reverse_ns
 # ------------------------------------ """
 
 
-class PageOverview(LoginRequiredMixin, ListView):
-    model = Page
+class PageOverview(ListView):
     context_object_name = "pages"
     template_name = "pagedisplay/pages_overview.html"
+    site = None
+
+    def get_queryset(self):
+        # Call the queryset of the site instead of the one in ListView as that allows more versatility
+        return self.site.get_queryset()
+
+    def dispatch(self, request, *args, **kwargs):
+        # Check access
+        if not self.site.can_access(request, self):
+            return HttpResponseForbidden("You are not allowed to access this page")
+
+        return super(PageOverview, self).dispatch(request, *args, **kwargs)
 
 # ------------------------------------ """
 # -------- Page Display Pages -------- """
@@ -45,9 +56,14 @@ class PageMixin:
         self.init_view_params = kwargs.pop('init_view_params', self.init_view_params)
         super(PageMixin, self).__init__(*args, **kwargs)
 
-    def dispatch(self, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         self.init_params(**kwargs)
-        return super(PageMixin, self).dispatch(*args, **kwargs)
+
+        # Check access
+        if not self.site.can_access(request, self):
+            return HttpResponseForbidden("You are not allowed to access this page")
+
+        return super(PageMixin, self).dispatch(request, *args, **kwargs)
 
     def init_params(self, **kwargs):
         if self.init_view_params is not None:
@@ -98,7 +114,7 @@ class PageInfoView(PageMixin, TemplateView):
     def init_params(self, **kwargs):
         super(PageInfoView, self).init_params(**kwargs)
 
-        if self.site is not None and self.site.editable:
+        if self.site is not None and self.site.can_be_edited:
             # Create the Edit Page button
             namespace = self.request.resolver_match.namespace
             self.header_buttons['Edit Page'] = reverse(namespace+':edit_page', kwargs=kwargs, current_app=namespace)

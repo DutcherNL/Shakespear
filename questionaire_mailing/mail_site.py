@@ -20,7 +20,6 @@ class MailSite(PageSite):
         This methoed can also check access by raising a 404Error or 403Error
         """
         view_obj.mail_task = get_object_or_404(MailTask, id=kwargs['mail_id'])
-        view_obj.inquirer = Inquirer.objects.filter(email__isnull=False).first()
         try:
             view_obj.page = view_obj.mail_task.layout
         except MailTask.DoesNotExist:
