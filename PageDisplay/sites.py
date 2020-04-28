@@ -103,6 +103,7 @@ class PageSite:
         return urlpatterns
 
     def get_view_init_kwargs(self, view_class):
+        """ Builds a list of initial key_word arguments"""
         return {
             'site': self,
             'extends': self.extends_template,
@@ -114,7 +115,9 @@ class PageSite:
     def can_access(self, request, view_obj):
         """
         Checks whether the current requeset is valid. Allows checking for logged_in, permissions etc.
-        Raises HttpForbidden if access is restricted
+        Returns False if access is forbidden.
+        This method is called in the View dispatch method. It returns an If statement for convience in returning
+        ResponseForbiddenRequests (which opposed to 404 errors are not an Error that can be raised)
         """
         if isinstance(view_obj, views.PageInfoView):
             # Check user logged in requirement
@@ -131,7 +134,7 @@ class PageSite:
                 if not request.user.has_perm(permission):
                     return False
         else:
-            print("-------------")
+            # It is one of the Editing views by exclusion
             if not request.user.is_authenticated and self.edit_requires_login:
                 raise False
             # Check all persmissions
@@ -161,7 +164,7 @@ class PageSite:
     @staticmethod
     def init_view_params(view_obj, **kwargs):
         """ A method that sets view specific parameters, triggered in each view upon dispatch
-        This methoed can also check access by raising a 404Error or 403Error
+        To check access, use an extention of the can_access method
 
         Use this when for instance you want to obtain the page object through a diffent object:
         class SpecialBlogPost:

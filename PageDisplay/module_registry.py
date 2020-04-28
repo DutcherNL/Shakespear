@@ -4,7 +4,15 @@ class AlreadyRegistered(Exception):
 
 
 class ModuleRegister:
-    """ This class registers the various modules and allows hooking onto those modules """
+    """ This class registers the various modules and allows hooking onto those modules
+    Similarly to the admin register, this registry registers all modules.
+    Unlike the admin register however, this register needs to be aware of all modules possible in order for the system
+    to work.
+    In a future version the system will be adjusted to incorporate django.content_types so it doesn't have to know
+    all kinds of modules any more.
+
+
+    """
 
     _modules = {}
 

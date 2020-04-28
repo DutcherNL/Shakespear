@@ -171,12 +171,29 @@ class BaseModule(models.Model):
         self._type = self._type_id
         super(BaseModule, self).save(**kwargs)
 
+    def get_modules(self, filter_class_type=None, filter_id=None):
+        """
+        Returns a list of all modules.
+        :param filter_id: The id that needs to be searched (if used it ignores filter_class_type)
+        :param filter_class_type: Filters for a specific class type only
+        :return: A list of all modules that apply to the query
+        """
+        if filter_id:
+            if self.id == filter_id:
+                return [self]
+            else:
+                return []
+
+        if isinstance(self, filter_class_type):
+            return [self]
+        else:
+            return []
+
 
 class ContainerModuleMixin:
     """ Superclass for basic container modules
     A ContainerModule is an advanced level module that can contain other modules
     """
-    pass
 
 
 class OrderedContainerModule(ContainerModuleMixin, BaseModule):
@@ -185,13 +202,29 @@ class OrderedContainerModule(ContainerModuleMixin, BaseModule):
                                          through_fields=('container', 'module'),
                                          related_name='container')
 
-    def get_modules(self, direct_only=True, filter_class_type=None):
-        """ Returns all modules"""
-        # Todo: chain reactions
-        # Todo: filter class types
+    def get_modules(self, filter_class_type=None, filter_id=None):
+        """
+        Returns a list of all modules including itself that it contains. Extended because it contains modules
+        :param filter_id: The id that needs to be searched (if used it ignores filter_class_type
+        :param filter_class_type:
+        :return: A list of the modules that were applicable
+        """
+
+        if filter_id:
+            link = self.module_link.filter(id=filter_id).first()
+            if link:
+                return [link.module.get_child()]
+            elif self.id == filter_id:
+                return [self]
+
+        # Add all contained modules and add them to the list
         modules = []
         for module_link in self.module_link.order_by('position'):
-            modules.append(module_link.module.get_child())
+            modules.extend(module_link.module.get_child().get_modules(filter_class_type=filter_class_type,
+                                                                      filter_id=filter_id))
+
+        modules.extend(super(OrderedContainerModule, self).get_modules(filter_class_type=filter_class_type,
+                                                                       filter_id=filter_id))
         return modules
 
 
