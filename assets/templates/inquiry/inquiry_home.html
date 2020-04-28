@@ -25,15 +25,23 @@
         </div>
         <hr class="col-12">
 
-        <form method="post" action="{% url 'new_query' %}" class="col-md-4">
-            <br class="mt-2">
-            Start een geheel nieuwe vragenlijst
+        <form method="post" action="{% url 'new_query' %}" class="col-md-6 border-right">
+
+            <div class="mt-2">
+                Start een geheel nieuwe vragenlijst
+            </div>
+            <br class="mt-1">
+            <br class="mt-1">
+
             {% csrf_token %}
             <input type="submit" name="next" value="Start nieuw"
-                class="btn btn-primary btn-block"/>
+                class="btn btn-primary btn-block "/>
         </form>
 
-        <form method="post" action="{% url 'run_continue' %}" class="col-md-8">
+        <form method="post" action="{% url 'run_continue' %}" class="col-md-6">
+            <div class="mt-2">
+                Of ga verder waar u gebleven was
+            </div>
             {% csrf_token %}
             {% with inquiry_entry_form as form %}
                 {% include "snippets/bootstrap_form.html" %}
