@@ -29,6 +29,7 @@
 
     {% if widget.module.display_description or widget.module.display_sub_technologies or widget.module.display_notes %}
         <div class="p-2">
+            {{ widget.technology.icon.path }}
             {% if widget.module.display_description %}
                 <h3>{{ widget.technology.name }}</h3>
                 <p>
