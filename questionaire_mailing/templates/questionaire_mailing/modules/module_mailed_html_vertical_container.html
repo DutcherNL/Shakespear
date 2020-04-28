@@ -2,7 +2,7 @@
 
 {% render_spacer container=widget.module field_name="modules_top"  %}
 
-{% for sub_module in widget.module.get_modules %}
+{% for sub_module in widget.module.get_sub_modules %}
     <div style="display: flex; position: relative">
         {% render_module sub_module %}
     </div>

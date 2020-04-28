@@ -1,4 +1,4 @@
 {% load page_tags %}
 
-{% for sub_module in widget.module.get_modules %}
+{% for sub_module in widget.module.get_sub_modules %}
 {% render_module sub_module %}{% endfor %}

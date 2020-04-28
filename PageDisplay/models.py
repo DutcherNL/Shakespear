@@ -171,23 +171,30 @@ class BaseModule(models.Model):
         self._type = self._type_id
         super(BaseModule, self).save(**kwargs)
 
-    def get_modules(self, filter_class_type=None, filter_id=None):
+    def get_modules(self, filter_class_type=None, filter_id=None, exclude_self=False):
         """
         Returns a list of all modules.
+        :param exclude_self: Whether this instance itself should be included
         :param filter_id: The id that needs to be searched (if used it ignores filter_class_type)
         :param filter_class_type: Filters for a specific class type only
         :return: A list of all modules that apply to the query
         """
+        if exclude_self:
+            return []
+
         if filter_id:
             if self.id == filter_id:
                 return [self]
             else:
                 return []
 
-        if isinstance(self, filter_class_type):
-            return [self]
+        if filter_class_type:
+            if isinstance(self, filter_class_type):
+                return [self]
+            else:
+                return []
         else:
-            return []
+            return [self]
 
 
 class ContainerModuleMixin:
@@ -202,7 +209,14 @@ class OrderedContainerModule(ContainerModuleMixin, BaseModule):
                                          through_fields=('container', 'module'),
                                          related_name='container')
 
-    def get_modules(self, filter_class_type=None, filter_id=None):
+    def get_sub_modules(self):
+        """
+        Returns a list of all sub modules
+        :return: A list of all modules it contains
+        """
+        return self.get_modules(exclude_self=True)
+
+    def get_modules(self, filter_class_type=None, filter_id=None, exclude_self=False):
         """
         Returns a list of all modules including itself that it contains. Extended because it contains modules
         :param filter_id: The id that needs to be searched (if used it ignores filter_class_type
@@ -221,10 +235,12 @@ class OrderedContainerModule(ContainerModuleMixin, BaseModule):
         modules = []
         for module_link in self.module_link.order_by('position'):
             modules.extend(module_link.module.get_child().get_modules(filter_class_type=filter_class_type,
-                                                                      filter_id=filter_id))
+                                                                      filter_id=filter_id,
+                                                                      exclude_self=False))
 
         modules.extend(super(OrderedContainerModule, self).get_modules(filter_class_type=filter_class_type,
-                                                                       filter_id=filter_id))
+                                                                       filter_id=filter_id,
+                                                                       exclude_self=exclude_self))
         return modules
 
 
