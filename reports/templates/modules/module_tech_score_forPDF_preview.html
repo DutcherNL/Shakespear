@@ -4,10 +4,13 @@
     <div class="card-header py-0 {{ widget.extra_header_class }}" id="{{ widget.tech_id }}">
         <h5 class="mb-0">
             <div class="row">
-                {% if widget.technology.icon %}
-                    <img class="" src="{{ widget.technology.icon.url }}" width="50" height="50">
-                {% endif %}
-                <div class="col py-3"> {{ widget.technology.name }}</div>
+                <div class="col">
+                    {% if widget.technology.icon %}
+                        <span style="color: #FFFFFF; margin-left: -1em; opacity: 0;">.</span>
+                        <img class="" src="{{ widget.technology.icon.url }}" width="50" height="50">
+                    {% endif %}
+                    {{ widget.technology.name }}
+                </div>
 
                 {% with widget.technology|get_tech_score:widget.inquiry as score %}
                     <div class="col text-right py-3 {{ score|get_font_class_for_score }}">

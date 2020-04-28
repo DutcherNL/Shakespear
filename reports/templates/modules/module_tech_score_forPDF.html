@@ -1,4 +1,5 @@
 {% load score_result_tags %}
+{% load pdf_tags %}
 
 <div class="card {{ widget.extra_card_class }}  my-2">
     <div class="card-header py-0 {{ widget.extra_header_class }}" id="{{ widget.tech_id }}">
@@ -6,7 +7,10 @@
             <div class="" style="display: -webkit-box; display: flex; -webkit-box-pack: center;
                                     justify-content: center;">
                 {% if widget.technology.icon %}
-                    <img class="" src="{{ widget.technology.icon.path }}" width="50" height="50">
+                    <!-- WKHTMLTOPDF does a bit of a weird transparancy glitch. This fixes it -->
+                    <!-- See https://github.com/wkhtmltopdf/wkhtmltopdf/issues/2221 -->
+                    <span style="color: #FFFFFF; margin-left: -1em; opacity: 0;">.</span>
+                    <img class="" src="{{ widget.technology.icon.path|fix_url_string }}" width="50" height="50">
                 {% endif %}
                 <div class="p-3" style="-webkit-box-flex: 1; -webkit-flex: 1; flex:1;">
                     {{ widget.technology.name }}
