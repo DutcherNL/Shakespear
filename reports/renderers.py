@@ -6,8 +6,7 @@ class ReportPageRenderer(BasePageRenderer):
     template_name = "reports/page_display/papersize_container.html"
 
     replaced_module_widgets = [
-        ('TechScoreModule', TechScorePreviewPDFWidget),
-        ('ImageModule', ImagePDFWidget)
+        ('TechScoreModule', TechScorePreviewPDFWidget)
     ]
 
     def get_context_data(self, **kwargs):
