@@ -21,6 +21,7 @@ LOGOUT_REDIRECT_URL = '/'
 
 # A correction on the font size when rendering a page (to correct for different layouts on different OS
 # WkhtmlToPdf renders font size slightly larger on Ubuntu machines vs Windows machines
-PDF_BASE_FONT_SIZE = "85%"
+# Value is interpreted as percentage so it can possibly interact with other set values
+PDF_BASE_FONT_SIZE = 85
 
 

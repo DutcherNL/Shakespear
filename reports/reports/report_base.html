@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" style="{% if PDF_BASE_FONT_SIZE %}font-size: {{ PDF_BASE_FONT_SIZE }}%;{% endif %}">
 <head>
     <meta charset="utf-8">
 
@@ -13,7 +13,7 @@
     {% block head %}{% endblock %}
     <title>{% block title %}Shakespear: The questionaire{% endblock %}</title>
 </head>
-<body class="" style="{% if PDF_BASE_FONT_SIZE %}font-size: {{ PDF_BASE_FONT_SIZE }};{% endif %}">
+<body class="">
 {% block base %}
     {% if show_overview %}
         <div class="container my-3 border border-dark rounded bg-light" style="height: 110mm">
