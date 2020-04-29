@@ -175,3 +175,5 @@ local_settings.py
 ignore/*
 
 /static/
+
+Shakespeare/local_settings.py
