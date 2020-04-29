@@ -1,5 +1,6 @@
 from PageDisplay.renderers import BasePageRenderer
 from reports.modules.widgets import TechScorePDFWidget, ImagePDFWidget, TechScorePreviewPDFWidget
+from django.conf import settings
 
 
 class ReportPageRenderer(BasePageRenderer):
@@ -17,6 +18,8 @@ class ReportPageRenderer(BasePageRenderer):
             'margins': report_display_options.margins,
             'size': report_display_options.paper_proportions
         }
+        context['font_size_correction'] = settings.PDF_BASE_FONT_SIZE
+
         if self.page.has_header_footer:
             context['header'] = report_display_options.header
             context['footer'] = report_display_options.footer

@@ -13,7 +13,7 @@
     {% block head %}{% endblock %}
     <title>{% block title %}Shakespear: The questionaire{% endblock %}</title>
 </head>
-<body class="">
+<body class="" style="{% if font_size_correction %}font-size: {{ font_size_correction }};{% endif %}">
 
 {% block base %}
     {% if show_overview %}

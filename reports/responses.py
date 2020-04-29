@@ -28,6 +28,7 @@ class PDFResponse(FileResponse):
 
     def save_as_pdf(self, html_layout, filepath, options={}):
         base_options = {
+            'dpi': 96,  # Set DPI to a fixed value to correspond with Windows (vital for things like line-width)
             'page-size': 'A4',
             'orientation': 'Portrait',
             'margin-top': '0in',
