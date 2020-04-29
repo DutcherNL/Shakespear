@@ -13,8 +13,7 @@
     {% block head %}{% endblock %}
     <title>{% block title %}Shakespear: The questionaire{% endblock %}</title>
 </head>
-<body class="" style="{% if font_size_correction %}font-size: {{ font_size_correction }};{% endif %}">
-
+<body class="" style="{% if PDF_BASE_FONT_SIZE %}font-size: {{ PDF_BASE_FONT_SIZE }};{% endif %}">
 {% block base %}
     {% if show_overview %}
         <div class="container my-3 border border-dark rounded bg-light" style="height: 110mm">

@@ -96,7 +96,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'Shakespeare.context_processors.questionaire_context'
+                'Shakespeare.context_processors.questionaire_context',
+                'Shakespeare.context_processors.pdf_context',
             ],
             'builtins': ['reports.templatetags.pdf_tags'],
         }

@@ -1,4 +1,5 @@
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
+from django.db import OperationalError
 from django.forms import ValidationError
 
 from local_data_storage.models import DataTable, DataColumn, DataContent
@@ -7,7 +8,7 @@ from . import DataTestingMixin
 # Create your tests here.
 
 
-class DataModelTestCase(DataTestingMixin, TestCase):
+class DataModelTestCase(DataTestingMixin, TransactionTestCase):
     @staticmethod
     def assertNotClean(model, *args, **kwargs):
         """
@@ -51,8 +52,31 @@ class DataModelTestCase(DataTestingMixin, TestCase):
         pass
 
     def test_defaults(self):
+        """ Test the default values """
+        self.setUpTestData()
         self.assertEqual(self.dt_3.key_column_name, 'key')
-        self.assertEqual(self.dt_3.db_table_class_name, 'local_data_storage_raw_data')
+        self.assertEqual(self.dt_3.db_table_class_name, 'raw_data')
+        self.assertFalse(self.dt_3.is_active)
+
+    def test_database_locking(self):
+        """
+        Assert that database processes correctly
+        :return:
+        """
+        self.setUpTestData()
+
+        self.assertFalse(self.dt_1.is_active)
+        try:
+            self.dt_1.create_table_on_db()
+        except OperationalError as e:
+            raise AssertionError(f'An operational error occured: {str(e.value)}')
+
+        self.assertTrue(self.dt_1.is_active)
+        try:
+            self.dt_1.create_table_on_db()
+        except RuntimeError:
+            """ It should raise a runtime error as the table is already active and can not be created again """
+
 
     def test_content_constraints(self):
         # Test that content is part of the correct declaration

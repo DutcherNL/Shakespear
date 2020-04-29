@@ -8,3 +8,11 @@ def questionaire_context(request):
 
     context['SITE_DISPLAY_NAME'] = settings.SITE_DISPLAY_NAME
     return context
+
+
+def pdf_context(request):
+    return {
+        # A correction for the font size in PDF templates
+        'PDF_BASE_FONT_SIZE': settings.PDF_BASE_FONT_SIZE
+    }
+

@@ -5,6 +5,16 @@ from local_data_storage.models import DataTable, DataColumn
 class DataTestingMixin:
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up the Testing Data
+        Note that it will raise a warning that a model is reloaded. This should not be a problem as the contents
+        have not changed and thus no conflicts can occur.
+        :return:
+        """
+        if hasattr(cls, 'dt_1'):
+            # Ensure this method is not triggered twice
+            return
+
         # Datatable to test data entries
         cls.dt_1 = DataTable.objects.create(name='postcode',
                                             description='Tabel met postcode',
@@ -14,7 +24,6 @@ class DataTestingMixin:
         cls.dt_1_columns.append(DataColumn.objects.create(table=cls.dt_1, name='eigenschap_1'))
         cls.dt_1_columns.append(DataColumn.objects.create(table=cls.dt_1, name='eigenschap_2'))
         cls.dt_1_columns.append(DataColumn.objects.create(table=cls.dt_1, name='eigenschap_3'))
-        cls.dt_1.create_table_on_db()
         cls.mc_1 = cls.dt_1.get_data_class()
 
         # Datatable to test column types
@@ -27,6 +36,7 @@ class DataTestingMixin:
         cls.mc_2 = cls.dt_1.get_data_class()
 
         # Datatable for testing unprocessed state
-        cls.mc_3 = DataTable.objects.create(name='raw data',
+        cls.dt_3 = DataTable.objects.create(name='raw data',
                                             description='test raw data, is not active')
         cls.dt_3_column = DataColumn.objects.create(table=cls.dt_3, name='Just a column')
+
