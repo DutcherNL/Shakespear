@@ -36,13 +36,24 @@ class DataTable(models.Model):
             return get_as_db_name(self.name)
 
     def save(self, **kwargs):
+        self.slug = slugify(self.name)
+
         if self.is_active:
             # Check if the state on the database is not active, otherwise it can not be saved
+            if not self.id:  # If self is not yet created, just process it normally
+                return super(DataTable, self).save(**kwargs)
+
             db_obj = DataTable.objects.get(id=self.id)
             if db_obj.is_active:
-                raise ValidationError(f"DataTable object '{self.name}' can not be saved as it is already active")
+                # block adjustment of db_values
+                kwargs.setdefault('update_fields',
+                                  ['name', 'slug', 'description', 'key_column_name'])
+                for unadjustable in ['_db_table_class_name', '_db_key_column_name']:
+                    if unadjustable in kwargs['update_fields']:
+                        kwargs['update_fields'].remove(unadjustable)
 
-        self.slug = slugify(self.name)
+                return super(DataTable, self).save(**kwargs)
+
         return super(DataTable, self).save(**kwargs)
 
     def create_table_on_db(self):
@@ -104,12 +115,12 @@ class DataColumn(models.Model):
     CHARFIELD = 'CH'
     INTFIELD = 'IN'
     FLOATFIELD = 'FL'
-    YEAR_IN_SCHOOL_CHOICES = [
+    COLUMN_TYPES = [
         (CHARFIELD, 'Text field'),
         (INTFIELD, 'Integer field'),
         (FLOATFIELD, 'Float field'),
     ]
-    column_type = models.CharField(max_length=2, choices=YEAR_IN_SCHOOL_CHOICES, default=CHARFIELD)
+    column_type = models.CharField(max_length=2, choices=COLUMN_TYPES, default=CHARFIELD)
 
     @property
     def db_column_name(self):
@@ -120,6 +131,19 @@ class DataColumn(models.Model):
 
     def save(self, **kwargs):
         self.slug = slugify(self.name)
+
+        if self.table.is_active:
+            if self.id is None:
+                return  # Trying to add a column to an already active table is not allowed
+
+            # Disable certain fields from being altered
+            kwargs.setdefault('update_fields', ['name', 'slug'])
+            for unadjustable in ['table', '_db_column_name', 'column_type']:
+                if unadjustable in kwargs['update_fields']:
+                    kwargs['update_fields'].remove(unadjustable)
+
+            return super(DataColumn, self).save(**kwargs)
+
         return super(DataColumn, self).save(**kwargs)
 
     def get_model_field(self):
@@ -136,9 +160,17 @@ class DataColumn(models.Model):
 
 class DataContent(models.Model):
     """ This class will be mixed in the actual content classes during runtime"""
+    _key_name = None  # The name of the key field
+    data_table_obj = None  # The data_table instance from which the content is constructed
 
     class Meta:
         abstract = True
+
+    def __init__(self, *args, key=None, **kwargs):
+        # Allow the key to be set through the key argument as well
+        if key:
+            kwargs[self._key_name] = key
+        super(DataContent, self).__init__(*args, **kwargs)
 
     @property
     def get_key(self):
@@ -174,6 +206,3 @@ class DataContent(models.Model):
         # Set the other property fields
         for column in data_table_obj.datacolumn_set.all():
             attrs[column.db_column_name] = column.get_model_field()
-
-
-
