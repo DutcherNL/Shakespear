@@ -7,6 +7,8 @@ from Questionaire.fields import IntegerQuestionField, \
     DecimalQuestionField, ChoiceQuestionField, CharQuestionField, IgnorableEmailField, QuestionFieldFactory
 from Questionaire.widgets_question import ExternalDataInput, ExternalDataInputLocal
 
+from local_data_storage.tests import DataContentTestMixin
+
 """ For language convenience we only test if it fails, not the exact error it gives
     If at some point that is wanted implement Django's assertFieldOutput method
 """
@@ -303,79 +305,87 @@ class FieldsTestCase(FieldTestMixin, TestCase):
         self.assertNotValidates(field, options.last().value)
 
 
-# class ExternalSourceTestCase(FieldTestMixin, TestCase):
-#     """"
-#     Any field with a question that is 'linked' should have the external_source_widget implemented
-#     The widget needs to be tested
-#     """
-#     @classmethod
-#     def setUpTestData(cls):
-#         cls.setUpDatsStorage()
-#
-#         cls.questions = {}
-#
-#         def make_linked_question(name, type, code_source):
-#             question = Question.objects.create(name=f'Ext_Q_{name}',
-#                                                question_type=type)
-#             ExternalQuestionSource.objects.create(question=question,
-#                                                   code_type=cls.sdcd_1,
-#                                                   content_type=cls.sdcd_1_data[1],
-#                                                   code_source=code_source)
-#             return question
-#
-#         # Create base cases
-#         cls.questions['int'] = make_linked_question("int", Question.TYPE_INT, "1234AB")
-#         cls.questions['double'] = make_linked_question("double", Question.TYPE_DOUBLE, "1234AB")
-#         cls.questions['char'] = make_linked_question("int", Question.TYPE_OPEN, "1234AB")
-#         cls.questions['choice'] = make_linked_question("choice", Question.TYPE_CHOICE, "1234AB")
-#
-#         # Used for bouncing answers
-#         cls.questions['int_bounce'] = make_linked_question("int_bounce", Question.TYPE_INT, "5875KH")
-#
-#         # Used for query testing
-#         cls.questions['lookup'] = Question.objects.create(name="CharQ", question_type=Question.TYPE_OPEN)
-#         cls.questions['int_query'] = make_linked_question("int_query", Question.TYPE_INT, "{q_CharQ}")
-#
-#     @classmethod
-#     def setUpDatsStorage(cls):
-#         cls.sdcd_1 = StoredDataCodeDeclaration.objects.create(name='postcode', code_regex='^[0-9]{4}[A-Z]{2}$')
-#         cls.sdcd_1_data = []
-#         cls.sdcd_1_data.append(StoredDataDeclaration.objects.create(code_type=cls.sdcd_1, name='eigenschap_1'))
-#         cls.sdcd_1_data.append(StoredDataDeclaration.objects.create(code_type=cls.sdcd_1, name='eigenschap_2'))
-#
-#         sdc = StoredDataCode.objects.create(code_type=cls.sdcd_1, identification_code="1234AB")
-#         StoredDataContent.objects.create(code=sdc, data_declaration=cls.sdcd_1_data[0], content="10")
-#         StoredDataContent.objects.create(code=sdc, data_declaration=cls.sdcd_1_data[1], content="25")
-#
-#     def test_external_widget_presence(self):
-#         """ Checks that the widget in the fields have been set to the correct widget """
-#
-#         inquiry = set_up_inquiry()
-#         for key, question in self.questions.items():
-#             # Check for the four basic question types that it uses an externalDataInput Widget
-#             if key in ['int', 'double', 'char', 'choice']:
-#                 field = QuestionFieldFactory.get_field_by_questionmodel(question=question, inquiry=inquiry)
-#                 # Test that the widget is correctly replaced
-#                 if not isinstance(field.widget, ExternalDataInput):
-#                     raise AssertionError(f'Widget of {key} is not of type ExternalDataInput')
-#
-#     def test_widget_retrieval(self):
-#         """ Tests that the widget uses retrieval from the database """
-#         inquiry = set_up_inquiry()
-#         widget = ExternalDataInputLocal(inquiry, self.questions['int'].externalquestionsource)
-#         # This can all be empty, the look-up does not require intell from the POST data
-#         self.assertEqual(widget.value_from_datadict(None, None, None), str(25))
-#
-#         # Test that a code that can't be found returns None
-#         widget = ExternalDataInputLocal(inquiry, self.questions['int_bounce'].externalquestionsource)
-#         self.assertIsNone(widget.value_from_datadict(None, None, None))
-#
-#         # Test that the widget uses the format from database processor
-#         widget = ExternalDataInputLocal(inquiry, self.questions['int_query'].externalquestionsource)
-#         # No answer is available, so it should return None
-#         self.assertIsNone(widget.value_from_datadict(None, None, None))
-#         # Set an answer and test it (should return 25)
-#         iqa = InquiryQuestionAnswer.objects.create(question=self.questions['lookup'], inquiry=inquiry, answer="1234AB")
-#         self.assertEqual(widget.value_from_datadict(None, None, None), str(25))
+class ExternalSourceTestCase(FieldTestMixin, DataContentTestMixin, TestCase):
+    """"
+    Any field with a question that is 'linked' should have the external_source_widget implemented
+    The widget needs to be tested
+    """
+    @classmethod
+    def setUpTestData(cls):
+        cls.questions = {}
+
+        def make_linked_question(name, type, code_source, attribute=None):
+            question = Question.objects.create(name=f'Ext_Q_{name}',
+                                               question_type=type)
+            if attribute is None:
+                attribute = cls.dt_2_c_chr
+            # Note, most calls to this method set code_source as a literal string instead of a reference
+            # This prevents the need to create a whole new question with the entire answer structure
+            ExternalQuestionSource.objects.create(question=question,
+                                                  local_table=cls.dt_2,
+                                                  local_attribute=attribute,
+                                                  code_source=code_source)
+
+            return question
+
+        # Create base cases
+        cls.questions['int'] = make_linked_question("int", Question.TYPE_INT, "1234AB", attribute=cls.dt_2_c_int)
+        cls.questions['double'] = make_linked_question("double", Question.TYPE_DOUBLE, "1234AB", attribute=cls.dt_2_c_flt)
+        cls.questions['char'] = make_linked_question("chr", Question.TYPE_OPEN, "1234AB", attribute=cls.dt_2_c_chr)
+        cls.questions['choice'] = make_linked_question("choice", Question.TYPE_CHOICE, "1234AB", attribute=cls.dt_2_c_chr)
+
+        cls.questions['q_omit'] = make_linked_question("q_omit", Question.TYPE_INT, "4040NF", attribute=cls.dt_2_c_flt)
+
+        # Used for bouncing answers
+        cls.questions['q_bounce'] = make_linked_question("q_bounce", Question.TYPE_INT, "5875KH")
+
+        # Used for query testing
+        cls.questions['source'] = Question.objects.create(name="source", question_type=Question.TYPE_OPEN)
+        cls.questions['q_query'] = make_linked_question("q_query", Question.TYPE_INT, "{q_source}", attribute=cls.dt_2_c_flt)
+
+        # Generate the data entries
+        cls.DataFieldContent.objects.create(key='1234AB', int_field=10, flt_field=25, chr_field='hey')
+        cls.DataFieldContent.objects.create(key='2363KH', flt_field=7.9)
+        cls.DataFieldContent.objects.create(key='4040NF', int_field=4)
+
+    def test_external_widget_presence(self):
+        """ Checks that the widget in the fields have been set to the correct widget """
+
+        inquiry = set_up_inquiry()
+        for key, question in self.questions.items():
+            # Check for the four basic question types that it uses an externalDataInput Widget
+            if key in ['int', 'double', 'char', 'choice']:
+                field = QuestionFieldFactory.get_field_by_questionmodel(question=question, inquiry=inquiry)
+                # Test that the widget is correctly replaced
+                if not isinstance(field.widget, ExternalDataInput):
+                    raise AssertionError(f'Widget of {key} is not of type ExternalDataInput')
+
+    def test_widget_retrieval(self):
+        """ Tests that the widget uses retrieval from the database """
+        inquiry = set_up_inquiry()
+        # Test the value_from_datadict method. Nothing needs to be added as data will be retrieved from the server
+        def assertCorrectRetrieval(q_name, value):
+            widget = ExternalDataInputLocal(inquiry, self.questions[q_name].externalquestionsource)
+            retrieved_value = widget.value_from_datadict(None, None, None)
+            if retrieved_value != value:
+                raise AssertionError(f'Widget did not retrieve the correct value. {retrieved_value} instead of {value}')
+
+        assertCorrectRetrieval('int', 10)
+        assertCorrectRetrieval('double', 25)
+        assertCorrectRetrieval('char', 'hey')
+
+        # Test that omitted attributes or missing key entries do not result results
+        assertCorrectRetrieval('q_omit', None)
+        assertCorrectRetrieval('q_bounce', None)
+
+        # Test that the widget uses the format from database processor
+        widget = ExternalDataInputLocal(inquiry, self.questions['q_query'].externalquestionsource)
+        # No answer is available, so it should return None
+        self.assertIsNone(widget.value_from_datadict(None, None, None))
+        # Set an answer and test it (should return 7.9)
+        iqa = InquiryQuestionAnswer.objects.create(question=self.questions['source'], inquiry=inquiry, answer="2363KH")
+        assertCorrectRetrieval('q_query', 7.9)
+        pass
+
 
 

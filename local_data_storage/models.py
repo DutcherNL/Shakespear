@@ -125,6 +125,10 @@ class DataColumn(models.Model):
     @property
     def db_column_name(self):
         if self.table.is_active:
+            if not self._db_column_name:
+                # There is an error possible where this object is cached in a previous state prior to migration
+                # as such the local object might not have the _db name yet
+                self.refresh_from_db()
             return self._db_column_name
         else:
             return get_as_db_name(self.name)

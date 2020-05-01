@@ -15,7 +15,6 @@ class ExternalQuestionSource(models.Model):
 
     def get_content(self, inquiry=None):
         """ Returns the given content as queried
-
         :param inquiry: Inquiry model of the current inquiry
         :return:
         """
