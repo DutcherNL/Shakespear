@@ -64,6 +64,10 @@ class DataContentTestMixin(DataTestingMixin):
         cls.dt_1.destroy_table_on_db()
         cls.dt_2.destroy_table_on_db()
 
+        # Remove all entries in the DataTable and DataColumn tables
+        # Note that Django does not do this as it is outside of the expected scope (not atomic)
+        cls.empty_data_tables()
+
 
 class ModelCleaningMixin:
     @staticmethod
