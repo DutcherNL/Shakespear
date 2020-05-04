@@ -1,11 +1,20 @@
 [
   {
+    "model": "Questionaire.inquirer",
+    "pk": 1,
+    "fields": {
+      "created_on": "2020-01-01 12:00:00+01:00",
+      "email": "testmail@adress.go"
+    }
+  },
+  {
     "model": "Questionaire.inquiry",
     "pk": 1,
     "fields": {
       "created_on": "2020-01-01 12:00:00+01:00",
       "last_visited": "2020-01-01 12:00:00+01:00",
-      "is_complete": false
+      "is_complete": false,
+      "inquirer": 1
     }
   },
   {
@@ -14,7 +23,8 @@
     "fields": {
       "created_on": "2020-01-07 12:00:00+01:00",
       "last_visited": "2020-01-07 12:00:00+01:00",
-      "is_complete": false
+      "is_complete": false,
+      "inquirer": 1
     }
   },
   {
@@ -23,7 +33,8 @@
     "fields": {
       "created_on": "2020-02-01 12:00:00+01:00",
       "last_visited": "2020-02-01 12:00:00+01:00",
-      "is_complete": false
+      "is_complete": false,
+      "inquirer": 1
     }
   },
   {
@@ -32,7 +43,8 @@
     "fields": {
       "created_on": "2020-01-01 12:00:00+01:00",
       "last_visited": "2020-02-01 12:00:00+01:00",
-      "is_complete": false
+      "is_complete": false,
+      "inquirer": 1
     }
   },
   {
@@ -42,7 +54,8 @@
       "created_on": "2020-01-01 12:00:00+01:00",
       "last_visited": "2020-02-01 12:00:00+01:00",
       "completed_on": "2020-01-01 12:00:00+01:00",
-      "is_complete": true
+      "is_complete": true,
+      "inquirer": 1
     }
   },
   {
@@ -52,7 +65,8 @@
       "created_on": "2020-01-06 12:00:00+01:00",
       "last_visited": "2020-01-06 12:00:00+01:00",
       "completed_on": "2020-01-06 12:00:00+01:00",
-      "is_complete": true
+      "is_complete": true,
+      "inquirer": 1
     }
   }
 ]

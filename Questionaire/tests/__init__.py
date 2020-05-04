@@ -59,8 +59,10 @@ def set_up_questionaire():
 def set_up_inquiry():
     """ Creates and resturns a new inquiry """
     # Set up the inquirer and inquiry
-    inquiry = Inquiry.objects.create()
-    inquirer = Inquirer.objects.create(active_inquiry=inquiry)
+    inquirer = Inquirer.objects.create()
+    inquiry = Inquiry.objects.create(inquirer=inquirer)
+    inquirer.active_inquiry = inquiry
+    inquirer.save(update_fields=['active_inquiry'])
 
     # Set up the first page (currently not done automatically)
     inquiry.set_current_page(Page.objects.order_by('position').first())

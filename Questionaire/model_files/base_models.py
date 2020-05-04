@@ -186,6 +186,7 @@ class Inquiry(models.Model):
     # Todo, addition and test case for completed on tracking
     created_on = models.DateTimeField(auto_now_add=True)
     last_visited = models.DateTimeField(auto_now=True)
+    inquirer = models.ForeignKey('Inquirer', on_delete=models.CASCADE)
 
     def set_current_page(self, page):
         self.current_page = page
@@ -230,14 +231,14 @@ class Inquiry(models.Model):
         return self.inquirer.get_email()
 
     @property
-    def inquirer(self):
+    def inquirerII(self):
         return self.inquirer_set.first()
 
 
 class Inquirer(models.Model):
     """ Contains information of a single user filling in queries """
     email = models.EmailField(blank=True, null=True)
-    active_inquiry = models.ForeignKey(Inquiry, on_delete=models.SET_NULL, null=True, blank=True)
+    active_inquiry = models.ForeignKey(Inquiry, on_delete=models.SET_NULL, null=True, blank=True, related_name='active_on_set')
     created_on = models.DateTimeField(auto_now_add=True)
 
     def get_email(self):

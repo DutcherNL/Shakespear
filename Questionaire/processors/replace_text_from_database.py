@@ -62,7 +62,6 @@ def format_from_database(text, inquiry=None):
                 format_dict[key] = score_obj.score
 
         except InquiryQuestionAnswer.DoesNotExist:
-            print("{key} did not exist".format(key=key))
             format_dict[key] = ""
         except Score.DoesNotExist:
             format_dict[key] = ""
