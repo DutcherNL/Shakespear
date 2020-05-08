@@ -50,9 +50,7 @@ INSTALLED_APPS = [
     'mailing.apps.MailingConfig',
     'questionaire_mailing',
     'queued_tasks',
-
-
-
+    'initiative_enabler',
 ]
 
 MIDDLEWARE = [

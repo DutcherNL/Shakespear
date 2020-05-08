@@ -39,7 +39,6 @@ def format_from_database(text, inquiry=None):
                     short_question_name = q_name+'__regex'
                     text = text.replace(key, short_question_name)
                     key = short_question_name
-                    q_name = q_name
 
                     # Regex could contain '/{' and '/}' chars, those need to be replaced
                     regex = regex.replace('/{', '{')

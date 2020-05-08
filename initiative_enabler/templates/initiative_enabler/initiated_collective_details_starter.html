@@ -1,0 +1,201 @@
+{% extends 'base_with_body.html' %}
+{% load score_result_tags %}
+{% load collective_tags %}
+
+{% block body %}
+    <h1>Collectieve installatie voor {{ collective.tech_collective.technology }}</h1>
+    <div class="row">
+        <div class="col-6">
+            <p><b>{{ collective.tech_collective.technology }}</b></p>
+            <p>
+                {{ collective.tech_collective.technology.short_text }}
+            </p>
+            <a class="btn btn-info" href="{{ collective.tech_collective.technology.get_absolute_url }}"
+               target="_blank" rel="noopener noreferrer" >
+                <i class="fas fa-info-circle"></i> Meer informatie
+            </a>
+        </div>
+        <div class="col-6">
+            <p><b>Instructies</b></p>
+            <p>
+                Samen met elkaar kan je een collectieve inkoop opzetten. Wil je weten hoe? Download dan hieronder
+                het overzichtelijke stappenplan.
+            </p>
+            <a class="btn btn-info" href="{{ collective.tech_collective.technology.get_absolute_url }}">
+                <i class="fas fa-file-download"></i> Download {{ collective.tech_collective.technology }} collectief stappenplan
+            </a>
+        </div>
+    </div>
+    <hr>
+    <p>
+        Collectief is momenteel
+        {% if collective.is_open %}
+            <i class="fas fa-door-open"></i>open om te betreden.
+        {% else %}
+            <i class="fas fa-door-closed"></i>gesloten. Anderen kunnen er niet meer bij.
+        {% endif %}
+
+    </p>
+
+    {% if collective.is_open %}
+        <hr>
+        <h2>Geïnteresseerde in uw omgeving</h2>
+        <p>
+            {% with open_rsvps=collective.open_rsvps.count %}
+                {% if open_rsvps > 0 %}
+                    Er {{ open_rsvps|pluralize:"is,zijn" }} nog {{ open_rsvps }} openstaande uitnodigingen.
+                {% else %}
+                    Iedereen heeft gereageerd.
+                {% endif %}
+            {% endwith %}
+
+            {% with denied_rsvps=collective.collectivedeniedresponse_set.count %}
+                {{ denied_rsvps }} {{ denied_rsvps|pluralize:"persoon heeft,personen hebben" }} afgezien van uw uitnodiging.
+            {% endwith %}
+        </p>
+        <p>
+
+                {% if collective.open_rsvps.count > 0 %}
+                    U kunt een herinnering sturen naar hen die nog niet gereageerd hebben. Mits het laatste bericht minstens 7
+                    dagen geleden is verstuurd.
+                {% endif %}
+                Heeft u genoeg geïnteresseerden, dan kunt u hieronder de toegang sluiten. De huidige uitnodigingen worden
+                dan niet meer toegevoegd en mogelijke nieuwe geïnteresseerden kunnen zich niet meer aanmelden.<br>
+
+
+        </p>
+    {% else %}
+        <p>
+            Zoekt u extra buurtgenoten om mee te laten doen? Open dan de aanmeldingen opnieuw.
+        </p>
+    {% endif %}
+
+    <div class="btn-group" role="group" aria-label="invitation-actions">
+        {% if collective.is_open %}
+            {% if collective.open_rsvps.count > 0 %}
+                <button type="button" class="btn btn-secondary"><i class="fas fa-envelope"></i> Stuur herinnering</button>
+            {% endif %}
+            <form method="post" action="{% url "collectives:active_collective_close_entry" collective_id=collective.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning">
+                    <i class="fas fa-door-closed"></i> Sluit toegang
+                </button>
+            </form>
+        {% else %}
+            <form method="post" action="{% url "collectives:active_collective_open_entry" collective_id=collective.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning">
+                    <i class="fas fa-door-open"></i> Open toegang
+                </button>
+            </form>
+
+        {% endif %}
+    </div>
+    <hr>
+    <h3>Positieve reacties</h3>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr class="font-weight-bold">
+                    <td style="min-width: 10rem">Name</td>
+                    <td style="min-width: 10rem">e-mail
+                        <span data-toggle="tooltip" data-placement="bottom" title="Klik om alle mails te kopiëren naar je klembord"
+                        >
+                        <div class="btn btn-outline-info btn-sm"
+                             onclick="copyStringToClipboard(event, '{{ collective|get_mail_list }}')"
+                             >
+                            <i class="far fa-clipboard"></i>
+                        </div></span>
+                    </td>
+                    <td style="min-width: 10rem;">Telefoonnummer</td>
+                    <td style="min-width: 10rem;">Reactie</td>
+                </tr>
+            </thead>
+            <tbody>
+                {% for agreed_rsvp in collective.collectiveapprovalresponse_set.all %}
+                    <tr>
+                        <td>{{ agreed_rsvp.name }}</td>
+                        <td>
+                            {{ agreed_rsvp.inquirer.email }}
+                        </td>
+                        <td>
+                            {{ agreed_rsvp.phone_number }}
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#rsvp-data-{{ agreed_rsvp.id }}">
+                                Bekijk volle info
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <script src="{% static "javascript/copy_to_clipboard.js" %}"></script>
+
+        {# Pop up with full contact data #}
+        {% for agreed_rsvp in collective.collectiveapprovalresponse_set.all %}
+            <div class="modal fade" id="rsvp-data-{{ agreed_rsvp.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLongTitle">{{ agreed_rsvp.name }}</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="">
+                                <table class="">
+                                    <tr>
+                                        <td>
+                                            <b>adres</b>
+                                        </td>
+                                        <td>
+                                            {{ agreed_rsvp.address }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <b>e-mail</b>
+                                        </td>
+                                        <td>
+                                            <a href="mailto:{{ agreed_rsvp.inquirer.email }}">
+                                                {{ agreed_rsvp.inquirer.email }}
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pr-2">
+                                            <b>Telefoonnummer</b>
+                                        </td>
+                                        <td>
+                                            <a href="tel:{{ agreed_rsvp.phone_number|phone2international }}">
+                                                {{ agreed_rsvp.phone_number }}
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <hr>
+                            {{ agreed_rsvp.message|linebreaks }}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+
+{% block javascript %}
+{{ block.super }}
+    <script>
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+{% endblock %}

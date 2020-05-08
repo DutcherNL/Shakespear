@@ -1,0 +1,33 @@
+{% extends 'base_with_body.html' %}
+
+{% block body %}
+    <h1>RSVP Collective: {{ rsvp.collective }}</h1>
+
+    <p>
+        U bent door {{ rsvp.collective.name }} uitgenodigd om deel te nemen aan een inkoop collectief voor
+        <b>{{ rsvp.collective.tech_collective.technology}}</b>.
+        Door gezamenlijk met de bewoners in de buurt installatie en inkoop te regelen bent u vaak goedkoper uit en zijn
+        verbeteringen eenvoudiger door te voeren.
+    </p>
+    <p>
+        Bent u hierin geïnteresseerd? Laat dan hier uw contactgegevens achter. Dan zullen uw en de initiatiefnemers
+        contactgegevens met elkaar gedeeld.
+    </p>
+    <form method="post" class="row" id="agree_form">
+        {% csrf_token %}
+        <div class="col-12">
+            {% include "snippets/bootstrap_form.html" %}
+        </div>
+    </form>
+    <form method="post" class="d-none" id="disagree_form"
+          action="{% url "collectives:rsvp_deny" rsvp_slug=rsvp.url_code %}">
+        {% csrf_token %}
+    </form>
+    <div class="row">
+        <div class="col-8">
+            <input type="submit" value="Ik ben geïnteresseerd" class="btn btn-block btn-primary" form="agree_form"/>
+        </div><div class="col-4">
+            <input type="submit" value="Ik ben niet geïnteresseerd" class="btn btn-block btn-danger" form="disagree_form"/>
+        </div>
+    </div>
+{% endblock %}

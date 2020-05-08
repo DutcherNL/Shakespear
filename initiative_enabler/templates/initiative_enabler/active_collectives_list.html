@@ -1,0 +1,37 @@
+{% extends 'base_public.html' %}
+{% load collective_tags %}
+{% load static %}
+
+
+{% block body %}
+    <div class="row">
+        <div class="col">
+            <h1 class="">Onderneem actie</h1>
+        </div>
+    </div>
+
+    {% for collective in collectives %}
+        <div class="row">
+            <div class="col-3">
+                {{ collective.tech_collective.technology }}<br>
+                by {{ collective.inquirer }}
+            </div>
+            <div class="col-6">
+                {{ collective.name }}
+            </div>
+            <div class="col-3">
+                <a class="btn btn-outline-primary"
+                   href="{% url "collectives:actief_collectief_details" collective_id=collective.id %}">
+                    Bekijk Collectief
+                </a>
+            </div>
+        </div>
+        <hr>
+    {% endfor %}
+
+    <a class="btn btn-outline-info"
+       href="{% url "collectives:overview" %}">
+        Tech Collectives
+    </a>
+
+{% endblock %}
