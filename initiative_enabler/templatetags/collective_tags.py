@@ -28,5 +28,5 @@ def get_mail_list(collective):
     """ Returns the mail list of all agreed users for the clipboard """
     result = ""
     for rsvp_agreed in collective.collectiveapprovalresponse_set.all():
-        result += rsvp_agreed.inquirer.email + ';'
+        result += rsvp_agreed.inquirer.email + '; '
     return result

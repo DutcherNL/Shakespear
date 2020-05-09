@@ -99,13 +99,15 @@
                 <tr class="font-weight-bold">
                     <td style="min-width: 10rem">Name</td>
                     <td style="min-width: 10rem">e-mail
-                        <span data-toggle="tooltip" data-placement="bottom" title="Klik om alle mails te kopiëren naar je klembord"
-                        >
                         <div class="btn btn-outline-info btn-sm"
-                             onclick="copyStringToClipboard(event, '{{ collective|get_mail_list }}')"
+                             data-toggle="tooltip" data-placement="bottom"
+                             title="Klik om alle mails te kopiëren naar je klembord"
+                             success-title="Gekopieerd naar klembord"
+                             failed_title="Kopiëren mislukt"
+                             onclick="copyStringToClipboard(this, '{{ collective|get_mail_list }}')"
                              >
                             <i class="far fa-clipboard"></i>
-                        </div></span>
+                        </div>
                     </td>
                     <td style="min-width: 10rem;">Telefoonnummer</td>
                     <td style="min-width: 10rem;">Reactie</td>
@@ -152,7 +154,11 @@
                                             <b>adres</b>
                                         </td>
                                         <td>
-                                            {{ agreed_rsvp.address }}
+                                            {% if agreed_rsvp.phone_number %}
+                                                {{ agreed_rsvp.address }}
+                                            {% else %}
+                                                -
+                                            {% endif %}
                                         </td>
                                     </tr>
                                     <tr>
@@ -160,9 +166,13 @@
                                             <b>e-mail</b>
                                         </td>
                                         <td>
+                                            {% if agreed_rsvp.inquirer.email %}
                                             <a href="mailto:{{ agreed_rsvp.inquirer.email }}">
                                                 {{ agreed_rsvp.inquirer.email }}
                                             </a>
+                                            {% else %}
+                                                -
+                                            {% endif %}
                                         </td>
                                     </tr>
                                     <tr>
@@ -170,9 +180,13 @@
                                             <b>Telefoonnummer</b>
                                         </td>
                                         <td>
+                                            {% if agreed_rsvp.phone_number %}
                                             <a href="tel:{{ agreed_rsvp.phone_number|phone2international }}">
                                                 {{ agreed_rsvp.phone_number }}
                                             </a>
+                                            {% else %}
+                                                -
+                                            {% endif %}
                                         </td>
                                     </tr>
                                 </table>
