@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load django_bootstrap_breadcrumbs  %}
+{% load score_result_tags %}
 
 
 {% block body_content %}
@@ -22,6 +23,7 @@
 
                 <span class="navbar-text text-right px-2">
                 Logged in as: {{ user }}<br>
+                Code: {{ request|get_logged_in_inquirer_code }}
                 </span>
                     <div class="navbar-nav">
                         <div class="nav-item dropdown">

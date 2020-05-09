@@ -1,7 +1,18 @@
 from django import template
-from Questionaire.models import Score, AnswerScoringNote, Technology
+from Questionaire.models import Score, AnswerScoringNote, Technology, Inquirer
 
 register = template.Library()
+
+
+@register.filter
+def get_logged_in_inquirer_code(request):
+    try:
+        inquirer_id = request.session.get('inquirer_id', None)
+        if inquirer_id:
+            inquirer = Inquirer.objects.get(id=inquirer_id)
+            return inquirer.get_inquiry_code()
+    except Inquirer.DoesNotExist:
+        return ''
 
 
 @register.filter
