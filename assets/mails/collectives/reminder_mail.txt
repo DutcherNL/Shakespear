@@ -1,0 +1,18 @@
+Geachte {{ user.email }},
+
+{{ collective.name }} heeft een collectieve actie met de buurt gestart voor de {{ collective.tech_collective }}.
+Hiervoor bent u ook uitgenodigd. U heeft alleen nog niet gereageerd.
+
+{{ collective.name }} heeft het volgende bericht meegestuurd met de oorspronkelijke uitnodiging.
+- - - - -
+{{ collective.message }}
+- - - - -
+Gelieve te reageren of u interesse heeft. Heeft u geen interesse, dan kunt u dat hier ook aangeven.
+{{ rsvp.get_absolute_url|to_full_url }}
+
+Een fijne dag nog
+
+
+U ontvangt deze herinnering omdat u heeft aangegeven open te staan voor collectieve acties in de buurt.
+Heeft u geen interesse in collectieve inkoop acties. Dan kunt u dat op deze pagina wijzigen:
+-------- TODO ------------

@@ -1,7 +1,7 @@
 from django import template
 from widget_tweaks.templatetags.widget_tweaks import FieldAttributeNode
 
-from local_data_storage.models import DataColumn
+from Questionaire.models import Inquiry
 
 register = template.Library()
 
@@ -12,6 +12,17 @@ def number_of_similar_inquiries(tech_collective, inquiry):
     Returns the number of inquiries that are are also not matched
     """
     return tech_collective.get_similar_inquiries(inquiry).count()
+
+
+@register.filter
+def number_of_uninvited(collective):
+    """
+    Returns the number of inquiries that are interested, but not yet invited
+    """
+    inquiries = collective.tech_collective.get_similar_inquiries(None)
+    inquiries = inquiries.exclude(inquirer__initiatedcollective=collective)
+    inquiries = inquiries.exclude(inquirer__collectiversvp__collective=collective)
+    return inquiries.count()
 
 
 @register.filter

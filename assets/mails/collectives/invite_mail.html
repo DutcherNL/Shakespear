@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <p>
+        Geachte {{ user.email }},
+    </p>
+    <p>
+        Iemand uit uw buurt, {{ collective.name }}, heeft een collectieve actie gestart voor {{ collective.tech_collective }}.
+        Omdat uit uw ingevulde vragenlijst kwam dat u hier ook baat bij kunt hebben bent u van harte uitgenodigd om aan
+        deze actie deel te nemen.
+    </p>
+    <p>
+        {{ collective.name }} heeft hierbij het volgende mee te delen:
+    </p>
+    <div style="border: 1px solid black; border-radius: 0.25em; padding: 1em;">
+        <p >
+            {{ collective.message|linebreaksbr }}
+        </p>
+    </div>
+    <p>
+        Wanneer u reageerd op deze uitnodiging betekend dit niet dat u mee doet, maar dat we u in contact brengen met
+        {{ collective.name }}. Wij delen uw contactgegevens evenals die van de initiatiefnemer met elkaar zodat u
+        gezamenlijk een plan kunt ontwikkelen.
+    </p>
+    <p>
+        Heeft u interesse? Reageer dan door onderstaande link te volgen:
+    </p>
+    <p>
+        <a href="{{ rsvp.get_absolute_url|to_full_url }}">{{ rsvp.get_absolute_url|to_full_url }}</a>
+    </p>
+    <p>
+        Heeft u geen interesse in dit collectief. Dan kunt u dat daar ook aangeven.
+    </p>
+    <p>
+        Wij wensen u nog een fijne dag
+    </p>
+{% endblock content %}
+
+
+{% block mail_footer %}
+    <p>
+        U ontvangt deze uitnodiging omdat u heeft aangegeven open te staan voor collectieve acties in de buurt.
+        Heeft u geen interesse in collectieve acties? Wijzig dan uw instellingen:
+        <a href="">TODO</a>
+    </p>
+{% endblock %}

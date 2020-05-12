@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <p>
+        Geachte {{ user.email }},
+    </p>
+    <p>
+        {{ collective.name }} heeft een collectieve actie met de buurt gestart voor de {{ collective.tech_collective }}.
+        Hiervoor bent u ook uitgenodigd. U heeft alleen nog niet gereageerd.
+    </p>
+    <p>
+        {{ collective.name }} heeft het volgende bericht meegestuurd met de oorspronkelijke uitnodiging.
+    </p>
+    <p>
+        {{ collective.message|linebreaksbr }}
+    </p>
+
+    <p>
+        Gelieve te reageren of u interesse heeft. Heeft u geen interesse, dan kunt u dat hier ook aangeven.
+    </p>
+    <a href="{{ rsvp.get_absolute_url|to_full_url }}">{{ rsvp.get_absolute_url|to_full_url }}</a>
+    <p>
+        Een fijne dag nog
+    </p>
+{% endblock content %}
+
+
+{% block mail_footer %}
+    <p>
+        U ontvangt deze herinnering omdat u heeft aangegeven open te staan voor collectieve acties in de buurt.
+        Heeft u geen interesse in deze collectieve actie. Weiger dan de uitnodiging hier:
+        <a href="{{ rsvp.get_absolute_url|to_full_url }}">{{ rsvp.get_absolute_url|to_full_url }}</a>
+    </p>
+    <p>
+        Wilt u helemaal geen uitnodigingen voor collectieve inkopen meer ontvangen? Pas dat dan aan in uw instellingen:
+        <a href="">TODO</a>
+    </p>
+{% endblock %}

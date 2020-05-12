@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.urls import reverse
 
 from initiative_enabler.models import *
-from initiative_enabler.forms import StartCollectiveForm, RSVPAgreeForm, RSVPDisagreeForm
+from initiative_enabler.forms import *
 
 
 class InquiryMixin:
@@ -65,33 +65,45 @@ class InitiatedCollectiveDetailsView(InquiryMixin, DetailView):
     context_object_name = "collective"
 
 
-class OpenOrCloseCollectiveBaseMixin(InquiryMixin):
+class EditCollectiveMixin:
+    """ A mixin that initialises the collective"""
+    inquirer = None
     collective = None
 
+    def dispatch(self, request, *args, **kwargs):
+        self.inquirer = get_object_or_404(Inquirer, id=self.request.session.get('inquirer_id', None))
+        self.collective = get_object_or_404(InitiatedCollective, id=kwargs['collective_id'])
+        return super(EditCollectiveMixin, self).dispatch(request, *args, **kwargs)
+
+
+class QuickEditCollectiveMixin(EditCollectiveMixin):
+    """ Redirects get requests as they can not occur """
     def get(self, request, *args, **kwargs):
-        self.collective = get_object_or_404(InitiatedCollective, id=self.kwargs.get('collective_id'))
+        message = "De pagina die u probeert te bezoeken bevat geen inhoud."
+        messages.add_message(request, messages.INFO, message)
         return HttpResponseRedirect(self.collective.get_absolute_url())
 
     def post(self, request, *args, **kwargs):
-        self.collective = get_object_or_404(InitiatedCollective, id=self.kwargs.get('collective_id'))
-        # if self.inquirer.id != self.collective.inquirer:
-        #     return HttpResponseForbidden("You are not the owner of this initiative and can not change it")
+        form = self.form_class(request.POST, collective=self.collective, current_inquirer=self.inquirer)
+        if form.is_valid():
+            response = form.save()
+        else:
+            response = messages.ERROR, form.non_field_errors()[0]
 
-        if self.collective.is_open != self.to_state:
-            self.collective.is_open = self.to_state
-            self.collective.save()
-            messages.add_message(request, messages.SUCCESS, self.success_message)
+        messages.add_message(request, *response)
         return HttpResponseRedirect(self.collective.get_absolute_url())
 
 
-class CloseCollectiveView(OpenOrCloseCollectiveBaseMixin, View):
-    to_state = False
-    success_message = "Collectief toegang is nu geblokkeerd"
+class ChangeCollectiveStateView(QuickEditCollectiveMixin, View):
+    form_class = SwitchCollectiveStateForm
 
 
-class OpenCollectiveView(OpenOrCloseCollectiveBaseMixin, View):
-    to_state = True
-    success_message = "Collectief toegang is nu geopend"
+class SendNewInvitesView(QuickEditCollectiveMixin, View):
+    form_class = SendInvitationForm
+
+
+class SendReminderRSVPsView(QuickEditCollectiveMixin, View):
+    form_class = SendReminderForm
 
 
 class CollectiveRSVPView(FormView):

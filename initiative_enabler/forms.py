@@ -1,5 +1,8 @@
 from django.forms import Form, CharField, ModelForm, ValidationError
+from django import forms
+from django.contrib import messages
 
+from mailing.mails import send_templated_mail
 from initiative_enabler.models import *
 
 
@@ -74,3 +77,117 @@ class RSVPDisagreeForm(ModelForm):
         self.rsvp.activated = True
         self.rsvp.save()
         return self.instance
+
+
+class NoFormDataMixin:
+    """ A mixin for forms that contain no field data and thus only need to check for limited direct input
+    It allows for retrieval of data suitable with the django messages framework """
+    success_message = None
+
+    def get_as_error_message(self):
+        """ Returns the validation error as set-up for a message in the django messages framework"""
+        return messages.ERROR, self.non_field_errors()[0]
+
+    def get_as_succes_message(self):
+        return messages.SUCCESS, self.success_message
+
+
+class CollectiveMixin:
+    """ A mixin for adjustments to collective or collective related objects. """
+
+    def __init__(self, *args, collective=None, current_inquirer=None, **kwargs):
+        if collective is None:
+            raise KeyError("A collective should be given")
+        self.collective = collective
+        self.current_inquirer = current_inquirer
+        super(CollectiveMixin, self).__init__(*args, **kwargs)
+
+
+class SendInvitationForm(CollectiveMixin, NoFormDataMixin, Form):
+    success_message = "Uitnodigingen zijn verstuurd. RSVPs alleen niet aangemaakt"
+
+    def clean(self):
+        if not self.collective.is_open:
+            raise ValidationError("Collectief is niet meer open. Nieuwe contacten kunnen niet worden uitgenodigd.")
+        if self.collective.get_uninvited_inquiries().count() == 0:
+            raise ValidationError("Er zijn geen nieuwe personen in uw omgeving om uit te nodigen")
+
+        return self.cleaned_data
+
+    def save(self):
+        subject = f'Herinnering: collectieve inkoop {self.collective.tech_collective.technology}'
+        template_name = "collectives/invite_mail"
+        context_data = {
+            'collective': self.collective
+        }
+
+        for uninvited in self.collective.get_uninvited_inquiries():
+            new_rsvp = CollectiveRSVP.objects.create(inquirer=uninvited.inquirer, collective=self.collective)
+
+            context_data.update({
+                'rsvp': new_rsvp,
+            })
+            if uninvited.inquirer.email:
+                send_templated_mail(
+                    subject=subject,
+                    template_name=template_name,
+                    context_data=context_data,
+                    recipient=new_rsvp.inquirer
+                )
+        return self.get_as_succes_message()
+
+
+class SendReminderForm(CollectiveMixin, NoFormDataMixin, Form):
+    success_message = "Herinneringen zijn verstuurd"
+
+    def clean(self):
+        if not self.collective.is_open:
+            raise ValidationError("Collectief is niet meer open. Reminders kunnen niet gestuurd worden")
+        if CollectiveRSVP.objects.filter(activated=False).count() == 0:
+            # Todo, timestamp filter
+            raise ValidationError("Alle uitnodigingen zijn al beantwoord")
+
+        return self.cleaned_data
+
+    def save(self):
+        subject = f'Herinnering: collectieve inkoop {self.collective.tech_collective.technology}'
+        template_name = "collectives/reminder_mail"
+        context_data = {
+            'collective': self.collective
+        }
+
+        for open_rsvp in self.collective.open_rsvps():
+            context_data.update({
+                'rsvp': open_rsvp,
+            })
+            if open_rsvp.inquirer.email:
+                send_templated_mail(
+                    subject=subject,
+                    template_name=template_name,
+                    context_data=context_data,
+                    recipient=open_rsvp.inquirer
+                )
+
+        return self.get_as_succes_message()
+
+
+class SwitchCollectiveStateForm(CollectiveMixin, NoFormDataMixin, Form):
+    to_state = forms.BooleanField(required=False)
+
+    def clean(self):
+        print(self.cleaned_data)
+        if self.cleaned_data.get('to_state', False) and self.collective.is_open:
+            raise ValidationError("Collectief is al open")
+        if not self.cleaned_data.get('to_state', False) and not self.collective.is_open:
+            raise ValidationError("Collectief is al gesloten")
+
+        return self.cleaned_data
+
+    def save(self):
+        self.collective.is_open = self.cleaned_data.get('to_state', False)
+        self.collective.save()
+        if self.collective.is_open:
+            self.success_message = "Collectief is weer geopend"
+        else:
+            self.success_message = "Collectief is vanaf nu gesloten. Anderen kunnen niet meer toetreden"
+        return self.get_as_succes_message()

@@ -20,14 +20,14 @@ class TechCollective(models.Model):
 
         for scorelink in self.technology.techscorelink_set.all():
             # Select all scores that do not meet the threshold
-            scores = Score.objects.filter(declaration=scorelink.score_declaration, score__lte=scorelink.score_threshold_deny)
+            scores = Score.objects.filter(declaration=scorelink.score_declaration, score__gte=scorelink.score_threshold_approve)
             # Select all inquiries that are part of that score and any previous score
             inquiries = inquiries.filter(score__in=scores)
 
         return inquiries
 
     def __str__(self):
-        return self.technology
+        return str(self.technology)
 
 
 class CollectiveFilter(models.Model):
@@ -62,6 +62,8 @@ class InitiatedCollective(models.Model):
     is_active = models.BooleanField(default=True)
     is_open = models.BooleanField(default=True)
 
+    message = models.TextField(max_length=500)
+
     name = models.CharField(default="", max_length=128)
     host_address = models.CharField(default="", max_length=128)
     phone_number = models.CharField(max_length=15)
@@ -74,12 +76,19 @@ class InitiatedCollective(models.Model):
             'collective_id': self.id
         })
 
+    def get_uninvited_inquiries(self):
+        inquiries = self.tech_collective.get_similar_inquiries(None)
+        inquiries = inquiries.exclude(inquirer__initiatedcollective=self)
+        inquiries = inquiries.exclude(inquirer__collectiversvp__collective=self)
+        return inquiries
+
 
 class CollectiveRSVP(models.Model):
     """ The queried people and there responses """
     collective = models.ForeignKey(InitiatedCollective, on_delete=models.SET_NULL, null=True)
     inquirer = models.ForeignKey(Inquirer, on_delete=models.CASCADE)
     url_code = models.SlugField(max_length=64, unique=True)
+    send_on = models.DateTimeField(auto_now_add=True)
     activated = models.BooleanField(default=False)
     # message
 

@@ -40,6 +40,22 @@
     {% if collective.is_open %}
         <hr>
         <h2>Geïnteresseerde in uw omgeving</h2>
+        {% with num_uninvited=collective|number_of_uninvited %}
+            {% if num_uninvited > 0 %}
+                <h4>Nieuwe resultaten in uw omgeving</h4>
+                <p>
+                    Er zijn {{ collective|number_of_uninvited }} nieuwe huishoudens in uw buurt die potentieel interesse hebben.
+                </p>
+
+                <form method="post" id="send_new_invites_form"
+                      action="{% url "collectives:active_collective_invite_new" collective_id=collective.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary" form="send_new_invites_form">
+                        <i class="fas fa-envelope"></i> Stuur {{ num_uninvited }} nieuwe uitnodiging{{ num_uninvited|pluralize:"en" }}
+                    </button>
+                </form>
+            {% endif %}
+        {% endwith %}
         <p>
             {% with open_rsvps=collective.open_rsvps.count %}
                 {% if open_rsvps > 0 %}
@@ -54,42 +70,57 @@
             {% endwith %}
         </p>
         <p>
+            {% if collective.open_rsvps.count > 0 %}
+                U kunt een herinnering sturen naar hen die nog niet gereageerd hebben. Mits het laatste bericht minstens 7
+                dagen geleden is verstuurd.<br>
+            {% endif %}
 
-                {% if collective.open_rsvps.count > 0 %}
-                    U kunt een herinnering sturen naar hen die nog niet gereageerd hebben. Mits het laatste bericht minstens 7
-                    dagen geleden is verstuurd.
-                {% endif %}
-                Heeft u genoeg geïnteresseerden, dan kunt u hieronder de toegang sluiten. De huidige uitnodigingen worden
-                dan niet meer toegevoegd en mogelijke nieuwe geïnteresseerden kunnen zich niet meer aanmelden.<br>
-
-
+            Heeft u genoeg geïnteresseerden, dan kunt u hieronder de toegang sluiten. De huidige uitnodigingen worden
+            dan niet meer toegevoegd en mogelijke nieuwe geïnteresseerden kunnen zich niet meer aanmelden.<br>
         </p>
+
+
     {% else %}
         <p>
             Zoekt u extra buurtgenoten om mee te laten doen? Open dan de aanmeldingen opnieuw.
         </p>
     {% endif %}
+    <div>
+            {% if collective.is_open %}
+                <!-- The buttons -->
+                <div class="btn-group" role="group" aria-label="invitation-actions">
+                    {%  if collective.open_rsvps.count > 0 %}
+                        <button type="submit" class="btn btn-secondary" form="collective-reminder-form">
+                            <i class="fas fa-envelope"></i> Stuur herinnering
+                        </button>
+                    {% endif %}
+                    <button type="submit" class="btn btn-warning" form="close_collective_form">
+                        <input type="checkbox" name="to_state" class="d-none" form="close_collective_form">
+                        <i class="fas fa-door-closed"></i> Sluit toegang
+                    </button>
+                </div>
 
-    <div class="btn-group" role="group" aria-label="invitation-actions">
-        {% if collective.is_open %}
-            {% if collective.open_rsvps.count > 0 %}
-                <button type="button" class="btn btn-secondary"><i class="fas fa-envelope"></i> Stuur herinnering</button>
+                <!-- The forms, to present the buttons as a single group (nesting them blocks that -->
+                {% if collective.open_rsvps.count > 0 %}
+                    <form method="post" id="collective-reminder-form"
+                          action="{% url 'collectives:send_reminders_view' collective_id=collective.id %}">
+                        {% csrf_token %}
+                    </form>
+                {% endif %}
+                <form method="post" id="close_collective_form"
+                      action="{% url "collectives:active_collective_change_open_state" collective_id=collective.id %}">
+                    {% csrf_token %}
+                </form>
+            {% else %}
+                <form method="post" action="{% url "collectives:active_collective_change_open_state" collective_id=collective.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-warning">
+                        <input type="checkbox" name="to_state" checked="True" class="d-none">
+                        <i class="fas fa-door-open"></i> Open toegang
+                    </button>
+                </form>
+
             {% endif %}
-            <form method="post" action="{% url "collectives:active_collective_close_entry" collective_id=collective.id %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-warning">
-                    <i class="fas fa-door-closed"></i> Sluit toegang
-                </button>
-            </form>
-        {% else %}
-            <form method="post" action="{% url "collectives:active_collective_open_entry" collective_id=collective.id %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-warning">
-                    <i class="fas fa-door-open"></i> Open toegang
-                </button>
-            </form>
-
-        {% endif %}
     </div>
     <hr>
     <h3>Positieve reacties</h3>

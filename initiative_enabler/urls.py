@@ -19,8 +19,9 @@ urlpatterns = [
         ])),
         path('<int:collective_id>/', include([
             path('details/', views.InitiatedCollectiveDetailsView.as_view(), name='actief_collectief_details'),
-            path('close/', views.CloseCollectiveView.as_view(), name='active_collective_close_entry'),
-            path('open/', views.OpenCollectiveView.as_view(), name='active_collective_open_entry'),
+            path('invite/', views.SendNewInvitesView.as_view(), name='active_collective_invite_new'),
+            path('open/', views.ChangeCollectiveStateView.as_view(), name='active_collective_change_open_state'),
+            path('send_reminder/', views.SendReminderRSVPsView.as_view(), name='send_reminders_view'),
         ])),
     ])),
 ]

@@ -18,10 +18,10 @@ class Full_URLNode(Node):
         url_string = self.url_node.render(context)
 
         if self.url_node.asvar:
-            context[self.url_node.asvar] = "https://"+self.domain_name+context[self.url_node.asvar]
+            context[self.url_node.asvar] = self.domain_name+context[self.url_node.asvar]
             return ''
         else:
-            url_string = "https://"+self.domain_name+url_string
+            url_string = self.domain_name+url_string
             return url_string
 
 
@@ -32,4 +32,4 @@ def full_url(parser, token):
 
 @register.filter
 def to_full_url(url_string, domain_name=settings.DOMAIN_NAME):
-    return "https://"+domain_name+url_string.__str__()
+    return domain_name+url_string.__str__()

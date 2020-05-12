@@ -54,8 +54,6 @@ class EmailTemplateView(LoginRequiredMixin, View):
                 except TypeError:
                     item = None
 
-            print("{0}: {1}".format(name, item))
-
             if item is None:
                 # If key is not in dictionary, create a new ContentFactory to act as a query shell
                 return type(self)(name=name)

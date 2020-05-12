@@ -1,0 +1,19 @@
+Geachte {{ user.email }},
+
+Iemand uit uw buurt, {{ collective.name }}, heeft een collectieve actie gestart voor {{ collective.tech_collective }}. Omdat uit uw ingevulde vragenlijst kwam dat u hier ook baat bij kunt hebben bent u van harte uitgenodigd om aan deze actie deel te nemen. Hiervoor bent u ook uitgenodigd. U heeft alleen nog niet gereageerd.
+
+{{ collective.name }} heeft het volgende te zeggen:.
+- - - - -
+{{ collective.message }}
+- - - - -
+
+Wanneer u reageerd op deze uitnodiging betekend dit niet dat u mee doet, maar dat we u in contact brengen met {{ collective.name }}. Wij delen uw contactgegevens evenals die van de initiatiefnemer met elkaar zodat u gezamenlijk een plan kunt ontwikkelen.
+Heeft u interesse? Reageer dan door onderstaande link te volgen. Heeft u geen interesse in dit collectief. Dan kunt u dat daar ook aangeven.
+{{ rsvp.get_absolute_url|to_full_url }}
+
+Wij wensen u nog een fijne dag
+
+
+
+U ontvangt deze uitnodiging omdat u heeft aangegeven open te staan voor collectieve acties in de buurt. Heeft u geen interesse in collectieve acties? Wijzig dan uw instellingen:
+TODO-----
