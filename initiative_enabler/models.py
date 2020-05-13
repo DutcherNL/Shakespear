@@ -90,13 +90,14 @@ class CollectiveRSVP(models.Model):
     collective = models.ForeignKey(InitiatedCollective, on_delete=models.SET_NULL, null=True)
     inquirer = models.ForeignKey(Inquirer, on_delete=models.CASCADE)
     url_code = models.SlugField(max_length=64, unique=True)
-    send_on = models.DateTimeField(auto_now_add=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+    last_send_on = models.DateTimeField(default=timezone.now)
     activated = models.BooleanField(default=False)
     activated_on = models.DateTimeField(blank=True, null=True)
 
     @property
     def is_expired(self):
-        return self.send_on + datetime.timedelta(seconds=7) <= timezone.now()
+        return self.last_send_on + datetime.timedelta(days=7) <= timezone.now()
 
     def save(self, **kwargs):
         if self.activated and self.activated_on is None:

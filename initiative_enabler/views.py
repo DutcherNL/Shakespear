@@ -135,7 +135,6 @@ class CollectiveRSVPView(FormView):
         self.template_name = "initiative_enabler/rsvp_collective_already_activated.html"
         return self.render_to_response({})
 
-
     def ready_for_closed(self):
         """ Set up view variables for when bouncing against a closed collective """
         self.template_name = "initiative_enabler/rsvp_collective_on_closed.html"

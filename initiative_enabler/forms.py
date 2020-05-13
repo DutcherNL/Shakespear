@@ -1,3 +1,5 @@
+import datetime
+
 from django.forms import Form, CharField, ModelForm, ValidationError
 from django import forms
 from django.contrib import messages
@@ -185,6 +187,7 @@ class SendInvitationForm(CollectiveMixin, NoFormDataMixin, Form):
 
 class SendReminderForm(CollectiveMixin, NoFormDataMixin, Form):
     success_message = "Herinneringen zijn verstuurd"
+    days_between = 5
 
     def clean(self):
         if not self.collective.is_open:
@@ -203,16 +206,21 @@ class SendReminderForm(CollectiveMixin, NoFormDataMixin, Form):
         }
 
         for open_rsvp in self.collective.open_rsvps():
+            # Refresh the invitation
+            open_rsvp.send_on = timezone.now()
+            open_rsvp.save()
+
             context_data.update({
                 'rsvp': open_rsvp,
             })
-            if open_rsvp.inquirer.email:
-                send_templated_mail(
-                    subject=subject,
-                    template_name=template_name,
-                    context_data=context_data,
-                    recipient=open_rsvp.inquirer
-                )
+            if open_rsvp.send_on + datetime.timedelta(days=self.days_between) <= timezone.now():
+                if open_rsvp.inquirer.email:
+                    send_templated_mail(
+                        subject=subject,
+                        template_name=template_name,
+                        context_data=context_data,
+                        recipient=open_rsvp.inquirer
+                    )
 
         return self.get_as_succes_message()
 

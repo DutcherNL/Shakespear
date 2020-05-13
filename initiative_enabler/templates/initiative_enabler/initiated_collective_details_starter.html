@@ -239,8 +239,11 @@
             <div class="col-2">
                 {{ open_rsvp.id }} - {{ open_rsvp.inquirer.id }}
             </div>
-            <div class="col-6">
+            <div class="col-4">
                 {{ open_rsvp.inquirer.email }}
+            </div>
+            <div class="col-2">
+                {{ open_rsvp.last_send_on }} / {{ open_rsvp.created_on }}
             </div>
             <div class="col-1">
                 {{ open_rsvp.activated }}
