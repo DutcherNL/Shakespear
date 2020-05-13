@@ -111,8 +111,40 @@ class CollectiveRSVPView(FormView):
     template_name = "initiative_enabler/rsvp_collective.html"
 
     def dispatch(self, request, *args, **kwargs):
-        self.rsvp = get_object_or_404(CollectiveRSVP, url_code=self.kwargs.get('rsvp_slug', None))
+        try:
+            self.rsvp = CollectiveRSVP.objects.get(url_code=self.kwargs.get('rsvp_slug', None))
+        except CollectiveRSVP.DoesNotExist:
+            return self.render_404()
+
+        if self.rsvp.activated:
+            # RSVP is already used and thus no actions should be able to occur
+            return self.render_already_used()
+
+        if self.rsvp.is_expired:
+            self.ready_for_expired()
+        elif not self.rsvp.collective.is_open:
+            self.ready_for_closed()
+
         return super(CollectiveRSVPView, self).dispatch(request, *args, **kwargs)
+
+    def render_404(self):
+        self.template_name = "initiative_enabler/rsvp_collective_404.html"
+        return self.render_to_response({})
+
+    def render_already_used(self):
+        self.template_name = "initiative_enabler/rsvp_collective_already_activated.html"
+        return self.render_to_response({})
+
+
+    def ready_for_closed(self):
+        """ Set up view variables for when bouncing against a closed collective """
+        self.template_name = "initiative_enabler/rsvp_collective_on_closed.html"
+        self.form_class = RSVPOnClosedForm
+
+    def ready_for_expired(self):
+        """ Set up view variables for when bouncing against a closed collective """
+        self.template_name = "initiative_enabler/rsvp_collective_expired.html"
+        self.form_class = RSVPRefreshExpirationForm
 
     def get_form_kwargs(self):
         kwargs = super(CollectiveRSVPView, self).get_form_kwargs()
@@ -127,7 +159,18 @@ class CollectiveRSVPView(FormView):
         return context
 
     def form_valid(self, form):
-        self.object = form.save()
+        if self.rsvp.is_expired:
+            # RSVP is expired, so create and send a new invitation
+            message = form.send()
+            messages.add_message(self.request, *message)
+
+        elif self.rsvp.collective.is_open:
+            self.object = form.save()
+            messages.add_message(self.request, messages.SUCCESS, "U heeft de uitnodiging geaccepteerd")
+        else:
+            message = form.save()
+            messages.add_message(self.request, *message)
+
         return super(CollectiveRSVPView, self).form_valid(form)
 
     def get_success_url(self):

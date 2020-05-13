@@ -1,7 +1,9 @@
 import re
+import datetime
 from django.db import models, IntegrityError
 from django.utils.crypto import get_random_string
 from django.shortcuts import reverse
+from django.utils import timezone
 
 from Questionaire.models import Inquiry, Inquirer, InquiryQuestionAnswer, Score, Technology, Question
 
@@ -90,9 +92,16 @@ class CollectiveRSVP(models.Model):
     url_code = models.SlugField(max_length=64, unique=True)
     send_on = models.DateTimeField(auto_now_add=True)
     activated = models.BooleanField(default=False)
-    # message
+    activated_on = models.DateTimeField(blank=True, null=True)
+
+    @property
+    def is_expired(self):
+        return self.send_on + datetime.timedelta(seconds=7) <= timezone.now()
 
     def save(self, **kwargs):
+        if self.activated and self.activated_on is None:
+            self.activated_on = timezone.now()
+
         if self.url_code is None or self.url_code == "":
             while True:
                 try:
@@ -129,3 +138,11 @@ class CollectiveDeniedResponse(models.Model):
     """ The responsed rsvp that was not accepted."""
     collective = models.ForeignKey(InitiatedCollective, on_delete=models.CASCADE)
     inquirer = models.ForeignKey(Inquirer, on_delete=models.SET_NULL, null=True)
+
+
+class CollectiveRSVPInterest(models.Model):
+    """ A list of interested RSVP's who were once invited, but when redeeming their invitation arrived
+    at a closed collective. It is used to automatically send invitations when reopening """
+    collective = models.ForeignKey(InitiatedCollective, on_delete=models.CASCADE)
+    inquirer = models.ForeignKey(Inquirer, on_delete=models.CASCADE)
+    timestamp_created = models.DateTimeField(auto_now_add=True)

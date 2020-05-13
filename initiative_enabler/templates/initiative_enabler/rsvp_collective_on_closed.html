@@ -1,0 +1,32 @@
+{% extends 'base_with_body.html' %}
+
+{% block body %}
+    <h1>RSVP Collective: {{ rsvp.collective }}</h1>
+
+    <p>
+        U was door {{ rsvp.collective.name }} uitgenodigd om deel te nemen aan collectieve inkoop actie voor
+        {{ rsvp.collective.tech_collective.technology}}. Echter heeft hij/zij inmiddels de toegang gesloten en kunt u
+        niet meer direct deelnemen. Bent u alsnog geïnteresseerd? Laat het hier dan weten. Dan informeren wij u direct
+        wanneer {{ rsvp.collective.name }} de collectieve actie opent voor nieuwe deelnemers.
+    </p>
+    <p>
+        Wilt u op de hoogte worden gehouden van deze collectieve inkoop actie?
+    </p>
+    <form method="post" class="row" id="agree_form">
+        {% csrf_token %}
+        <div class="col-12">
+            {% include "snippets/bootstrap_form.html" %}
+        </div>
+    </form>
+    <form method="post" class="d-none" id="disagree_form"
+          action="{% url "collectives:rsvp_deny" rsvp_slug=rsvp.url_code %}">
+        {% csrf_token %}
+    </form>
+    <div class="row">
+        <div class="col-8">
+            <input type="submit" value="Ja, houd me op de hoogte" class="btn btn-block btn-primary" form="agree_form"/>
+        </div><div class="col-4">
+        <input type="submit" value="Nee, ik heb geen interesse" class="btn btn-block btn-danger" form="disagree_form"/>
+    </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base_with_body.html' %}
+
+{% block body %}
+    <h1>RSVP Collective: {{ rsvp.collective }}</h1>
+
+    <p>
+        De uitnodiging die u probeert te bereiken is verlopen. U kunt de uitnodiging echter wel verversen. In dat geval
+        versturen wij een nieuwe uitnodiging naar het geregistreerde e-mail adres.
+    </p>
+    <p>
+        Wilt u de uitnodiging verversen?
+    </p>
+    <form method="post" class="row" id="agree_form">
+        {% csrf_token %}
+        <div class="col-12">
+            {% include "snippets/bootstrap_form.html" %}
+        </div>
+    </form>
+    <form method="post" class="d-none" id="disagree_form"
+          action="{% url "collectives:rsvp_deny" rsvp_slug=rsvp.url_code %}">
+        {% csrf_token %}
+    </form>
+    <div class="row">
+        <div class="col-8">
+            <input type="submit" value="Ja, ververs de uitnodiging" class="btn btn-block btn-primary" form="agree_form"/>
+        </div><div class="col-4">
+        <input type="submit" value="Nee, ik heb geen interesse" class="btn btn-block btn-danger" form="disagree_form"/>
+    </div>
+    </div>
+{% endblock %}

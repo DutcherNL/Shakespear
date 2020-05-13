@@ -6,6 +6,30 @@ from mailing.mails import send_templated_mail
 from initiative_enabler.models import *
 
 
+class NoFormDataMixin:
+    """ A mixin for forms that contain no field data and thus only need to check for limited direct input
+    It allows for retrieval of data suitable with the django messages framework """
+    success_message = None
+
+    def get_as_error_message(self):
+        """ Returns the validation error as set-up for a message in the django messages framework"""
+        return messages.ERROR, self.non_field_errors()[0]
+
+    def get_as_succes_message(self):
+        return messages.SUCCESS, self.success_message
+
+
+class CollectiveMixin:
+    """ A mixin for adjustments to collective or collective related objects. """
+
+    def __init__(self, *args, collective=None, current_inquirer=None, **kwargs):
+        if collective is None:
+            raise KeyError("A collective should be given")
+        self.collective = collective
+        self.current_inquirer = current_inquirer
+        super(CollectiveMixin, self).__init__(*args, **kwargs)
+
+
 class StartCollectiveForm(ModelForm):
     uitnodiging = CharField()
 
@@ -45,6 +69,8 @@ class RSVPAgreeForm(ModelForm):
     def clean(self):
         if self.rsvp.activated:
             raise ValidationError("Dit verzoek is al reeds behandeld")
+        if not self.rsvp.collective.is_open:
+            raise ValidationError("Dit collectief is inmiddels niet meer toegankelijk.")
 
     def save(self, commit=True):
         self.instance.collective = self.rsvp.collective
@@ -79,28 +105,48 @@ class RSVPDisagreeForm(ModelForm):
         return self.instance
 
 
-class NoFormDataMixin:
-    """ A mixin for forms that contain no field data and thus only need to check for limited direct input
-    It allows for retrieval of data suitable with the django messages framework """
-    success_message = None
+class RSVPOnClosedForm(NoFormDataMixin, Form):
+    success_message = "Processed"
 
-    def get_as_error_message(self):
-        """ Returns the validation error as set-up for a message in the django messages framework"""
-        return messages.ERROR, self.non_field_errors()[0]
+    def __init__(self, rsvp, *args, **kwargs):
+        self.rsvp = rsvp
+        super(RSVPOnClosedForm, self).__init__(*args, **kwargs)
 
-    def get_as_succes_message(self):
-        return messages.SUCCESS, self.success_message
+    def save(self):
+        CollectiveRSVPInterest.objects.create(collective=self.rsvp.collective, inquirer=self.rsvp.inquirer)
+        self.rsvp.activated = True
+        self.rsvp.save()
+        return self.get_as_succes_message()
 
 
-class CollectiveMixin:
-    """ A mixin for adjustments to collective or collective related objects. """
+class RSVPRefreshExpirationForm(NoFormDataMixin, Form):
+    success_message = "A mail has been send to the email adress registered"
 
-    def __init__(self, *args, collective=None, current_inquirer=None, **kwargs):
-        if collective is None:
-            raise KeyError("A collective should be given")
-        self.collective = collective
-        self.current_inquirer = current_inquirer
-        super(CollectiveMixin, self).__init__(*args, **kwargs)
+    def __init__(self, rsvp, *args, **kwargs):
+        self.rsvp = rsvp
+        super(RSVPRefreshExpirationForm, self).__init__(*args, **kwargs)
+
+    def send(self):
+        new_rsvp = CollectiveRSVP.objects.create(collective=self.rsvp.collective, inquirer=self.rsvp.inquirer)
+        self.rsvp.activated = True
+        self.rsvp.save()
+
+        subject = f'Uitnodiging voor collectieve installatie {new_rsvp.collective.tech_collective.technology}'
+        template_name = "collectives/invite_mail"
+        context_data = {
+            'collective': new_rsvp.collective,
+            'rsvp': new_rsvp
+        }
+
+        if new_rsvp.inquirer.email:
+            send_templated_mail(
+                subject=subject,
+                template_name=template_name,
+                context_data=context_data,
+                recipient=new_rsvp.inquirer
+            )
+
+        return self.get_as_succes_message()
 
 
 class SendInvitationForm(CollectiveMixin, NoFormDataMixin, Form):
