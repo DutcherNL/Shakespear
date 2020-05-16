@@ -9,6 +9,10 @@ from PageDisplay.models import Page as InfoPage
 from Questionaire.model_files.base_models import Inquiry, AnswerOption, InquiryQuestionAnswer, Page
 
 
+__all__ = ['ScoringDeclaration', 'Technology', 'TechGroup', 'TechScoreLink', 'Score', 'AnswerScoring',
+           'PageRequirement', 'AnswerScoringNote']
+
+
 class ScoringDeclaration(models.Model):
     """ Declares a score that should be tracked """
     name = models.SlugField(max_length=32)
@@ -154,11 +158,12 @@ class Score(models.Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.id is None:
-            # If object is about to be created, create it with the default start value
-            self.score = self.declaration.score_start_value
+            if self.score is None:
+                # If object is about to be created, create it with the default start value
+                self.score = self.declaration.score_start_value
 
     def __str__(self):
-        return "{scorename}: {inquiry}".format(scorename=self.declaration.name, inquiry=self.inquiry.id)
+        return "{scorename}: {inquiry} - {score}".format(scorename=self.declaration.name, inquiry=self.inquiry.id, score=self.score)
 
 
 class AnswerScoring(models.Model):

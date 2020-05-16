@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from decimal import *
 
 from Questionaire.models import *
 from . import set_up_questionaire, set_up_inquiry, set_up_questionaire_scoring

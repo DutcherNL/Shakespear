@@ -5,6 +5,9 @@ from Questionaire.model_files.base_models import Question
 from local_data_storage.models import DataTable, DataColumn
 
 
+__all__ = ['ExternalQuestionSource']
+
+
 class ExternalQuestionSource(models.Model):
     """ Inserts answers on questions from external locations"""
     question = models.OneToOneField(Question, on_delete=models.CASCADE)
