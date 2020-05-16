@@ -3,9 +3,14 @@ import datetime
 from django.forms import Form, CharField, ModelForm, ValidationError
 from django import forms
 from django.contrib import messages
+from django.utils import timezone
 
 from mailing.mails import send_templated_mail
 from initiative_enabler.models import *
+
+
+__all__ = ['StartCollectiveForm', 'RSVPAgreeForm', 'RSVPDenyForm', 'RSVPOnClosedForm', 'RSVPRefreshExpirationForm',
+           'QuickSendInvitationForm', 'SendReminderForm', 'SwitchCollectiveStateForm']
 
 
 class NoFormDataMixin:
@@ -24,11 +29,10 @@ class NoFormDataMixin:
 class CollectiveMixin:
     """ A mixin for adjustments to collective or collective related objects. """
 
-    def __init__(self, *args, collective=None, current_inquirer=None, **kwargs):
+    def __init__(self, *args, collective=None, **kwargs):
         if collective is None:
             raise KeyError("A collective should be given")
         self.collective = collective
-        self.current_inquirer = current_inquirer
         super(CollectiveMixin, self).__init__(*args, **kwargs)
 
 
@@ -74,6 +78,8 @@ class RSVPAgreeForm(ModelForm):
         if not self.rsvp.collective.is_open:
             raise ValidationError("Dit collectief is inmiddels niet meer toegankelijk.")
 
+        return super(RSVPAgreeForm, self).clean()
+
     def save(self, commit=True):
         self.instance.collective = self.rsvp.collective
         self.instance.inquirer = self.rsvp.inquirer
@@ -84,35 +90,40 @@ class RSVPAgreeForm(ModelForm):
         return self.instance
 
 
-class RSVPDisagreeForm(ModelForm):
-    class Meta:
-        model = CollectiveDeniedResponse
-        fields = []
+class RSVPDenyForm(NoFormDataMixin, Form):
+    success_message = "je hebt de uitnodiging afgewezen"
 
     def __init__(self, rsvp, **kwargs):
         self.rsvp = rsvp
-        super(RSVPDisagreeForm, self).__init__(**kwargs)
+        super(RSVPDenyForm, self).__init__(**kwargs)
 
     def clean(self):
         if self.rsvp.activated:
-            raise ValidationError("Dit verzoek is al reeds behandeld")
+            raise ValidationError("Deze uitnodiging is al reeds behandeld")
+
+        return super(RSVPDenyForm, self).clean()
 
     def save(self, commit=True):
-        self.instance.collective = self.rsvp.collective
-        self.instance.inquirer = self.rsvp.inquirer
-        self.instance = super(RSVPDisagreeForm, self).save(commit=commit)
-
+        CollectiveDeniedResponse.objects.create(collective=self.rsvp.collective, inquirer=self.rsvp.inquirer)
         self.rsvp.activated = True
         self.rsvp.save()
-        return self.instance
+        return self.get_as_succes_message()
 
 
 class RSVPOnClosedForm(NoFormDataMixin, Form):
-    success_message = "Processed"
+    success_message = "Je staat nu geregistreerd als geïnteresseerd. Wanneer de collectief weer word geopend krijg" \
+                      "je automatisch bericht."
 
     def __init__(self, rsvp, *args, **kwargs):
         self.rsvp = rsvp
         super(RSVPOnClosedForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        if self.rsvp.collective.is_open:
+            raise ValidationError("Collectief is nog steeds open.")
+
+        if self.rsvp.activated:
+            raise ValidationError("Deze uitnodiging is al reeds behandeld")
 
     def save(self):
         CollectiveRSVPInterest.objects.create(collective=self.rsvp.collective, inquirer=self.rsvp.inquirer)
@@ -127,6 +138,12 @@ class RSVPRefreshExpirationForm(NoFormDataMixin, Form):
     def __init__(self, rsvp, *args, **kwargs):
         self.rsvp = rsvp
         super(RSVPRefreshExpirationForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        if self.rsvp.activated:
+            raise ValidationError("Dit verzoek is al reeds behandeld")
+        
+        return super(RSVPRefreshExpirationForm, self).clean()
 
     def send(self):
         new_rsvp = CollectiveRSVP.objects.create(collective=self.rsvp.collective, inquirer=self.rsvp.inquirer)
@@ -151,7 +168,7 @@ class RSVPRefreshExpirationForm(NoFormDataMixin, Form):
         return self.get_as_succes_message()
 
 
-class SendInvitationForm(CollectiveMixin, NoFormDataMixin, Form):
+class QuickSendInvitationForm(CollectiveMixin, NoFormDataMixin, Form):
     success_message = "Uitnodigingen zijn verstuurd. RSVPs alleen niet aangemaakt"
 
     def clean(self):
@@ -206,14 +223,11 @@ class SendReminderForm(CollectiveMixin, NoFormDataMixin, Form):
         }
 
         for open_rsvp in self.collective.open_rsvps():
-            # Refresh the invitation
-            open_rsvp.send_on = timezone.now()
-            open_rsvp.save()
-
             context_data.update({
                 'rsvp': open_rsvp,
             })
-            if open_rsvp.send_on + datetime.timedelta(days=self.days_between) <= timezone.now():
+            if open_rsvp.last_send_on + datetime.timedelta(days=self.days_between) <= timezone.now():
+                # Ensure no mails are send if it has been to recent
                 if open_rsvp.inquirer.email:
                     send_templated_mail(
                         subject=subject,
@@ -222,6 +236,10 @@ class SendReminderForm(CollectiveMixin, NoFormDataMixin, Form):
                         recipient=open_rsvp.inquirer
                     )
 
+                # Refresh the invitation
+                open_rsvp.last_send_on = timezone.now()
+                open_rsvp.save()
+
         return self.get_as_succes_message()
 
 
@@ -229,7 +247,6 @@ class SwitchCollectiveStateForm(CollectiveMixin, NoFormDataMixin, Form):
     to_state = forms.BooleanField(required=False)
 
     def clean(self):
-        print(self.cleaned_data)
         if self.cleaned_data.get('to_state', False) and self.collective.is_open:
             raise ValidationError("Collectief is al open")
         if not self.cleaned_data.get('to_state', False) and not self.collective.is_open:

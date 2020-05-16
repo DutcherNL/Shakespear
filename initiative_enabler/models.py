@@ -8,6 +8,10 @@ from django.utils import timezone
 from Questionaire.models import Inquiry, Inquirer, InquiryQuestionAnswer, Score, Technology, Question
 
 
+__all__ = ['TechCollective', 'InitiatedCollective', 'CollectiveRSVP', 'CollectiveApprovalResponse',
+           'CollectiveDeniedResponse', 'CollectiveRSVPInterest']
+
+
 class TechCollective(models.Model):
     """ A class describing a local possible collective to locally improve a technology """
     technology = models.ForeignKey(Technology, on_delete=models.PROTECT, unique=True)

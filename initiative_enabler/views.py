@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.contrib import messages
 from django.urls import reverse
 
+from Questionaire.models import *
 from initiative_enabler.models import *
 from initiative_enabler.forms import *
 
@@ -84,7 +85,7 @@ class QuickEditCollectiveMixin(EditCollectiveMixin):
         return HttpResponseRedirect(self.collective.get_absolute_url())
 
     def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST, collective=self.collective, current_inquirer=self.inquirer)
+        form = self.form_class(request.POST, collective=self.collective)
         if form.is_valid():
             response = form.save()
         else:
@@ -99,7 +100,7 @@ class ChangeCollectiveStateView(QuickEditCollectiveMixin, View):
 
 
 class SendNewInvitesView(QuickEditCollectiveMixin, View):
-    form_class = SendInvitationForm
+    form_class = QuickSendInvitationForm
 
 
 class SendReminderRSVPsView(QuickEditCollectiveMixin, View):
@@ -109,41 +110,45 @@ class SendReminderRSVPsView(QuickEditCollectiveMixin, View):
 class CollectiveRSVPView(FormView):
     form_class = RSVPAgreeForm
     template_name = "initiative_enabler/rsvp_collective.html"
+    rsvp = None
+
+    def setup(self, *args, **kwargs):
+        super(CollectiveRSVPView, self).setup(*args, **kwargs)
+        """ Setup the RSVP and adjust the form class or template name accordingly if necessary """
+        try:
+            self.rsvp = CollectiveRSVP.objects.get(url_code=kwargs.get('rsvp_slug', None))
+        except CollectiveRSVP.DoesNotExist:
+            self.rsvp = None
+        else:
+            if self.rsvp.is_expired:
+                self.template_name = "initiative_enabler/rsvp_collective_expired.html"
+                self.form_class = RSVPRefreshExpirationForm
+            elif not self.rsvp.collective.is_open:
+                self.template_name = "initiative_enabler/rsvp_collective_on_closed.html"
+                self.form_class = RSVPOnClosedForm
 
     def dispatch(self, request, *args, **kwargs):
-        try:
-            self.rsvp = CollectiveRSVP.objects.get(url_code=self.kwargs.get('rsvp_slug', None))
-        except CollectiveRSVP.DoesNotExist:
+        if self.rsvp is None:
             return self.render_404()
 
         if self.rsvp.activated:
             # RSVP is already used and thus no actions should be able to occur
             return self.render_already_used()
 
-        if self.rsvp.is_expired:
-            self.ready_for_expired()
-        elif not self.rsvp.collective.is_open:
-            self.ready_for_closed()
-
         return super(CollectiveRSVPView, self).dispatch(request, *args, **kwargs)
 
     def render_404(self):
         self.template_name = "initiative_enabler/rsvp_collective_404.html"
-        return self.render_to_response({})
+
+        response = self.render_to_response({})
+        response.status_code = 404
+        return response
 
     def render_already_used(self):
         self.template_name = "initiative_enabler/rsvp_collective_already_activated.html"
-        return self.render_to_response({})
-
-    def ready_for_closed(self):
-        """ Set up view variables for when bouncing against a closed collective """
-        self.template_name = "initiative_enabler/rsvp_collective_on_closed.html"
-        self.form_class = RSVPOnClosedForm
-
-    def ready_for_expired(self):
-        """ Set up view variables for when bouncing against a closed collective """
-        self.template_name = "initiative_enabler/rsvp_collective_expired.html"
-        self.form_class = RSVPRefreshExpirationForm
+        response = self.render_to_response({})
+        response.status_code = 410
+        return response
 
     def get_form_kwargs(self):
         kwargs = super(CollectiveRSVPView, self).get_form_kwargs()
@@ -179,7 +184,7 @@ class CollectiveRSVPView(FormView):
 
 
 class CollectiveRSVPDeniedView(FormView):
-    form_class = RSVPDisagreeForm
+    form_class = RSVPDenyForm
     template_name = "initiative_enabler/rsvp_collective_deny.html"
     success_template_name = "initiative_enabler/rsvp_collective_deny_succesful.html"
 
