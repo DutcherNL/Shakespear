@@ -9,6 +9,11 @@ from initiative_enabler.models import *
 from initiative_enabler.forms import *
 
 
+"""
+Mixins
+"""
+
+
 class InquiryMixin:
     def dispatch(self, request, *args, **kwargs):
         self.inquirer = get_object_or_404(Inquirer, id=self.request.session.get('inquirer_id', None))
@@ -19,83 +24,6 @@ class InquiryMixin:
         context = super(InquiryMixin, self).get_context_data(**kwargs)
         context['inquiry'] = self.inquiry
         context['inquirer'] = self.inquirer
-        return context
-
-
-class CollectiveOverview(InquiryMixin, ListView):
-    model = TechCollective
-    template_name = "initiative_enabler/collective_overview.html"
-    context_object_name = "collectives"
-
-
-class StartCollectiveView(InquiryMixin, FormView):
-    form_class = StartCollectiveForm
-    template_name = "initiative_enabler/initiate_collective.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        self.tech_collective = get_object_or_404(TechCollective, id=self.kwargs.get('collective_id', None))
-        return super(StartCollectiveView, self).dispatch(request, *args, **kwargs)
-
-    def get_form_kwargs(self):
-        kwargs = super(StartCollectiveView, self).get_form_kwargs()
-        kwargs.update({
-            'inquirer': self.inquirer,
-            'tech_collective': self.tech_collective
-        })
-        return kwargs
-
-    def form_valid(self, form):
-        self.object = form.save()
-        return super(StartCollectiveView, self).form_valid(form)
-
-    def get_success_url(self):
-        return reverse('collectives:actief_collectief_details', kwargs={
-            'collective_id': self.object.id
-        })
-
-
-class InitiatedCollectiveOverview(ListView):
-    model = InitiatedCollective
-    template_name = "initiative_enabler/active_collectives_list.html"
-    context_object_name = "collectives"
-
-
-def render_collective_detail(request, *args, **kwargs):
-    collective = get_object_or_404(InitiatedCollective, id=kwargs.get('collective_id', None))
-    inquirer = get_object_or_404(Inquirer, id=request.session.get('inquirer_id', None))
-
-    if collective.inquirer == inquirer:
-        view_class = InitiatedCollectiveStarterDetailsView
-    elif collective.collectiveapprovalresponse_set.filter(inquirer=inquirer).count() > 0:
-        view_class = InitiatedCollectiveFollowerDetailsView
-    else:
-        raise Http404("Dit collectief kan niet worden gevonden of u bent niet onderdeel van dit collectief")
-
-    return view_class.as_view()(request, *args, **kwargs)
-
-
-class InitiatedCollectiveStarterDetailsView(InquiryMixin, DetailView):
-    model = InitiatedCollective
-    template_name = "initiative_enabler/initiated_collective_details_starter.html"
-    pk_url_kwarg = "collective_id"
-    context_object_name = "collective"
-
-    def get_context_data(self, **kwargs):
-        context = super(InitiatedCollectiveStarterDetailsView, self).get_context_data()
-        context['personal_data_form'] = EditPersonalDataForm(collective=context['object'], inquirer=self.inquirer)
-        return context
-
-
-class InitiatedCollectiveFollowerDetailsView(InquiryMixin, DetailView):
-    model = InitiatedCollective
-    template_name = "initiative_enabler/initiated_collective_details_follower.html"
-    pk_url_kwarg = "collective_id"
-    context_object_name = "collective"
-
-    def get_context_data(self, **kwargs):
-        context = super(InitiatedCollectiveFollowerDetailsView, self).get_context_data()
-        context['accepted_rsvp'] = self.object.collectiveapprovalresponse_set.filter(inquirer=self.inquirer).first()
-
         return context
 
 
@@ -134,8 +62,122 @@ class QuickEditCollectiveMixin(EditCollectiveMixin):
         return HttpResponseRedirect(self.collective.get_absolute_url())
 
 
+"""
+General back-end views
+TODO: Delete or restructure them to prevent access
+"""
+
+
+class CollectiveOverview(InquiryMixin, ListView):
+    model = TechCollective
+    template_name = "initiative_enabler/collective_overview.html"
+    context_object_name = "collectives"
+
+
+class StartCollectiveView(InquiryMixin, FormView):
+    form_class = StartCollectiveForm
+    template_name = "initiative_enabler/initiate_collective.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.tech_collective = get_object_or_404(TechCollective, id=self.kwargs.get('collective_id', None))
+        return super(StartCollectiveView, self).dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super(StartCollectiveView, self).get_form_kwargs()
+        kwargs.update({
+            'inquirer': self.inquirer,
+            'tech_collective': self.tech_collective
+        })
+        return kwargs
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return super(StartCollectiveView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('collectives:actief_collectief_details', kwargs={
+            'collective_id': self.object.id
+        })
+
+
+"""
+Initiated Collective views
+"""
+
+
+class InitiatedCollectiveOverview(ListView):
+    model = InitiatedCollective
+    template_name = "initiative_enabler/active_collectives_list.html"
+    context_object_name = "collectives"
+
+
+def render_collective_detail(request, *args, **kwargs):
+    """ Determine which view needs to be used. As owner or as follower """
+
+    collective = get_object_or_404(InitiatedCollective, id=kwargs.get('collective_id', None))
+    inquirer = get_object_or_404(Inquirer, id=request.session.get('inquirer_id', None))
+
+    if collective.inquirer == inquirer:
+        view_class = InitiatedCollectiveStarterDetailsView
+    elif collective.collectiveapprovalresponse_set.filter(inquirer=inquirer).count() > 0:
+        view_class = InitiatedCollectiveFollowerDetailsView
+    else:
+        raise Http404("Dit collectief kan niet worden gevonden of u bent niet onderdeel van dit collectief")
+
+    return view_class.as_view()(request, *args, **kwargs)
+
+
+class InitiatedCollectiveStarterDetailsView(InquiryMixin, DetailView):
+    model = InitiatedCollective
+    template_name = "initiative_enabler/user_zone/initiated_collective_details_starter.html"
+    pk_url_kwarg = "collective_id"
+    context_object_name = "collective"
+
+    def get_context_data(self, **kwargs):
+        context = super(InitiatedCollectiveStarterDetailsView, self).get_context_data()
+        context['personal_data_form'] = EditPersonalDataForm(collective=context['object'], inquirer=self.inquirer)
+        return context
+
+
+class InitiatedCollectiveFollowerDetailsView(InquiryMixin, DetailView):
+    model = InitiatedCollective
+    template_name = "initiative_enabler/user_zone/initiated_collective_details_follower.html"
+    pk_url_kwarg = "collective_id"
+    context_object_name = "collective"
+
+    def get_context_data(self, **kwargs):
+        context = super(InitiatedCollectiveFollowerDetailsView, self).get_context_data()
+        context['accepted_rsvp'] = self.object.collectiveapprovalresponse_set.filter(inquirer=self.inquirer).first()
+
+        return context
+
+
 class ChangeCollectiveStateView(QuickEditCollectiveMixin, View):
     form_class = SwitchCollectiveStateForm
+
+
+class AdjustPersonalData(EditCollectiveMixin, FormView):
+    form_class = EditPersonalDataForm
+    template_name = "initiative_enabler/user_zone/initiated_collective_adjust_personal_data.html"
+
+    def get_form_kwargs(self):
+        kwargs = super(AdjustPersonalData, self).get_form_kwargs()
+        kwargs['collective'] = self.collective
+        kwargs['inquirer'] = self.inquirer
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        messages.add_message(self.request, messages.SUCCESS, "Data aangepast")
+        return super(AdjustPersonalData, self).form_valid(form)
+
+    def get_success_url(self):
+        return self.collective.get_absolute_url()
+
+
+"""
+RSVP views handling the various possible states of a collective RSVP
+"""
 
 
 class SendNewInvitesView(QuickEditCollectiveMixin, View):
@@ -148,7 +190,7 @@ class SendReminderRSVPsView(QuickEditCollectiveMixin, View):
 
 class CollectiveRSVPView(FormView):
     form_class = RSVPAgreeForm
-    template_name = "initiative_enabler/rsvp_collective.html"
+    template_name = "initiative_enabler/rsvps/rsvp_collective_normal.html"
     rsvp = None
 
     def setup(self, *args, **kwargs):
@@ -160,10 +202,10 @@ class CollectiveRSVPView(FormView):
             self.rsvp = None
         else:
             if self.rsvp.is_expired:
-                self.template_name = "initiative_enabler/rsvp_collective_expired.html"
+                self.template_name = "initiative_enabler/rsvps/rsvp_collective_expired.html"
                 self.form_class = RSVPRefreshExpirationForm
             elif not self.rsvp.collective.is_open:
-                self.template_name = "initiative_enabler/rsvp_collective_on_closed.html"
+                self.template_name = "initiative_enabler/rsvps/rsvp_collective_on_closed.html"
                 self.form_class = RSVPOnClosedForm
 
     def dispatch(self, request, *args, **kwargs):
@@ -177,14 +219,14 @@ class CollectiveRSVPView(FormView):
         return super(CollectiveRSVPView, self).dispatch(request, *args, **kwargs)
 
     def render_404(self):
-        self.template_name = "initiative_enabler/rsvp_collective_404.html"
+        self.template_name = "initiative_enabler/rsvps/rsvp_collective_404.html"
 
         response = self.render_to_response({})
         response.status_code = 404
         return response
 
     def render_already_used(self):
-        self.template_name = "initiative_enabler/rsvp_collective_already_activated.html"
+        self.template_name = "initiative_enabler/rsvps/rsvp_collective_already_activated.html"
         response = self.render_to_response({})
         response.status_code = 410
         return response
@@ -224,7 +266,7 @@ class CollectiveRSVPView(FormView):
 
 class CollectiveRSVPDeniedView(FormView):
     form_class = RSVPDenyForm
-    template_name = "initiative_enabler/rsvp_collective_deny.html"
+    template_name = "initiative_enabler/rsvps/rsvp_collective_deny.html"
     success_template_name = "initiative_enabler/rsvp_collective_deny_succesful.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -249,22 +291,3 @@ class CollectiveRSVPDeniedView(FormView):
         self.template_name = self.success_template_name
         context = self.get_context_data()
         return self.render_to_response(context)
-
-
-class AdjustPersonalData(EditCollectiveMixin, FormView):
-    form_class = EditPersonalDataForm
-    template_name = "initiative_enabler/collective_adjust_personal_data.html"
-
-    def get_form_kwargs(self):
-        kwargs = super(AdjustPersonalData, self).get_form_kwargs()
-        kwargs['collective'] = self.collective
-        kwargs['inquirer'] = self.inquirer
-        return kwargs
-
-    def form_valid(self, form):
-        form.save()
-        messages.add_message(self.request, messages.SUCCESS, "Data aangepast")
-        return super(AdjustPersonalData, self).form_valid(form)
-
-    def get_success_url(self):
-        return self.collective.get_absolute_url()

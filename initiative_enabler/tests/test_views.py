@@ -52,7 +52,7 @@ class RSVPViewTestCase(QuickTestAdjustmentsMixin, TestCase):
     def test_rsvp_view_normal(self):
         """ Tests QuickSendInvitationForm """
         self.assertEqual(self.view.form_class, RSVPAgreeForm)
-        self.assertEqual(self.view.template_name, "initiative_enabler/rsvp_collective.html")
+        self.assertEqual(self.view.template_name, "initiative_enabler/rsvps/rsvp_collective_normal.html")
         self.assertEqual(self.view.rsvp, self.rsvp)
         context = self.view.get_context_data()
         self.assertIn('rsvp', context)
@@ -71,7 +71,7 @@ class RSVPViewTestCase(QuickTestAdjustmentsMixin, TestCase):
 
         self.assertEqual(self.view.rsvp, self.rsvp)
         self.assertEqual(self.view.form_class, RSVPOnClosedForm)
-        self.assertEqual(self.view.template_name, "initiative_enabler/rsvp_collective_on_closed.html")
+        self.assertEqual(self.view.template_name, "initiative_enabler/rsvps/rsvp_collective_on_closed.html")
 
     def test_rsvp_view_expired(self):
         self.set_rsvp_last_send(now=True, days=14)
@@ -80,14 +80,15 @@ class RSVPViewTestCase(QuickTestAdjustmentsMixin, TestCase):
 
         self.assertEqual(self.view.rsvp, self.rsvp)
         self.assertEqual(self.view.form_class, RSVPRefreshExpirationForm)
-        self.assertEqual(self.view.template_name, "initiative_enabler/rsvp_collective_expired.html")
+        self.assertEqual(self.view.template_name, "initiative_enabler/rsvps/rsvp_collective_expired.html")
 
     def test_rsvp_view_already_activated(self):
         self.rsvp.activated = True
         self.rsvp.save()
+        self.setUp_view()
 
         response = self.view.dispatch(self.get_request, url_code='no_match')
-        self.assertEqual(response.template_name, "initiative_enabler/rsvp_collective_already_activated.html")
+        self.assertEqual(response.template_name[0], "initiative_enabler/rsvps/rsvp_collective_already_activated.html")
         self.assertEqual(response.status_code, 410)  # HTTP Gone
 
 
