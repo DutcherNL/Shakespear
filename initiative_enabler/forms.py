@@ -1,16 +1,18 @@
 import datetime
 
-from django.forms import Form, CharField, ModelForm, ValidationError
+from django.forms import Form, ModelForm, ValidationError
+from django.core.validators import RegexValidator
 from django import forms
 from django.contrib import messages
 from django.utils import timezone
 
 from mailing.mails import send_templated_mail
 from initiative_enabler.models import *
+from Questionaire.models import Inquirer
 
 
 __all__ = ['StartCollectiveForm', 'RSVPAgreeForm', 'RSVPDenyForm', 'RSVPOnClosedForm', 'RSVPRefreshExpirationForm',
-           'QuickSendInvitationForm', 'SendReminderForm', 'SwitchCollectiveStateForm']
+           'QuickSendInvitationForm', 'SendReminderForm', 'SwitchCollectiveStateForm', 'EditPersonalDataForm']
 
 
 class NoFormDataMixin:
@@ -37,11 +39,11 @@ class CollectiveMixin:
 
 
 class StartCollectiveForm(ModelForm):
-    uitnodiging = CharField()
+    uitnodiging = forms.CharField()
 
     class Meta:
         model = InitiatedCollective
-        fields = ["name", "host_address", "phone_number", "uitnodiging"]
+        fields = ["name", "address", "phone_number", "uitnodiging"]
 
     def __init__(self, inquirer, tech_collective, **kwargs):
         self.inquirer = inquirer
@@ -262,3 +264,58 @@ class SwitchCollectiveStateForm(CollectiveMixin, NoFormDataMixin, Form):
         else:
             self.success_message = "Collectief is vanaf nu gesloten. Anderen kunnen niet meer toetreden"
         return self.get_as_succes_message()
+
+
+class EditPersonalDataForm(Form):
+    name = forms.CharField()
+    adres = forms.CharField()
+    tel_nummer = forms.CharField(validators=[
+        RegexValidator("^((\+[1-9]{2})|(00[1-9]{2})|(0[1-9]{1,2}))[ -]{0,1}[1-9]*$",
+                       message="Vul in geldig telefoonnummer in", code='invalid_phone_number')])
+
+    def __init__(self, *args, inquirer=None, collective=None, **kwargs):
+        assert inquirer is not None, "Inquirer is niet gegeven"
+        assert collective is not None, "Collectief is niet gegeven"
+        self.inquirer = inquirer
+        self.collective = collective
+
+        kwargs.setdefault('initial', {})
+        kwargs['initial'].update(self.set_initial_values())
+        super(EditPersonalDataForm, self).__init__(*args, **kwargs)
+
+    def set_initial_values(self):
+        if self.inquirer == self.collective.inquirer:
+            data_object = self.collective
+        else:
+            try:
+                as_approved_inquirer = self.collective.collectiveapprovalresponse_set.get(inquirer=self.inquirer)
+                data_object = as_approved_inquirer
+            except CollectiveApprovalResponse.DoesNotExist:
+                pass
+
+        initials = {
+            'name': data_object.name,
+            'adres': data_object.address,
+            'tel_nummer': data_object.phone_number
+        }
+
+        return initials
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        if self.inquirer == self.collective.inquirer:
+            cleaned_data['inquirer_data_container'] = self.collective
+        else:
+            try:
+                as_approved_inquirer = self.collective.collectiveapprovalresponse_set.get(inquirer=self.inquirer)
+                cleaned_data['inquirer_data_container'] = as_approved_inquirer
+            except CollectiveApprovalResponse.DoesNotExist:
+                raise ValidationError("Jij bent niet betrokken bij dit collectief dus ook geen persoonlijke data")
+
+    def save(self):
+        data_obj = self.cleaned_data['inquirer_data_container']
+        data_obj.name = self.cleaned_data['name']
+        data_obj.address = self.cleaned_data['adres']
+        data_obj.phone_number = self.cleaned_data['tel_nummer']
+        print(data_obj)
+        data_obj.save()

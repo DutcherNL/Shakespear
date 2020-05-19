@@ -1,0 +1,16 @@
+{% extends 'base_with_body.html' %}
+
+{% block body %}
+    <h1 class="row col-12">Wijzig uw contactgegevens</h1>
+
+    <form method="post" class="row">
+        {% csrf_token %}
+        <div class="col-12">
+            {% include "snippets/bootstrap_form.html" %}
+            <input type="submit" value="Opslaan" class="btn btn-primary"/>
+            <a class="btn btn-secondary" href="{{ collective.get_absolute_url }}">
+                Annuleren
+            </a>
+        </div>
+    </form>
+{% endblock %}

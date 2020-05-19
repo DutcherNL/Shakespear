@@ -1,6 +1,6 @@
 from django.views.generic import FormView, ListView, CreateView, UpdateView, DetailView, View
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect, HttpResponseForbidden
+from django.http import HttpResponseRedirect, HttpResponseForbidden, Http404
 from django.contrib import messages
 from django.urls import reverse
 
@@ -18,6 +18,7 @@ class InquiryMixin:
     def get_context_data(self, **kwargs):
         context = super(InquiryMixin, self).get_context_data(**kwargs)
         context['inquiry'] = self.inquiry
+        context['inquirer'] = self.inquirer
         return context
 
 
@@ -59,11 +60,43 @@ class InitiatedCollectiveOverview(ListView):
     context_object_name = "collectives"
 
 
-class InitiatedCollectiveDetailsView(InquiryMixin, DetailView):
+def render_collective_detail(request, *args, **kwargs):
+    collective = get_object_or_404(InitiatedCollective, id=kwargs.get('collective_id', None))
+    inquirer = get_object_or_404(Inquirer, id=request.session.get('inquirer_id', None))
+
+    if collective.inquirer == inquirer:
+        view_class = InitiatedCollectiveStarterDetailsView
+    elif collective.collectiveapprovalresponse_set.filter(inquirer=inquirer).count() > 0:
+        view_class = InitiatedCollectiveFollowerDetailsView
+    else:
+        raise Http404("Dit collectief kan niet worden gevonden of u bent niet onderdeel van dit collectief")
+
+    return view_class.as_view()(request, *args, **kwargs)
+
+
+class InitiatedCollectiveStarterDetailsView(InquiryMixin, DetailView):
     model = InitiatedCollective
     template_name = "initiative_enabler/initiated_collective_details_starter.html"
     pk_url_kwarg = "collective_id"
     context_object_name = "collective"
+
+    def get_context_data(self, **kwargs):
+        context = super(InitiatedCollectiveStarterDetailsView, self).get_context_data()
+        context['personal_data_form'] = EditPersonalDataForm(collective=context['object'], inquirer=self.inquirer)
+        return context
+
+
+class InitiatedCollectiveFollowerDetailsView(InquiryMixin, DetailView):
+    model = InitiatedCollective
+    template_name = "initiative_enabler/initiated_collective_details_follower.html"
+    pk_url_kwarg = "collective_id"
+    context_object_name = "collective"
+
+    def get_context_data(self, **kwargs):
+        context = super(InitiatedCollectiveFollowerDetailsView, self).get_context_data()
+        context['accepted_rsvp'] = self.object.collectiveapprovalresponse_set.filter(inquirer=self.inquirer).first()
+
+        return context
 
 
 class EditCollectiveMixin:
@@ -75,6 +108,12 @@ class EditCollectiveMixin:
         self.inquirer = get_object_or_404(Inquirer, id=self.request.session.get('inquirer_id', None))
         self.collective = get_object_or_404(InitiatedCollective, id=kwargs['collective_id'])
         return super(EditCollectiveMixin, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(EditCollectiveMixin, self).get_context_data(**kwargs)
+        context['collective'] = self.collective
+        context['inquirer'] = self.inquirer
+        return context
 
 
 class QuickEditCollectiveMixin(EditCollectiveMixin):
@@ -211,3 +250,21 @@ class CollectiveRSVPDeniedView(FormView):
         context = self.get_context_data()
         return self.render_to_response(context)
 
+
+class AdjustPersonalData(EditCollectiveMixin, FormView):
+    form_class = EditPersonalDataForm
+    template_name = "initiative_enabler/collective_adjust_personal_data.html"
+
+    def get_form_kwargs(self):
+        kwargs = super(AdjustPersonalData, self).get_form_kwargs()
+        kwargs['collective'] = self.collective
+        kwargs['inquirer'] = self.inquirer
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        messages.add_message(self.request, messages.SUCCESS, "Data aangepast")
+        return super(AdjustPersonalData, self).form_valid(form)
+
+    def get_success_url(self):
+        return self.collective.get_absolute_url()

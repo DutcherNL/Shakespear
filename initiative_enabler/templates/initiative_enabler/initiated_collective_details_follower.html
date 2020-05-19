@@ -1,0 +1,160 @@
+{% extends 'base_with_body.html' %}
+{% load score_result_tags %}
+{% load collective_tags %}
+
+{% block body %}
+    <h1>Collectieve installatie voor {{ collective.tech_collective.technology }}</h1>
+    <div class="row">
+        <div class="col-6">
+            <p><b>{{ collective.tech_collective.technology }}</b></p>
+            <p>
+                {{ collective.tech_collective.technology.short_text }}
+            </p>
+            <a class="btn btn-info" href="{{ collective.tech_collective.technology.get_absolute_url }}"
+               target="_blank" rel="noopener noreferrer" >
+                <i class="fas fa-info-circle"></i> Meer informatie
+            </a>
+        </div>
+        <div class="col-6">
+            <p><b>Instructies</b></p>
+            <p>
+                Samen met elkaar kan je een collectieve inkoop opzetten. Wil je weten hoe? Download dan hieronder
+                het overzichtelijke stappenplan.
+            </p>
+            <a class="btn btn-info" href="{{ collective.tech_collective.technology.get_absolute_url }}">
+                <i class="fas fa-file-download"></i> Download {{ collective.tech_collective.technology }} collectief stappenplan
+            </a>
+        </div>
+    </div>
+    <hr>
+
+    <div class="row">
+        <div class="col-md-8 pb-2 pb-md-0">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex align-items-center">
+                        <h4 class="mr-auto"> Initiatiefnemer</h4>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="card-text" style="border-spacing: 50px;">
+                        <tr>
+                            <td>Naam:</td>
+                            <td style="width: 1em;"></td>
+                            <td>{{ collective.name|default_if_none:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Address:
+                                <span style="width: 5px;"></span>
+                            </td>
+                            <td></td>
+                            <td>{{ collective.address|default_if_none:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <td>Tel:</td>
+                            <td></td>
+                            <td>{{ collective.phone_number|default_if_none:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <td>Email:</td>
+                            <td></td>
+                            <td>{{ collective.inquirer.email|default_if_none:" - " }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex align-items-center">
+                        <h4 class="mr-auto"> Uw gegevens</h4>
+                        <button class="btn btn-primary btn-sm" style="margin-left: 1em"
+                                data-toggle="modal" data-target="#personal-settings">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="card-text" style="border-spacing: 50px;">
+                        <tr>
+                            <td>
+                                Naam:
+                            </td>
+                            <td style="width: 1em;"></td>
+                            <td>
+                                {{ accepted_rsvp.name|default_if_none:"-" }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Address:
+                                <span style="width: 5px;"></span>
+                            </td>
+                            <td></td>
+                            <td>
+                                {{ accepted_rsvp.address|default_if_none:"-" }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Tel:
+                            </td>
+                            <td></td>
+                            <td>
+                                {{ accepted_rsvp.phone_number|default_if_none:"-" }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Email:
+                            </td>
+                            <td></td>
+                            <td>
+                                {{ accepted_rsvp.inquirer.email|default_if_none:" - " }}
+                            </td>
+                        </tr>
+
+                    </table>
+                </div>
+            </div>
+            {# Tooltip for personal settings #}
+            <div class="modal fade" id="personal-settings" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLongTitle">
+                                Wijzig u gegevens
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="personal-data-form" method="post"
+                                  action="{% url 'collectives:edit_contact_data' collective_id=collective.id %}">
+                                {% csrf_token %}
+                                {% include "snippets/bootstrap_form.html" with form=personal_data_form%}
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary" form="personal-data-form">Opslaan</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Sluiten</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block javascript %}
+{{ block.super }}
+    <script>
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+{% endblock %}

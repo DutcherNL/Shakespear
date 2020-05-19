@@ -18,7 +18,8 @@ urlpatterns = [
             path('denied/', views.CollectiveRSVPDeniedView.as_view(), name='rsvp_deny'),
         ])),
         path('<int:collective_id>/', include([
-            path('details/', views.InitiatedCollectiveDetailsView.as_view(), name='actief_collectief_details'),
+            path('details/', views.render_collective_detail, name='actief_collectief_details'),
+            path('edit-contact-info/', views.AdjustPersonalData.as_view(), name='edit_contact_data'),
             path('invite/', views.SendNewInvitesView.as_view(), name='active_collective_invite_new'),
             path('open/', views.ChangeCollectiveStateView.as_view(), name='active_collective_change_open_state'),
             path('send_reminder/', views.SendReminderRSVPsView.as_view(), name='send_reminders_view'),

@@ -14,7 +14,7 @@ __all__ = ['TechCollective', 'InitiatedCollective', 'CollectiveRSVP', 'Collectiv
 
 class TechCollective(models.Model):
     """ A class describing a local possible collective to locally improve a technology """
-    technology = models.ForeignKey(Technology, on_delete=models.PROTECT, unique=True)
+    technology = models.OneToOneField(Technology, on_delete=models.PROTECT)
     description = models.CharField(max_length=512)
 
     def get_similar_inquiries(self, inquiry):
@@ -71,7 +71,7 @@ class InitiatedCollective(models.Model):
     message = models.TextField(max_length=500)
 
     name = models.CharField(default="", max_length=128)
-    host_address = models.CharField(default="", max_length=128)
+    address = models.CharField(default="", max_length=128)
     phone_number = models.CharField(max_length=15)
 
     def open_rsvps(self):
