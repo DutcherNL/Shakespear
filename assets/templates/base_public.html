@@ -2,12 +2,12 @@
 {% load footer_tags %}
 
 {% block body-containerless %}
-    <div class="container my-3">
+    <div class="container my-3" style="min-height: 70vh;">
         {% block body %}{% endblock %}
     </div>
     {% block footer %}
         <div class="py-4"></div>
-        <div class="bg-dark text-light" style="display: table-row; height: 0;">
+        <div class="bg-dark text-light d-flex" style="">
             <div class="container my-3">
                 <div class="row">
                     <div class="col-md-8">
