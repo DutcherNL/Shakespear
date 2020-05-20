@@ -5,14 +5,16 @@ from django.core.validators import RegexValidator
 from django import forms
 from django.contrib import messages
 from django.utils import timezone
+from django.forms.widgets import HiddenInput
 
 from mailing.mails import send_templated_mail
 from initiative_enabler.models import *
 from Questionaire.models import Inquirer
 
 
-__all__ = ['StartCollectiveForm', 'RSVPAgreeForm', 'RSVPDenyForm', 'RSVPOnClosedForm', 'RSVPRefreshExpirationForm',
-           'QuickSendInvitationForm', 'SendReminderForm', 'SwitchCollectiveStateForm', 'EditPersonalDataForm']
+__all__ = ['StartCollectiveFormSimple', 'RSVPAgreeForm', 'RSVPDenyForm', 'RSVPOnClosedForm', 'RSVPRefreshExpirationForm',
+           'QuickSendInvitationForm', 'SendReminderForm', 'SwitchCollectiveStateForm', 'EditPersonalDataForm',
+           'StartCollectiveFormTwoStep']
 
 
 class NoFormDataMixin:
@@ -38,7 +40,71 @@ class CollectiveMixin:
         super(CollectiveMixin, self).__init__(*args, **kwargs)
 
 
-class StartCollectiveForm(ModelForm):
+class StartCollectiveFormTwoStep(ModelForm):
+    prefix = 'final'
+
+    class Meta:
+        model = InitiatedCollective
+        fields = ["name", "address", "phone_number", "message"]
+
+    def __init__(self, inquirer, tech_collective, **kwargs):
+        self.inquirer = inquirer
+        self.tech_collective = tech_collective
+        super(StartCollectiveFormTwoStep, self).__init__(**kwargs)
+
+    def get_personal_data_subform(self):
+        class CreatePartOneForm(ModelForm):
+            prefix = "shell"
+            class Meta:
+                model = InitiatedCollective
+                fields = ["name", "address", "phone_number"]
+
+        return CreatePartOneForm(self.data if bool(self.data) else None)
+
+    def get_message_form(self):
+        class CreatePartTwoForm(ModelForm):
+            prefix = "final"
+
+            class Meta:
+                model = InitiatedCollective
+                fields = ["name", "address", "phone_number", 'message']
+                widgets = {
+                    'name': HiddenInput,
+                    'address': HiddenInput,
+                    'phone_number': HiddenInput,
+                }
+
+        return CreatePartTwoForm(self.data if bool(self.data) else None)
+
+    def save(self, commit=True):
+        self.instance.inquirer = self.inquirer
+        self.instance.tech_collective = self.tech_collective
+        self.instance = super(StartCollectiveFormTwoStep, self).save(commit=commit)
+
+        # Create the invitations and send them as emails
+        subject = f'Uitnodiging collectieve inkoop {self.tech_collective.technology}'
+        template_name = "collectives/invite_mail"
+        context_data = {
+            'collective': self.instance
+        }
+
+        for uninvited in self.instance.get_uninvited_inquiries():
+            new_rsvp = CollectiveRSVP.objects.create(inquirer=uninvited.inquirer, collective=self.instance)
+
+            context_data.update({
+                'rsvp': new_rsvp,
+            })
+            if uninvited.inquirer.email:
+                send_templated_mail(
+                    subject=subject,
+                    template_name=template_name,
+                    context_data=context_data,
+                    recipient=new_rsvp.inquirer
+                )
+        return self.instance
+
+
+class StartCollectiveFormSimple(ModelForm):
     uitnodiging = forms.CharField()
 
     class Meta:
@@ -48,12 +114,12 @@ class StartCollectiveForm(ModelForm):
     def __init__(self, inquirer, tech_collective, **kwargs):
         self.inquirer = inquirer
         self.tech_collective = tech_collective
-        super(StartCollectiveForm, self).__init__(**kwargs)
+        super(StartCollectiveFormSimple, self).__init__(**kwargs)
 
     def save(self, commit=True):
         self.instance.inquirer = self.inquirer
         self.instance.tech_collective = self.tech_collective
-        self.instance = super(StartCollectiveForm, self).save(commit=commit)
+        self.instance = super(StartCollectiveFormSimple, self).save(commit=commit)
 
         inquiries = self.tech_collective.get_similar_inquiries(self.inquirer.active_inquiry)
         rsvp_targets = Inquirer.objects.filter(inquiry__in=inquiries).distinct().exclude(id=self.inquirer.id)
@@ -182,7 +248,7 @@ class QuickSendInvitationForm(CollectiveMixin, NoFormDataMixin, Form):
         return self.cleaned_data
 
     def save(self):
-        subject = f'Herinnering: collectieve inkoop {self.collective.tech_collective.technology}'
+        subject = f'Uitnodiging collectieve inkoop {self.collective.tech_collective.technology}'
         template_name = "collectives/invite_mail"
         context_data = {
             'collective': self.collective

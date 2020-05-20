@@ -10,6 +10,7 @@ urlpatterns = [
         path('', views.InitiatedCollectiveOverview.as_view(), name='active_overview'),
         path('<int:collective_id>/', include([
             path('start_new/', views.StartCollectiveView.as_view(), name='start_new'),
+            path('details/', views.CollectiveInfoView.as_view(), name='general_info')
         ])),
     ])),
     path('u/', include([

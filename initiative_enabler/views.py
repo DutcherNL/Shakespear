@@ -75,7 +75,7 @@ class CollectiveOverview(InquiryMixin, ListView):
 
 
 class StartCollectiveView(InquiryMixin, FormView):
-    form_class = StartCollectiveForm
+    form_class = StartCollectiveFormTwoStep
     template_name = "initiative_enabler/initiate_collective.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -99,6 +99,19 @@ class StartCollectiveView(InquiryMixin, FormView):
             'collective_id': self.object.id
         })
 
+
+class CollectiveInfoView(InquiryMixin, DetailView):
+    model = TechCollective
+    template_name = "initiative_enabler/user_zone/collective_uninitiated_page.html"
+    pk_url_kwarg = "collective_id"
+    context_object_name = "tech_collective"
+
+    def get_context_data(self, **kwargs):
+        context = super(CollectiveInfoView, self).get_context_data(**kwargs)
+        context['num_interested'] = self.object.get_similar_inquiries(self.inquiry).count()
+        context['create_collective_form'] = StartCollectiveFormTwoStep(inquirer=self.inquirer,
+                                                                       tech_collective=self.object)
+        return context
 
 """
 Initiated Collective views
@@ -136,6 +149,7 @@ class InitiatedCollectiveStarterDetailsView(InquiryMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(InitiatedCollectiveStarterDetailsView, self).get_context_data()
         context['personal_data_form'] = EditPersonalDataForm(collective=context['object'], inquirer=self.inquirer)
+        context['tech_collective'] = self.object.tech_collective
         return context
 
 

@@ -16,12 +16,18 @@
             {{ collective.technology }}<br>
             {{ collective|number_of_similar_inquiries:inquiry }}
         </div>
-        <div class="col-6">
+        <div class="col-5">
             {{ collective.description }}
         </div>
-        <div class="col-3">
+        <div class="col-2">
+            <a class="btn btn-primary btn-block"
+                href="{% url "collectives:general_info" collective_id=collective.id %}">
+                Bekijk
+            </a>
+        </div>
+        <div class="col-2">
             <a class="btn btn-primary"
-                href="{% url "collectives:start_new" collective_id=collective.id %}">
+               href="{% url "collectives:start_new" collective_id=collective.id %}">
                 Start Collectief
             </a>
         </div>

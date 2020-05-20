@@ -1,14 +1,14 @@
-{% extends 'base_with_body.html' %}
+{% extends 'base_public.html' %}
 
 {% block body %}
     <h1>Collectieve installatie voor {{ collective.tech_collective.technology }}</h1>
     <div class="row">
         <div class="col-6">
-            <p><b>{{ collective.tech_collective.technology }}</b></p>
+            <p><b>{{ tech_collective.technology }}</b></p>
             <p>
-                {{ collective.tech_collective.technology.short_text }}
+                {{ tech_collective.technology.short_text }}
             </p>
-            <a class="btn btn-info" href="{{ collective.tech_collective.technology.get_absolute_url }}"
+            <a class="btn btn-info" href="{{ tech_collective.technology.get_absolute_url }}"
                target="_blank" rel="noopener noreferrer" >
                 <i class="fas fa-info-circle"></i> Meer informatie
             </a>
@@ -19,8 +19,8 @@
                 Samen met elkaar kan je een collectieve inkoop opzetten. Wil je weten hoe? Download dan hieronder
                 het overzichtelijke stappenplan.
             </p>
-            <a class="btn btn-info" href="{{ collective.tech_collective.technology.get_absolute_url }}">
-                <i class="fas fa-file-download"></i> Download {{ collective.tech_collective.technology }} collectief stappenplan
+            <a class="btn btn-info" href="{{ tech_collective.technology.get_absolute_url }}">
+                <i class="fas fa-file-download"></i> Download {{ tech_collective.technology }} collectief stappenplan
             </a>
         </div>
     </div>

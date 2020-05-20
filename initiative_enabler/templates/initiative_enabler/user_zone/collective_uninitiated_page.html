@@ -1,0 +1,167 @@
+{% extends 'initiative_enabler/user_zone/collective_base.html' %}
+{% load static %}
+
+{% block collective_content %}
+    <h4>Wilt u meedoen?</h4>
+    <div class="row">
+        <div class="col-sm-8">
+            Heeft u interesse om mogelijk deel te nemen aan een collectief wanneer deze in uw omgeving word gestart en
+            wilt u hiervoor uitnodigingen ontvangen?
+        </div>
+        <div class="col-sm-4">
+            <a class="btn btn-primary btn-block">
+                Ja, ik heb interesse
+            </a>
+        </div>
+    </div>
+    <hr>
+
+
+    <h3>Waarom een collectief?</h3>
+    <p>
+        Sommige taken zijn niet eenvoudig te ondernemen en vergen een expert. Dit kan echter een flinke klus zijn. Een
+        gezamenlijk collectief met de buurt kan veel last wegnemen; jullie regelen het immers samen. Ook kan er over
+        de prijs worden onderhandeld waardoor kosten lager uit kunnen vallen hoe meer huizen er mee doen.
+    </p>
+    <h3>Hoe start ik een collectief?</h3>
+    <p>
+        Een collectief is al op te starten met je buren en andere kennisen uit de buurt. Hiervoor kan het stappenplan
+        bovenaan deze pagina helpen. Echter kunnen wij u ook in contact brengen met bewoners in uw nabije omgeving die
+        hetzelfde advies hebben gekregen uit deze vragenlijst. Dit werkt als volgt:
+    </p>
+    <p>
+        Wanneer iemand een collectief aanmaakt versturen wij uitnodigingen aan iedereen die heeft aangegeven interesse
+        in een gezamenlijk collectief te hebben. Wanneer zij op deze uitnodiging positief reageren worden de
+        contactgegevens van u en de ander uitgewisseld.
+    </p>
+    <div class="d-flex justify-content-around mb-3">
+        <img class="img-responsive" src="{% static 'img/send_on_col_creation.png' %}"
+             width="225" height="125"
+             alt="Stuur uitnodigingen bij creatie collectief">
+        <img class="img-responsive" src="{% static 'img/connect_on_approval.png' %}"
+             width="225" height="125"
+             alt="Stuur uitnodigingen bij creatie collectief">
+    </div>
+    <p>
+        Nu u en anderen met elkaar in contact zijn gekomen kunt u hen benaderen via mail, of online chat-programma's
+        zoals Whatsapp, Telegram, Zoom of Discord
+    </p>
+    <hr>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Start een collectief</h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Op dit moment zijn er <b>{{ num_interested }} huishoudens</b> in uw omgeving die interesse hebben in een
+                        gezamenlijk collectief.
+                    </p>
+                    <p>
+                        Wilt u het initiatief nemen om een collectief te starten?
+                    </p>
+                    <button class="btn btn-primary btn-lg"
+                            data-toggle="modal" data-target="#start-collectief-1">
+                        <i class="fas fa-users"></i> Start Collectief
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <h4>Wilt u meedoen?</h4>
+    <div class="row">
+        <div class="col-sm-8">
+            Heeft u interesse om mogelijk deel te nemen aan een collectief wanneer deze in uw omgeving word gestart en
+            wilt u hiervoor uitnodigingen ontvangen?
+        </div>
+        <div class="col-sm-4">
+            <a class="btn btn-primary btn-block">
+                Ja, ik heb interesse
+            </a>
+        </div>
+    </div>
+
+    <!--  The modal for collectve creation -->
+    <div class="modal fade" id="start-collectief-1" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">
+                        Uw contactgegevens
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Wat top dat u een collectief wilt organiseren. Om u in contact te brengen met anderen hebben
+                        we wel uw contactgegevens nodig voor hen die op uw uitnodigingen reageren.
+                        Zou u zo vriendelijk willen zijn deze in te vullen?
+
+                    </p>
+                    <form id="personal_data_form"
+                          onsubmit="copy_form_input(this);
+                          $('#start-collectief-1').modal('hide');
+                          $('#start-collectief-2').modal('show');
+                          return false">
+                        {% include "snippets/bootstrap_form.html" with form=create_collective_form.get_personal_data_subform %}
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <button type=submit class="btn btn-primary" form="personal_data_form">
+                        Verder
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Sluiten</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="start-collectief-2" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">
+                        Uw collectief
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Bij de uitnodiging om deel te nemen sturen wij een bericht van u mee. Laat weten waarom anderen
+                        mee moeten doen met uw collectief.
+                    </p>
+                    <p>
+                        U hoeft hierin niet uw contact gegevens te plaatsen. Deze worden na acceptatie al gedeeld.
+                    </p>
+                    <form id="create_form" method="post" action="{% url "collectives:start_new" collective_id=tech_collective.id %}">
+                        {% csrf_token %}
+                        {% include "snippets/bootstrap_form.html" with form=create_collective_form.get_message_form %}
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success" form="create_form">Aanmaken en versturen</button>
+                    <button class="btn btn-primary" data-toggle="modal"
+                            data-target="#start-collectief-1" data-dismiss="modal">
+                        Terug
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Sluiten</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}
+
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static "javascript/clean_data_form.js" %}"></script>
+{% endblock %}
