@@ -23,6 +23,7 @@ urlpatterns = [
             path('details/', views.render_collective_detail, name='actief_collectief_details'),
             path('edit-contact-info/', views.AdjustPersonalData.as_view(), name='edit_contact_data'),
             path('invite/', views.SendNewInvitesView.as_view(), name='active_collective_invite_new'),
+            path('rsvp/', views.CollectiveRSVPView.as_view(), name='rsvp'),
             path('open/', views.ChangeCollectiveStateView.as_view(), name='active_collective_change_open_state'),
             path('send_reminder/', views.SendReminderRSVPsView.as_view(), name='send_reminders_view'),
         ])),

@@ -120,6 +120,11 @@ class CollectiveRSVP(models.Model):
     def generate_url_code(self):
         return get_random_string(length=40)
 
+    def get_local_absolute_url(self):
+        return reverse("collectives:rsvp", kwargs={
+            'collective_id': self.collective.id
+        })
+
     def get_absolute_url(self):
         return reverse("collectives:rsvp", kwargs={
             'rsvp_slug': self.url_code

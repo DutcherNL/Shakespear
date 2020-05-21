@@ -6,7 +6,7 @@
                     <td>A{{ rsvp.collective.name }}A</td>
                     <td>{{ rsvp.created_on }}</td>
                     <td><a class="btn btn-primary btn-block"
-                           href="">
+                           href="{{ rsvp.get_local_absolute_url }}">
                         <i class="fas fa-reply"></i> Reageer
                     </a></td>
                 </tr>

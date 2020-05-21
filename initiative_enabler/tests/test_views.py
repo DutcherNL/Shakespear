@@ -42,12 +42,17 @@ class RSVPViewTestCase(QuickTestAdjustmentsMixin, TestCase):
         # Set up the database
         set_up_rsvp(self)
         self.get_request = RequestFactory().get('/')
+        if not hasattr(self.get_request, 'session'):
+            self.get_request.session = {}  # Set a dict for the session in case session data is needed at any point
         self.setUp_view()
 
-    def setUp_view(self, url_code=None):
+    def setUp_view(self, url_code=None, with_expired_check=True):
         self.view = CollectiveRSVPView()
         url_code = url_code or self.rsvp.url_code
-        self.view.setup(self.get_request, rsvp_slug=url_code)
+        if with_expired_check:
+            self.view.setup(self.get_request, rsvp_slug=url_code)
+        else:
+            self.view.setup(self.get_request, collective_id=self.rsvp.collective.id)
 
     def test_rsvp_view_normal(self):
         """ Tests QuickSendInvitationForm """
@@ -82,9 +87,28 @@ class RSVPViewTestCase(QuickTestAdjustmentsMixin, TestCase):
         self.assertEqual(self.view.form_class, RSVPRefreshExpirationForm)
         self.assertEqual(self.view.template_name, "initiative_enabler/rsvps/rsvp_collective_expired.html")
 
+        self.get_request.session['inquirer_id'] = self.rsvp.inquirer
+        self.setUp_view(with_expired_check=False)
+        # Expiration is not relevant as the rsvp inquirer has the session currently active
+        # However, the form is still closed
+        self.assertEqual(self.view.form_class, RSVPOnClosedForm)
+
+        # Assert that the inquirer needs to have an open RSVP in this collective
+        self.get_request.session['inquirer_id'] = self.rsvp.inquirer.id + 50
+        self.setUp_view(with_expired_check=False)
+        self.assertIsNone(self.view.rsvp)
+
     def test_rsvp_view_already_activated(self):
         self.rsvp.activated = True
         self.rsvp.save()
+        self.setUp_view()
+
+        response = self.view.dispatch(self.get_request, url_code='no_match')
+        self.assertEqual(response.template_name[0], "initiative_enabler/rsvps/rsvp_collective_already_activated.html")
+        self.assertEqual(response.status_code, 410)  # HTTP Gone
+
+        # Ensure that a closed collective does not take priority
+        self.open_collective(False)
         self.setUp_view()
 
         response = self.view.dispatch(self.get_request, url_code='no_match')

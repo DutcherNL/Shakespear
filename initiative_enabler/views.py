@@ -225,15 +225,23 @@ class CollectiveRSVPView(FormView):
     template_name = "initiative_enabler/rsvps/rsvp_collective_normal.html"
     rsvp = None
 
-    def setup(self, *args, **kwargs):
-        super(CollectiveRSVPView, self).setup(*args, **kwargs)
+    def setup(self, request, *args, **kwargs):
+        super(CollectiveRSVPView, self).setup(request, *args, **kwargs)
         """ Setup the RSVP and adjust the form class or template name accordingly if necessary """
         try:
-            self.rsvp = CollectiveRSVP.objects.get(url_code=kwargs.get('rsvp_slug', None))
-        except CollectiveRSVP.DoesNotExist:
+            if kwargs.get('rsvp_slug', None):
+                self.rsvp = CollectiveRSVP.objects.get(url_code=kwargs.get('rsvp_slug', None))
+            elif kwargs.get('collective_id', None):
+                self.rsvp = CollectiveRSVP.objects.get(
+                    collective_id=kwargs.get('collective_id'),
+                    inquirer_id=request.session.get('inquirer_id', None))
+            else:
+                raise CollectiveRSVP.DoesNotExist
+        except (CollectiveRSVP.DoesNotExist, Inquirer.DoesNotExist):
             self.rsvp = None
         else:
-            if self.rsvp.is_expired:
+
+            if self.rsvp.is_expired and self.rsvp.inquirer != request.session.get('inquirer_id', None):
                 self.template_name = "initiative_enabler/rsvps/rsvp_collective_expired.html"
                 self.form_class = RSVPRefreshExpirationForm
             elif not self.rsvp.collective.is_open:
