@@ -6,6 +6,7 @@ app_name = "collectives"
 
 urlpatterns = [
     path('', views.CollectiveOverview.as_view(), name='overview'),
+    path('action/', views.TakeActionOverview.as_view(), name='take_action'),
     path('g/', include([
         path('', views.InitiatedCollectiveOverview.as_view(), name='active_overview'),
         path('<int:collective_id>/', include([

@@ -1,4 +1,4 @@
-from django.views.generic import FormView, ListView, CreateView, UpdateView, DetailView, View
+from django.views.generic import FormView, ListView, CreateView, UpdateView, DetailView, View, TemplateView
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponseForbidden, Http404
 from django.contrib import messages
@@ -15,10 +15,10 @@ Mixins
 
 
 class InquiryMixin:
-    def dispatch(self, request, *args, **kwargs):
-        self.inquirer = get_object_or_404(Inquirer, id=self.request.session.get('inquirer_id', None))
+    def setup(self, request, *args, **kwargs):
+        self.inquirer = get_object_or_404(Inquirer, id=request.session.get('inquirer_id', None))
         self.inquiry = self.inquirer.active_inquiry
-        return super(InquiryMixin, self).dispatch(request, *args, **kwargs)
+        return super(InquiryMixin, self).setup(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(InquiryMixin, self).get_context_data(**kwargs)
@@ -111,6 +111,24 @@ class CollectiveInfoView(InquiryMixin, DetailView):
         context['num_interested'] = self.object.get_similar_inquiries(self.inquiry).count()
         context['create_collective_form'] = StartCollectiveFormTwoStep(inquirer=self.inquirer,
                                                                        tech_collective=self.object)
+        return context
+
+
+class TakeActionOverview(InquiryMixin, TemplateView):
+    template_name = "initiative_enabler/take_action_overview.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(TakeActionOverview, self).get_context_data(**kwargs)
+        context['advised_techs'] = []
+
+        for tech in TechGroup.objects.all():
+            tech_score = tech.get_score(self.inquiry)
+            print(self.inquiry)
+            print(f'tech_score: {tech} - {tech_score}')
+
+            if tech_score == Technology.TECH_SUCCESS:
+                context['advised_techs'].append(tech)
+
         return context
 
 """

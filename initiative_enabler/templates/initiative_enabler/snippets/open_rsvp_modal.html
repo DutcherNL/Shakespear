@@ -1,0 +1,19 @@
+<div style="display: none">
+    <table>
+        <tbody class="invite_content">
+            {% for rsvp in rsvps %}
+                <tr>
+                    <td>A{{ rsvp.collective.name }}A</td>
+                    <td>{{ rsvp.created_on }}</td>
+                    <td><a class="btn btn-primary btn-block"
+                           href="">
+                        <i class="fas fa-reply"></i> Reageer
+                    </a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+

@@ -1,0 +1,78 @@
+{% extends 'base_public.html' %}
+{% load collective_tags %}
+
+
+{% block body %}
+    <div class="row">
+        <div class="col-12 col-md-10">
+            {% for technology in advised_techs %}
+                {% include 'initiative_enabler/snippets/tech_action_snippet.html' %}
+            {% endfor %}
+        </div>
+        <div class="d-none d-md-inline-block col-2">
+            <div class="card my-4" style="width: 15rem;">
+                <div class="card-header">
+                    Navigatie
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for technology in advised_techs %}
+                        <li class="list-group-item">
+                            <a class="btn btn-link btn-block" href="#card-{{ technology.name }}">
+                                {{ technology.name }}
+                                {% with open_invites=inquirer|get_open_invitations:technology %}
+                                    {% if open_invites.count > 0 %}
+                                        <span class="badge badge-pill badge-primary">{{ open_invites.count }}</span>
+                                    {% endif %}
+                                {% endwith %}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        {# Modal for open invitations for personal settings #}
+        <div class="modal fade" id="invitation_modal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">
+                            Uitnodigingen
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            U heeft <span id="modal-invite-count"></span> open uitnodigingen
+                        </p>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Gestuurd door</th>
+                                    <th scope="col">Op</th>
+                                    <th scope="col">Accepteer/ weiger</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modal-invite-list">
+
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Sluiten</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}
+
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static "javascript/update_invitations_in_modal.js" %}"></script>
+{% endblock %}

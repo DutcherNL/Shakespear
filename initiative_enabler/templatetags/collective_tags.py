@@ -1,7 +1,7 @@
 from django import template
 from widget_tweaks.templatetags.widget_tweaks import FieldAttributeNode
 
-from Questionaire.models import Inquiry
+from initiative_enabler.models import CollectiveRSVP
 
 register = template.Library()
 
@@ -41,3 +41,11 @@ def get_mail_list(collective):
     for rsvp_agreed in collective.collectiveapprovalresponse_set.all():
         result += rsvp_agreed.inquirer.email + '; '
     return result
+
+
+@register.filter
+def get_open_invitations(inquirer, technology):
+    return CollectiveRSVP.objects.filter(
+        inquirer=inquirer,
+        collective__tech_collective__technology=technology,
+        activated=False)

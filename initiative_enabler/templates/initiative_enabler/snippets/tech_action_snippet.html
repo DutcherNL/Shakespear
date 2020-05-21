@@ -1,0 +1,99 @@
+{% load collective_tags %}
+
+<div class="card my-4" id='card-{{ technology.name }}'>
+    <div class="card-header py-0">
+        <div class="row">
+            {% if technology.icon %}
+                <img class="my-1" src="{{ technology.icon.url }}" width="50" height="50">
+            {% endif %}
+            <h3 class="col py-2"> {{ technology.name }}</h3>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                {{ technology.short_text }}
+            </div>
+            <div class="col-md-4">
+                <a class="btn btn-outline-info btn-block" href="{{ technology.get_absolute_url }}"
+                   target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-info"></i> Meer informatie
+                </a>
+                <a class="btn btn-info btn-block"
+                        href="" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-file-download"></i> Download instructies verbetering
+                </a>
+            </div>
+        </div>
+    </div>
+    {% if technology.techcollective %}
+        <hr class="my-0">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <h4>Via een collectief</h4>
+                    <div>
+                        Sommige verbeteringen zijn makkelijker, goedkoper te regelen samen met buurtgenoten. Via een collectief
+                        kan je samen de lasten delen.
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <a class="btn btn-outline-primary btn-block"
+                       href="{% url "collectives:general_info" collective_id=technology.techcollective.id %}"
+                       target="_blank" rel="noopener noreferrer">
+                        <i class="fas fa-info"></i> Hoe start je een collectief?
+                    </a>
+
+                    {% with open_invites=inquirer|get_open_invitations:technology  %}
+                        {% if open_invites.count > 0 %}
+                            <button class="btn btn-primary btn-block"
+                                    data-toggle="modal" data-target="#invitation_modal"
+                                    data-num_invites="{{ open_invites.count }}"
+                            >
+                                {% include 'initiative_enabler/snippets/open_rsvp_modal.html' with rsvps=open_invites %}
+                                <i class="fas fa-envelope-open-text"></i>
+                                Openstaande uitnodigingen <span class="badge badge-light">{{ open_invites.count }}</span>
+                            </button>
+                        {% else %}
+                            <button class="btn btn-secondary disabled btn-block">
+                                <i class="fas fa-envelope-open-text"></i>
+                                Openstaande uitnodigingen <span class="badge badge-light">0</span>
+                            </button>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+            <div class="alert alert-success my-2 px-0" role="alert">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="pl-3 py-md-1">
+                        Wij houden u op de hoogte van nieuwe initiatieven in uw buurt
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-warning btn-sm btn-block"
+                                href="" target="_blank" rel="noopener noreferrer">
+                            <i class="fas fa-user-check"></i> Ik heb geen interesse meer
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="alert alert-danger my-2 px-0" role="alert">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="pl-3">
+                            Wij houden u momenteel niet op de hoogte. Wilt u op de hoogte blijven van initiatieven in
+                            uw buurt?
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-success btn-block"
+                                href="" target="_blank" rel="noopener noreferrer">
+                            <i class="fas fa-user-check"></i> Ja, houd me op de hoogte
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
