@@ -65,6 +65,7 @@ class InitiatedCollective(models.Model):
     """ The collective initiated by a user """
     tech_collective = models.ForeignKey(TechCollective, on_delete=models.CASCADE)
     inquirer = models.ForeignKey(Inquirer, on_delete=models.SET_NULL, null=True)
+    created_on = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
     is_open = models.BooleanField(default=True)
 

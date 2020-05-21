@@ -48,8 +48,7 @@
                         {% if open_invites.count > 0 %}
                             <button class="btn btn-primary btn-block"
                                     data-toggle="modal" data-target="#invitation_modal"
-                                    data-num_invites="{{ open_invites.count }}"
-                            >
+                                    data-num_invites="{{ open_invites.count }}">
                                 {% include 'initiative_enabler/snippets/open_rsvp_modal.html' with rsvps=open_invites %}
                                 <i class="fas fa-envelope-open-text"></i>
                                 Openstaande uitnodigingen <span class="badge badge-light">{{ open_invites.count }}</span>
@@ -61,6 +60,24 @@
                             </button>
                         {% endif %}
                     {% endwith %}
+                    {% with created_collectives=inquirer|get_owned_collectives:technology joined_collectives=inquirer|get_joined_collectives:technology%}
+                        {% if created_collectives or joined_collectives %}
+                            <button class="btn btn-primary btn-block"
+                                    data-toggle="modal" data-target="#collectives_modal"
+                                    data-num_invites="{{ open_invites.count }}">
+                                {% include 'initiative_enabler/snippets/joined_collectives_modal_content.html' %}
+                                <i class="fas fa-envelope-open-text"></i>
+                                Mijn actieve collectives <span class="badge badge-light">{{ created_collectives.count|add:joined_collectives.count }}</span>
+                            </button>
+                        {% else %}
+                            <button class="btn btn-secondary disabled btn-block">
+                                <i class="fas fa-envelope-open-text"></i>
+                                Mijn actieve collectives <span class="badge badge-light">0</span>
+                            </button>
+                        {% endif %}
+                    {% endwith %}
+
+
                 </div>
             </div>
             <div class="alert alert-success my-2 px-0" role="alert">

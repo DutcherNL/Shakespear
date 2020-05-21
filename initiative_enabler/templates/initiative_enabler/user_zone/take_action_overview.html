@@ -47,18 +47,31 @@
                         <p>
                             U heeft <span id="modal-invite-count"></span> open uitnodigingen
                         </p>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Gestuurd door</th>
-                                    <th scope="col">Op</th>
-                                    <th scope="col">Accepteer/ weiger</th>
-                                </tr>
-                            </thead>
-                            <tbody id="modal-invite-list">
+                        <div id="modal-invite-list">
+                            <!-- Content is filled in automatically when this modal is shown -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Sluiten</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                            </tbody>
-                        </table>
+        {# Modal for already created or joined collectives #}
+        <div class="modal fade" id="collectives_modal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">
+                            Deelgenomen collectieve acties in de buurt
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="modal-collectives-content">
+                        <!-- Content is filled in automatically when this modal is shown -->
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Sluiten</button>
@@ -75,4 +88,5 @@
 {% block javascript %}
     {{ block.super }}
     <script src="{% static "javascript/update_invitations_in_modal.js" %}"></script>
+    <script src="{% static "javascript/update_collectives_in_modal.js" %}"></script>
 {% endblock %}

@@ -1,7 +1,7 @@
 from django import template
 from widget_tweaks.templatetags.widget_tweaks import FieldAttributeNode
 
-from initiative_enabler.models import CollectiveRSVP
+from initiative_enabler.models import CollectiveRSVP, CollectiveApprovalResponse, InitiatedCollective
 
 register = template.Library()
 
@@ -49,3 +49,19 @@ def get_open_invitations(inquirer, technology):
         inquirer=inquirer,
         collective__tech_collective__technology=technology,
         activated=False)
+
+
+@register.filter
+def get_joined_collectives(inquirer, technology):
+    return InitiatedCollective.objects.filter(
+        collectiveapprovalresponse__inquirer=inquirer,
+        tech_collective__technology=technology
+    )
+
+
+@register.filter
+def get_owned_collectives(inquirer, technology):
+    return InitiatedCollective.objects.filter(
+        inquirer=inquirer,
+        tech_collective__technology=technology
+    )

@@ -1,0 +1,57 @@
+{% load collective_tags %}
+
+<div style="display: none" class="invite_content">
+    {% if created_collectives %}
+        <h3>Mijn collecties</h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Aantal deelnemers</th>
+                <th scope="col">Datum</th>
+                <th scope="col">Pagina</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for collective in created_collectives %}
+                <tr>
+                    <td>{{ collective.collectiveapprovalresponse_set.count }}</td>
+                    <td>{{ collective.created_on|date:"j/m/y" }}</td>
+                    <td><a class="btn btn-primary btn-block"
+                           href="{{ collective.get_local_absolute_url }}">
+                        Ga naar
+                    </a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% if joined_collectives %}
+            <hr>
+        {% endif %}
+    {% endif %}
+
+    {% if joined_collectives %}
+        <h3>Deelgenomen collecties</h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Van</th>
+                <th scope="col">Datum</th>
+                <th scope="col">Pagina</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for collective in joined_collectives %}
+                <tr>
+                    <td>{{ collective.name }}</td>
+                    <td>{{ collective.created_on|date:"j/m/y" }}</td>
+                    <td><a class="btn btn-primary btn-block"
+                           href="{{ collective.get_absolute_url }}">
+                        Ga naar
+                    </a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+</div>

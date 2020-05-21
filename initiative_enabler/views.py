@@ -115,7 +115,7 @@ class CollectiveInfoView(InquiryMixin, DetailView):
 
 
 class TakeActionOverview(InquiryMixin, TemplateView):
-    template_name = "initiative_enabler/take_action_overview.html"
+    template_name = "initiative_enabler/user_zone/take_action_overview.html"
 
     def get_context_data(self, **kwargs):
         context = super(TakeActionOverview, self).get_context_data(**kwargs)
@@ -123,9 +123,6 @@ class TakeActionOverview(InquiryMixin, TemplateView):
 
         for tech in TechGroup.objects.all():
             tech_score = tech.get_score(self.inquiry)
-            print(self.inquiry)
-            print(f'tech_score: {tech} - {tech_score}')
-
             if tech_score == Technology.TECH_SUCCESS:
                 context['advised_techs'].append(tech)
 
@@ -138,7 +135,7 @@ Initiated Collective views
 
 class InitiatedCollectiveOverview(ListView):
     model = InitiatedCollective
-    template_name = "initiative_enabler/active_collectives_list.html"
+    template_name = "initiative_enabler/user_zone/templates/initiative_enabler/active_collectives_list.html"
     context_object_name = "collectives"
 
 
