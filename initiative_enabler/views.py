@@ -1,8 +1,9 @@
 from django.views.generic import FormView, ListView, CreateView, UpdateView, DetailView, View, TemplateView
+from django.views.generic.edit import ModelFormMixin, ProcessFormView
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponseForbidden, Http404
 from django.contrib import messages
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 
 from Questionaire.models import *
 from initiative_enabler.models import *
@@ -44,22 +45,40 @@ class EditCollectiveMixin:
         return context
 
 
-class QuickEditCollectiveMixin(EditCollectiveMixin):
-    """ Redirects get requests as they can not occur """
+class QuickEditMixin:
+    """ A mixin for form editing views that should not display the form on a seperate page.
+    I.e. for quick adjustments elsewhere. Useful for one-click events. Process will be displayed through a succesmessage
+     or the first error defined in the form """
+
     def get(self, request, *args, **kwargs):
+        """ Redirects get requests as they can not occur """
         message = "De pagina die u probeert te bezoeken bevat geen inhoud."
         messages.add_message(request, messages.INFO, message)
-        return HttpResponseRedirect(self.collective.get_absolute_url())
+        return HttpResponseRedirect(self.default_get_redirect_url())
 
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST, collective=self.collective)
-        if form.is_valid():
-            response = form.save()
-        else:
-            response = messages.ERROR, form.non_field_errors()[0]
+    def default_get_redirect_url(self):
+        return self.get_success_url()
 
-        messages.add_message(request, *response)
-        return HttpResponseRedirect(self.collective.get_absolute_url())
+    def form_valid(self, form):
+        response = form.save()
+        messages.add_message(self.request, *response)
+        return super(QuickEditMixin, self).form_valid(form)
+
+    def form_invalid(self, form):
+        messages.add_message(self.request, *form.get_as_error_message())
+        return HttpResponseRedirect(self.default_get_redirect_url())
+
+
+class QuickEditCollectiveMixin(EditCollectiveMixin, QuickEditMixin):
+    """ Redirects get requests as they can not occur """
+
+    def get_form_kwargs(self):
+        kwargs = super(QuickEditCollectiveMixin, self).get_form_kwargs()
+        kwargs['collective'] = self.collective
+        return kwargs
+
+    def get_success_url(self):
+        return self.collective.get_absolute_url()
 
 
 """
@@ -128,6 +147,29 @@ class TakeActionOverview(InquiryMixin, TemplateView):
 
         return context
 
+
+class AdjustTechCollectiveInterestView(InquiryMixin, QuickEditMixin, FormView):
+    form_class = AdjustTechCollectiveForm
+    success_url = reverse_lazy('collectives:take_action')
+
+    def setup(self, request, *args, **kwargs):
+        super(AdjustTechCollectiveInterestView, self).setup(request, *args, **kwargs)
+        self.tech_collective = get_object_or_404(TechCollective, id=kwargs['collective_id'])
+
+    def get_form_kwargs(self):
+        kwargs = super(AdjustTechCollectiveInterestView, self).get_form_kwargs()
+        kwargs['inquirer'] = self.inquirer
+        kwargs['tech_collective'] = self.tech_collective
+        return kwargs
+
+    def get_success_url(self):
+        redirect_url = self.request.GET.get('redirect_to', None)
+        if redirect_url:
+            return redirect_url
+        else:
+            return super(AdjustTechCollectiveInterestView, self).get_success_url()
+
+
 """
 Initiated Collective views
 """
@@ -181,7 +223,7 @@ class InitiatedCollectiveFollowerDetailsView(InquiryMixin, DetailView):
         return context
 
 
-class ChangeCollectiveStateView(QuickEditCollectiveMixin, View):
+class ChangeCollectiveStateView(QuickEditCollectiveMixin, FormView):
     form_class = SwitchCollectiveStateForm
 
 
@@ -209,11 +251,11 @@ RSVP views handling the various possible states of a collective RSVP
 """
 
 
-class SendNewInvitesView(QuickEditCollectiveMixin, View):
+class SendNewInvitesView(QuickEditCollectiveMixin, FormView):
     form_class = QuickSendInvitationForm
 
 
-class SendReminderRSVPsView(QuickEditCollectiveMixin, View):
+class SendReminderRSVPsView(QuickEditCollectiveMixin, FormView):
     form_class = SendReminderForm
 
 

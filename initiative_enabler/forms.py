@@ -6,6 +6,7 @@ from django import forms
 from django.contrib import messages
 from django.utils import timezone
 from django.forms.widgets import HiddenInput
+from django.urls import reverse
 
 from mailing.mails import send_templated_mail
 from initiative_enabler.models import *
@@ -14,7 +15,7 @@ from Questionaire.models import Inquirer
 
 __all__ = ['StartCollectiveFormSimple', 'RSVPAgreeForm', 'RSVPDenyForm', 'RSVPOnClosedForm', 'RSVPRefreshExpirationForm',
            'QuickSendInvitationForm', 'SendReminderForm', 'SwitchCollectiveStateForm', 'EditPersonalDataForm',
-           'StartCollectiveFormTwoStep']
+           'StartCollectiveFormTwoStep', 'AdjustTechCollectiveForm']
 
 
 class NoFormDataMixin:
@@ -23,8 +24,19 @@ class NoFormDataMixin:
     success_message = None
 
     def get_as_error_message(self):
-        """ Returns the validation error as set-up for a message in the django messages framework"""
-        return messages.ERROR, self.non_field_errors()[0]
+        """ Returns the validation error as set-up for a message in the django messages framework. The message
+        returned is an arbitrary one. However, as validation is done in the same order every time, the resulting
+        error herre is deterministic (i.e. returns the same error in similar cricumstances) """
+        keys = list(self.errors.keys())
+        if len(keys) > 0:
+            item = self.errors[keys[0]]
+            # Make sure that for some reason an empty error was inserted
+            if len(item) > 0:
+                error = item[0]
+            else:
+                # For some reason the error did not have a description
+                error = "Een onbekende error heeft plaats gevonden bij verwerken"
+        return messages.ERROR, error
 
     def get_as_succes_message(self):
         return messages.SUCCESS, self.success_message
@@ -383,5 +395,47 @@ class EditPersonalDataForm(Form):
         data_obj.name = self.cleaned_data['name']
         data_obj.address = self.cleaned_data['adres']
         data_obj.phone_number = self.cleaned_data['tel_nummer']
-        print(data_obj)
         data_obj.save()
+
+
+class AdjustTechCollectiveForm(NoFormDataMixin, ModelForm):
+    success_on_message = "U ontvangt nu berichten als iemand in uw omgeving een collectief start"
+    success_off_message = "U word niet meer geinformeerd over collectieven in uw omgeving"
+
+    class Meta:
+        model = TechCollectiveInterest
+        fields = ['is_interested']
+
+    def __init__(self, *args, instance=None, inquirer=None, tech_collective=None, **kwargs):
+        if instance is None:
+            assert inquirer is not None
+            assert tech_collective is not None
+            try:
+                instance = self._meta.model.objects.get(inquirer=inquirer, tech_collective=tech_collective)
+            except self._meta.model.DoesNotExist:
+                instance = self._meta.model(inquirer=inquirer, tech_collective=tech_collective)
+
+        super(AdjustTechCollectiveForm, self).__init__(*args, instance=instance, **kwargs)
+
+    def get_as_succes_message(self):
+        if self.instance.is_interested:
+            message = self.success_on_message
+        else:
+            message = self.success_off_message
+
+        return messages.SUCCESS, message
+
+    def save(self, commit=True):
+        super(AdjustTechCollectiveForm, self).save()
+        return self.get_as_succes_message()
+
+    def clean_is_interested(self):
+        if self.instance.is_interested == self.cleaned_data['is_interested']:
+            if self.instance.is_interested:
+                raise ValidationError('Wij konden u niet eerder op geïnteresseerd zetten, want dat bent u al.')
+            else:
+                raise ValidationError('U staat al als niet geïnteresseerd')
+        return self.cleaned_data['is_interested']
+
+    def get_post_url(self):
+        return reverse('collectives:adjust_tech_interest', kwargs={'collective_id': self.instance.tech_collective.id})

@@ -9,7 +9,7 @@ from Questionaire.models import Inquiry, Inquirer, InquiryQuestionAnswer, Score,
 
 
 __all__ = ['TechCollective', 'InitiatedCollective', 'CollectiveRSVP', 'CollectiveApprovalResponse',
-           'CollectiveDeniedResponse', 'CollectiveRSVPInterest']
+           'CollectiveDeniedResponse', 'CollectiveRSVPInterest', 'TechCollectiveInterest']
 
 
 class TechCollective(models.Model):
@@ -157,3 +157,12 @@ class CollectiveRSVPInterest(models.Model):
     collective = models.ForeignKey(InitiatedCollective, on_delete=models.CASCADE)
     inquirer = models.ForeignKey(Inquirer, on_delete=models.CASCADE)
     timestamp_created = models.DateTimeField(auto_now_add=True)
+
+
+class TechCollectiveInterest(models.Model):
+    tech_collective = models.ForeignKey(TechCollective, on_delete=models.CASCADE)
+    inquirer = models.ForeignKey(Inquirer, on_delete=models.CASCADE)
+    is_interested = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ['tech_collective', 'inquirer']

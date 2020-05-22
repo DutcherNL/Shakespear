@@ -1,87 +1,146 @@
 {% extends 'initiative_enabler/user_zone/collective_base.html' %}
 {% load static %}
+{% load collective_tags %}
 
 {% block collective_content %}
-    <h4>Wilt u meedoen?</h4>
-    <div class="row">
-        <div class="col-sm-8">
-            Heeft u interesse om mogelijk deel te nemen aan een collectief wanneer deze in uw omgeving word gestart en
-            wilt u hiervoor uitnodigingen ontvangen?
-        </div>
-        <div class="col-sm-4">
-            <a class="btn btn-primary btn-block">
-                Ja, ik heb interesse
-            </a>
-        </div>
-    </div>
-    <hr>
-
-
-    <h3>Waarom een collectief?</h3>
-    <p>
-        Sommige taken zijn niet eenvoudig te ondernemen en vergen een expert. Dit kan echter een flinke klus zijn. Een
-        gezamenlijk collectief met de buurt kan veel last wegnemen; jullie regelen het immers samen. Ook kan er over
-        de prijs worden onderhandeld waardoor kosten lager uit kunnen vallen hoe meer huizen er mee doen.
-    </p>
-    <h3>Hoe start ik een collectief?</h3>
-    <p>
-        Een collectief is al op te starten met je buren en andere kennisen uit de buurt. Hiervoor kan het stappenplan
-        bovenaan deze pagina helpen. Echter kunnen wij u ook in contact brengen met bewoners in uw nabije omgeving die
-        hetzelfde advies hebben gekregen uit deze vragenlijst. Dit werkt als volgt:
-    </p>
-    <p>
-        Wanneer iemand een collectief aanmaakt versturen wij uitnodigingen aan iedereen die heeft aangegeven interesse
-        in een gezamenlijk collectief te hebben. Wanneer zij op deze uitnodiging positief reageren worden de
-        contactgegevens van u en de ander uitgewisseld.
-    </p>
-    <div class="d-flex justify-content-around mb-3">
-        <img class="img-responsive" src="{% static 'img/send_on_col_creation.png' %}"
-             width="225" height="125"
-             alt="Stuur uitnodigingen bij creatie collectief">
-        <img class="img-responsive" src="{% static 'img/connect_on_approval.png' %}"
-             width="225" height="125"
-             alt="Stuur uitnodigingen bij creatie collectief">
-    </div>
-    <p>
-        Nu u en anderen met elkaar in contact zijn gekomen kunt u hen benaderen via mail, of online chat-programma's
-        zoals Whatsapp, Telegram, Zoom of Discord
-    </p>
-    <hr>
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-info text-light">
-                    <h3>Start een collectief</h3>
+        {% if not inquirer|get_current_tech_interest:tech_collective %}
+            <h4>Wilt u meedoen?</h4>
+            <div class="row">
+                <div class="col-sm-8">
+                    Heeft u interesse om mogelijk deel te nemen aan een collectief wanneer deze in uw omgeving word gestart en
+                    wilt u hiervoor uitnodigingen ontvangen?
                 </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        Op dit moment zijn er <b>{{ num_interested }} huishoudens</b> in uw omgeving die interesse hebben in een
-                        gezamenlijk collectief.
-                    </p>
-                    <p>
-                        Wilt u het initiatief nemen om een collectief te starten?
-                    </p>
-                    <button class="btn btn-primary btn-lg"
-                            data-toggle="modal" data-target="#start-collectief-1">
-                        <i class="fas fa-users"></i> Start Collectief
+                <div class="col-sm-4">
+                    <button class="btn btn-success btn-block"
+                            type="submit" form="interest_{{ technology.slug }}">
+                        <i class="fas fa-user-check"></i> Ja, houd me op de hoogte
                     </button>
+                </div>
+            </div>
+            <hr>
+        {% endif %}
+
+
+    <div>
+        <h3>Waarom een collectief?</h3>
+        <p>
+            Sommige taken zijn niet eenvoudig te ondernemen en vergen een expert. Dit kan echter een flinke klus zijn. Een
+            gezamenlijk collectief met de buurt kan veel last wegnemen; jullie regelen het immers samen. Ook kan er over
+            de prijs worden onderhandeld waardoor kosten lager uit kunnen vallen hoe meer huizen er mee doen.
+        </p>
+        <h3>Hoe start ik een collectief?</h3>
+        <p>
+            Een collectief is al op te starten met je buren en andere kennisen uit de buurt. Hiervoor kan het stappenplan
+            bovenaan deze pagina helpen. Echter kunnen wij u ook in contact brengen met bewoners in uw nabije omgeving die
+            hetzelfde advies hebben gekregen uit deze vragenlijst. Dit werkt als volgt:
+        </p>
+        <p>
+            Wanneer iemand een collectief aanmaakt versturen wij uitnodigingen aan iedereen die heeft aangegeven interesse
+            in een gezamenlijk collectief te hebben. Wanneer zij op deze uitnodiging positief reageren worden de
+            contactgegevens van u en de ander uitgewisseld.
+        </p>
+        <div class="d-flex justify-content-around mb-3">
+            <img class="img-responsive" src="{% static 'img/send_on_col_creation.png' %}"
+                 width="225" height="125"
+                 alt="Stuur uitnodigingen bij creatie collectief">
+            <img class="img-responsive" src="{% static 'img/connect_on_approval.png' %}"
+                 width="225" height="125"
+                 alt="Stuur uitnodigingen bij creatie collectief">
+        </div>
+        <p>
+            Nu u en anderen met elkaar in contact zijn gekomen kunt u hen benaderen via mail, of online chat-programma's
+            zoals Whatsapp, Telegram, Zoom of Discord
+        </p>
+        <hr>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-info text-light">
+                        <h3>Start een collectief</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            Op dit moment zijn er <b>{{ num_interested }} huishoudens</b> in uw omgeving die interesse hebben in een
+                            gezamenlijk collectief.
+                        </p>
+                        <p>
+                            Wilt u het initiatief nemen om een collectief te starten?
+                        </p>
+                        <button class="btn btn-primary btn-lg"
+                                data-toggle="modal" data-target="#start-collectief-1">
+                            <i class="fas fa-users"></i> Start Collectief
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     <hr>
-    <h4>Wilt u meedoen?</h4>
-    <div class="row">
-        <div class="col-sm-8">
-            Heeft u interesse om mogelijk deel te nemen aan een collectief wanneer deze in uw omgeving word gestart en
-            wilt u hiervoor uitnodigingen ontvangen?
+    {% with inquirer|get_current_tech_interest:tech_collective as current_interest %}
+        <div class="d-none">
+            {% adjust_interest_form tech_collective new_state=current_interest|invert as interest_form %}
+            <form action="{{ interest_form.get_post_url }}?redirect_to={{ request.path }}"
+                  method="post" id="interest_{{ technology.slug }}">
+                {% csrf_token %}
+                {% include 'snippets/bootstrap_form.html' with form=interest_form %}
+            </form>
         </div>
-        <div class="col-sm-4">
-            <a class="btn btn-primary btn-block">
-                Ja, ik heb interesse
-            </a>
-        </div>
-    </div>
+        {% if current_interest %}
+            <div class="alert alert-success">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h4>Wij houden u op de hoogte</h4>
+                        <div>
+                            U heeft aangegeven open te staan voor uitnodigingen voor collectieve inkoop in de buurt.
+                            Wij informeren u hierover per email.
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" class="btn btn-warning btn-block align-bottom" data-toggle="modal" data-target="#unsubscribe_modal">
+                            <i class="fas fa-user-times"></i> Ik heb geen interesse meer
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="unsubscribe_modal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Afmelden interesse {{ tech_collective }}</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Wanneer u zich afmeld kunt u geen nieuwe uitnodigingen ontvangen. Uitnodigingen die
+                                u eerder heeft ontvangen of geaccepteerd blijven wel behouden.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-warning"
+                                    type="submit" form="interest_{{ technology.slug }}">
+                                <i class="fas fa-user-check"></i> Ik heb geen interesse meer
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuleren</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <h4>Wilt u meedoen?</h4>
+            <div class="row">
+                <div class="col-sm-8">
+                    Heeft u interesse om mogelijk deel te nemen aan een collectief wanneer deze in uw omgeving word gestart en
+                    wilt u hiervoor uitnodigingen ontvangen?
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-success btn-block"
+                            type="submit" form="interest_{{ technology.slug }}">
+                        <i class="fas fa-user-check"></i> Ja, houd me op de hoogte
+                    </button>
+                </div>
+            </div>
+        {% endif %}
+    {% endwith %}
 
     <!--  The modal for collectve creation -->
     <div class="modal fade" id="start-collectief-1" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">

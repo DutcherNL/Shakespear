@@ -1,7 +1,7 @@
 from django import template
-from widget_tweaks.templatetags.widget_tweaks import FieldAttributeNode
 
-from initiative_enabler.models import CollectiveRSVP, CollectiveApprovalResponse, InitiatedCollective
+from initiative_enabler.models import CollectiveRSVP, InitiatedCollective, TechCollectiveInterest
+from initiative_enabler.forms import AdjustTechCollectiveForm
 
 register = template.Library()
 
@@ -64,4 +64,34 @@ def get_owned_collectives(inquirer, technology):
     return InitiatedCollective.objects.filter(
         inquirer=inquirer,
         tech_collective__technology=technology
+    )
+
+
+@register.filter
+def get_current_tech_interest(inquirer, tech_collective):
+    try:
+        return TechCollectiveInterest.objects.get(inquirer=inquirer, tech_collective=tech_collective).is_interested
+    except TechCollectiveInterest.DoesNotExist:
+        return False
+
+
+@register.filter
+def invert(boolean):
+    return not boolean
+
+
+@register.simple_tag(takes_context=True)
+def adjust_interest_form(context, tech_collective, new_state=None):
+    inquirer = context['inquirer']
+    if new_state is not None:
+        initial = {
+            'is_interested': new_state
+        }
+    else:
+        initial = None
+
+    return AdjustTechCollectiveForm(
+        inquirer=inquirer,
+        tech_collective=tech_collective,
+        initial=initial,
     )

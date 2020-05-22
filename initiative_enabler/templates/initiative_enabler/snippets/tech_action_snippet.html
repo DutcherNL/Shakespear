@@ -76,41 +76,51 @@
                             </button>
                         {% endif %}
                     {% endwith %}
-
-
                 </div>
             </div>
-            <div class="alert alert-success my-2 px-0" role="alert">
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="pl-3 py-md-1">
-                        Wij houden u op de hoogte van nieuwe initiatieven in uw buurt
+            {% with inquirer|get_current_tech_interest:technology.techcollective as current_interest %}
+                <div class="d-none">
+                    {% adjust_interest_form technology.techcollective new_state=current_interest|invert as interest_form %}
+                    <form action="{{ interest_form.get_post_url }}" method="post" id="interest_{{ technology.slug }}">
+                        {% csrf_token %}
+                        {% include 'snippets/bootstrap_form.html' with form=interest_form %}
+                    </form>
+                </div>
+                {% if current_interest %}
+                    <div class="alert alert-success my-2 px-0" role="alert">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="pl-3 py-md-1">
+                                    Wij houden u op de hoogte van nieuwe initiatieven in uw buurt
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-warning btn-sm btn-block"
+                                        type="submit" form="interest_{{ technology.slug }}">
+                                    <i class="fas fa-user-check"></i> Ik heb geen interesse meer
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <button class="btn btn-warning btn-sm btn-block"
-                                href="" target="_blank" rel="noopener noreferrer">
-                            <i class="fas fa-user-check"></i> Ik heb geen interesse meer
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="alert alert-danger my-2 px-0" role="alert">
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="pl-3">
-                            Wij houden u momenteel niet op de hoogte. Wilt u op de hoogte blijven van initiatieven in
-                            uw buurt?
+                {% else %}
+                    <div class="alert alert-warning my-2 px-0" role="alert">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="pl-3">
+                                    Wij houden u momenteel niet op de hoogte. Wilt u op de hoogte blijven van initiatieven in
+                                    uw buurt?
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-success btn-block"
+                                        type="submit" form="interest_{{ technology.slug }}">
+                                    <i class="fas fa-user-check"></i> Ja, houd me op de hoogte
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <button class="btn btn-success btn-block"
-                                href="" target="_blank" rel="noopener noreferrer">
-                            <i class="fas fa-user-check"></i> Ja, houd me op de hoogte
-                        </button>
-                    </div>
-                </div>
-            </div>
+                {% endif %}
+            {% endwith %}
         </div>
     {% endif %}
 </div>
