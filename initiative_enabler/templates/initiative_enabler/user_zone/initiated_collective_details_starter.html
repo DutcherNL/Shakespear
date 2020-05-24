@@ -34,7 +34,7 @@
                         </tr>
                         <tr>
                             <td>
-                                {% with num_uninvited=collective|number_of_uninvited %}
+                                {% with num_uninvited=collective.get_uninvited_inquirers.count %}
                                     {% if num_uninvited > 0 %}
                                         <button type="submit" class="btn btn-primary btn-sm" form="send_new_invites_form"
                                                 data-toggle="tooltip" data-placement="bottom"

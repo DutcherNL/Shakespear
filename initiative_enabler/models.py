@@ -17,20 +17,18 @@ class TechCollective(models.Model):
     technology = models.OneToOneField(Technology, on_delete=models.PROTECT)
     description = models.CharField(max_length=512)
 
-    def get_similar_inquiries(self, inquiry):
-        # Get all related score declarations
-        inquiries = Inquiry.objects.all()
+    def get_interested_inquirers(self, current_inquirer=None):
+        inquirers = Inquirer.objects.all()
 
-        if inquiry:
-            inquiries = inquiries.exclude(id=inquiry.id)
+        if current_inquirer:
+            inquirers = inquirers.exclude(id=current_inquirer.id)
 
-        for scorelink in self.technology.techscorelink_set.all():
-            # Select all scores that do not meet the threshold
-            scores = Score.objects.filter(declaration=scorelink.score_declaration, score__gte=scorelink.score_threshold_approve)
-            # Select all inquiries that are part of that score and any previous score
-            inquiries = inquiries.filter(score__in=scores)
+        inquirers = inquirers.filter(
+            techcollectiveinterest__is_interested=True,
+            techcollectiveinterest__tech_collective_id=self.id
+        )
 
-        return inquiries
+        return inquirers
 
     def __str__(self):
         return str(self.technology)
@@ -83,11 +81,15 @@ class InitiatedCollective(models.Model):
             'collective_id': self.id
         })
 
-    def get_uninvited_inquiries(self):
-        inquiries = self.tech_collective.get_similar_inquiries(None)
-        inquiries = inquiries.exclude(inquirer__initiatedcollective=self)
-        inquiries = inquiries.exclude(inquirer__collectiversvp__collective=self)
-        return inquiries
+    def get_uninvited_inquirers(self):
+        """
+        Returns all inquirers who are interested and not yet invited to this collective
+        :return:
+        """
+        inquirers = self.tech_collective.get_interested_inquirers(None)
+        inquirers = inquirers.exclude(initiatedcollective=self)
+        inquirers = inquirers.exclude(collectiversvp__collective=self)
+        return inquirers
 
 
 class CollectiveRSVP(models.Model):

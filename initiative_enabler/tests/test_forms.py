@@ -61,7 +61,7 @@ class CollectiveFormTestCase(QuickTestAdjustmentsMixin, TestCase):
         def get_uninvited_override():
             """ Override the uninvited query method to prevent setting up all declarations (aka be lazy) """
             return Inquiry.objects.filter(id=inquiry.id)
-        self.collective.get_uninvited_inquiries = get_uninvited_override
+        self.collective.get_uninvited_inquirers = get_uninvited_override
 
         form = QuickSendInvitationForm(data={}, collective=self.collective)
         self.assertTrue(form.is_valid())

@@ -7,22 +7,11 @@ register = template.Library()
 
 
 @register.filter
-def number_of_similar_inquiries(tech_collective, inquiry):
+def number_of_interested_inquirers(tech_collective, inquirer):
     """
     Returns the number of inquiries that are are also not matched
     """
-    return tech_collective.get_similar_inquiries(inquiry).count()
-
-
-@register.filter
-def number_of_uninvited(collective):
-    """
-    Returns the number of inquiries that are interested, but not yet invited
-    """
-    inquiries = collective.tech_collective.get_similar_inquiries(None)
-    inquiries = inquiries.exclude(inquirer__initiatedcollective=collective)
-    inquiries = inquiries.exclude(inquirer__collectiversvp__collective=collective)
-    return inquiries.count()
+    return tech_collective.get_interested_inquirers(inquirer).count()
 
 
 @register.filter

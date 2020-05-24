@@ -100,7 +100,7 @@ class StartCollectiveFormTwoStep(ModelForm):
             'collective': self.instance
         }
 
-        for uninvited in self.instance.get_uninvited_inquiries():
+        for uninvited in self.instance.get_uninvited_inquirers():
             new_rsvp = CollectiveRSVP.objects.create(inquirer=uninvited.inquirer, collective=self.instance)
 
             context_data.update({
@@ -133,8 +133,7 @@ class StartCollectiveFormSimple(ModelForm):
         self.instance.tech_collective = self.tech_collective
         self.instance = super(StartCollectiveFormSimple, self).save(commit=commit)
 
-        inquiries = self.tech_collective.get_similar_inquiries(self.inquirer.active_inquiry)
-        rsvp_targets = Inquirer.objects.filter(inquiry__in=inquiries).distinct().exclude(id=self.inquirer.id)
+        rsvp_targets = self.tech_collective.get_interested_inquirers(self.inquirer)
 
         for target in rsvp_targets:
             CollectiveRSVP.objects.create(collective=self.instance,
@@ -254,7 +253,7 @@ class QuickSendInvitationForm(CollectiveMixin, NoFormDataMixin, Form):
     def clean(self):
         if not self.collective.is_open:
             raise ValidationError("Collectief is niet meer open. Nieuwe contacten kunnen niet worden uitgenodigd.")
-        if self.collective.get_uninvited_inquiries().count() == 0:
+        if self.collective.get_uninvited_inquirers().count() == 0:
             raise ValidationError("Er zijn geen nieuwe personen in uw omgeving om uit te nodigen")
 
         return self.cleaned_data
@@ -266,7 +265,7 @@ class QuickSendInvitationForm(CollectiveMixin, NoFormDataMixin, Form):
             'collective': self.collective
         }
 
-        for uninvited in self.collective.get_uninvited_inquiries():
+        for uninvited in self.collective.get_uninvited_inquirers():
             new_rsvp = CollectiveRSVP.objects.create(inquirer=uninvited.inquirer, collective=self.collective)
 
             context_data.update({

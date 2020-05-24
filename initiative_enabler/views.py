@@ -127,7 +127,7 @@ class CollectiveInfoView(InquiryMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(CollectiveInfoView, self).get_context_data(**kwargs)
-        context['num_interested'] = self.object.get_similar_inquiries(self.inquiry).count()
+        context['num_interested'] = self.object.get_interested_inquirers(self.inquirer).count()
         context['create_collective_form'] = StartCollectiveFormTwoStep(inquirer=self.inquirer,
                                                                        tech_collective=self.object)
         return context
@@ -177,7 +177,7 @@ Initiated Collective views
 
 class InitiatedCollectiveOverview(ListView):
     model = InitiatedCollective
-    template_name = "initiative_enabler/user_zone/templates/initiative_enabler/active_collectives_list.html"
+    template_name = "initiative_enabler/active_collectives_list.html"
     context_object_name = "collectives"
 
 
