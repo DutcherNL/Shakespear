@@ -1,7 +1,7 @@
 from django import template
 
 from initiative_enabler.models import CollectiveRSVP, InitiatedCollective, TechCollectiveInterest
-from initiative_enabler.forms import AdjustTechCollectiveForm
+from initiative_enabler.forms import AdjustTechCollectiveInterestForm
 
 register = template.Library()
 
@@ -79,7 +79,7 @@ def adjust_interest_form(context, tech_collective, new_state=None):
     else:
         initial = None
 
-    return AdjustTechCollectiveForm(
+    return AdjustTechCollectiveInterestForm(
         inquirer=inquirer,
         tech_collective=tech_collective,
         initial=initial,

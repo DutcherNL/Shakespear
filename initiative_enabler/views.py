@@ -83,8 +83,8 @@ class QuickEditCollectiveMixin(EditCollectiveMixin, QuickEditMixin):
 
 """
 General back-end views
-TODO: Delete or restructure them to prevent access
 """
+# TODO: Delete or restructure them to prevent access
 
 
 class CollectiveOverview(InquiryMixin, ListView):
@@ -142,14 +142,26 @@ class TakeActionOverview(InquiryMixin, TemplateView):
 
         for tech in TechGroup.objects.all():
             tech_score = tech.get_score(self.inquiry)
-            if tech_score == Technology.TECH_SUCCESS:
+            if tech_score == Technology.TECH_SUCCESS or tech_score == Technology.TECH_VARIES:
                 context['advised_techs'].append(tech)
+
+        # Select techcols which have no interest obj or interest is false
+
+        advised_collectives = EnableAllTechCollectiveInterestForm.get_advised_collectives(self.inquiry)
+        context['has_not_interested_collectives'] = False
+        for tech_collective in advised_collectives:
+            if not TechCollectiveInterest.objects.filter(
+                    inquirer=self.inquirer,
+                    tech_collective=tech_collective,
+                    is_interested=True).exists():
+                context['has_not_interested_collectives'] = True
+                break
 
         return context
 
 
 class AdjustTechCollectiveInterestView(InquiryMixin, QuickEditMixin, FormView):
-    form_class = AdjustTechCollectiveForm
+    form_class = AdjustTechCollectiveInterestForm
     success_url = reverse_lazy('collectives:take_action')
 
     def setup(self, request, *args, **kwargs):
@@ -168,6 +180,17 @@ class AdjustTechCollectiveInterestView(InquiryMixin, QuickEditMixin, FormView):
             return redirect_url
         else:
             return super(AdjustTechCollectiveInterestView, self).get_success_url()
+
+
+class AdjustAllTechCollectiveInterestView(InquiryMixin, QuickEditMixin, FormView):
+    form_class = EnableAllTechCollectiveInterestForm
+    success_url = reverse_lazy('collectives:take_action')
+
+    def get_form_kwargs(self):
+        kwargs = super(AdjustAllTechCollectiveInterestView, self).get_form_kwargs()
+        kwargs['collectives'] = EnableAllTechCollectiveInterestForm.get_advised_collectives(self.inquiry)
+        kwargs['inquirer'] = self.inquirer
+        return kwargs
 
 
 """

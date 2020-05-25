@@ -10,12 +10,16 @@ from django.urls import reverse
 
 from mailing.mails import send_templated_mail
 from initiative_enabler.models import *
-from Questionaire.models import Inquirer
+from Questionaire.models import Inquirer, Technology
 
 
-__all__ = ['StartCollectiveFormSimple', 'RSVPAgreeForm', 'RSVPDenyForm', 'RSVPOnClosedForm', 'RSVPRefreshExpirationForm',
+__all__ = ['RSVPAgreeForm', 'RSVPDenyForm', 'RSVPOnClosedForm', 'RSVPRefreshExpirationForm',
            'QuickSendInvitationForm', 'SendReminderForm', 'SwitchCollectiveStateForm', 'EditPersonalDataForm',
-           'StartCollectiveFormTwoStep', 'AdjustTechCollectiveForm']
+           'StartCollectiveFormTwoStep', 'AdjustTechCollectiveInterestForm', 'EnableAllTechCollectiveInterestForm']
+
+# ###########################################
+# ################ Mixins ###################
+# ###########################################
 
 
 class NoFormDataMixin:
@@ -38,8 +42,13 @@ class NoFormDataMixin:
                 error = "Een onbekende error heeft plaats gevonden bij verwerken"
         return messages.ERROR, error
 
-    def get_as_succes_message(self):
+    def get_as_success_message(self):
         return messages.SUCCESS, self.success_message
+
+    def save(self, commit=True):
+        if hasattr(super(NoFormDataMixin, self), 'save'):
+            super(NoFormDataMixin, self).save()
+        return self.get_as_success_message()
 
 
 class CollectiveMixin:
@@ -50,6 +59,11 @@ class CollectiveMixin:
             raise KeyError("A collective should be given")
         self.collective = collective
         super(CollectiveMixin, self).__init__(*args, **kwargs)
+
+
+# ###########################################
+# ########### Collective Forms ##############
+# ###########################################
 
 
 class StartCollectiveFormTwoStep(ModelForm):
@@ -116,30 +130,105 @@ class StartCollectiveFormTwoStep(ModelForm):
         return self.instance
 
 
-class StartCollectiveFormSimple(ModelForm):
-    uitnodiging = forms.CharField()
+class QuickSendInvitationForm(CollectiveMixin, NoFormDataMixin, Form):
+    """ Sends an invitation to new members with the invitation text defined earlier """
+    success_message = "Uitnodigingen zijn verstuurd. RSVPs alleen niet aangemaakt"
 
-    class Meta:
-        model = InitiatedCollective
-        fields = ["name", "address", "phone_number", "uitnodiging"]
+    def clean(self):
+        if not self.collective.is_open:
+            raise ValidationError("Collectief is niet meer open. Nieuwe contacten kunnen niet worden uitgenodigd.")
+        if self.collective.get_uninvited_inquirers().count() == 0:
+            raise ValidationError("Er zijn geen nieuwe personen in uw omgeving om uit te nodigen")
 
-    def __init__(self, inquirer, tech_collective, **kwargs):
-        self.inquirer = inquirer
-        self.tech_collective = tech_collective
-        super(StartCollectiveFormSimple, self).__init__(**kwargs)
+        return self.cleaned_data
 
-    def save(self, commit=True):
-        self.instance.inquirer = self.inquirer
-        self.instance.tech_collective = self.tech_collective
-        self.instance = super(StartCollectiveFormSimple, self).save(commit=commit)
+    def save(self):
+        subject = f'Uitnodiging collectieve inkoop {self.collective.tech_collective.technology}'
+        template_name = "collectives/invite_mail"
+        context_data = {
+            'collective': self.collective
+        }
 
-        rsvp_targets = self.tech_collective.get_interested_inquirers(self.inquirer)
+        for uninvited in self.collective.get_uninvited_inquirers():
+            new_rsvp = CollectiveRSVP.objects.create(inquirer=uninvited.inquirer, collective=self.collective)
 
-        for target in rsvp_targets:
-            CollectiveRSVP.objects.create(collective=self.instance,
-                                          inquirer=target)
-            # TODO: Send mail accoriding to all RSVP objects
-        return self.instance
+            context_data.update({
+                'rsvp': new_rsvp,
+            })
+            if uninvited.inquirer.email:
+                send_templated_mail(
+                    subject=subject,
+                    template_name=template_name,
+                    context_data=context_data,
+                    recipient=new_rsvp.inquirer
+                )
+        return super(QuickSendInvitationForm, self).save()
+
+
+class SendReminderForm(CollectiveMixin, NoFormDataMixin, Form):
+    success_message = "Herinneringen zijn verstuurd"
+    days_between = 5
+
+    def clean(self):
+        if not self.collective.is_open:
+            raise ValidationError("Collectief is niet meer open. Reminders kunnen niet gestuurd worden")
+        if CollectiveRSVP.objects.filter(activated=False).count() == 0:
+            # Todo, timestamp filter
+            raise ValidationError("Alle uitnodigingen zijn al beantwoord")
+
+        return self.cleaned_data
+
+    def save(self):
+        subject = f'Herinnering: collectieve inkoop {self.collective.tech_collective.technology}'
+        template_name = "collectives/reminder_mail"
+        context_data = {
+            'collective': self.collective
+        }
+
+        for open_rsvp in self.collective.open_rsvps():
+            context_data.update({
+                'rsvp': open_rsvp,
+            })
+            if open_rsvp.last_send_on + datetime.timedelta(days=self.days_between) <= timezone.now():
+                # Ensure no mails are send if it has been to recent
+                if open_rsvp.inquirer.email:
+                    send_templated_mail(
+                        subject=subject,
+                        template_name=template_name,
+                        context_data=context_data,
+                        recipient=open_rsvp.inquirer
+                    )
+
+                # Refresh the invitation
+                open_rsvp.last_send_on = timezone.now()
+                open_rsvp.save()
+
+        return super(SendReminderForm, self).save()
+
+
+class SwitchCollectiveStateForm(CollectiveMixin, NoFormDataMixin, Form):
+    to_state = forms.BooleanField(required=False)
+
+    def clean(self):
+        if self.cleaned_data.get('to_state', False) and self.collective.is_open:
+            raise ValidationError("Collectief is al open")
+        if not self.cleaned_data.get('to_state', False) and not self.collective.is_open:
+            raise ValidationError("Collectief is al gesloten")
+
+        return self.cleaned_data
+
+    def save(self):
+        self.collective.is_open = self.cleaned_data.get('to_state', False)
+        self.collective.save()
+        if self.collective.is_open:
+            self.success_message = "Collectief is weer geopend"
+        else:
+            self.success_message = "Collectief is vanaf nu gesloten. Anderen kunnen niet meer toetreden"
+        return super(SwitchCollectiveStateForm, self).save()
+
+# ###########################################
+# ############## RSVP Forms #################
+# ###########################################
 
 
 class RSVPAgreeForm(ModelForm):
@@ -186,7 +275,7 @@ class RSVPDenyForm(NoFormDataMixin, Form):
         CollectiveDeniedResponse.objects.create(collective=self.rsvp.collective, inquirer=self.rsvp.inquirer)
         self.rsvp.activated = True
         self.rsvp.save()
-        return self.get_as_succes_message()
+        return super(RSVPDenyForm, self).save()
 
 
 class RSVPOnClosedForm(NoFormDataMixin, Form):
@@ -208,7 +297,7 @@ class RSVPOnClosedForm(NoFormDataMixin, Form):
         CollectiveRSVPInterest.objects.create(collective=self.rsvp.collective, inquirer=self.rsvp.inquirer)
         self.rsvp.activated = True
         self.rsvp.save()
-        return self.get_as_succes_message()
+        return super(RSVPOnClosedForm, self).save()
 
 
 class RSVPRefreshExpirationForm(NoFormDataMixin, Form):
@@ -244,103 +333,12 @@ class RSVPRefreshExpirationForm(NoFormDataMixin, Form):
                 recipient=new_rsvp.inquirer
             )
 
-        return self.get_as_succes_message()
+        return self.get_as_success_message()
 
 
-class QuickSendInvitationForm(CollectiveMixin, NoFormDataMixin, Form):
-    success_message = "Uitnodigingen zijn verstuurd. RSVPs alleen niet aangemaakt"
-
-    def clean(self):
-        if not self.collective.is_open:
-            raise ValidationError("Collectief is niet meer open. Nieuwe contacten kunnen niet worden uitgenodigd.")
-        if self.collective.get_uninvited_inquirers().count() == 0:
-            raise ValidationError("Er zijn geen nieuwe personen in uw omgeving om uit te nodigen")
-
-        return self.cleaned_data
-
-    def save(self):
-        subject = f'Uitnodiging collectieve inkoop {self.collective.tech_collective.technology}'
-        template_name = "collectives/invite_mail"
-        context_data = {
-            'collective': self.collective
-        }
-
-        for uninvited in self.collective.get_uninvited_inquirers():
-            new_rsvp = CollectiveRSVP.objects.create(inquirer=uninvited.inquirer, collective=self.collective)
-
-            context_data.update({
-                'rsvp': new_rsvp,
-            })
-            if uninvited.inquirer.email:
-                send_templated_mail(
-                    subject=subject,
-                    template_name=template_name,
-                    context_data=context_data,
-                    recipient=new_rsvp.inquirer
-                )
-        return self.get_as_succes_message()
-
-
-class SendReminderForm(CollectiveMixin, NoFormDataMixin, Form):
-    success_message = "Herinneringen zijn verstuurd"
-    days_between = 5
-
-    def clean(self):
-        if not self.collective.is_open:
-            raise ValidationError("Collectief is niet meer open. Reminders kunnen niet gestuurd worden")
-        if CollectiveRSVP.objects.filter(activated=False).count() == 0:
-            # Todo, timestamp filter
-            raise ValidationError("Alle uitnodigingen zijn al beantwoord")
-
-        return self.cleaned_data
-
-    def save(self):
-        subject = f'Herinnering: collectieve inkoop {self.collective.tech_collective.technology}'
-        template_name = "collectives/reminder_mail"
-        context_data = {
-            'collective': self.collective
-        }
-
-        for open_rsvp in self.collective.open_rsvps():
-            context_data.update({
-                'rsvp': open_rsvp,
-            })
-            if open_rsvp.last_send_on + datetime.timedelta(days=self.days_between) <= timezone.now():
-                # Ensure no mails are send if it has been to recent
-                if open_rsvp.inquirer.email:
-                    send_templated_mail(
-                        subject=subject,
-                        template_name=template_name,
-                        context_data=context_data,
-                        recipient=open_rsvp.inquirer
-                    )
-
-                # Refresh the invitation
-                open_rsvp.last_send_on = timezone.now()
-                open_rsvp.save()
-
-        return self.get_as_succes_message()
-
-
-class SwitchCollectiveStateForm(CollectiveMixin, NoFormDataMixin, Form):
-    to_state = forms.BooleanField(required=False)
-
-    def clean(self):
-        if self.cleaned_data.get('to_state', False) and self.collective.is_open:
-            raise ValidationError("Collectief is al open")
-        if not self.cleaned_data.get('to_state', False) and not self.collective.is_open:
-            raise ValidationError("Collectief is al gesloten")
-
-        return self.cleaned_data
-
-    def save(self):
-        self.collective.is_open = self.cleaned_data.get('to_state', False)
-        self.collective.save()
-        if self.collective.is_open:
-            self.success_message = "Collectief is weer geopend"
-        else:
-            self.success_message = "Collectief is vanaf nu gesloten. Anderen kunnen niet meer toetreden"
-        return self.get_as_succes_message()
+# ###########################################
+# ############# Other Forms #################
+# ###########################################
 
 
 class EditPersonalDataForm(Form):
@@ -397,7 +395,7 @@ class EditPersonalDataForm(Form):
         data_obj.save()
 
 
-class AdjustTechCollectiveForm(NoFormDataMixin, ModelForm):
+class AdjustTechCollectiveInterestForm(NoFormDataMixin, ModelForm):
     success_on_message = "U ontvangt nu berichten als iemand in uw omgeving een collectief start"
     success_off_message = "U word niet meer geinformeerd over collectieven in uw omgeving"
 
@@ -414,19 +412,15 @@ class AdjustTechCollectiveForm(NoFormDataMixin, ModelForm):
             except self._meta.model.DoesNotExist:
                 instance = self._meta.model(inquirer=inquirer, tech_collective=tech_collective)
 
-        super(AdjustTechCollectiveForm, self).__init__(*args, instance=instance, **kwargs)
+        super(AdjustTechCollectiveInterestForm, self).__init__(*args, instance=instance, **kwargs)
 
-    def get_as_succes_message(self):
+    def get_as_success_message(self):
         if self.instance.is_interested:
             message = self.success_on_message
         else:
             message = self.success_off_message
 
         return messages.SUCCESS, message
-
-    def save(self, commit=True):
-        super(AdjustTechCollectiveForm, self).save()
-        return self.get_as_succes_message()
 
     def clean_is_interested(self):
         if self.instance.is_interested == self.cleaned_data['is_interested']:
@@ -438,3 +432,50 @@ class AdjustTechCollectiveForm(NoFormDataMixin, ModelForm):
 
     def get_post_url(self):
         return reverse('collectives:adjust_tech_interest', kwargs={'collective_id': self.instance.tech_collective.id})
+
+
+class EnableAllTechCollectiveInterestForm(NoFormDataMixin, Form):
+    """
+    A form that enables interest on all tech collectives
+    """
+    success_message = "We hebben u genoteerd als geïnteresseerd in alle aanbevolen collectieve acties"
+
+    def __init__(self, *args, collectives=None, inquirer=None, **kwargs):
+        assert inquirer is not None
+        self.inquirer = inquirer
+
+        if collectives is None:
+            self.collectives = TechCollective.objects.all()
+        else:
+            self.collectives = collectives
+
+        super(EnableAllTechCollectiveInterestForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        for collective in self.collectives:
+            try:
+                interest = TechCollectiveInterest.objects.get(
+                    inquirer=self.inquirer,
+                    tech_collective=collective,
+                )
+                interest.is_interested = True
+                interest.save()
+            except TechCollectiveInterest.DoesNotExist:
+                TechCollectiveInterest.objects.create(
+                    inquirer=self.inquirer,
+                    tech_collective=collective,
+                    is_interested=True,
+                )
+        return super(EnableAllTechCollectiveInterestForm, self).save()
+
+    @staticmethod
+    def get_advised_collectives(inquiry):
+        advised_collectives = []
+        for collective in TechCollective.objects.all():
+            technology = collective.technology
+            if technology.get_as_techgroup:
+                technology = technology.get_as_techgroup
+            tech_score = technology.get_score(inquiry=inquiry)
+            if tech_score == Technology.TECH_SUCCESS or tech_score == Technology.TECH_VARIES:
+                advised_collectives.append(collective)
+        return advised_collectives

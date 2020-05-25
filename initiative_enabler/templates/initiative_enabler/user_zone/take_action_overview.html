@@ -10,6 +10,61 @@
             {% endfor %}
         </div>
         <div class="d-none d-md-inline-block col-2">
+            {% if has_not_interested_collectives %}
+            <div>
+                <!-- Shortcut om alle collectieven gelijk te activeren -->
+                <div class="card my-4  text-white bg-primary" style="width: 15rem;">
+                    <div class="card-header">
+                        Collectief interesse
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title"></h5>
+                        <p class="card-text">
+                            Wilt u worden geïnformeerd van alle collectieven in uw buurt?
+                        </p>
+                        <button type="button" class="btn btn-light btn-block" data-toggle="modal" data-target="#intest_in_all_modal">
+                            Ja, ik heb interesse
+                        </button>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="intest_in_all_modal" tabindex="-1" role="dialog" aria-labelledby="interest_in_all_modal" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Interesse in collectieven</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>
+                                    Het is mogelijk dat iemand in uw buurt een collectief wil starten voor de aanschaf/
+                                    installatie van één van de aanbevolen technieken. Hierbij zoekt hij/zij anderen om
+                                    dit samen te regelen en zo eenvoudiger en goedkoper de verbetering toe te passen.
+                                </p>
+                                <p>
+                                    Wilt u geïnformeerd worden wanneer dit gebeurd bij één van de door ons aanbevolen
+                                    maatregelen? Druk dan op de knop hieronder. U kunt ook, per maatregel aangeven of u
+                                    geïnteresseert bent.
+                                </p>
+                            </div>
+                            <form action="{% url "collectives:interest_in_all" %}" method="post"
+                                  id="interest_in_all_form">
+                                {% csrf_token %}
+                                {% include 'snippets/bootstrap_form.html' with form=interest_form %}
+                            </form>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-success" form="interest_in_all_form">
+                                    Ja, ik heb interesse
+                                </button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Sluiten</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
             <div class="card my-4" style="width: 15rem;">
                 <div class="card-header">
                     Navigatie
