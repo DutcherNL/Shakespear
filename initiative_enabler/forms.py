@@ -115,12 +115,12 @@ class StartCollectiveFormTwoStep(ModelForm):
         }
 
         for uninvited in self.instance.get_uninvited_inquirers():
-            new_rsvp = CollectiveRSVP.objects.create(inquirer=uninvited.inquirer, collective=self.instance)
+            new_rsvp = CollectiveRSVP.objects.create(inquirer=uninvited, collective=self.instance)
 
             context_data.update({
                 'rsvp': new_rsvp,
             })
-            if uninvited.inquirer.email:
+            if uninvited.email:
                 send_templated_mail(
                     subject=subject,
                     template_name=template_name,

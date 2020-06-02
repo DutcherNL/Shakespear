@@ -69,9 +69,9 @@ class InitiatedCollective(models.Model):
 
     message = models.TextField(max_length=500)
 
-    name = models.CharField(default="", max_length=128)
-    address = models.CharField(default="", max_length=128)
-    phone_number = models.CharField(max_length=15)
+    name = models.CharField(default="", max_length=128, verbose_name="Naam")
+    address = models.CharField(default="", max_length=128, verbose_name="Adres")
+    phone_number = models.CharField(max_length=15, verbose_name="Tel")
 
     def open_rsvps(self):
         return self.collectiversvp_set.filter(activated=False)
