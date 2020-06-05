@@ -107,6 +107,114 @@ class RsvpModelTestCase(TestCase):
         self.assertTrue(self.rsvp.is_expired)
 
 
+class CollectiveRestrictionTestCase(TestCase):
 
+    def setUp(self):
+        set_up_tech_collective(self)
+        set_up_restrictions(self)
 
+    def test_question_restriction_values(self):
+        self.assertTrue(self.rest_1.has_working_restriction(self.inquirer_1))
+        self.assertFalse(self.rest_1.has_working_restriction(self.inquirer_answerless))
 
+        rest_value = self.rest_1.generate_collective_data(self.inquirer_1)
+        self.assertEqual(rest_value.value, '1234')
+        self.assertEqual(rest_value.restriction_id, self.rest_1.id)
+
+        rest_value = self.rest_1.generate_interest_data(self.inquirer_1)
+        self.assertEqual(rest_value.value, '1234')
+        self.assertEqual(rest_value.restriction_id, self.rest_1.id)
+
+    def test_collection_creation(self):
+        collective = InitiatedCollective.objects.create(
+            tech_collective=self.c_1,
+            inquirer=self.inquirer_1,
+        )
+        collective.set_restriction_values(self.inquirer_1)
+        collective.refresh_from_db()
+
+        self.assertEqual(collective.restriction_scopes.count(), 1)
+        res_scope = collective.restriction_scopes.first()
+        self.assertEqual(res_scope.restriction_id, self.rest_1.id)
+        self.assertEqual(res_scope.value, '1234')
+
+        # Restriction value can copy from other inquirers as well (just because)
+        collective.set_restriction_values(inquirer=self.inquirer_2)
+        self.assertEqual(collective.restriction_scopes.count(), 2)
+        res_scope = collective.restriction_scopes.last()
+        self.assertEqual(res_scope.restriction_id, self.rest_1.id)
+        self.assertEqual(res_scope.value, 'OneTwo')
+
+    def test_interest_creation(self):
+        interest = TechCollectiveInterest.objects.create(
+            tech_collective=self.c_1,
+            inquirer=self.inquirer_1,
+        )
+
+        # Set restriction values defaults to the set inquirer
+        interest.set_restriction_values()
+        self.assertEqual(interest.restriction_scopes.count(), 1)
+        res_scope = interest.restriction_scopes.last()
+        self.assertEqual(res_scope.restriction_id, self.rest_1.id)
+        self.assertEqual(res_scope.value, '1234')
+
+        # Restriction value can copy from other inquirers as well (just because)
+        interest.set_restriction_values(inquirer=self.inquirer_2)
+        self.assertEqual(interest.restriction_scopes.count(), 2)
+        res_scope = interest.restriction_scopes.last()
+        self.assertEqual(res_scope.restriction_id, self.rest_1.id)
+        self.assertEqual(res_scope.value, 'OneTwo')
+
+    def test_restricted_tech_collective_interest(self):
+        # The tech collective contains a restriction, thus check for interest with the same value for the restriction
+        # as the inquirer. This is initially 0
+        self.assertEqual(self.c_1.get_interested_inquirers(current_inquirer=self.inquirer_1).count(), 0)
+
+        # Generate a new interest (without restriction values)
+        interest = generate_interest_in_tech_collective(self.c_1)
+        self.assertEqual(self.c_1.get_interested_inquirers(current_inquirer=self.inquirer_1).count(), 0)
+
+        # Set the restriction value to a similar one as the user creaets
+        interest.restriction_scopes.add(
+            RestrictionValue.objects.get(
+                restriction=self.rest_1,
+                value='1234'
+            )
+        )
+        self.assertEqual(self.c_1.get_interested_inquirers(current_inquirer=self.inquirer_1).count(), 1)
+
+        # Ensure that there are no conflicts when there are multiple interests within the same restriction
+        interest.restriction_scopes.add(
+            RestrictionValue.objects.create(
+                restriction=self.rest_1,
+                value='8484'
+            )
+        )
+        self.assertEqual(self.c_1.get_interested_inquirers(current_inquirer=self.inquirer_1).count(), 1)
+
+    def test_restricted_collective_interest(self):
+        collective = InitiatedCollective.objects.create(
+            tech_collective=self.c_1,
+            inquirer=Inquirer.objects.create(),
+        )
+        collective.restriction_scopes.add(
+            RestrictionValue.objects.create(
+                restriction=self.rest_1,
+                value='test_value'
+            )
+        )
+        # There is no interest in this collective adhering the restriction
+        self.assertEqual(collective.get_uninvited_inquirers().count(), 0)
+
+        # Generate a new interest (without restriction values)
+        interest = generate_interest_in_tech_collective(self.c_1)
+        self.assertEqual(collective.get_uninvited_inquirers().count(), 0)
+
+        # Set the restriction value to a similar one as the user creaets
+        interest.restriction_scopes.add(
+            RestrictionValue.objects.get(
+                restriction=self.rest_1,
+                value='test_value'
+            )
+        )
+        self.assertEqual(collective.get_uninvited_inquirers().count(), 1)

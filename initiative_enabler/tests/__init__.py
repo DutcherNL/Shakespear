@@ -2,8 +2,22 @@ from initiative_enabler.models import *
 from Questionaire.models import *
 
 __all__ = ['set_up_tech_scores', 'set_up_rsvp', 'generate_inquiry_with_score', 'set_up_tech_collective',
-           'generate_interest_in_tech_collective']
+           'generate_interest_in_tech_collective', 'set_up_restrictions',
+           'test_method_call']
 
+
+def test_method_call(object, method_name, run_code):
+    """ Ensures that a method on an object is run when running a piece of code"""
+    def raise_run_time_error():
+        raise RuntimeError("Method called")
+    setattr(object, method_name, raise_run_time_error)
+
+    try:
+        run_code()
+    except RuntimeError:
+        pass
+    else:
+        raise AssertionError(f"{object.__class__}.{method_name} method was not called during saving")
 
 def set_up_tech_collective(testcase):
     testcase.t4c_1 = Technology.objects.create(name="Tech_with_col_1")
@@ -18,6 +32,28 @@ def set_up_tech_collective(testcase):
     generate_interest_in_tech_collective(testcase.c_2, interested=False)
 
 
+def set_up_restrictions(testcase):
+    # Generate a question
+    testcase.q_1 = Question.objects.create(name="Restriction_test_1", question_type=Question.TYPE_OPEN)
+    testcase.q_2 = Question.objects.create(name="Restriction_test_2", question_type=Question.TYPE_OPEN)
+
+    # Set the restrictions
+    testcase.rest_1 = CollectiveQuestionRestriction.objects.create(
+        question=testcase.q_1,
+        regex=None,
+    )
+    testcase.c_1.restrictions.add(testcase.rest_1)
+    testcase.c_2.restrictions.add(
+        CollectiveQuestionRestriction.objects.create(
+            question=testcase.q_2,
+            regex=None,
+        )
+    )
+
+    testcase.inquirer_1 = generate_inquiry_with_answer(testcase.q_1, '1234').inquirer
+    testcase.inquirer_2 = generate_inquiry_with_answer(testcase.q_1, 'OneTwo').inquirer
+    testcase.inquirer_answerless = Inquirer.objects.create()
+    Inquiry.objects.create(inquirer=testcase.inquirer_answerless)
 
 
 def set_up_tech_scores(testcase):
@@ -55,6 +91,15 @@ def generate_inquiry_with_score(declaration, score, inquiry=None):
         inquirer = Inquirer.objects.create()
         inquiry = Inquiry.objects.create(inquirer=inquirer)
     Score.objects.create(inquiry=inquiry, declaration=declaration, score=score)
+
+    return inquiry
+
+
+def generate_inquiry_with_answer(question, answer, inquiry=None):
+    if inquiry is None:
+        inquirer = Inquirer.objects.create()
+        inquiry = Inquiry.objects.create(inquirer=inquirer)
+    InquiryQuestionAnswer.objects.create(inquiry=inquiry, question=question, answer=answer)
 
     return inquiry
 

@@ -78,7 +78,16 @@ class StartCollectiveFormTwoStep(ModelForm):
         self.tech_collective = tech_collective
         super(StartCollectiveFormTwoStep, self).__init__(**kwargs)
 
+    def clean(self):
+        for restriction in self.tech_collective.restrictions.all():
+            restriction = restriction.get_as_child()
+            restriction.has_working_restriction(self.inquirer)
+
+        return self.cleaned_data
+
     def get_personal_data_subform(self):
+        """ Contains a small subset of the larger form, acts as an initial screen with limited information
+        copied to final form through javascript on the page """
         class CreatePartOneForm(ModelForm):
             prefix = "shell"
             class Meta:
@@ -88,6 +97,7 @@ class StartCollectiveFormTwoStep(ModelForm):
         return CreatePartOneForm(self.data if bool(self.data) else None)
 
     def get_message_form(self):
+        """ Contains a small subset of the larger form + the remainders form values in hidden fields """
         class CreatePartTwoForm(ModelForm):
             prefix = "final"
 
@@ -106,6 +116,7 @@ class StartCollectiveFormTwoStep(ModelForm):
         self.instance.inquirer = self.inquirer
         self.instance.tech_collective = self.tech_collective
         self.instance = super(StartCollectiveFormTwoStep, self).save(commit=commit)
+        self.instance.set_restriction_values()
 
         # Create the invitations and send them as emails
         subject = f'Uitnodiging collectieve inkoop {self.tech_collective.technology}'
@@ -425,10 +436,21 @@ class AdjustTechCollectiveInterestForm(NoFormDataMixin, ModelForm):
     def clean_is_interested(self):
         if self.instance.is_interested == self.cleaned_data['is_interested']:
             if self.instance.is_interested:
-                raise ValidationError('Wij konden u niet eerder op geïnteresseerd zetten, want dat bent u al.')
+                raise ValidationError(
+                    'Wij konden u niet eerder op geïnteresseerd zetten, want dat bent u al.',
+                    code='already_interested')
             else:
-                raise ValidationError('U staat al als niet geïnteresseerd')
+                raise ValidationError(
+                    'U staat al als niet geïnteresseerd',
+                    code='already_not_interested')
         return self.cleaned_data['is_interested']
+
+    def save(self, commit=True):
+        message = super(AdjustTechCollectiveInterestForm, self).save(commit=commit)
+        # Update the restriction values (this could also add a new value when disabling notifications if another
+        # answer was given in the mean time. Though this should already be added on questionaire completion
+        self.instance.set_restriction_values()
+        return message
 
     def get_post_url(self):
         return reverse('collectives:adjust_tech_interest', kwargs={'collective_id': self.instance.tech_collective.id})

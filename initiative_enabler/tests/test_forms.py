@@ -2,11 +2,35 @@ import datetime
 from django.core import mail
 from django.test import TestCase
 from django.utils import timezone
+from django.forms import forms
 
 from Questionaire.models import *
 from initiative_enabler.models import *
 from initiative_enabler.forms import *
 from initiative_enabler.tests import *
+
+
+class FormTestMixin:
+    def assertRaisesValidation(self, form, code, field_name=None):
+        """ Checks whether wone of the validatioerrors in the form adheres the given oode
+        :param form: The form that needs to be asserted
+        :param code: the code that is searched for
+        :param field_name: The name of the field containing the error. __all__ for non-field reladed validation
+        keep empty to check all validation errors
+        :return: raises an assertion error if code is not found
+        """
+        if field_name:
+            errors = form.errors[field_name].as_data()
+        else:
+            errors = []
+            for error_list in form.errors.values():
+                errors = errors + error_list.as_data()
+
+        for error in errors:
+            if error.code == code:
+                return
+
+        raise AssertionError(f"No ValidationError with code '{code}' has been found")
 
 
 class QuickTestAdjustmentsMixin:
@@ -38,6 +62,161 @@ class QuickTestAdjustmentsMixin:
         collective.is_open = new_state
         collective.save()
         collective.refresh_from_db()
+
+
+class CollectiveCreationFormTestCase(TestCase):
+    def setUp(self):
+        set_up_tech_collective(self)
+        set_up_restrictions(self)
+
+        prefix = StartCollectiveFormTwoStep.prefix
+        data = {
+            f'{prefix}-name': "My name",
+            f'{prefix}-address': "straatnaam 3 Stad",
+            f'{prefix}-phone_number': "0612345678",
+            f'{prefix}-message': "Heya, this is a test",
+        }
+        self.form = StartCollectiveFormTwoStep(self.inquirer_1, self.c_1, data=data)
+
+    def test_missing_data_cleaning(self):
+        """ Tests the mandatory values are present """
+        prefix = StartCollectiveFormTwoStep.prefix
+        data = {
+            f'{prefix}-name': "My name",
+            f'{prefix}-address': "straatnaam 3 Stad",
+            f'{prefix}-phone_number': "0612345678",
+        }
+        self.assertFalse(StartCollectiveFormTwoStep(self.inquirer_1, self.c_1, data=data).is_valid())
+        data = {
+            f'{prefix}-name': "My name",
+            f'{prefix}-address': "straatnaam 3 Stad",
+            f'{prefix}-message': "Heya, this is a test",
+        }
+        self.assertFalse(StartCollectiveFormTwoStep(self.inquirer_1, self.c_1, data=data).is_valid())
+        data = {
+            f'{prefix}-name': "My name",
+            f'{prefix}-phone_number': "0612345678",
+            f'{prefix}-message': "Heya, this is a test",
+        }
+        self.assertFalse(StartCollectiveFormTwoStep(self.inquirer_1, self.c_1, data=data).is_valid())
+        data = {
+            f'{prefix}-address': "straatnaam 3 Stad",
+            f'{prefix}-phone_number': "0612345678",
+            f'{prefix}-message': "Heya, this is a test",
+        }
+        self.assertFalse(StartCollectiveFormTwoStep(self.inquirer_1, self.c_1, data=data).is_valid())
+
+    def test_collective_creation(self):
+        self.assertTrue(self.form.is_valid())
+
+        # Assert that the instance is created (i.e. has an id)
+        instance = self.form.save()
+        instance.refresh_from_db()
+        self.assertIsNotNone(instance.id)
+        self.assertEqual(instance.name, "My name")
+        self.assertEqual(instance.address, "straatnaam 3 Stad")
+        self.assertEqual(instance.phone_number, "0612345678")
+        self.assertEqual(instance.message, "Heya, this is a test")
+        self.assertEqual(instance.inquirer, self.inquirer_1)
+        self.assertEqual(instance.tech_collective, self.c_1)
+        self.assertEqual(instance.is_open, True)
+
+    def test_collective_restriction_creation(self):
+        """ Test whether the test_collective triggers the creation of restriction values
+        It assumes when working it uses the models 'set_restriction_values()' which is tested in test_models.py """
+        instance = self.form.save()
+        self.assertEqual(instance.restriction_scopes.count(), 1)
+        self.assertEqual(instance.restriction_scopes.last().value, "1234")
+
+    def test_subclass_form_retrieval(self):
+        """ This particular form has several steps. To illustrate these steps in the layout several sub-forms are
+        used. The final form has several hidden fields in the attributes """
+        self.assertIsInstance(self.form.get_personal_data_subform(), forms.BaseForm)
+        final_sub_form = self.form.get_message_form()
+        self.assertIsInstance(final_sub_form, forms.BaseForm)
+        # The final form hides three fields: name, address and phone number
+        self.assertEqual(len(final_sub_form.hidden_fields()), 3)
+
+    def test_rsvp_creation(self):
+        """ Test that get_uninvited_inquirers is run. If so, than all the form works fine
+        (the particular method is validated in the test_models) """
+        def code():
+            self.form.save()
+
+        test_method_call(
+            self.form.instance,
+            'get_uninvited_inquirers',
+            code
+        )
+
+    def test_rsvp_mailing(self):
+        """ Tests whether mails are send out """
+        # Set up a single uninvited inquirer regardless of context
+        def univited_inquirer():
+            inquirers = []
+            inquirers.append(Inquirer.objects.create(email="mailtest_1@test.io"))
+            inquirers.append(Inquirer.objects.create(email="mailtest_2@test.io"))
+            return inquirers
+        self.form.instance.get_uninvited_inquirers = univited_inquirer
+
+        # Test that mails are send when the form is saved
+        self.assertEqual(len(mail.outbox), 0)
+        self.form.save()
+        self.assertEqual(len(mail.outbox), 2)
+
+
+class CollectiveInterestTestCase(QuickTestAdjustmentsMixin, FormTestMixin, TestCase):
+    def setUp(self):
+        set_up_tech_collective(self)
+        set_up_restrictions(self)
+
+    def create_form(self, is_interested):
+        data = {
+            'is_interested': is_interested,
+        }
+        return AdjustTechCollectiveInterestForm(data, inquirer=self.inquirer_1, tech_collective=self.c_1)
+
+    def test_interest_validity_interested(self):
+        form = self.create_form(True)
+        self.assertTrue(form.is_valid())
+        form.save()
+        form = self.create_form(True)
+        self.assertFalse(form.is_valid())
+        self.assertRaisesValidation(form, 'already_interested')
+
+    def test_interest_validity_not_interested(self):
+        # There is no interest instance in the database, so treat it as not interested
+        form = self.create_form(False)
+        self.assertFalse(form.is_valid())
+        self.assertRaisesValidation(form, 'already_not_interested')
+
+        # Initialise an instance in the database that is not interested
+        self.create_form(True).save()
+        self.create_form(False).save()
+
+        form = self.create_form(False)
+        self.assertFalse(form.is_valid())
+        self.assertRaisesValidation(form, 'already_not_interested')
+
+    def test_restriction_creation(self):
+        form = self.create_form(True)
+        form.save()
+        self.assertEqual(form.instance.restriction_scopes.count(), 1)
+        self.assertEqual(form.instance.restriction_scopes.last().value, "1234")
+
+        InquiryQuestionAnswer.objects.filter(
+            inquiry__inquirer=self.inquirer_1,
+            question=self.q_1,
+        ).update(
+            answer='2345'
+        )
+
+        self.create_form(False).save()
+        form = self.create_form(True)
+        form.save()
+        self.assertEqual(form.instance.restriction_scopes.count(), 2)
+        self.assertEqual(form.instance.restriction_scopes.first().value, "1234")
+        self.assertEqual(form.instance.restriction_scopes.last().value, "2345")
 
 
 class CollectiveFormTestCase(QuickTestAdjustmentsMixin, TestCase):
