@@ -118,6 +118,9 @@ class CollectiveRestrictionTestCase(TestCase):
         self.assertFalse(self.rest_1.has_working_restriction(self.inquirer_answerless))
 
         rest_value = self.rest_1.generate_collective_data(self.inquirer_1)
+        # It returns a list of collective data instances
+        self.assertEqual(len(rest_value), 1)
+        rest_value = rest_value[0]
         self.assertEqual(rest_value.value, '1234')
         self.assertEqual(rest_value.restriction_id, self.rest_1.id)
 

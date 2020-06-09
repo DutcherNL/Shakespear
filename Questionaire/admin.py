@@ -218,5 +218,9 @@ class InquiryAdmin(admin.ModelAdmin):
 
 if settings.SHOW_DEBUG_CLASSES:
     admin.site.register(Score)
-    admin.site.register(InquiryQuestionAnswer)
+
+    @admin.register(InquiryQuestionAnswer)
+    class TechCollectiveInterestAdmin(admin.ModelAdmin):
+        list_display = ('inquiry', 'question', 'answer')
+        list_filter = ('question',)
 

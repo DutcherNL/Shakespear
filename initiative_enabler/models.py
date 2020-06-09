@@ -18,7 +18,7 @@ class TechCollective(models.Model):
     technology = models.OneToOneField(Technology, on_delete=models.PROTECT)
     description = models.CharField(max_length=512)
 
-    restrictions = models.ManyToManyField('CollectiveRestriction')
+    restrictions = models.ManyToManyField('CollectiveRestriction', blank=True)
 
     def get_interested_inquirers(self, current_inquirer=None, current_collective=None):
         inquirers = Inquirer.objects.all()
@@ -74,6 +74,7 @@ class InquirerDoesNotContainRestrictionValue(Exception):
 
 class CollectiveRestriction(models.Model):
     name = models.CharField(max_length=64)
+    public_name = models.CharField(max_length=64)
     description = models.CharField(max_length=512)
 
     def get_as_child(self):
@@ -95,8 +96,16 @@ class CollectiveRestriction(models.Model):
 
     def generate_collective_data(self, inquirer):
         """ Generates the data on the initiated collective that ensures the scope """
-        # Activate the method as the child to ensure correct outcome
-        return self.get_as_child().generate_collective_data(inquirer)
+        answers = self.get_as_child().get_collective_scope(inquirer)
+        restr_values = []
+        for answer in answers:
+            restr_values.append(RestrictionValue.objects.get_or_create(restriction=self, value=answer)[0])
+        return restr_values
+
+    def get_collective_scope(self, inquirer):
+        """ Returns a list of string based requirement values """
+        raise NotImplementedError("This method should not be called in this class. Use .get_as_child() first to "
+                                  "get the correct class.")
 
     def generate_interest_data(self, inquirer):
         """ Generates the data on the collective interest that ensures the scope """
@@ -132,12 +141,14 @@ class CollectiveQuestionRestriction(CollectiveRestriction):
         else:
             return None
 
-    def generate_collective_data(self, inquirer):
-        """ Generates the data on the initiated collective that ensures the scope """
+    def get_collective_scope(self, inquirer):
         answer = self.get_question_answer(inquirer)
         if answer is None:
             raise InquirerDoesNotContainRestrictionValue(self)
-        return RestrictionValue.objects.get_or_create(restriction=self, value=answer)[0]
+
+        return [answer]
+
+
 
     def generate_interest_data(self, inquirer, undo=False):
         """ Generates the data on the collective interest that ensures the scope """
@@ -284,7 +295,7 @@ class TechCollectiveInterest(models.Model):
     inquirer = models.ForeignKey(Inquirer, on_delete=models.CASCADE)
     is_interested = models.BooleanField(default=False)
 
-    restriction_scopes = models.ManyToManyField(RestrictionValue)
+    restriction_scopes = models.ManyToManyField(RestrictionValue, blank=True)
 
     class Meta:
         unique_together = ['tech_collective', 'inquirer']
