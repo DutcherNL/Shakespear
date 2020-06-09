@@ -15,6 +15,22 @@ def number_of_interested_inquirers(tech_collective, inquirer):
 
 
 @register.filter
+def get_collective_scope(requirement, inquirer):
+    scope = requirement.get_as_child().get_collective_scope(inquirer)
+
+    result = ''
+    add_seperation = False
+    for entry in scope:
+        if add_seperation:
+            result += ', '
+        else:
+            add_seperation = True
+        result += entry
+
+    return result
+
+
+@register.filter
 def phone2international(phone_number):
     """ Converts a phone number to an international number (assumes Dutch origin)"""
     phone_number = phone_number.strip()

@@ -63,6 +63,15 @@
                             Op dit moment zijn er <b>{{ num_interested }} huishoudens</b> in uw omgeving die interesse hebben in een
                             gezamenlijk collectief.
                         </p>
+                        {% if tech_collective.restrictions.all %}
+                            <p>Uw omgeving is eenieder die voldoet aan de volgende voorwaarde:
+                            <br>
+                            {% for restriction in tech_collective.restrictions.all %}
+                                {{ restriction.public_name }}: {{ restriction|get_collective_scope:inquirer }}
+                                <br>
+                            {% endfor %}
+                            </p>
+                        {% endif %}
                         <p>
                             Wilt u het initiatief nemen om een collectief te starten?
                         </p>
