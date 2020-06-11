@@ -10,7 +10,7 @@ from Questionaire.models import Inquiry, Inquirer, InquiryQuestionAnswer, Score,
 
 __all__ = ['TechCollective', 'InitiatedCollective', 'CollectiveRSVP', 'CollectiveApprovalResponse',
            'CollectiveDeniedResponse', 'CollectiveRSVPInterest', 'TechCollectiveInterest',
-           'CollectiveQuestionRestriction', 'RestrictionValue']
+           'CollectiveRestriction', 'CollectiveQuestionRestriction', 'RestrictionValue']
 
 
 class TechCollective(models.Model):
@@ -118,6 +118,11 @@ class CollectiveRestriction(models.Model):
         # Activate the method as the child to ensure correct outcome
         return self.get_as_child().has_working_restriction(inquirer)
 
+    def get_value_form_class(self):
+        """ Returns a form that allows retrieving this value manually in case it can not be found otherwise """
+        raise NotImplementedError("This method should not be called in this class. Use .get_as_child() first to "
+                                  "get the correct class.")
+
 
 class CollectiveQuestionRestriction(CollectiveRestriction):
     question = models.ForeignKey(Question, on_delete=models.PROTECT)
@@ -148,8 +153,6 @@ class CollectiveQuestionRestriction(CollectiveRestriction):
 
         return [answer]
 
-
-
     def generate_interest_data(self, inquirer, undo=False):
         """ Generates the data on the collective interest that ensures the scope """
         # Generates the related data in the interest model
@@ -160,6 +163,11 @@ class CollectiveQuestionRestriction(CollectiveRestriction):
         """ Tests whether the inquirer contains the required type of value (regardless of the value)
         e.g. whether a certain question ahs been answered"""
         return self.get_question_answer(inquirer) is not None
+
+    def get_value_form_class(self):
+        """ Returns a form that allows updating this value if the answer is not given in the questionaire"""
+        from initiative_enabler.forms import UpdateQuestionRestrictionForm
+        return UpdateQuestionRestrictionForm
 
 
 class RestrictionValue(models.Model):

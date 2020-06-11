@@ -10,7 +10,8 @@ from django.urls import reverse
 
 from mailing.mails import send_templated_mail
 from initiative_enabler.models import *
-from Questionaire.models import Inquirer, Technology
+from Questionaire.models import Inquirer, Technology, InquiryQuestionAnswer
+from Questionaire.fields import QuestionFieldFactory
 
 
 __all__ = ['RSVPAgreeForm', 'RSVPDenyForm', 'RSVPOnClosedForm', 'RSVPRefreshExpirationForm',
@@ -143,7 +144,7 @@ class StartCollectiveFormTwoStep(ModelForm):
 
 class QuickSendInvitationForm(CollectiveMixin, NoFormDataMixin, Form):
     """ Sends an invitation to new members with the invitation text defined earlier """
-    success_message = "Uitnodigingen zijn verstuurd. RSVPs alleen niet aangemaakt"
+    success_message = "Uitnodigingen zijn verstuurd."
 
     def clean(self):
         if not self.collective.is_open:
@@ -161,12 +162,12 @@ class QuickSendInvitationForm(CollectiveMixin, NoFormDataMixin, Form):
         }
 
         for uninvited in self.collective.get_uninvited_inquirers():
-            new_rsvp = CollectiveRSVP.objects.create(inquirer=uninvited.inquirer, collective=self.collective)
+            new_rsvp = CollectiveRSVP.objects.create(inquirer=uninvited, collective=self.collective)
 
             context_data.update({
                 'rsvp': new_rsvp,
             })
-            if uninvited.inquirer.email:
+            if uninvited.email:
                 send_templated_mail(
                     subject=subject,
                     template_name=template_name,
@@ -501,3 +502,39 @@ class EnableAllTechCollectiveInterestForm(NoFormDataMixin, Form):
             if tech_score == Technology.TECH_SUCCESS or tech_score == Technology.TECH_VARIES:
                 advised_collectives.append(collective)
         return advised_collectives
+
+
+class RestrictionFormMixin:
+    field_name = None
+
+    def __init__(self, *args, restriction: CollectiveQuestionRestriction = None, inquirer: Inquirer = None, **kwargs):
+        assert restriction is not None
+        assert inquirer is not None
+        self.restriction = restriction
+        self.inquirer = inquirer
+        super(RestrictionFormMixin, self).__init__(*args, **kwargs)
+
+        field = self.generate_field()
+        self.field_name = self.field_name or field.name
+        self.fields[self.field_name] = field
+
+    def generate_field(self):
+        """ Returns a field to answer the value in """
+        raise NotImplementedError
+
+
+class UpdateQuestionRestrictionForm(RestrictionFormMixin, Form):
+    """ An abstraction of the various forms """
+
+    def generate_field(self):
+        field = QuestionFieldFactory.get_field_by_questionmodel(
+            self.restriction.question,
+            inquiry=self.inquirer.active_inquiry,
+            required=True)
+        return field
+
+    def save(self):
+        self.restriction.question.answer_for_inquiry(
+            self.inquirer.active_inquiry,
+            self.cleaned_data[self.field_name],
+            False)

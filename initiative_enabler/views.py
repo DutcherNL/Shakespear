@@ -84,7 +84,6 @@ class QuickEditCollectiveMixin(EditCollectiveMixin, QuickEditMixin):
 """
 General back-end views
 """
-# TODO: Delete or restructure them to prevent access
 
 
 class CollectiveOverview(InquiryMixin, ListView):
@@ -191,6 +190,11 @@ class AdjustAllTechCollectiveInterestView(InquiryMixin, QuickEditMixin, FormView
         kwargs['collectives'] = EnableAllTechCollectiveInterestForm.get_advised_collectives(self.inquiry)
         kwargs['inquirer'] = self.inquirer
         return kwargs
+
+
+class UpdateRestrictionValuesView(InquiryMixin, TemplateView):
+    # Todo
+    pass
 
 
 """
@@ -303,7 +307,7 @@ class CollectiveRSVPView(FormView):
             self.rsvp = None
         else:
 
-            if self.rsvp.is_expired and self.rsvp.inquirer != request.session.get('inquirer_id', None):
+            if self.rsvp.is_expired and self.rsvp.inquirer.id != request.session.get('inquirer_id', None):
                 self.template_name = "initiative_enabler/rsvps/rsvp_collective_expired.html"
                 self.form_class = RSVPRefreshExpirationForm
             elif not self.rsvp.collective.is_open:
