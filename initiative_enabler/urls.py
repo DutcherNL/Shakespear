@@ -13,6 +13,7 @@ urlpatterns = [
         path('<int:collective_id>/', include([
             path('start_new/', views.StartCollectiveView.as_view(), name='start_new'),
             path('details/', views.CollectiveInfoView.as_view(), name='general_info'),
+            path('instructions/', views.collective_instructions_pdf, name='insructions_pdf'),
             path('adjust_interest/', views.AdjustTechCollectiveInterestView.as_view(), name='adjust_tech_interest')
         ])),
     ])),

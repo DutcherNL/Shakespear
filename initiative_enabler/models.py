@@ -4,6 +4,7 @@ from django.db import models, IntegrityError
 from django.utils.crypto import get_random_string
 from django.shortcuts import reverse
 from django.utils import timezone
+from django.core.validators import FileExtensionValidator
 
 from Questionaire.models import Inquiry, Inquirer, InquiryQuestionAnswer, Score, Technology, Question
 
@@ -17,6 +18,8 @@ class TechCollective(models.Model):
     """ A class describing a local possible collective to locally improve a technology """
     technology = models.OneToOneField(Technology, on_delete=models.PROTECT)
     description = models.CharField(max_length=512)
+    instructions_file = models.FileField(blank=True, null=True,
+                                         validators=[FileExtensionValidator(['pdf'])])
 
     restrictions = models.ManyToManyField('CollectiveRestriction', blank=True)
 

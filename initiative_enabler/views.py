@@ -1,9 +1,11 @@
+import os
+
 from django.views.generic import FormView, ListView, CreateView, UpdateView, DetailView, View, TemplateView
-from django.views.generic.edit import ModelFormMixin, ProcessFormView
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect, HttpResponseForbidden, Http404
+from django.http import HttpResponseRedirect, HttpResponseForbidden, Http404, FileResponse
 from django.contrib import messages
 from django.urls import reverse, reverse_lazy
+
 
 from Questionaire.models import *
 from initiative_enabler.models import *
@@ -130,6 +132,20 @@ class CollectiveInfoView(InquiryMixin, DetailView):
         context['create_collective_form'] = StartCollectiveFormTwoStep(inquirer=self.inquirer,
                                                                        tech_collective=self.object)
         return context
+
+
+def collective_instructions_pdf(request, collective_id=None):
+    """ View for rendering the PDF with instructions """
+    print(collective_id)
+    collective = get_object_or_404(TechCollective, id=collective_id)
+    if collective.instructions_file:
+        try:
+            filepath = collective.instructions_file.path
+            print(filepath)
+            return FileResponse(open(filepath, 'rb'), content_type='application/pdf')
+        except FileNotFoundError:
+            pass
+    raise Http404("Instructies konden niet gevonden worden.")
 
 
 class TakeActionOverview(InquiryMixin, TemplateView):

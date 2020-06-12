@@ -5,7 +5,7 @@ from .models import *
 
 @admin.register(TechCollective)
 class TechCollectiveAdmin(admin.ModelAdmin):
-    fields = ('technology', 'description', 'restrictions')
+    fields = ('technology', 'description', 'restrictions', 'instructions_file')
     list_display = ('__str__', 'technology', 'has_restrictions')
 
     def has_restrictions(self, instance):

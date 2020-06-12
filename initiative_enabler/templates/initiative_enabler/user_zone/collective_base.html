@@ -1,7 +1,7 @@
 {% extends 'base_public.html' %}
 
 {% block body %}
-    <h1>Collectieve installatie voor {{ collective.tech_collective.technology }}</h1>
+    <h1>Collectieve installatie voor {{ tech_collective.technology }}</h1>
     <div class="row">
         <div class="col-6">
             <p><b>{{ tech_collective.technology }}</b></p>
@@ -15,13 +15,26 @@
         </div>
         <div class="col-6">
             <p><b>Instructies</b></p>
-            <p>
-                Samen met elkaar kan je een collectieve inkoop opzetten. Wil je weten hoe? Download dan hieronder
-                het overzichtelijke stappenplan.
-            </p>
-            <a class="btn btn-info" href="{{ tech_collective.technology.get_absolute_url }}">
-                <i class="fas fa-file-download"></i> Download {{ tech_collective.technology }} collectief stappenplan
-            </a>
+            {% if tech_collective.instructions_file %}
+                <p>
+                    Samen met elkaar kan je een collectieve inkoop opzetten. Wil je weten hoe? Download dan hieronder
+                    het overzichtelijke stappenplan.
+                </p>
+                <a class="btn btn-info" href="{% url 'collectives:insructions_pdf' collective_id=tech_collective.id %}"
+                    target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-file-download"></i> Download {{ tech_collective.technology }} collectief stappenplan
+                </a>
+                {% else %}
+                <div class="alert alert-warning">
+
+                    Oops, het lijkt erop dat we momenteel geen instructie document hebben. Wij zullen dit zo spoedig
+                    mogelijk in orde maken.
+                    Kunt u niet zo lang wachten? Stuur dan een mail naar:<br>
+                    <a href="mailto:{{ MAIN_CONTACT_EMAIL }}">
+                        {{ MAIN_CONTACT_EMAIL }}
+                    </a>
+                </div>
+            {% endif %}
         </div>
     </div>
     <hr>
