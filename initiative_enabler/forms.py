@@ -16,7 +16,8 @@ from Questionaire.fields import QuestionFieldFactory
 
 __all__ = ['RSVPAgreeForm', 'RSVPDenyForm', 'RSVPOnClosedForm', 'RSVPRefreshExpirationForm',
            'QuickSendInvitationForm', 'SendReminderForm', 'SwitchCollectiveStateForm', 'EditPersonalDataForm',
-           'StartCollectiveFormTwoStep', 'AdjustTechCollectiveInterestForm', 'EnableAllTechCollectiveInterestForm']
+           'StartCollectiveFormTwoStep', 'AdjustTechCollectiveInterestForm', 'EnableAllTechCollectiveInterestForm',
+           'UpdateQuestionRestrictionForm']
 
 # ###########################################
 # ################ Mixins ###################

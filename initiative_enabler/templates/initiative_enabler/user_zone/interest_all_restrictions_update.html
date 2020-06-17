@@ -1,0 +1,48 @@
+{% extends 'base_public.html' %}
+{% load collective_tags %}
+{% load static %}
+
+
+{% block body %}
+    <p>
+        Wat top dat u interesse heeft in collectieve acties in uw omgeving. Echter heeft u
+        {{ requirement_forms|pluralize:"enkele vragen, een vraag" }} niet beantwoord die wij gebruiken om te bepalen
+        of een collectieve actie bij u in de buurt plaats vind.
+    </p>
+    <p>
+        Gelieve de vragen hieronder te bantwoorden als u op de hoogte gehouden wilt worden
+    </p>
+    <form method="post">
+        {% csrf_token %}
+        {# Render the normal interest form #}
+        <div class="d-none">
+            {% include "snippets/bootstrap_form.html" %}
+        </div>
+        {# Render a field that confirms any input is based on a re-visit #}
+        <input type="hidden" name="{{ self_submit_field_name }}">
+
+        {# Render all requirement forms #}
+        {% for rest_form in requirement_forms %}
+            <div class="row">
+                <div class="col-12">
+                    {% include "snippets/bootstrap_form.html" with form=rest_form %}
+                </div>
+            </div>
+        {% endfor %}
+
+        <!-- Submit or return buttons -->
+        <div class="row">
+            <div class="col-3">
+                <a class="btn btn-secondary btn-block" href="{{ back_url }}">
+                    Annuleren
+                </a>
+            </div>
+            <div class="col-4 offset-5">
+                <input type="submit" value="Ik heb interesse" class="btn btn-primary btn-block"/>
+            </div>
+        </div>
+
+    </form>
+
+
+{% endblock %}

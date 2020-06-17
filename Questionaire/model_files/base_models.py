@@ -234,10 +234,6 @@ class Inquiry(models.Model):
     def get_owner(self):
         return self.inquirer.get_email()
 
-    @property
-    def inquirerII(self):
-        return self.inquirer_set.first()
-
 
 class Inquirer(models.Model):
     """ Contains information of a single user filling in queries """

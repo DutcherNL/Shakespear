@@ -175,13 +175,85 @@ class TakeActionOverview(InquiryMixin, TemplateView):
         return context
 
 
-class AdjustTechCollectiveInterestView(InquiryMixin, QuickEditMixin, FormView):
-    form_class = AdjustTechCollectiveInterestForm
-    success_url = reverse_lazy('collectives:take_action')
+class CheckRequirementsMixin:
+    requirement_forms = None
+    # A hidden field that signals whether the POST originates from this view
+    self_submit_field_name = "sumbit_with_requirements"
 
     def setup(self, request, *args, **kwargs):
-        super(AdjustTechCollectiveInterestView, self).setup(request, *args, **kwargs)
+        super(CheckRequirementsMixin, self).setup(request, *args, **kwargs)
+        self.requirement_forms = self.construct_requirement_forms()
+
+    def construct_requirement_forms(self):
+        """ Constructs a list of all requirement forms, eventually stored in self.requirement_forms """
+        forms = []
+        for restriction in self.get_restrictions():
+            restriction = restriction.get_as_child()
+            if not restriction.has_working_restriction(self.inquirer):
+                if self.self_submit_field_name in self.request.POST.keys():
+                    data = self.request.POST
+                else:
+                    data = None
+                forms.append(
+                    UpdateQuestionRestrictionForm(
+                        data=data,
+                        restriction=restriction,
+                        inquirer=self.inquirer
+                    ))
+
+        return forms
+
+    def get_restrictions(self):
+        raise NotImplementedError
+
+    def form_valid(self, form):
+        if self.process_requirement_forms(form):
+            req_valid = True
+            for requirement_form in self.requirement_forms:
+                if not requirement_form.is_valid():
+                    req_valid = False
+            if req_valid:
+                for requirement_form in self.requirement_forms:
+                    requirement_form.save()
+                    pass
+                return super(CheckRequirementsMixin, self).form_valid(form)
+            else:
+                return self.requirements_invalid()
+        else:
+            return super(CheckRequirementsMixin, self).form_valid(form)
+
+    def requirements_invalid(self):
+        context = self.get_context_data()
+        context['requirement_forms'] = self.requirement_forms
+        context['self_submit_field_name'] = self.self_submit_field_name
+
+        return self.response_class(
+            request=self.request,
+            template=[self.requirement_template_name],
+            context=context,
+        )
+
+    def process_requirement_forms(self, form):
+        return True
+
+
+class AdjustTechCollectiveInterestView(InquiryMixin, CheckRequirementsMixin, QuickEditMixin, FormView):
+    form_class = AdjustTechCollectiveInterestForm
+    success_url = reverse_lazy('collectives:take_action')
+    requirement_template_name = "initiative_enabler/user_zone/interest_restrictions_update.html"
+
+    def setup(self, request, *args, **kwargs):
         self.tech_collective = get_object_or_404(TechCollective, id=kwargs['collective_id'])
+        super(AdjustTechCollectiveInterestView, self).setup(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(AdjustTechCollectiveInterestView, self).get_context_data(**kwargs)
+        context['tech_collective'] = self.tech_collective
+        context['back_url'] = self.get_success_url()
+        return context
+
+    def get_restrictions(self):
+        return self.tech_collective.restrictions.all()
 
     def get_form_kwargs(self):
         kwargs = super(AdjustTechCollectiveInterestView, self).get_form_kwargs()
@@ -196,10 +268,19 @@ class AdjustTechCollectiveInterestView(InquiryMixin, QuickEditMixin, FormView):
         else:
             return super(AdjustTechCollectiveInterestView, self).get_success_url()
 
+    def process_requirement_forms(self, form):
+        return form.cleaned_data['is_interested']
 
-class AdjustAllTechCollectiveInterestView(InquiryMixin, QuickEditMixin, FormView):
+
+class AdjustAllTechCollectiveInterestView(InquiryMixin, CheckRequirementsMixin, QuickEditMixin, FormView):
     form_class = EnableAllTechCollectiveInterestForm
     success_url = reverse_lazy('collectives:take_action')
+    requirement_template_name = "initiative_enabler/user_zone/interest_all_restrictions_update.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(AdjustAllTechCollectiveInterestView, self).get_context_data(**kwargs)
+        context['back_url'] = self.get_success_url()
+        return context
 
     def get_form_kwargs(self):
         kwargs = super(AdjustAllTechCollectiveInterestView, self).get_form_kwargs()
@@ -207,10 +288,10 @@ class AdjustAllTechCollectiveInterestView(InquiryMixin, QuickEditMixin, FormView
         kwargs['inquirer'] = self.inquirer
         return kwargs
 
-
-class UpdateRestrictionValuesView(InquiryMixin, TemplateView):
-    # Todo
-    pass
+    def get_restrictions(self):
+        advised_collectives = EnableAllTechCollectiveInterestForm.get_advised_collectives(self.inquiry)
+        restrictions = CollectiveRestriction.objects.filter(techcollective__in=advised_collectives)
+        return restrictions
 
 
 """
