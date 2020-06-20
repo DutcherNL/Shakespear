@@ -68,6 +68,10 @@
         {% include 'snippets/snippet_message_header.html' %}
     {% endif %}
 
+    {% block outside-container-content-top %}
+
+    {% endblock %}
+
     {% block body-containerless %}
         <div class="container my-3">
             {% block body %}{% endblock %}

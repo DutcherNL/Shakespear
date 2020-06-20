@@ -1,7 +1,14 @@
 {% extends 'base_with_body.html' %}
 {% load footer_tags %}
 
+{% block outside-container-content-top %}
+    {# Display the step progress #}
+    {% include "snippets/three_steps_bar_snippet.html" %}
+    <hr>
+{% endblock %}
+
 {% block body-containerless %}
+
     <div class="container my-3" style="min-height: 70vh;">
         {% block body %}{% endblock %}
     </div>

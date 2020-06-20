@@ -4,6 +4,7 @@ from . import views, views_analysis
 
 urlpatterns = [
     path('main/', views.QuesetionHomeScreenView.as_view(), name='index_screen'),
+    path('jump_to_current_place/', views.JumpToCurrentView.as_view(), name='jump_to_current'),
 
     path('inquiry/', include([
         path('new/', views.CreateNewInquirerView.as_view(), name='new_query'),

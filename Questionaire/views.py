@@ -1,4 +1,4 @@
-from django.views.generic import TemplateView, CreateView, FormView
+from django.views.generic import TemplateView, CreateView, FormView, RedirectView
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -6,6 +6,7 @@ from django.urls import reverse
 from .models import Page, Inquiry, Technology, Inquirer, TechGroup
 from .forms import QuestionPageForm, EmailForm, InquirerLoadForm
 
+from general.views import StepDisplayMixin
 from PageDisplay.views import PageInfoView
 from reports.models import Report
 from questionaire_mailing.models import TriggeredMailTask
@@ -34,6 +35,11 @@ class FlexCssMixin:
         return context_data
 
 
+class FirstStepMixin(StepDisplayMixin):
+    """ Sets the first step in the display for the three step process """
+    step = 1
+
+
 class BaseTemplateView(FlexCssMixin, TemplateView):
     """ A special templateview that implements some site-wide common behaviour """
     pass
@@ -50,7 +56,7 @@ class CreateNewInquirerView(FlexCssMixin, CreateView):
         return reverse('start_query')
 
 
-class InquiryStartScreen(FlexCssMixin, FormView):
+class InquiryStartScreen(FlexCssMixin, FirstStepMixin, FormView):
     """ A webpage that start the inquiry
     It displays the unique code and asks for an e-mail adress """
     form_class = EmailForm
@@ -104,7 +110,7 @@ class InquiryContinueScreen(InquiryStartScreen):
     template_name = "inquiry/inquiry_continue_with_mailrequest.html"
 
 
-class QPageView(FlexCssMixin, FormView):
+class QPageView(FlexCssMixin, FirstStepMixin, FormView):
     """ The view for the question pages """
     template_name = "inquiry/inquiry_questions.html"
     form_class = QuestionPageForm
@@ -246,6 +252,25 @@ class QuesetionHomeScreenView(BaseTemplateView):
         return context
 
 
+def get_continue_url(request, inquirer):
+    # If inquiry is complete, display the results page
+    if inquirer.active_inquiry is None:
+        # There is no inquiry started yet
+        return reverse('start_query')
+
+    if inquirer.active_inquiry.is_complete:
+        return reverse('results_display')
+
+    # If an inquirer already has an e-mail adres, continue where he left off
+    elif inquirer.email:
+        request.session['inquiry_id'] = inquirer.active_inquiry.id
+        request.session['page_id'] = inquirer.active_inquiry.current_page.id
+        return reverse('run_query')
+    else:
+        # There is no email, urge to fill in the email
+        return reverse('continue_query')
+
+
 class GetInquirerView(FlexCssMixin, FormView):
     """ A view that retrieves and connects the inquirer
 
@@ -268,27 +293,18 @@ class GetInquirerView(FlexCssMixin, FormView):
         return super(GetInquirerView, self).form_valid(form)
 
     def get_success_url(self):
-        # If inquiry is complete, display the results page
-        if self.inquirer.active_inquiry.is_complete:
-            return reverse('results_display')
-
-        # If an inquirer already has an e-mail adres, continue where he left off
-        elif self.inquirer.email:
-            self.request.session['inquiry_id'] = self.inquirer.active_inquiry.id
-            self.request.session['page_id'] = self.inquirer.active_inquiry.current_page.id
-            return reverse('run_query')
-        else:
-            # There is no email, urge to fill in the email
-            return reverse('continue_query')
+        return get_continue_url(self.request, self.inquirer)
 
 
 class LogInInquiry(GetInquirerView):
     template_name = "inquiry/inquiry_continue_with.html"
 
 
-class QuestionaireCompleteView(BaseTemplateView):
+class QuestionaireCompleteView(StepDisplayMixin, BaseTemplateView):
     """ A view that displays the inquiry results """
     template_name = 'inquiry/inquiry_complete.html'
+    step = 2
+    enable_step_3 = True  # step should be enabled when step 2 is
 
     def init_base_keys(self):
         self.inquirer = get_object_or_404(Inquirer, id=self.request.session.get('inquirer_id', None))
@@ -336,7 +352,7 @@ class QuestionaireCompleteView(BaseTemplateView):
         return Report.objects.filter(is_live=True)
 
 
-class ResetQueryView(BaseTemplateView):
+class ResetQueryView(FirstStepMixin, BaseTemplateView):
     """ This class proposes ans handles the event that an inquiery needs to be reset.
 
     Reset is that all scores are returned to their base values and the first page is the active page.
@@ -344,6 +360,8 @@ class ResetQueryView(BaseTemplateView):
 
     """
     template_name = "inquiry/inquiry_reset.html"
+    enable_step_2 = True
+    enable_step_3 = True
 
     def post(self, request, *args, **kwargs):
         inquiry = get_object_or_404(Inquiry, id=self.request.session.get('inquiry_id', None))
@@ -353,6 +371,12 @@ class ResetQueryView(BaseTemplateView):
         return HttpResponseRedirect(reverse('run_query'))
 
 
+class JumpToCurrentView(RedirectView):
+
+    def get_redirect_url(self):
+        inquirer = get_object_or_404(Inquirer, id=self.request.session.get('inquirer_id', None))
+
+        return get_continue_url(self.request, inquirer)
 
 
 

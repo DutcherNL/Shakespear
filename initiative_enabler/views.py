@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.urls import reverse, reverse_lazy
 
 
+from general.views import StepDisplayMixin
 from Questionaire.models import *
 from initiative_enabler.models import *
 from initiative_enabler.forms import *
@@ -71,6 +72,11 @@ class QuickEditMixin:
         return HttpResponseRedirect(self.default_get_redirect_url())
 
 
+class ThirdStepDisplayMixin(StepDisplayMixin):
+    """ Adds a display of the the third step """
+    step = 3
+
+
 class QuickEditCollectiveMixin(EditCollectiveMixin, QuickEditMixin):
     """ Redirects get requests as they can not occur """
 
@@ -88,13 +94,13 @@ General back-end views
 """
 
 
-class CollectiveOverview(InquiryMixin, ListView):
+class CollectiveOverview(InquiryMixin, ThirdStepDisplayMixin, ListView):
     model = TechCollective
     template_name = "initiative_enabler/collective_overview.html"
     context_object_name = "collectives"
 
 
-class StartCollectiveView(InquiryMixin, FormView):
+class StartCollectiveView(InquiryMixin, ThirdStepDisplayMixin, FormView):
     form_class = StartCollectiveFormTwoStep
     template_name = "initiative_enabler/initiate_collective.html"
 
@@ -120,7 +126,7 @@ class StartCollectiveView(InquiryMixin, FormView):
         })
 
 
-class CollectiveInfoView(InquiryMixin, DetailView):
+class CollectiveInfoView(InquiryMixin, ThirdStepDisplayMixin, DetailView):
     model = TechCollective
     template_name = "initiative_enabler/user_zone/collective_uninitiated_page.html"
     pk_url_kwarg = "collective_id"
@@ -148,7 +154,7 @@ def collective_instructions_pdf(request, collective_id=None):
     raise Http404("Instructies konden niet gevonden worden.")
 
 
-class TakeActionOverview(InquiryMixin, TemplateView):
+class TakeActionOverview(InquiryMixin, ThirdStepDisplayMixin, TemplateView):
     template_name = "initiative_enabler/user_zone/take_action_overview.html"
 
     def get_context_data(self, **kwargs):
@@ -237,7 +243,7 @@ class CheckRequirementsMixin:
         return True
 
 
-class AdjustTechCollectiveInterestView(InquiryMixin, CheckRequirementsMixin, QuickEditMixin, FormView):
+class AdjustTechCollectiveInterestView(InquiryMixin, CheckRequirementsMixin, ThirdStepDisplayMixin, QuickEditMixin, FormView):
     form_class = AdjustTechCollectiveInterestForm
     success_url = reverse_lazy('collectives:take_action')
     requirement_template_name = "initiative_enabler/user_zone/interest_restrictions_update.html"
@@ -272,7 +278,7 @@ class AdjustTechCollectiveInterestView(InquiryMixin, CheckRequirementsMixin, Qui
         return form.cleaned_data['is_interested']
 
 
-class AdjustAllTechCollectiveInterestView(InquiryMixin, CheckRequirementsMixin, QuickEditMixin, FormView):
+class AdjustAllTechCollectiveInterestView(InquiryMixin, CheckRequirementsMixin, ThirdStepDisplayMixin, QuickEditMixin, FormView):
     form_class = EnableAllTechCollectiveInterestForm
     success_url = reverse_lazy('collectives:take_action')
     requirement_template_name = "initiative_enabler/user_zone/interest_all_restrictions_update.html"
@@ -321,7 +327,7 @@ def render_collective_detail(request, *args, **kwargs):
     return view_class.as_view()(request, *args, **kwargs)
 
 
-class InitiatedCollectiveStarterDetailsView(InquiryMixin, DetailView):
+class InitiatedCollectiveStarterDetailsView(InquiryMixin, ThirdStepDisplayMixin, DetailView):
     model = InitiatedCollective
     template_name = "initiative_enabler/user_zone/initiated_collective_details_starter.html"
     pk_url_kwarg = "collective_id"
@@ -334,7 +340,7 @@ class InitiatedCollectiveStarterDetailsView(InquiryMixin, DetailView):
         return context
 
 
-class InitiatedCollectiveFollowerDetailsView(InquiryMixin, DetailView):
+class InitiatedCollectiveFollowerDetailsView(InquiryMixin, ThirdStepDisplayMixin, DetailView):
     model = InitiatedCollective
     template_name = "initiative_enabler/user_zone/initiated_collective_details_follower.html"
     pk_url_kwarg = "collective_id"
@@ -347,11 +353,11 @@ class InitiatedCollectiveFollowerDetailsView(InquiryMixin, DetailView):
         return context
 
 
-class ChangeCollectiveStateView(QuickEditCollectiveMixin, FormView):
+class ChangeCollectiveStateView(QuickEditCollectiveMixin, ThirdStepDisplayMixin, FormView):
     form_class = SwitchCollectiveStateForm
 
 
-class AdjustPersonalData(EditCollectiveMixin, FormView):
+class AdjustPersonalData(EditCollectiveMixin, ThirdStepDisplayMixin, FormView):
     form_class = EditPersonalDataForm
     template_name = "initiative_enabler/user_zone/initiated_collective_adjust_personal_data.html"
 

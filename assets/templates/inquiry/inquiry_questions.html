@@ -1,14 +1,17 @@
-{% extends 'base_with_body.html' %}
+{% extends 'base_public.html' %}
 
 {% block css %}
     {{ block.super }}
     <link href="{% static "css/progress_tabs.css" %}" rel="stylesheet">
 {% endblock %}
 
-{% block body %}
-    <h1 class="row col-12">Vragen</h1>
+{% block outside-container-content-top %}
+    {# Display the step progress #}
+    {% include "snippets/three_steps_bar_snippet.html" %}
+
+    {# Display questionaire progress bar #}
     <div class="row justify-content-center my-3">
-        <div class="col-12 col-md-10">
+        <div class="col-12 col-md-10 col-lg-8">
             <!-- Progress bar -->
             <div class="progress">
                 <div class="progress-bar" role="progressbar" aria-valuenow="{{ progress_percentage }}"
@@ -18,7 +21,10 @@
             </div>
         </div>
     </div>
+    <hr>
+{% endblock %}
 
+{% block body %}
     <form method="post" class="row">
         {% csrf_token %}
         <div class="col-12">

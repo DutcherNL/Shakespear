@@ -1,0 +1,59 @@
+{% load score_result_tags %}
+
+<div class="d-flex justify-content-between">
+    <div class="col-2 d-md-flex d-none" style="">
+
+    </div>
+    <div class="p-3 col-12 col-md-8" style="">
+        {% if progress_step %}
+            <div class="w-100 d-flex justify-content-center">
+                <div class="btn-group" role="group" aria-label="Stepbuttons">
+                    <a class="btn
+                            {% if progress_step == 1 %} btn-info
+                            {% elif progress_step < 1 %}btn-outline-secondary disabled
+                            {% else %}btn-outline-info{% endif %}"
+                        href="{% url "reset_inquiry" %}">
+                        <div class="px-1 px-sm-1 px-md-3 px-lg-5">
+                            Stap 1: Vragen
+                        </div>
+                    </a>
+                    <a class="btn
+                            {% if progress_step == 2 %} btn-info
+                            {% elif enable_step_2 %}btn-outline-info
+                            {% else %}btn-outline-secondary disabled{% endif %}"
+                       href="{% url "results_display" %}">
+                        <div class="px-0 px-sm-1 px-md-3 px-lg-5">
+                            Stap 2: Resultaten
+                        </div>
+                    </a>
+                    <a class="btn
+                            {% if progress_step == 3 %} btn-info
+                            {% elif enable_step_3 %}btn-outline-info
+                            {% else %}btn-outline-secondary disabled{% endif %}"
+                       href="{% url "collectives:take_action" %}">
+                        <div class="px-0 px-sm-1 px-md-3 px-lg-5">
+                            Stap 3: Actie
+                        </div>
+                    </a>
+                </div>
+            </div>
+        {% else %}
+            <div class="d-flex justify-content-center">
+                <div>
+                    U heeft momenteel al een actieve sessie. Wilt u deze sessie hervatten?
+                    <a href="{% url 'jump_to_current' %}" class="btn btn-primary ml-3">
+                        <i class="fas fa-arrow-right"></i> Ga door met {{ request|get_logged_in_inquirer_code }}
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <div class="col-2 d-md-flex d-none p-2">
+        <div class="d-flex w-100 justify-content-end">
+            <div>
+                Uw code:<br>
+                <span class=" font-weight-bolder">{{ request|get_logged_in_inquirer_code }}</span>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,13 +1,16 @@
-{% extends 'base_with_body.html' %}
+{% extends 'base_public.html' %}
 
 {% block body %}
     <form method="post" class="">
-        Het aanpassen van een vragenlijst verwijderd alle opgebouwde score. Echter zullen uw antwoorden blijven behouden.
+        Als u wilt kunt u uw antwoorden in de vragenlijst veranderen. Om dit te verwerken dient u echter wel de vragenlijst
+        af te ronden. Alle eerder ingevulde antwoorden zullen behouden blijven.
+
+        U heeft dan geen toegang tot de resultaten of actie-pagina zolang de vragenlijst niet voltooid is
+
+
+
         {% csrf_token %}
-        <div class="row">
-            <div class="">
-                <input type="submit" name="next" value="Start opnieuw" class="btn btn-block btn-primary"/>
-            </div>
-        </div>
+        <br>
+        <input type="submit" name="next" value="Start opnieuw" class="btn btn-primary"/>
     </form>
 {% endblock %}
