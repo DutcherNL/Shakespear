@@ -16,6 +16,11 @@ def get_logged_in_inquirer_code(request):
 
 
 @register.filter
+def get_current_inquirer_id(request):
+    return request.session.get('inquirer_id', None)
+
+
+@register.filter
 def get_tech_score(technology, inquiry):
     """
     Get the total technology score

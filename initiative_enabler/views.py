@@ -142,15 +142,29 @@ class CollectiveInfoView(InquiryMixin, ThirdStepDisplayMixin, DetailView):
 
 def collective_instructions_pdf(request, collective_id=None):
     """ View for rendering the PDF with instructions """
-    print(collective_id)
     collective = get_object_or_404(TechCollective, id=collective_id)
     if collective.instructions_file:
         try:
             filepath = collective.instructions_file.path
-            print(filepath)
             return FileResponse(open(filepath, 'rb'), content_type='application/pdf')
         except FileNotFoundError:
             pass
+    raise Http404("Instructies konden niet gevonden worden.")
+
+
+def tech_instructions_pdf(request, tech_id=None):
+    """ View for rendering the PDF with instructions """
+    technology = get_object_or_404(Technology, id=tech_id)
+    try:
+        if technology.techimprovement.instructions_file:
+            try:
+                filepath = technology.techimprovement.instructions_file.path
+                return FileResponse(open(filepath, 'rb'), content_type='application/pdf')
+            except FileNotFoundError:
+                pass
+    except TechImprovement.DoesNotExist:
+        pass
+
     raise Http404("Instructies konden niet gevonden worden.")
 
 
@@ -161,10 +175,10 @@ class TakeActionOverview(InquiryMixin, ThirdStepDisplayMixin, TemplateView):
         context = super(TakeActionOverview, self).get_context_data(**kwargs)
         context['advised_techs'] = []
 
-        for tech in TechGroup.objects.all():
-            tech_score = tech.get_score(self.inquiry)
+        for tech_improvement in TechImprovement.objects.filter(is_active=True):
+            tech_score = tech_improvement.technology.get_score(self.inquiry)
             if tech_score == Technology.TECH_SUCCESS or tech_score == Technology.TECH_VARIES:
-                context['advised_techs'].append(tech)
+                context['advised_techs'].append(tech_improvement.technology)
 
         # Select techcols which have no interest obj or interest is false
 

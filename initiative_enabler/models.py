@@ -9,9 +9,20 @@ from django.core.validators import FileExtensionValidator
 from Questionaire.models import Inquiry, Inquirer, InquiryQuestionAnswer, Score, Technology, Question
 
 
-__all__ = ['TechCollective', 'InitiatedCollective', 'CollectiveRSVP', 'CollectiveApprovalResponse',
+__all__ = ['TechImprovement', 'TechCollective', 'InitiatedCollective', 'CollectiveRSVP', 'CollectiveApprovalResponse',
            'CollectiveDeniedResponse', 'CollectiveRSVPInterest', 'TechCollectiveInterest',
            'CollectiveRestriction', 'CollectiveQuestionRestriction', 'RestrictionValue']
+
+
+class TechImprovement(models.Model):
+    """ Controls the display of improvement instructions and the likes of a technologies """
+    technology = models.OneToOneField(Technology, on_delete=models.CASCADE)
+    instructions_file = models.FileField(blank=True, null=True,
+                   validators=[FileExtensionValidator(['pdf'])])
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.technology.__str__()
 
 
 class TechCollective(models.Model):

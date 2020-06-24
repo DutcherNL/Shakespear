@@ -43,6 +43,7 @@ class TechCollectiveInterestAdmin(admin.ModelAdmin):
 
 # Register your models here.
 admin.site.register(RestrictionValue)
+admin.site.register(TechImprovement)
 
 admin.site.register(CollectiveQuestionRestriction)
 admin.site.register(InitiatedCollective)
