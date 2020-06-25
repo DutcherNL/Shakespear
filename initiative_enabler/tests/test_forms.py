@@ -233,13 +233,12 @@ class CollectiveFormTestCase(QuickTestAdjustmentsMixin, TestCase):
         self.assertFalse(form.is_valid())
 
         # Create an inquiry that can be quickly invited
-        inquiry = Inquiry.objects.create(
-            inquirer=Inquirer.objects.create(email="tester@testing.io")
-        )
+        inquirer = Inquirer.objects.create(email="tester@testing.io")
+
         # Override the inquiry retrieval (this method is tested in test_models, so we can shortcut this
         def get_uninvited_override():
             """ Override the uninvited query method to prevent setting up all declarations (aka be lazy) """
-            return Inquiry.objects.filter(id=inquiry.id)
+            return Inquirer.objects.filter(id=inquirer.id)
         self.collective.get_uninvited_inquirers = get_uninvited_override
 
         form = QuickSendInvitationForm(data={}, collective=self.collective)
@@ -257,7 +256,7 @@ class CollectiveFormTestCase(QuickTestAdjustmentsMixin, TestCase):
         self.assertEqual(len(mail.outbox), 0)
         form.save()
         self.assertEqual(CollectiveRSVP.objects.count(), rsvp_count + 1)
-        self.assertEqual(CollectiveRSVP.objects.last().inquirer, inquiry.inquirer)
+        self.assertEqual(CollectiveRSVP.objects.last().inquirer, inquirer)
         self.assertEqual(len(mail.outbox), 1)
 
     def test_reminder_form(self):

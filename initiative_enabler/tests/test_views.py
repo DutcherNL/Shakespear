@@ -3,7 +3,7 @@ from django.test import TestCase, RequestFactory
 from django.utils import timezone
 
 from initiative_enabler.views import *
-from initiative_enabler.tests import set_up_rsvp
+from initiative_enabler.tests import set_up_rsvp, set_up_tech_scores, generate_inquiry_with_score, get_get_request
 
 
 class QuickTestAdjustmentsMixin:
@@ -87,7 +87,7 @@ class RSVPViewTestCase(QuickTestAdjustmentsMixin, TestCase):
         self.assertEqual(self.view.form_class, RSVPRefreshExpirationForm)
         self.assertEqual(self.view.template_name, "initiative_enabler/rsvps/rsvp_collective_expired.html")
 
-        self.get_request.session['inquirer_id'] = self.rsvp.inquirer
+        self.get_request.session['inquirer_id'] = self.rsvp.inquirer.id
         self.setUp_view(with_expired_check=False)
         # Expiration is not relevant as the rsvp inquirer has the session currently active
         # However, the form is still closed
@@ -116,3 +116,76 @@ class RSVPViewTestCase(QuickTestAdjustmentsMixin, TestCase):
         self.assertEqual(response.status_code, 410)  # HTTP Gone
 
 
+class TestActionOverviewView(TestCase):
+
+    def setUp(self):
+        self.view = TakeActionOverview()
+        self.get_request = get_get_request()
+        self.inquirer = Inquirer.objects.create()
+        self.inquirer.active_inquiry = Inquiry.objects.create(inquirer=self.inquirer)
+        self.inquirer.save()
+
+        self.get_request.session['inquirer_id'] = self.inquirer.id
+
+        self.view.setup(self.get_request)
+
+    def test_get_advised_techs_method(self):
+        """ Tests the views get_advised_techs method """
+        set_up_tech_scores(self, inquiry=self.inquirer.active_inquiry)
+
+        # Set up a tech improvement that should be ignored as the resulting advise is not present
+        TechScoreLink.objects.create(
+            score_declaration=ScoringDeclaration.objects.create(name="tech_1_score"),
+            technology=Technology.objects.create(name="ignore_this_tech"))
+        TechImprovement.objects.create(technology=Technology.objects.get(name="ignore_this_tech"))
+
+        # Test that there are no valid advised tech improvements
+        advised_techs = self.view.get_advised_techs()
+        self.assertEqual(len(advised_techs), 0)
+
+        TechImprovement.objects.create(technology=self.t1)
+        advised_techs = self.view.get_advised_techs()
+        self.assertEqual(len(advised_techs), 1)
+        self.assertEqual(advised_techs[0], self.t1)
+
+    def test_has_not_interested_collectives_method(self):
+        """ Tests the views has_not_interested_collectives method """
+        # Note, a tech without any declaration by default is advised
+
+        TechCollectiveInterest.objects.create(
+            inquirer=self.inquirer,
+            tech_collective=TechCollective.objects.create(technology=Technology.objects.create(name='nn1')),
+            is_interested=True)
+
+        self.assertFalse(self.view.has_not_interested_collectives())
+
+        # Test that a uninterested inquirer fails
+        TechCollectiveInterest.objects.create(
+            inquirer=self.inquirer,
+            tech_collective=TechCollective.objects.create(technology=Technology.objects.create(name='nn3')),
+            is_interested=False)
+        self.assertTrue(self.view.has_not_interested_collectives())
+
+        #
+        TechCollectiveInterest.objects.filter(tech_collective__technology__name='nn3').update(is_interested=True)
+        self.assertFalse(self.view.has_not_interested_collectives())
+
+        # Test that a non-advised tech is not taken into account
+        TechScoreLink.objects.create(
+            score_declaration=ScoringDeclaration.objects.create(name="tech_1_score"),
+            technology=Technology.objects.create(name="ignore_this_tech"))
+        TechImprovement.objects.create(technology=Technology.objects.get(name="ignore_this_tech"))
+        TechCollective.objects.create(technology=Technology.objects.get(name='ignore_this_tech'))
+
+        self.assertFalse(self.view.has_not_interested_collectives())
+
+        # Ensure that even if an interest object is created, it does not take it into account if the tech is not advised
+        TechCollectiveInterest.objects.create(
+            inquirer=self.inquirer,
+            tech_collective=TechCollective.objects.get(technology__name='ignore_this_tech'),
+            is_interested=False)
+
+    def test_context_data(self):
+        context_data = self.view.get_context_data()
+        self.assertTrue(hasattr(context_data, 'advised_techs'))
+        self.assertTrue(hasattr(context_data, 'has_not_interested_collectives'))

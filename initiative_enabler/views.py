@@ -171,26 +171,35 @@ def tech_instructions_pdf(request, tech_id=None):
 class TakeActionOverview(InquiryMixin, ThirdStepDisplayMixin, TemplateView):
     template_name = "initiative_enabler/user_zone/take_action_overview.html"
 
-    def get_context_data(self, **kwargs):
-        context = super(TakeActionOverview, self).get_context_data(**kwargs)
-        context['advised_techs'] = []
+    def get_advised_techs(self):
+        """ Gets and returns all advised improvements, takes into account improvmeents that should or should not appear
+        """
+        advised_techs = []
 
         for tech_improvement in TechImprovement.objects.filter(is_active=True):
+
             tech_score = tech_improvement.technology.get_score(self.inquiry)
             if tech_score == Technology.TECH_SUCCESS or tech_score == Technology.TECH_VARIES:
-                context['advised_techs'].append(tech_improvement.technology)
+                advised_techs.append(tech_improvement.technology)
 
-        # Select techcols which have no interest obj or interest is false
+        return advised_techs
 
+    def has_not_interested_collectives(self):
+        """ Returns a boolean whether any of the advised collectives is marked as not interested """
         advised_collectives = EnableAllTechCollectiveInterestForm.get_advised_collectives(self.inquiry)
-        context['has_not_interested_collectives'] = False
+
         for tech_collective in advised_collectives:
             if not TechCollectiveInterest.objects.filter(
                     inquirer=self.inquirer,
                     tech_collective=tech_collective,
                     is_interested=True).exists():
-                context['has_not_interested_collectives'] = True
-                break
+                return True
+        return False
+
+    def get_context_data(self, **kwargs):
+        context = super(TakeActionOverview, self).get_context_data(**kwargs)
+        context['advised_techs'] = self.get_advised_techs()
+        context['has_not_interested_collectives'] = self.has_not_interested_collectives()
 
         return context
 

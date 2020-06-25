@@ -1,3 +1,5 @@
+from django.test import RequestFactory
+
 from initiative_enabler.models import *
 from Questionaire.models import *
 
@@ -56,7 +58,7 @@ def set_up_restrictions(testcase):
     Inquiry.objects.create(inquirer=testcase.inquirer_answerless)
 
 
-def set_up_tech_scores(testcase):
+def set_up_tech_scores(testcase, inquiry=None):
     t1 = Technology.objects.create(name="Tech_1")
     sd1 = ScoringDeclaration.objects.create(name="tech_1_score")
     TechScoreLink.objects.create(score_declaration=sd1, technology=t1)
@@ -65,7 +67,7 @@ def set_up_tech_scores(testcase):
     sd2 = ScoringDeclaration.objects.create(name="tech_2_score")
     TechScoreLink.objects.create(score_declaration=sd2, technology=t2)
 
-    inquiry_all = generate_inquiry_with_score(sd1, 10)
+    inquiry_all = generate_inquiry_with_score(sd1, 10, inquiry=inquiry)
     generate_inquiry_with_score(sd2, 10, inquiry=inquiry_all)
 
     inquiry = generate_inquiry_with_score(sd1, -10)
@@ -113,6 +115,13 @@ def generate_interest_in_tech_collective(tech_collective, inquirer=None, interes
         inquirer=inquirer,
         is_interested=interested,
     )
+
+
+def get_get_request():
+    get_request = RequestFactory().get('/')
+    if not hasattr(get_request, 'session'):
+        get_request.session = {}  # Set a dict for the session in case session data is needed at any point
+    return get_request
 
 
 def set_up_rsvp(testcase):
