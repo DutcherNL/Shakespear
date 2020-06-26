@@ -1,14 +1,17 @@
 import os
+from urllib.parse import urlparse, urlunparse
 
-from django.views.generic import FormView, ListView, CreateView, UpdateView, DetailView, View, TemplateView
+from django.views.generic import FormView, ListView, DetailView, TemplateView
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect, HttpResponseForbidden, Http404, FileResponse
+from django.http import HttpResponseRedirect, Http404, FileResponse, QueryDict, HttpResponse
 from django.contrib import messages
 from django.urls import reverse, reverse_lazy
 
 
 from general.views import StepDisplayMixin
+from general.mixins import AccessMixin, RedirectThroughUriOnSuccess
 from Questionaire.models import *
+from Questionaire.forms import EmailForm
 from initiative_enabler.models import *
 from initiative_enabler.forms import *
 
@@ -89,6 +92,15 @@ class QuickEditCollectiveMixin(EditCollectiveMixin, QuickEditMixin):
         return self.collective.get_absolute_url()
 
 
+class CheckEmailMixin(AccessMixin):
+    """ Checks whether the given inquirer has an e-mail registered, if not divert to email processing page """
+    redirect_field_name = 'on_success'
+    adress_issue_url = reverse_lazy('collectives:step_3_email_request')  # The url where the issue is adressed
+
+    def check_access_condition(self):
+        return self.inquirer.email and super(CheckEmailMixin, self).check_access_condition()
+
+
 """
 General back-end views
 """
@@ -100,7 +112,7 @@ class CollectiveOverview(InquiryMixin, ThirdStepDisplayMixin, ListView):
     context_object_name = "collectives"
 
 
-class StartCollectiveView(InquiryMixin, ThirdStepDisplayMixin, FormView):
+class StartCollectiveView(InquiryMixin, CheckEmailMixin, ThirdStepDisplayMixin, FormView):
     form_class = StartCollectiveFormTwoStep
     template_name = "initiative_enabler/initiate_collective.html"
 
@@ -126,7 +138,7 @@ class StartCollectiveView(InquiryMixin, ThirdStepDisplayMixin, FormView):
         })
 
 
-class CollectiveInfoView(InquiryMixin, ThirdStepDisplayMixin, DetailView):
+class CollectiveInfoView(InquiryMixin, CheckEmailMixin, ThirdStepDisplayMixin, DetailView):
     model = TechCollective
     template_name = "initiative_enabler/user_zone/collective_uninitiated_page.html"
     pk_url_kwarg = "collective_id"
@@ -168,7 +180,22 @@ def tech_instructions_pdf(request, tech_id=None):
     raise Http404("Instructies konden niet gevonden worden.")
 
 
-class TakeActionOverview(InquiryMixin, ThirdStepDisplayMixin, TemplateView):
+class EmailConfirmPage(InquiryMixin, RedirectThroughUriOnSuccess, ThirdStepDisplayMixin, FormView):
+    success_url = reverse_lazy('collectives:take_action')
+    template_name = 'initiative_enabler/user_zone/step_3_email_confirmation.html'
+    form_class = EmailForm
+
+    def get_form_kwargs(self):
+        kwargs = super(EmailConfirmPage, self).get_form_kwargs()
+        kwargs['inquirer'] = self.inquirer
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        return super(EmailConfirmPage, self).form_valid(form)
+
+
+class TakeActionOverview(InquiryMixin, CheckEmailMixin, ThirdStepDisplayMixin, TemplateView):
     template_name = "initiative_enabler/user_zone/take_action_overview.html"
 
     def get_advised_techs(self):
@@ -205,6 +232,8 @@ class TakeActionOverview(InquiryMixin, ThirdStepDisplayMixin, TemplateView):
 
 
 class CheckRequirementsMixin:
+    """ A view that handles processing of the requirements set in the collectives i.e. retrieves data from the
+    inquirer to answer any requested requirement or throws a view where any missing requirement value can be given """
     requirement_forms = None
     # A hidden field that signals whether the POST originates from this view
     self_submit_field_name = "sumbit_with_requirements"

@@ -1,0 +1,38 @@
+{% extends 'base_public.html' %}
+
+{% block body %}
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="row">
+            <h1 class="col-12">Wij vereisen uw email</h1>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                Om verder te gaan moeten wij u op de hoogte kunnen houden door middel van e-mail. U heeft uw e-mail
+                echter nog niet opgegeven. Zou u dit alsnog willen doen?
+            </div>
+            <div class="col-12">
+                Uiteraard kunt u ook verder gaan zonder uw e-mail adres achter te laten.
+            </div>
+            <div class="col-12">
+                {% include "snippets/bootstrap_form.html" %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-6">
+                <a class="btn btn-block btn-secondary" href="{% url "results_display" %}">
+                    Terug
+                </a>
+            </div>
+            <div class="col-6">
+                <input type="submit" class="btn btn-block btn-success" value="Opslaan en doorgaan">
+            </div>
+        </div>
+
+    </form>
+
+
+{% endblock %}
