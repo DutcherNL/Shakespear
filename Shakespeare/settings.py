@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'questionaire_mailing',
     'queued_tasks',
     'initiative_enabler',
+    'inquirer_settings',
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,30 @@
+{% extends 'inquirer_settings/inquirer_settings_base.html' %}
+
+{% block contents %}
+    <h3>Mails</h3>
+    <p>
+        Wij hebben het volgende mail-adress van u:
+    </p>
+    <p>
+    <span class="border border-secondary p-2">
+        {{ inquirer.email }}
+    </span>
+    </p>
+    <p>Wij versturen u e-mails wanneer:</p>
+    <ul>
+        <li>
+            Enkele dagen verstreken zijn en uw vragenlijst nog niet is afgerond
+        </li>
+        <li>
+            Wij wijzigingen aanbrengen aan ons privacy-beleid of gebruikersovereenkomst
+        </li>
+        <li>
+            U heeft aangegeven op de hoogte wil worden gehouden van
+            <a href="{% url 'inquirer_settings:tech_cols' %}">collectieve inkoop acties</a> in uw omgeving
+        </li>
+    </ul>
+
+    <div class="alert alert-info" role="alert">
+        Wij zijn op dit moment e-mail validatie aan het implementeren. Wanneer dit rond is kunt u uw mail aanpassen.
+    </div>
+{% endblock %}

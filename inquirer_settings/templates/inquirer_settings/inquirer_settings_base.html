@@ -1,0 +1,28 @@
+{% extends 'base_public.html' %}
+
+{% block body-containerless %}
+
+
+
+    <div class="container my-3" style="min-height: 70vh;">
+
+
+        <nav class="nav nav-pills">
+            <a class="nav-link {% if section_name == 'home' %}active{% endif %}"
+               href="{% url "inquirer_settings:home" %}">Persoonlijke gegevens</a>
+            <a class="nav-link {% if section_name == 'mail' %}active{% endif %}"
+               href="{% url "inquirer_settings:mail" %}">Mails</a>
+            <a class="nav-link {% if section_name == 'tech_cols' %}active{% endif %}"
+               href="{% url "inquirer_settings:tech_cols" %}">Interesses</a>
+            <a class="nav-link {% if section_name == 'answers' %}active{% endif %}"
+               href="{% url "inquirer_settings:answers" %}">Mijn antwoorden</a>
+        </nav>
+        <hr>
+
+        <div class="p-2">
+            {% block contents %}
+
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}

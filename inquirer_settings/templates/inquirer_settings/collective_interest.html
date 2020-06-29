@@ -1,0 +1,97 @@
+{% extends 'inquirer_settings/inquirer_settings_base.html' %}
+{% load collective_tags %}
+
+{% block contents %}
+    <h3>Collectief interesses</h3>
+
+    {% if inquirer.email %}
+        <p>
+            ENLEB adviseert welke technieken mogelijk interessant zijn wanneer u uw huis probeert te verduurzamen. Enkele
+            van deze technieken zijn interessant om als collectief in te kopen. In stap 3 kunt u aangeven of u interesse
+            heeft. Wanneer iemand in uw omgeving dan een collectieve inkoop op start word u automatisch geinformeerd.
+        </p>
+        <p>
+            Hieronder staan de mogelijke collectieve inkoop technieken met de huidige status van uw interesse
+        </p>
+
+        {% for tech_col in tech_cols %}
+            {% with inquirer|get_current_tech_interest:tech_col as current_interest %}
+
+            <!-- Create the Interest changing form -->
+            <div class="d-none">
+                {% adjust_interest_form tech_col new_state=current_interest|invert as interest_form %}
+                <form action="{{ interest_form.get_post_url }}?redirect_to={{ request.path }}" method="post" id="interest_{{ tech_col.technology.slug }}">
+                    {% csrf_token %}
+                    {% include 'snippets/bootstrap_form.html' with form=interest_form %}
+                </form>
+            </div>
+
+            <div class="row">
+                <div class="col-12 col-md-3">
+                    <div class="d-flex">
+                        {% if tech_col.technology.icon %}
+                            <img class="my-1 mr-2 d-none d-md-block" src="{{ tech_col.technology.icon.url }}" width="40" height="40">
+                        {% endif %}
+                        <div class="font-weight-bold my-md-3"> {{ tech_col.technology.name }}</div>
+                    </div>
+
+                    <div class="font-weight-bold my-md-3">
+
+                    </div>
+                </div>
+                {% if current_interest %}
+                    <div class="col-12 col-md-7 my-md-0">
+                        <div class="alert alert-success">
+                            <div class="row">
+                                <div class="col-8 py-1">
+                                    Geinteresseerd
+                                </div>
+                                <div class="col-4">
+                                    <button class="btn btn-sm btn-block btn-primary"
+                                            type="submit" form="interest_{{ tech_col.technology.slug }}">
+                                        <i class="fas fa-user-times"></i> Verander
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                {% else %}
+                    <div class="col-12 col-md-7 my-md-0">
+                        <div class="alert alert-danger">
+                            <div class="row">
+                                <div class="col-8 py-1">
+                                    Niet Geinteresseerd
+                                </div>
+                                <div class="col-4">
+                                    <button class="btn btn-sm btn-block btn-primary"
+                                            type="submit" form="interest_{{ tech_col.technology.slug }}">
+                                        <i class="fas fa-user-check"></i> Verander
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="col-2 d-none d-md-block my-2">
+                    <a class="btn btn-outline-primary btn-block"
+                       href="{% url "collectives:general_info" collective_id=tech_col.id %}"
+                       target="_blank" rel="noopener noreferrer">
+                        <i class="fas fa-info"></i> Meer info
+                    </a>
+                </div>
+            </div>
+            {% endwith %}
+        {% endfor %}
+
+
+    {% else %}
+        Het is mogelijk mensen in uw omgeving te zoeken voor het gezamenlijk opzetten van een inkoop collectief met
+        huiseigenaren in uw buurt (bijvoorbeeld voor zonnenpanelen). Normaliter zouden wij u hier een overzicht
+        tonen van mogelijke beschikbaarheid die u heeft aangegeven in <i>stap 3</i>
+
+        U heeft momenteel geen e-mail adres opgegeven. Omdat wij u niet kunnen informeren wanneer iemand een inkoop
+        collectief voor een bepaalde technologie in uw omgeving wilt opzetten is deze functionaliteit niet beschikbaar.
+
+    {% endif %}
+{% endblock %}
