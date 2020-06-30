@@ -1,4 +1,4 @@
-from django.forms.widgets import ClearableFileInput
+from django.forms.widgets import ClearableFileInput, CheckboxInput
 
 
 class IconInput(ClearableFileInput):
@@ -21,3 +21,7 @@ class IconInput(ClearableFileInput):
             'icon': icon_dict
         })
         return context
+
+
+class SimpleBootstrapCheckBox(CheckboxInput):
+    template_name = "widgets/widget_simple_checkbox.html"

@@ -1,10 +1,10 @@
 from django.views.generic import TemplateView, CreateView, FormView, RedirectView
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 
 from .models import Page, Inquiry, Technology, Inquirer, TechGroup
-from .forms import QuestionPageForm, EmailForm, InquirerLoadForm
+from .forms import QuestionPageForm, EmailForm, InquirerLoadForm, CreateInquirerForm
 
 from general.views import StepDisplayMixin
 from PageDisplay.views import PageInfoView
@@ -45,15 +45,25 @@ class BaseTemplateView(FlexCssMixin, TemplateView):
     pass
 
 
-class CreateNewInquirerView(FlexCssMixin, CreateView):
-    """ Creates a new inquirer object without User interaction """
-    model = Inquirer
-    # Fields attribute should be empty, this should be an unseen webpage
-    fields = []
+class ApprovePoliciesView(FlexCssMixin, FormView):
+    template_name = "inquiry/inquiry_accept_policies.html"
 
-    def get_success_url(self):
-        self.request.session['inquirer_id'] = self.object.id
-        return reverse('start_query')
+
+class CreateNewInquirerView(FlexCssMixin, FormView):
+    """ Creates a new inquirer object without User interaction """
+    form_class = CreateInquirerForm
+    template_name = "inquiry/inquiry_accept_policies.html"
+    success_url = reverse_lazy('start_query')
+
+    def dispatch(self, request, *args, **kwargs):
+        print(request.POST)
+
+        return super(CreateNewInquirerView, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.save()
+        self.request.session['inquirer_id'] = form.instance.id
+        return super(CreateNewInquirerView, self).form_valid(form)
 
 
 class InquiryStartScreen(FlexCssMixin, FirstStepMixin, FormView):

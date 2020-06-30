@@ -1,15 +1,13 @@
-import concurrent.futures
-
 from django import forms
 
 from mailing.forms import MailForm
-from mailing.mails import send_templated_mail
 
 from .models import PageEntry, Inquirer, Question, InquiryQuestionAnswer
 from .fields import QuestionFieldFactory, IgnorableEmailField
+from .widgets import SimpleBootstrapCheckBox
 
-from .processors.timelogger import TimeLogger
 from questionaire_mailing.models import TriggeredMailTask
+
 
 class QuestionPageForm(forms.Form):
     """
@@ -112,6 +110,23 @@ class EmailForm(forms.Form):
         self.inquirer.save()
 
         TriggeredMailTask.trigger(TriggeredMailTask.TRIGGER_MAIL_REGISTERED, inquirer=self.inquirer)
+
+
+class CreateInquirerForm(forms.ModelForm):
+    accept_cookies = forms.BooleanField(
+        required=True,
+        label="Ik ga akkoord met het gebruik van cookies",
+        widget=SimpleBootstrapCheckBox,
+    )
+    accept_privacy = forms.BooleanField(
+        required=True,
+        label="Ik ga akkoord met het privacy beleid",
+        widget=SimpleBootstrapCheckBox,
+    )
+
+    class Meta:
+        model = Inquirer
+        fields = ['accept_cookies', 'accept_privacy']
 
 
 class InquirerLoadForm(forms.Form):

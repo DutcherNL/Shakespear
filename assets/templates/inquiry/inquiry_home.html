@@ -1,57 +1,44 @@
 {% extends 'base_public.html' %}
 
 {% block body %}
+    <h1>Welkom</h1>
+
+    <p>
+        Welkom op ENLEB Menukaart, de online enquete die je helpt naar een zuiniger huis.
+    </p>
+    <p>
+        Door middel van een korte vragenlijst proberen wij voor u inzichtelijk te maken welke energie-besparende
+        en duurzame maatregelen voor uw woning mogelijk interessant is.
+    </p>
+    <p>
+        Wilt u uw woning verduurzamen maar weet u niet waar u moet beginnen? Wacht dan niet langer en start onze
+        vragenlijst.
+    </p>
     <div class="row">
-        <div class="col-12">
-            <div class="row">
-                <h1 class="col-12">Welkom</h1>
-            </div>
-            <div class="row ">
-                <div class="col-12">
-                    Welkom op ENLEB Menukaart, de online enquete die je helpt naar een zuiniger huis.
-                </div>
-                <div class="col-12">
-                    Start een nieuwe vragenlijst of ga verder waar je gebleven bent
-                </div>
-                <div class="col-12">
-                    <div class="alert alert-info">
-                        <strong>Cookies!</strong><br>
-                        Deze website gebruikt cookies om uw voortgang bij te houden. Deze cookies verlopen automatisch na 1 dag.<br>
-                        Zonder cookies kunnen wij u niet helpen. Bij het invullen van de vragenlijst gaat u daarom automatisch
-                        akkoord met het gebruik van cookies.
+        <div class="col-12 col-md-6 offset-md-3">
+            <a href="{% url 'new_query' %}" class="btn btn-block btn-primary btn-lg">
+                <i class="fas fa-pen"></i> Start nieuwe vragenlijst
+            </a>
+        </div>
+    </div>
+    <hr class="my-4">
+    <h3>Verder gaan</h3>
+    <div class="row">
+        <div class="col-md-6">
+            <p>
+                Heeft u hier al eerder een vragenlijst gestart?<br> Ga dan verder waar u gebleven bent
+            </p>
+            <form method="post" action="{% url 'run_continue' %}" class="">
+                {% csrf_token %}
+                {% with inquiry_entry_form as form %}
+                    {% include "snippets/bootstrap_form.html" %}
+                {% endwith %}
+                <div class="row">
+                    <div class="col-9 offset-3">
+                        <input type="submit" name="next" value="Ga verder" class="btn btn-block btn-outline-primary"/>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
-        <hr class="col-12">
-
-        <form method="post" action="{% url 'new_query' %}" class="col-md-6 border-right">
-
-            <div class="mt-2">
-                Start een geheel nieuwe vragenlijst
-            </div>
-            <br class="mt-1">
-            <br class="mt-1">
-
-            {% csrf_token %}
-            <input type="submit" name="next" value="Start nieuw"
-                class="btn btn-primary btn-block "/>
-        </form>
-
-        <form method="post" action="{% url 'run_continue' %}" class="col-md-6">
-            <div class="mt-2">
-                Of ga verder waar u gebleven was
-            </div>
-            {% csrf_token %}
-            {% with inquiry_entry_form as form %}
-                {% include "snippets/bootstrap_form.html" %}
-            {% endwith %}
-            <div class="row">
-                <div class="col-9 offset-3">
-                    <input type="submit" name="next" value="Ga verder" class="btn btn-block btn-primary"/>
-                </div>
-            </div>
-
-        </form>
     </div>
 {% endblock %}

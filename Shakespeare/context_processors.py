@@ -8,6 +8,8 @@ def questionaire_context(request):
 
     context['SITE_DISPLAY_NAME'] = settings.SITE_DISPLAY_NAME
     context['MAIN_CONTACT_EMAIL'] = settings.MAIN_CONTACT_EMAIL
+
+    context['PRIVACY_DOCUMENT_URL'] = settings.PRIVACY_DOCUMENT_URL
     return context
 
 

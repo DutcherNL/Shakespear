@@ -1,0 +1,63 @@
+{% extends 'base_public.html' %}
+
+
+{% block body %}
+    <h1>Gebruiksovereenkomst</h1>
+
+    <p>
+        Alvorens u kunt beginnen willen we u even toelichten over uw pricacy.
+    </p>
+    <h5>Cookies</h5>
+    <p>
+        Deze website gebruikt cookies om uw voortgang bij te houden. Deze cookies verlopen automatisch na 1 dag
+        nadat u de website niet heeft bezocht. Zonder cookies kunnen wij niet bijhouden welke enquete u invult.
+    </p>
+    <p>
+        Wij gebruiken cookies enkel en alleen om uw activiteit op deze website bij te houden.
+    </p>
+
+    <h5>Privacy beleid</h5>
+    <p>
+        Uw privacy is u goed recht. Wij zullen daarom zorgvuldig met uw gegevens omgaan. Zo worden uw gegevens nooit
+        met anderen gedeeld of verhandeld. Tevens kunt u ten alle tijde uw gegevens wissen.
+    </p>
+    {% if PRIVACY_DOCUMENT_URL %}
+    <p>
+        Voor meer informatie, check ons
+        <a target="_blank" rel="noopener noreferrer" href="{{ PRIVACY_DOCUMENT_URL }}">
+            volledige privacy document
+        </a>
+    </p>
+    {% endif %}
+
+
+
+    <hr>
+    <form method="post">
+        {% csrf_token %}
+        {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+        {% endfor %}
+
+        {% for field in form.visible_fields %}
+            <div class="form-group">
+                {% if field.errors %}<span class="text-danger"><small>U dient dit te accepteren</small></span>{% endif %}
+                <div class="custom-control custom-checkbox my-2">
+                    {{ field }}
+
+                    <label class="custom-control-label" for="{{field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+                </div>
+            </div>
+        {% endfor %}
+
+
+        <div class="my-3"></div>
+
+        <input type="submit" class="btn btn-primary btn-lg" value="Start de vragenlijst">
+
+    </form>
+
+
+{% endblock %}

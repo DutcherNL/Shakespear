@@ -26,3 +26,5 @@ PDF_BASE_FONT_SIZE = 85
 
 # An e-mail that will be displayed as contact point when an error occurs
 MAIN_CONTACT_EMAIL = "klimaat-menukaart@gmail.com"
+
+PRIVACY_DOCUMENT_URL = None
