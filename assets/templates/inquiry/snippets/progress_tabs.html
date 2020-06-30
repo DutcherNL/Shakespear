@@ -8,14 +8,7 @@
     </span>
 </div>
 
-
-
 <div onmouseout="hideTitle(event)">
-
-    {# Display the current hovered technology #}
-    <div class="skp_progress_hover_display d-none d-md-block">
-
-    </div>
 
     {# The technology buttons #}
     <div class="skp_progress_button_container" style="">
@@ -29,9 +22,9 @@
                         {% elif score == technology.TECH_VARIES %} maybe
                         {% endif %}
                      {% endwith %}"
+                        data-toggle="tooltip" data-placement="bottom" title="{{ technology.name }}"
                         style="display:flex;justify-content:center;align-items:center;"
-                        onclick="toggleTab(event, 'tech_{{ technology.id }}')"
-                        onmouseover="showTitle(event, '{{ technology.name }}')">
+                        onclick="toggleTab(event, 'tech_{{ technology.id }}')">
                     <div  class="m-auto">
                         {% if technology.icon %}
                             <img src="{{ technology.icon.url }}" width="50" height="50">
@@ -91,6 +84,5 @@
 {% endfor %}
 
 <script src="{% static "javascript/progress_tabs_script.js" %}"></script>
-
 
 

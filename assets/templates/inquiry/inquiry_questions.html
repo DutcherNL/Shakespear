@@ -53,3 +53,12 @@
     {% include "inquiry/snippets/progress_tabs.html" %}
 {% endblock %}
 
+{% block javascript %}
+    {{ block.super }}
+    <script>
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+{% endblock %}
+

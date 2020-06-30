@@ -91,7 +91,7 @@ def get_text_base_score(value):
         return "Niet aanbevolen"
     if value == 2:
         return "Wisselend"
-    return "Geen advies"
+    return "N.v.t. te weinig informatie"
 
 
 @register.filter
