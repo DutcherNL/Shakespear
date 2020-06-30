@@ -1,8 +1,10 @@
 from urllib.parse import urlparse, urlunparse
 
 from django.core.exceptions import ImproperlyConfigured
-from django.http import HttpResponseRedirect, QueryDict
+from django.http import HttpResponseRedirect, QueryDict, Http404
 from django.utils.http import is_safe_url
+
+from Questionaire.models import Inquirer
 
 
 class AccessMixin:
@@ -82,4 +84,26 @@ class RedirectThroughUriOnSuccess:
         if url_is_safe:
             return redirect_to
         else:
-            return super(RedirectToUriOnSuccessAttribute, self).get_success_url(*args, **kwargs)
+            return super(RedirectThroughUriOnSuccess, self).get_success_url(*args, **kwargs)
+
+
+class InquiryMixin:
+    """ Mixin that takes the inquirer and inquiry from the current session """
+    raise_404_on_missing_inquirer = True
+
+    def setup(self, request, *args, **kwargs):
+        try:
+            self.inquirer = Inquirer.objects.get(id=request.session.get('inquirer_id', None))
+        except Inquirer.DoesNotExist:
+            if self.raise_404_on_missing_inquirer:
+                raise Http404("U heeft momenteel niet een actieve inquirer sessie")
+
+        self.inquiry = self.inquirer.active_inquiry
+        return super(InquiryMixin, self).setup(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(InquiryMixin, self).get_context_data(**kwargs)
+        context['inquiry'] = self.inquiry
+        context['inquirer'] = self.inquirer
+        return context
+

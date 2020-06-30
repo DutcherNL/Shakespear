@@ -1,0 +1,27 @@
+{% extends 'base_public.html' %}
+
+{% block body %}
+    <h1> Verifieer e-mail</h1>
+    {% if form.is_valid %}
+        <p>
+            Druk op onderstaande knop om uw e-mail adres ({{ email }}) te bevestigen
+        </p>
+
+        <form method="post" class="">
+            {% csrf_token %}
+            <div class="d-none">
+                {% include "snippets/bootstrap_form.html" %}
+            </div>
+            <input type="submit" value="Bevestig e-mail adres" class="btn btn-primary"/>
+        </form>
+    {% else %}
+        U kunt dit e-mail adres niet verifiëren:
+        {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}
+                {{ error }}
+            {% endfor %}
+        {% else %}
+            Er is iets mis gegaan op de site
+        {% endif %}
+    {% endif %}
+{% endblock %}

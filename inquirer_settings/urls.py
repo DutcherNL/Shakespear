@@ -11,4 +11,8 @@ urlpatterns = [
         path('interests/', views.CollectiveInterestView.as_view(), name='tech_cols'),
         path('verzamelde_gegevens/', views.InquirerAnswersView.as_view(), name='answers'),
     ])),
+    path('validate_mail/', include([
+        path('', views.EmailValidationView.as_view(), name='validate_mail'),
+        path('success/', views.EmailValidationSuccessView.as_view(), name='validate_mail_success'),
+    ])),
 ]

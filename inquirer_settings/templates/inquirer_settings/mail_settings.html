@@ -1,15 +1,8 @@
 {% extends 'inquirer_settings/inquirer_settings_base.html' %}
+{% load inquirer_tags %}
 
 {% block contents %}
     <h3>Mails</h3>
-    <p>
-        Wij hebben het volgende mail-adress van u:
-    </p>
-    <p>
-    <span class="border border-secondary p-2">
-        {{ inquirer.email }}
-    </span>
-    </p>
     <p>Wij versturen u e-mails wanneer:</p>
     <ul>
         <li>
@@ -23,8 +16,38 @@
             <a href="{% url 'inquirer_settings:tech_cols' %}">collectieve inkoop acties</a> in uw omgeving
         </li>
     </ul>
+    {% if not inquirer.email_validated %}
+        {% if inquirer|has_pending_email_address %}
+            <div class="alert alert-warning" role="alert">
+                Dit e-mail adress is nog niet bevestigd. Check de inbox van uw e-mail voor een e-mail van ons om uw
+                e-mail adres te bevestigen.
+            </div>
+        {% else %}
+            <div class="alert alert-warning" role="alert">
+                <div class="row">
+                    <div class="col-8">
+                        Uw e-mail is nog niet geverifieerd. Druk hier om uw e-mail adress te verifiëren:
+                    </div>
+                    <div class="col-4">
+                        <button type="button" class="btn btn-block btn-primary">
+                            Stuur bevestiging
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
 
-    <div class="alert alert-info" role="alert">
-        Wij zijn op dit moment e-mail validatie aan het implementeren. Wanneer dit rond is kunt u uw mail aanpassen.
-    </div>
+    <p>
+        Wij hebben het volgende mail-adress van u:
+    </p>
+    <form method="post" class="" id="email_form">
+        {% csrf_token %}
+        {% include "snippets/bootstrap_form.html" %}
+
+    </form>
+
+
+    <input type="submit" value="Opslaan" class="btn btn-primary" form="email_form"/>
+
 {% endblock %}

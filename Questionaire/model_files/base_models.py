@@ -238,11 +238,15 @@ class Inquiry(models.Model):
 class Inquirer(models.Model):
     """ Contains information of a single user filling in queries """
     email = models.EmailField(blank=True, null=True)
+    email_validated = models.BooleanField(default=False)
     active_inquiry = models.ForeignKey(Inquiry, on_delete=models.SET_NULL, null=True, blank=True, related_name='active_on_set')
     created_on = models.DateTimeField(auto_now_add=True)
 
     def get_email(self):
-        return self.email or "-Not given-"
+        if self.email_validated:
+            return self.email
+        else:
+            return "-Not given-"
 
     @classmethod
     def get_inquiry_code_from_model(cls, model):

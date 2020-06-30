@@ -263,11 +263,9 @@ class CollectiveRSVP(models.Model):
 
         if self.url_code is None or self.url_code == "":
             while True:
-                try:
-                    self.url_code = self.generate_url_code()
+                self.url_code = self.generate_url_code()
+                if not CollectiveRSVP.objects.filter(url_code=self.url_code).exists():
                     return super(CollectiveRSVP, self).save(**kwargs)
-                except IntegrityError:
-                    pass
         else:
             return super(CollectiveRSVP, self).save(**kwargs)
 

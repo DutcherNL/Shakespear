@@ -12,51 +12,52 @@
     <div class="container my-3" style="min-height: 70vh;">
         {% block body %}{% endblock %}
     </div>
-    {% block footer %}
-        <div class="py-4"></div>
-        <div class="bg-dark text-light d-flex" style="">
-            <div class="container my-3">
-                <div class="row">
-                    <div class="col-md-8">
-                        <p>Wij worden mede mogelijk gemaakt door:</p>
-                        <div class="row">
-                            <div class="col-sm-4" style="height: 120px;">
-                                <div style="width: 100%; height: 100%;
-                                        background-size: contain; background-repeat: no-repeat; background-position: center top;
-                                        background-image: url({% static "img/sponsors/interreg_Vlaanderen-Nederland_PANTONE.png" %});">
+{% endblock %}
 
-                                </div>
+{% block footer %}
+    <div class="py-4"></div>
+    <div class="bg-dark text-light d-flex" style="">
+        <div class="container my-3">
+            <div class="row">
+                <div class="col-md-8">
+                    <p>Wij worden mede mogelijk gemaakt door:</p>
+                    <div class="row">
+                        <div class="col-sm-4" style="height: 120px;">
+                            <div style="width: 100%; height: 100%;
+                                    background-size: contain; background-repeat: no-repeat; background-position: center top;
+                                    background-image: url({% static "img/sponsors/interreg_Vlaanderen-Nederland_PANTONE.png" %});">
+
                             </div>
-                            <div class="col-sm-4" style="height: 60px;">
-                                <div style="width: 100%; height: 100%;
-                                        background-size: contain; background-repeat: no-repeat; background-position: center top;
-                                        background-image: url({% static "img/sponsors/tuelogo.png" %});">
-                                </div>
+                        </div>
+                        <div class="col-sm-4" style="height: 60px;">
+                            <div style="width: 100%; height: 100%;
+                                    background-size: contain; background-repeat: no-repeat; background-position: center top;
+                                    background-image: url({% static "img/sponsors/tuelogo.png" %});">
                             </div>
-                            <div class="col-sm-4" style="height: 60px;">
-                                <div style="width: 100%; height: 100%;
-                                        background-size: contain; background-repeat: no-repeat; background-position: center top;
-                                        background-image: url({% static "img/sponsors/Provincie Noord-brabant.jpg" %});">
-                                </div>
+                        </div>
+                        <div class="col-sm-4" style="height: 60px;">
+                            <div style="width: 100%; height: 100%;
+                                    background-size: contain; background-repeat: no-repeat; background-position: center top;
+                                    background-image: url({% static "img/sponsors/Provincie Noord-brabant.jpg" %});">
                             </div>
                         </div>
                     </div>
-                    <div class="bg-light" style="position:relative; width: 2px; height: 120px; border-radius: 1px; margin: -2px;">
-                    </div>
+                </div>
+                <div class="bg-light" style="position:relative; width: 2px; height: 120px; border-radius: 1px; margin: -2px;">
+                </div>
 
-                    <div class="col-md-4">
-                        <div class="list-group">
-                            {% general_pages is_part_of_footer=True as general_pages %}
-                            {% for page in general_pages %}
-                                <a class="list-group-item list-group-item-dark"
-                                   href="{{ page.get_absolute_url }}">
-                                    {{ page.name }}
-                                </a>
-                            {% endfor %}
-                        </div>
+                <div class="col-md-4">
+                    <div class="list-group">
+                        {% general_pages is_part_of_footer=True as general_pages %}
+                        {% for page in general_pages %}
+                            <a class="list-group-item list-group-item-dark"
+                               href="{{ page.get_absolute_url }}">
+                                {{ page.name }}
+                            </a>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
         </div>
-    {% endblock %}
+    </div>
 {% endblock %}
