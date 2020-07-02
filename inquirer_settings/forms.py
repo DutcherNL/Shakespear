@@ -35,8 +35,6 @@ class EmailForm(Form):
         assert inquirer is not None
         self.inquirer = inquirer
 
-
-
         super(EmailForm, self).__init__(*args, **kwargs)
 
         self.fields['email'].initial = inquirer.email
