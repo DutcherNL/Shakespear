@@ -221,7 +221,7 @@ class InformationField(Field):
 
     def __init__(self, page_entry_obj, *args, inquiry=None, **kwargs):
         super(InformationField, self).__init__(*args, **kwargs)
-        self.name = "-- sample_name --"
+        self.name = f'info_{str(page_entry_obj.id)}'
         self.text = self.prep_text(page_entry_obj.text, inquiry=inquiry)
         self.label = ""
         self.required = False
