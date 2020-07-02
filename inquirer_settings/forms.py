@@ -102,7 +102,7 @@ class PendingMailForm(Form):
                 params={},
             )
 
-        if not self.active():
+        if not self.instance.active:
             raise ValidationError(
                 'Deze email verificatie link is niet meer actief. Mogelijk dat de gebruiker het e-mail adres heeft '
                 'aangepast.',
