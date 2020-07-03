@@ -1,3 +1,5 @@
+{% load full_domain_urls %}
+
 <p style="{{ widget.module.css }}">
-    {{ widget.module.text|linebreaksbr|urlize }}
+    {{ widget.module.text|linebreaksbr|urlize|urls_in_new_tab }}
 </p>
