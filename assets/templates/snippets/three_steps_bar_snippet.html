@@ -13,7 +13,7 @@
                                 {% if progress_step == 1 %} btn-info
                                 {% elif progress_step < 1 %}btn-outline-secondary disabled
                                 {% else %}btn-outline-info{% endif %}"
-                            href="{% url "reset_inquiry" %}">
+                           href="{% if not progress_step == 1 %}{% url "reset_inquiry" %}{% endif %}">
                             <div class="px-1 px-sm-1 px-md-3 px-lg-5">
                                 Stap 1: Vragen
                             </div>
@@ -27,15 +27,31 @@
                                 Stap 2: Resultaten
                             </div>
                         </a>
-                        <a class="btn
-                                {% if progress_step == 3 %} btn-info
-                                {% elif enable_step_3 %}btn-outline-info
-                                {% else %}btn-outline-secondary disabled{% endif %}"
-                           href="{% url "collectives:take_action" %}">
-                            <div class="px-0 px-sm-1 px-md-3 px-lg-5">
-                                Stap 3: Actie
+                        {% if ENABLE_STAP_3 %}
+                            <a class="btn
+                                    {% if progress_step == 3 %} btn-info
+                                    {% elif enable_step_3 %}btn-outline-info
+                                    {% else %}btn-outline-secondary disabled{% endif %}"
+                               href="{% url "collectives:take_action" %}">
+                                <div class="px-0 px-sm-1 px-md-3 px-lg-5">
+                                    Stap 3: Actie
+                                </div>
+                            </a>
+                        {% else %}
+                            <div class="btn
+                                    {% if progress_step == 3 %} btn-info
+                                    {% elif enable_step_3 %}btn-outline-info disabled
+                                    {% else %}btn-outline-secondary disabled{% endif %}"
+                               href=""
+                                    {% if enable_step_3 %} data-toggle="popover" data-placement="bottom"
+                               data-content="In deze derde stap geven we u informatie over hoe u problemen goed aan kunt pakken.
+                                    Ook kunt u gezamenlijke inkoop collectieven starten in uw omgeving.
+                                    Wij verwachten dit binnenkort gereed te hebben." {% endif %}>
+                                <div class="px-0 px-sm-1 px-md-3 px-lg-5">
+                                    Stap 3: Actie
+                                </div>
                             </div>
-                        </a>
+                        {% endif %}
                     </div>
                 </div>
             {% else %}

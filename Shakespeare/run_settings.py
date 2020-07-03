@@ -28,3 +28,5 @@ PDF_BASE_FONT_SIZE = 85
 MAIN_CONTACT_EMAIL = "klimaat-menukaart@gmail.com"
 
 PRIVACY_DOCUMENT_URL = None
+
+ENABLE_STAP_3 = False

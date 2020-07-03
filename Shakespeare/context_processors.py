@@ -14,7 +14,8 @@ def questionaire_context(request):
         'DISPLAY_TECH_SCORES': settings.DISPLAY_TECH_SCORES_IN_VIEW,
         'SITE_DISPLAY_NAME': settings.SITE_DISPLAY_NAME,
         'MAIN_CONTACT_EMAIL': settings.MAIN_CONTACT_EMAIL,
-        'PRIVACY_DOCUMENT_URL': settings.PRIVACY_DOCUMENT_URL
+        'PRIVACY_DOCUMENT_URL': settings.PRIVACY_DOCUMENT_URL,
+        'ENABLE_STAP_3': settings.ENABLE_STAP_3,
     })
 
 
