@@ -11,7 +11,6 @@ def get_absolute_url_path(path):
     domain_name = settings.DOMAIN_NAME
     if not domain_name.startswith('http'):
         domain_name = 'https://'+domain_name
-    print(domain_name)
     if domain_name.endswith('/'):
         domain_name = domain_name[:-1]
 

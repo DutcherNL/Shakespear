@@ -154,9 +154,11 @@ class TimedMailTask(MailTask):
 
 class TriggeredMailTask(MailTask):
     TRIGGER_MAIL_REGISTERED = "MR"
+    TRIGGER_MAIL_CHANGED = "MRN"
     TRIGGER_INQUIRY_COMPLETE = "IC"
     EVENT_CHOICES = [
-        (TRIGGER_MAIL_REGISTERED, 'After mail registration'),
+        (TRIGGER_MAIL_REGISTERED, 'After mail registration in requiry'),
+        (TRIGGER_MAIL_CHANGED, 'After mail change in user-settings'),
         (TRIGGER_INQUIRY_COMPLETE, 'After inquiry completion'),
     ]
     event = models.CharField(max_length=3, choices=EVENT_CHOICES)
@@ -166,13 +168,13 @@ class TriggeredMailTask(MailTask):
         return "Triggered mail"
 
     @classmethod
-    def trigger(cls, event_type, inquiry=None, inquirer=None):
+    def trigger(cls, event_type, inquiry=None, inquirer=None, email=None):
         if not (inquirer or inquiry):
             raise AssertionError("Either an inquiry or inquirer should be given")
 
         active_mail_task = cls.objects.filter(event=event_type, active=True).first()
         if active_mail_task is not None:
-            active_mail_task.generate_mail(inquiry=inquiry, inquirer=inquirer, send_mail=True)
+            active_mail_task.generate_mail(inquiry=inquiry, inquirer=inquirer, send_mail=True, email=email)
 
     @property
     def display_general_info(self):
@@ -185,7 +187,7 @@ class TriggeredMailTask(MailTask):
         # Call the super
         return super(TriggeredMailTask, self).activate()
 
-    def generate_mail(self, inquiry=None, inquirer=None, send_mail=False):
+    def generate_mail(self, inquiry=None, inquirer=None, send_mail=False, email=None):
         """
         Creates the email from the given inquiry
         :param inquiry:
@@ -199,11 +201,11 @@ class TriggeredMailTask(MailTask):
             return
 
         # Get the email
-        email = None
-        if inquirer:
-            email = inquirer.email
-        elif inquiry:
-            email = inquiry.inquirer.email
+        if email is None:
+            if inquirer:
+                email = inquirer.email
+            elif inquiry:
+                email = inquiry.inquirer.email
 
         if email:
             context = {

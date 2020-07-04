@@ -1,6 +1,7 @@
 from django import forms
 
 from mailing.forms import MailForm
+from inquirer_settings.models import PendingMailVerifyer
 
 from .models import PageEntry, Inquirer, Question, InquiryQuestionAnswer
 from .fields import QuestionFieldFactory, IgnorableEmailField
@@ -106,10 +107,18 @@ class EmailForm(forms.Form):
         return super(EmailForm, self).__init__(*args, **kwargs)
 
     def save(self):
-        self.inquirer.email = self.cleaned_data.get('email', None)
-        self.inquirer.save()
+        email = self.cleaned_data.get('email', None)
+        if email:
+            PendingMailVerifyer.objects.create(
+                inquirer=self.inquirer,
+                email=email,
+            )
 
-        TriggeredMailTask.trigger(TriggeredMailTask.TRIGGER_MAIL_REGISTERED, inquirer=self.inquirer)
+        TriggeredMailTask.trigger(
+            TriggeredMailTask.TRIGGER_MAIL_REGISTERED,
+            inquirer=self.inquirer,
+            email=email,
+        )
 
 
 class CreateInquirerForm(forms.ModelForm):

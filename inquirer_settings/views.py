@@ -2,9 +2,9 @@ from django.views.generic import TemplateView, FormView
 from django.urls import reverse_lazy
 
 from general.mixins import InquiryMixin
-from initiative_enabler.models import TechCollective, TechCollectiveInterest
-from Questionaire.models import InquiryQuestionAnswer
+from initiative_enabler.models import TechCollective
 from inquirer_settings.forms import *
+from inquirer_settings.models import PendingMailVerifyer
 
 
 class SelectedSubsectionMixin:
@@ -23,8 +23,23 @@ class InquirerSettingsHome(InquiryMixin, SelectedSubsectionMixin, TemplateView):
 
 class InquirerMailSettingsView(InquiryMixin, SelectedSubsectionMixin, FormView):
     template_name = "inquirer_settings/mail_settings.html"
+    success_url = "inquirer_settings:mail:"
     section_name = 'mail'
     form_class = EmailForm
+
+    def get_context_data(self, **kwargs):
+        if self.inquirer.email and self.inquirer.email_validated:
+            current_pending = PendingMailVerifyer.objects.filter(
+                inquirer=self.inquirer,
+                active=True,
+            ).first()
+        else:
+            current_pending = None
+
+        return super(InquirerMailSettingsView, self).get_context_data(
+            current_pending=current_pending,
+            **kwargs
+        )
 
     def get_form_kwargs(self):
         kwargs = super(InquirerMailSettingsView, self).get_form_kwargs()
@@ -32,6 +47,10 @@ class InquirerMailSettingsView(InquiryMixin, SelectedSubsectionMixin, FormView):
             'inquirer': self.inquirer,
         })
         return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        return super(InquirerMailSettingsView, self).form_valid(form)
 
 
 class CollectiveInterestView(InquiryMixin, SelectedSubsectionMixin, TemplateView):

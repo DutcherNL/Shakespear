@@ -3,6 +3,7 @@ from django.forms.fields import CharField, EmailField
 
 from Questionaire.models import InquiryQuestionAnswer, Score
 from inquirer_settings.models import PendingMailVerifyer
+from questionaire_mailing.models import TriggeredMailTask
 
 
 class RemoveInquiryDataForm(Form):
@@ -37,10 +38,29 @@ class EmailForm(Form):
 
         super(EmailForm, self).__init__(*args, **kwargs)
 
-        self.fields['email'].initial = inquirer.email
+        # Set the initial e-mail adress, the pending one if one is pending, otherwise the affirmed one
+        email = PendingMailVerifyer.objects.filter(
+            inquirer=self.inquirer,
+            active=True,
+        ).first()
+        if email is None:
+            email = inquirer.email
+        else:
+            email = email.email
+
+        self.fields['email'].initial = email
 
     def save(self, **kwargs):
         email = self.cleaned_data['email']
+
+        if email is None or "":
+            # Clear the email
+            self.inquirer.email = ""
+            self.inquirer.email_validated = False
+            self.inquirer.save()
+
+            PendingMailVerifyer.objects.filter(inquirer=self.inquirer).update(active=False)
+            return
 
         if self.inquirer.email != email:
             # Seek a pending mail validation object
@@ -58,10 +78,10 @@ class EmailForm(Form):
                     return
 
                 # There is no acitve pending thing with this e-mail account
-                self.create_instance_and_send_mail()
+                self.create_instance_and_send_mail(email)
 
             except PendingMailVerifyer.DoesNotExist:
-                self.create_instance_and_send_mail
+                self.create_instance_and_send_mail(email)
 
     def create_instance_and_send_mail(self, email):
         PendingMailVerifyer.objects.create(
@@ -69,7 +89,12 @@ class EmailForm(Form):
             email=email,
         )
         self.confirm_mail_send = True
-        # Todo send mail
+
+        TriggeredMailTask.trigger(
+            TriggeredMailTask.TRIGGER_MAIL_CHANGED,
+            inquirer=self.inquirer,
+            email=email,
+        )
 
 
 class PendingMailForm(Form):

@@ -16,7 +16,13 @@
             <a href="{% url 'inquirer_settings:tech_cols' %}">collectieve inkoop acties</a> in uw omgeving
         </li>
     </ul>
-    {% if not inquirer.email_validated %}
+    {% if current_pending %}
+        <div class="alert alert-warning" role="alert">
+            Dit e-mail adress is nog niet bevestigd. Check de inbox van uw e-mail voor een e-mail van ons om uw
+            e-mail adres te bevestigen. Zolang deze niet bevestigd is sturen we e-mails naar uw vorige bevestigde
+            e-mail adres ({{ inquirer.email }})
+        </div>
+    {% elif not inquirer.email_validated %}
         {% if inquirer|has_pending_email_address %}
             <div class="alert alert-warning" role="alert">
                 Dit e-mail adress is nog niet bevestigd. Check de inbox van uw e-mail voor een e-mail van ons om uw
