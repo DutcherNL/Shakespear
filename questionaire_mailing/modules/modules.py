@@ -16,5 +16,5 @@ class MailConfirmationLink(BasicModuleMixin, BaseModule):
     widget = module_widgets.MailedHTMLMailConfirmationWidget
 
 
-registry.register(InquirerCodeModule)
-registry.register(MailConfirmationLink)
+registry.register(InquirerCodeModule, in_default=False)
+registry.register(MailConfirmationLink, in_default=False)
