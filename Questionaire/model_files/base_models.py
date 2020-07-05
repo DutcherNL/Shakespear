@@ -4,7 +4,7 @@ from django.utils import timezone
 
 from Questionaire.processors.code_translation import inquiry_6encoder
 from Questionaire.processors import question_processors
-
+from PageDisplay.models import Page as DisplayPage
 
 __all__ = ['Question', 'Page', 'PageEntry', 'PageEntryText', 'PageEntryQuestion', 'AnswerOption',
            'Inquiry', 'Inquirer', 'InquiryQuestionAnswer']
@@ -74,6 +74,8 @@ class Page(models.Model):
     position = models.PositiveIntegerField(unique=True)
     questions = models.ManyToManyField(Question, through='PageEntryQuestion',
                                        through_fields=('page', 'question'))
+    display_page = models.ForeignKey(DisplayPage, on_delete=models.SET_NULL, blank=True, null=True)
+
     # Requirements for questions to be answered
     include_on = models.ManyToManyField(Question, related_name="include_questions", blank=True)
     exclude_on = models.ManyToManyField(Question, related_name="exclude_questions", blank=True)

@@ -77,6 +77,7 @@ class PageMixin:
         context['header_buttons'] = self.prep_buttons(self.header_buttons)
         context['url_kwargs'] = self.url_kwargs(self)
         context['template_engine'] = self.site.template_engine
+        context['renderer'] = self.site.renderer
 
         # Set an external template for the breadcrumbs
         if hasattr(self.site, 'breadcrumb_trail_template'):

@@ -5,9 +5,9 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 
 from general.models import BasePageURL
-from Questionaire.models import Technology
+from Questionaire.models import Technology, Page
 from Questionaire.widgets import IconInput
-from Questionaire.setup.forms import CreatePageForTechForm
+from Questionaire.setup.forms import CreatePageForTechForm, CreateInquiryDisplayPageForm
 
 
 class AccessabilityMixin(LoginRequiredMixin):
@@ -19,6 +19,11 @@ class AccessabilityMixin(LoginRequiredMixin):
 
 class SetUpOverview(AccessabilityMixin, TemplateView):
     template_name = "inquiry/setup/overview.html"
+
+
+"""
+Tech Pages
+"""
 
 
 class SetUpTechPageOverview(AccessabilityMixin, ListView):
@@ -74,6 +79,48 @@ class CreateTechPageView(AccessabilityMixin, TechnologyMixin, FormView):
         return reverse('setup:pages:edit_page',
                        kwargs={'tech_id': self.technology.id},
                        current_app=self.request.resolver_match.namespace)
+
+
+"""
+Questionaire Pages
+"""
+
+
+class SetUpQuestionairePageOverview(AccessabilityMixin, ListView):
+    template_name = "inquiry/setup/questionaire_pages_overview.html"
+    context_object_name = "pages"
+    model = Page
+
+
+class CreateQuestionaireDisplayPageView(AccessabilityMixin, FormView):
+    template_name = "inquiry/setup/create_questionaire_display_page.html"
+    form_class = CreateInquiryDisplayPageForm
+
+    def get_form_kwargs(self):
+        form_kwargs = super(CreateQuestionaireDisplayPageView, self).get_form_kwargs()
+        self.inquiry_page = get_object_or_404(Page, id=self.kwargs['page_id'])
+        form_kwargs['initial'] = {'inquiry_page': self.inquiry_page}
+        return form_kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(CreateQuestionaireDisplayPageView, self).get_context_data(**kwargs)
+        context['breadcrumb_name'] = "Add page_display"
+        context['breadcrumb_url_name'] = "create_display_page"
+        return context
+
+    def form_valid(self, form):
+        form.save()
+        return super(CreateQuestionaireDisplayPageView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('setup:inquiry_pages:edit_page',
+                       kwargs={'page_id': self.inquiry_page.id},
+                       current_app=self.request.resolver_match.namespace)
+
+
+"""
+General Pages
+"""
 
 
 class GeneralPageListView(AccessabilityMixin, ListView):

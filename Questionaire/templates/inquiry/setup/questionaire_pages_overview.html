@@ -1,0 +1,62 @@
+{% extends 'base_with_body.html' %}
+
+{% load django_bootstrap_breadcrumbs  %}
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Setup" "setup:home" %}
+    {% breadcrumb "Technologies" "setup:tech_list" %}
+
+{% endblock %}
+
+{% block body %}
+    <h1>Inquiry Pages</h1>
+    <div class="table-responsive">
+    <table class="table table-hover">
+    <thead>
+    <tr class="font-weight-bold">
+        <td style="min-width: 10rem">Name</td>
+        <td style="min-width: 10rem">Settings</td>
+        <td style="min-width: 15rem;">Page</td>
+    </tr>
+    </thead>
+    <tbody>
+    {% for page in pages %}
+        <tr>
+            <td>
+                {{ page.name }}
+            </td>
+            <td>
+                <a href="" class="btn btn-primary btn-block">
+                    Settings
+                </a>
+            </td>
+
+            <td>
+                {% if page.display_page %}
+                    <div class="btn-group w-100" role="group" aria-label="Opties">
+                    {% with page.display_page as page %}
+                        <a href="{% url 'setup:inquiry_pages:view_page' page_id=page.id %}" class="btn btn-secondary">
+                            View page
+                        </a>
+                        <a href="{% url 'setup:inquiry_pages:edit_page' page_id=page.id %}" class="btn btn-warning">
+                            Edit page
+                        </a>
+                    {% endwith %}
+                    </div>
+                {% else %}
+                    <a href="{% url 'setup:create_display_page' page_id=page.id %}" class="btn btn-success btn-block">
+                        Add page
+                    </a>
+                {% endif %}
+            </td>
+        </tr>
+    {% empty %}
+        <td rowspan="3">
+            No spaces yet
+        </td>
+    {% endfor %}
+    </tbody>
+    </table>
+    </div>
+
+{% endblock %}

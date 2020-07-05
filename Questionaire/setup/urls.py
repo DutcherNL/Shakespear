@@ -1,6 +1,6 @@
 from django.urls import path, include
 
-from .page_site import page_site
+from .page_site import tech_page_site, inquiry_pages_site
 from . import views
 
 app_name = 'setup'
@@ -12,7 +12,14 @@ urlpatterns = [
         path('<int:tech_id>/', include([
             path('settings/', views.UpdateTechnologyView.as_view(), name='tech_update'),
             path('create_page/', views.CreateTechPageView.as_view(), name='create_page'),
-            path('page/', page_site.urls)
+            path('page/', tech_page_site.urls)
+        ])),
+    ])),
+    path('inquiry_pages/', include([
+        path('', views.SetUpQuestionairePageOverview.as_view(), name='inquiry_list'),
+        path('<int:page_id>/', include([
+            path('create_display_page/', views.CreateQuestionaireDisplayPageView.as_view(), name='create_display_page'),
+            path('display/', inquiry_pages_site.urls)
         ])),
     ])),
     path('reports/', include('reports.urls')),
