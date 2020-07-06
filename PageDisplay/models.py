@@ -339,3 +339,6 @@ registry.register(TitleModule)
 registry.register(TextModule)
 registry.register(ImageModule)
 registry.register(WhiteSpaceModule)
+
+
+from PageDisplay.modules.modules import *

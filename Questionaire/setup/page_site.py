@@ -42,7 +42,7 @@ class InquiryPagesSite(PageSite):
     renderer = InquiryPagePreviewRenderer
     breadcrumb_trail_template = "inquiry/setup/snippet_breadcrumb_trail_questionaire_pages.html"
     site_context_fields = ['inquiry_page']
-    include_modules = ['TextModule', 'TitleModule', 'QuestionModule']
+    include_modules = ['TextModule', 'TitleModule', 'QuestionModule', 'DownloadFileModule',]
 
     @staticmethod
     def init_view_params(view_obj, **kwargs):
