@@ -113,12 +113,16 @@ class EmailForm(forms.Form):
                 inquirer=self.inquirer,
                 email=email,
             )
+            # Store the mail, but do not confirm it as validated
+            self.inquirer.email = email
+            self.inquirer.email_validated = False
+            self.inquirer.save()
 
-        TriggeredMailTask.trigger(
-            TriggeredMailTask.TRIGGER_MAIL_REGISTERED,
-            inquirer=self.inquirer,
-            email=email,
-        )
+            TriggeredMailTask.trigger(
+                TriggeredMailTask.TRIGGER_MAIL_REGISTERED,
+                inquirer=self.inquirer,
+                email=email,
+            )
 
 
 class CreateInquirerForm(forms.ModelForm):
