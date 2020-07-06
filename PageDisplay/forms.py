@@ -61,7 +61,7 @@ def get_module_choices(site):
 
 class AddModuleForm(forms.Form):
     """ A form that selects a specific module in a specific location """
-    module = forms.ChoiceField(required=True) # choices are defined in __init__
+    module = forms.ChoiceField(required=True)  # choices are defined in __init__
     field_name = forms.CharField(max_length=64, widget=forms.HiddenInput)
 
     def __init__(self, site=None, *args, **kwargs):

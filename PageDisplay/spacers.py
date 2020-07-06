@@ -113,7 +113,6 @@ class InsertModuleMoveSpacer(InsertModuleSpacer):
 
         # Check if this spacer contains the current position of the selected module
         if prev_module is not None and prev_module.id == self.selected_module.id:
-            print("Yeah")
             # Change the insert position to represent the current position (in case the module isn't moved)
             context['insert_position'] = self.selected_module_link.position
             # Mark the current version as the original position
@@ -135,7 +134,6 @@ class InsertModuleMoveSpacer(InsertModuleSpacer):
 
         # If the current position is below the selected position
         # Check if the next module is the selecetd module
-        print(f'{cur_pos} - {self.selected_module_link.position}')
         if cur_pos < self.selected_module_link.position:
             next_module_link = container.module_link. \
                 filter(position__gt=cur_pos). \
@@ -186,7 +184,6 @@ class InsertModuleMarkerSpacer(BaseSpacer):
             else:
                 high_check = True
 
-            print(f'{high_check} - {self.position} - {prev_module_link.position}')
             return high_check and self.position > prev_module_link.position
         else:
             # It is before the first in

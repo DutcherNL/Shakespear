@@ -30,4 +30,4 @@ class TechScoreModule(BasicModuleMixin, BaseModule):
 
 
 registry.register(TechScoreModule)
-registry.register(QuestionModule)
+registry.register(QuestionModule, in_default=False)

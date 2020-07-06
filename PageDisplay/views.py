@@ -233,7 +233,7 @@ class PageAddModuleView(PageEditMixin, TemplateView):
         context = self.get_context_data(**kwargs)
 
         # Construct the root form
-        root_form = AddModuleForm(data=self.request.POST, files=self.request.FILES)
+        root_form = AddModuleForm(data=self.request.POST, files=self.request.FILES, site=self.site)
         context['root_form'] = root_form
         position_form = ModuleLinkForm(data=self.request.POST)
         context['position_form'] = position_form
