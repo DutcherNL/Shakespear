@@ -3,6 +3,10 @@
 
 
 {% block body %}
+    {% if not advised_techs %}
+        Wij kunnen u momenteel niet verder helpen. Ofwel wij hebben niets kunnen adviseren, ofwel wij hebben geen
+        actieplannen ontwikkeld voor de techneieken die u werd aanbevolen. Ons excuses hiervoor.
+    {% else %}
     <div class="row">
         <div class="col-12 col-md-10">
             {% for technology in advised_techs %}
@@ -136,6 +140,7 @@
         </div>
 
     </div>
+    {% endif %}
 
 {% endblock %}
 
