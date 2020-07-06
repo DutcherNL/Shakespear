@@ -8,16 +8,16 @@ from Questionaire.fields import QuestionFieldFactory
 
 class QuestionWidget(BaseModuleWidget):
     template_name = "inquiry/modules/module_question.html"
-    use_from_context = ['inquirer', 'inquiry_form']
+    use_from_context = ['inquirer', 'questionaire_form']
 
-    def get_context_data(self, request=None, inquirer=None, inquiry_form=None, **kwargs):
+    def get_context_data(self, request=None, inquirer=None, questionaire_form=None, **kwargs):
         if inquirer:
             inquiry = inquirer.active_inquiry
         else:
             inquiry = None
 
-        if inquiry_form:
-            field = inquiry_form[self.model.question.name]
+        if questionaire_form:
+            field = questionaire_form[self.model.question.name]
         else:
             # The field is not in a form context (e.g. on an edit page)
             # create a simple form to contain the field in instead (this prevents any errors due to field rendering

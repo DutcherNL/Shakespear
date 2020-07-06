@@ -34,7 +34,7 @@
         {% endif %}
 
         {# Field widget #}
-        {% if form.is_bound %}
+        {% if questionaire_form.is_bound %}
             {% if field.errors %}
                 {# Errors present #}
                 {% for error in field.errors %}
@@ -42,14 +42,18 @@
                         {{ error }}
                     </div>
                 {% endfor %}
-                {% render_field field class="form-control" placeholder=field.label %}
+                {% render_field widget.field class="form-control" placeholder=widget.field.label %}
             {% else %}
                 {# No errors #}
-                {% render_field field class="form-control" placeholder=field.label %}
+                {% render_field widget.field class="form-control" placeholder=widget.field.label %}
             {% endif %}
         {% else %}
             {# Not submitted yet #}
-            {{ widget.field}}
+            {% if widget.field.field.disabled %}
+                {% render_field widget.field class="form-control" placeholder=widget.field.label %}
+            {% else %}
+                {% render_field widget.field class="form-control" placeholder=widget.field.label %}
+            {% endif %}
 
         {% endif %}
     </div>
