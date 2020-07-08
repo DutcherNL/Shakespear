@@ -234,13 +234,17 @@ class OrderedContainerModule(ContainerModuleMixin, BaseModule):
         # Add all contained modules and add them to the list
         modules = []
         for module_link in self.module_link.order_by('position'):
-            modules.extend(module_link.module.get_child().get_modules(filter_class_type=filter_class_type,
-                                                                      filter_id=filter_id,
-                                                                      exclude_self=False))
+            modules.extend(module_link.module.get_child().get_modules(
+                filter_class_type=filter_class_type,
+                filter_id=filter_id,
+                exclude_self=False)
+            )
 
-        modules.extend(super(OrderedContainerModule, self).get_modules(filter_class_type=filter_class_type,
-                                                                       filter_id=filter_id,
-                                                                       exclude_self=exclude_self))
+        modules.extend(super(OrderedContainerModule, self).get_modules(
+            filter_class_type=filter_class_type,
+            filter_id=filter_id,
+            exclude_self=exclude_self)
+        )
         return modules
 
 
@@ -249,9 +253,6 @@ class ContainerModulePositionalLink(models.Model):
     container = models.ForeignKey(OrderedContainerModule, on_delete=models.PROTECT, related_name='module_link')
     position = models.PositiveIntegerField(default=999)
     module = models.ForeignKey(BaseModule, on_delete=models.CASCADE, related_name='container_link')
-
-    class Meta:
-        ordering = ['-position']
 
 
 class VerticalContainerModule(OrderedContainerModule):
@@ -289,6 +290,9 @@ class TitleModule(BasicModuleMixin, BaseModule):
     css = models.CharField(max_length=256, help_text="CSS classes in accordance with Bootstrap",
                            null=True, blank=True, default="")
 
+    def __str__(self):
+        return self.title
+
 
 class TextModule(BasicModuleMixin, BaseModule):
     """ A module that renders simple text """
@@ -301,7 +305,13 @@ class TextModule(BasicModuleMixin, BaseModule):
                            null=True, blank=True, default="")
 
     def __str__(self):
-        return self.text
+        str = self.text[:40]
+        max_length = 40
+        if len(self.text) > max_length:
+            str = self.text[:max_length]
+            str = str[:str.rfind(' ')]
+            str += '...'
+        return str
 
 
 class ImageModule(BasicModuleMixin, BaseModule):

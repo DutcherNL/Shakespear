@@ -5,6 +5,7 @@ from .models import *
 # Register your models here.
 
 
+@admin.register(VerticalContainerModule)
 class VertContainerAdmin(admin.ModelAdmin):
     class TitleInlines(admin.TabularInline):
         model = TitleModule
@@ -24,10 +25,20 @@ class VertContainerAdmin(admin.ModelAdmin):
     inlines = [TitleInlines, TextsInlines, ImageInlines]
 
 
+@admin.register(BaseModule)
+class ModuleAdmin(admin.ModelAdmin):
+    list_display = ('id', 'get_type_name', 'get_type_str')
+
+    def get_type_name(self, obj):
+        return obj.get_child().type
+
+    def get_type_str(self, obj):
+        return obj.get_child().__str__()
+
+
 admin.site.register(Page)
 admin.site.register(TitleModule)
 admin.site.register(TextModule)
 admin.site.register(ImageModule)
 
 admin.site.register(ContainerModulePositionalLink)
-admin.site.register(VerticalContainerModule)
