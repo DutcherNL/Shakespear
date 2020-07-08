@@ -1,8 +1,9 @@
 from django import forms
 from django.forms import ValidationError
 
-from Questionaire.models import Technology
+from Questionaire.models import Technology, PageEntry
 from Questionaire.models import Page as InquiryPage
+from Questionaire.modules.modules import QuestionModule
 from PageDisplay.models import Page, VerticalContainerModule, TitleModule, TextModule, ContainerModulePositionalLink
 
 
@@ -44,5 +45,25 @@ class CreateInquiryDisplayPageForm(forms.Form):
             # Create the page content
             container = VerticalContainerModule.objects.create()
             page = Page.objects.create(name=inquiry_page.name, root_module=container)
+
+            page_entries = PageEntry.objects.filter(page=inquiry_page).order_by('position')
+
+            for i, page_element in enumerate(page_entries, start=1):
+                if page_element.entry_type == 1:
+                    text_element = page_element.pageentrytext
+                    module = TextModule.objects.create(text=text_element.text)
+                elif page_element.entry_type == 2:
+                    question_element = page_element.pageentryquestion
+                    module = QuestionModule.objects.create(
+                        question=question_element.question,
+                        required=question_element.required,
+                    )
+
+                ContainerModulePositionalLink.objects.create(
+                    container=container,
+                    position=i*10,
+                    module=module,
+                )
+
             inquiry_page.display_page = page
             inquiry_page.save()

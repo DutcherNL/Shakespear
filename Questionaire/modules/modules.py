@@ -6,6 +6,8 @@ from PageDisplay.module_registry import registry
 from Questionaire.models import Technology, Question
 from Questionaire.modules.widgets import *
 
+__all__ = ['QuestionModule', 'TechScoreModule']
+
 
 class QuestionModule(BasicModuleMixin, BaseModule):
     _type_id = 17
