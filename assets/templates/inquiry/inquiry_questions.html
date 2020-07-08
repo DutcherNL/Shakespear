@@ -1,4 +1,5 @@
 {% extends 'base_public.html' %}
+{% load page_tags %}
 
 {% block css %}
     {{ block.super }}
@@ -25,10 +26,14 @@
 {% endblock %}
 
 {% block body %}
-    <form method="post" class="row">
+        <form method="post" class="row">
         {% csrf_token %}
         <div class="col-12">
-            {% include "snippets/bootstrap_form.html" %}
+            {% if current_question_page.display_page %}
+                {% render_page current_question_page.display_page %}
+                {% else %}
+                {% include "snippets/bootstrap_form.html" %}
+            {% endif %}
         </div>
         <div class="col-12">
             <div class="row">

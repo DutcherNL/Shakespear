@@ -34,14 +34,12 @@
             <td>
                 {% if page.display_page %}
                     <div class="btn-group w-100" role="group" aria-label="Opties">
-                    {% with page.display_page as page %}
                         <a href="{% url 'setup:inquiry_pages:view_page' page_id=page.id %}" class="btn btn-secondary">
                             View page
                         </a>
                         <a href="{% url 'setup:inquiry_pages:edit_page' page_id=page.id %}" class="btn btn-warning">
                             Edit page
                         </a>
-                    {% endwith %}
                     </div>
                 {% else %}
                     <a href="{% url 'setup:create_display_page' page_id=page.id %}" class="btn btn-success btn-block">

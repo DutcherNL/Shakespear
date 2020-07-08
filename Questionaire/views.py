@@ -171,6 +171,9 @@ class QPageView(FlexCssMixin, FirstStepMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        context['questionaire_form'] = context['form']
+        context['current_question_page'] = self.page
+
         total_page_count = Page.objects.count()
         processed_pages = Page.objects.filter(position__lt=self.page.position)
 

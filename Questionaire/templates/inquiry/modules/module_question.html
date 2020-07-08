@@ -2,59 +2,70 @@
 
 {% load widget_tweaks %}
 
+{% if widget.field %}
+    <div class="form-group row">
+        {# The col width is hardcoded on purpose but could be softcoded as explained here: #}
+        {# https://docs.djangoproject.com/en/2.1/ref/templates/builtins/#include #}
 
-<div class="form-group row">
-    {# The col width is hardcoded on purpose but could be softcoded as explained here: #}
-    {# https://docs.djangoproject.com/en/2.1/ref/templates/builtins/#include #}
-
-    {# Field label #}
-    <div class="col-md-3 ">
-        <label for="{{ widget.field.id_for_label }}" class="col-form-label q_question">
-            {{ widget.field.label }}
-            {% if widget.field.field.required %}
-                <span class="text-danger">*</span>
-            {% endif %}
-        </label>
-        {% if widget.field.field.help_text|length > 0 %}
-            <label for="{{ field.id_for_label }}_help_text" class="badge badge-pill badge-info noselect">
-                ?
+        {# Field label #}
+        <div class="col-md-3 ">
+            <label for="{{ widget.field.id_for_label }}" class="col-form-label q_question">
+                {{ widget.field.label }}
+                {% if widget.field.field.required %}
+                    <span class="text-danger">*</span>
+                {% endif %}
             </label>
-        {% endif %}
-    </div>
-    <div class="col-md-9 sksr_q_answer">
-        {# Help text #}
-        {% if widget.field.field.help_text|length > 0 %}
-            <input type="checkbox" id="{{ widget.field.id_for_label }}_help_text" class="d-none">
-            <div class="border border-info sksr_help_text">
-                <p>
-                    Info:
-                </p>
-                <p>{{ widget.field.field.help_text|linebreaks }}</p>
-            </div>
-        {% endif %}
-
-        {# Field widget #}
-        {% if questionaire_form.is_bound %}
-            {% if field.errors %}
-                {# Errors present #}
-                {% for error in field.errors %}
-                    <div class="alert alert-danger mb-0">
-                        {{ error }}
-                    </div>
-                {% endfor %}
-                {% render_field widget.field class="form-control" placeholder=widget.field.label %}
-            {% else %}
-                {# No errors #}
-                {% render_field widget.field class="form-control" placeholder=widget.field.label %}
+            {% if widget.field.field.help_text|length > 0 %}
+                <label for="{{ widget.field.id_for_label }}_help_text" class="badge badge-pill badge-info noselect">
+                    ?
+                </label>
             {% endif %}
-        {% else %}
-            {# Not submitted yet #}
-            {% if widget.field.field.disabled %}
-                {% render_field widget.field class="form-control" placeholder=widget.field.label %}
-            {% else %}
-                {% render_field widget.field class="form-control" placeholder=widget.field.label %}
+        </div>
+        <div class="col-md-9 sksr_q_answer">
+            {# Help text #}
+            {% if widget.field.field.help_text|length > 0 %}
+                <input type="checkbox" id="{{ widget.field.id_for_label }}_help_text" class="d-none">
+                <div class="border border-info sksr_help_text">
+                    <p>
+                        Info:
+                    </p>
+                    <p>{{ widget.field.field.help_text|linebreaks }}</p>
+                </div>
             {% endif %}
 
-        {% endif %}
+            {# Field widget #}
+            {% if widget.questionaire_form.is_bound %}
+                {% if widget.field.errors %}
+                    {# Errors present #}
+                    {% for error in widget.field.errors %}
+                        <div class="alert alert-danger mb-0">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                    {% render_field widget.field class="form-control" placeholder=widget.field.label %}
+                {% else %}
+                    {# No errors #}
+                    {% render_field widget.field class="form-control" placeholder=widget.field.label %}
+                {% endif %}
+            {% else %}
+                {# Not submitted yet #}
+                {% if widget.field.field.disabled %}
+                    {% render_field widget.field class="form-control" placeholder=widget.field.label %}
+                {% else %}
+                    {% render_field widget.field class="form-control" placeholder=widget.field.label %}
+                {% endif %}
+
+            {% endif %}
+        </div>
     </div>
-</div>
+{% else %}
+    <div class="row my-3">
+        <div class="col-md-3">
+
+        </div>
+        <div class="col-md-9">
+            Oops, deze vraag kan niet geladen worden. Ons excuses
+        </div>
+    </div>
+
+{% endif %}

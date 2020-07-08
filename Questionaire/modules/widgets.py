@@ -10,14 +10,21 @@ class QuestionWidget(BaseModuleWidget):
     template_name = "inquiry/modules/module_question.html"
     use_from_context = ['inquirer', 'questionaire_form']
 
-    def get_context_data(self, request=None, inquirer=None, questionaire_form=None, **kwargs):
+    def get_context_data(self, request=None, **kwargs):
+        inquirer = kwargs.get('inquirer', None)
+        questionaire_form = kwargs.get('questionaire_form', None)
+
         if inquirer:
             inquiry = inquirer.active_inquiry
         else:
             inquiry = None
 
         if questionaire_form:
-            field = questionaire_form[self.model.question.name]
+            try:
+                question_name = self.model.question.name
+                field = questionaire_form[question_name]
+            except KeyError:
+                field = None
         else:
             # The field is not in a form context (e.g. on an edit page)
             # create a simple form to contain the field in instead (this prevents any errors due to field rendering
