@@ -1,8 +1,9 @@
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseNotFound
 
-from Questionaire.models import Technology
+from Questionaire.models import Technology, PageEntryQuestion
 from Questionaire.models import Page as InquiryPage
+from Questionaire.modules.modules import QuestionModule
 from Questionaire.renderers import *
 from PageDisplay.models import Page
 from PageDisplay.sites import PageSite
@@ -60,6 +61,20 @@ class InquiryPagesSite(PageSite):
         return {
             'page_id': view_obj.inquiry_page.id,
         }
+
+    def on_module_creation(self, page, module):
+        """ Method called when a module is created. Can be useful for triggering other events """
+        if isinstance(module, QuestionModule):
+            questionaire_page = page.page_set.first()
+            PageEntryQuestion.objects.create(
+                question=module.question,
+                page=questionaire_page
+            )
+
+    def on_module_deletion(self, page, module):
+        """ Method called when a module is deleted. Can be useful for triggering other events """
+        if isinstance(module, QuestionModule):
+            page.page_set.first().questions.remove(module.question)
 
 
 tech_page_site = TechPageSite()

@@ -22,21 +22,23 @@ def resolve_module_conflicts(module, container_id):
         conflict.save(update_fields=['position'])
 
 
-def build_moduleform(instance, get_as_class=False, **kwargs):
+def build_moduleform(instance, get_as_class=False, exclude_fields=[], **kwargs):
     """
     Constructs the form for the given module instance
+    :param exclude_fields: A list of fields that should be excluded from the form
     :param instance: The module instance on which the form should be based
     :param get_as_class: Returns the uninitiated Form class
     :param kwargs: Other Form arguments
     :return: A ModuleForm instance (or class) for the given Module instance
     """
     class_type = type(instance)
+    exclude_fields = ['_type', *exclude_fields]
 
     # Create the Form class
     class ModuleForm(forms.ModelForm):
         class Meta:
             model = class_type
-            exclude = ['_type']
+            exclude = exclude_fields
 
     # If uninitiated form is desired
     if get_as_class:

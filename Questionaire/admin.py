@@ -170,7 +170,7 @@ class AnswerNoteAdmin(ExportCsvMixin, admin.ModelAdmin):
 
 @admin.register(Page)
 class PageAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'position', 'auto_process')
+    list_display = ('id', 'name', 'position', 'auto_process', 'num_questions')
 
     class PageQuestionsInlines(admin.TabularInline):
         model = PageEntryQuestion
@@ -187,6 +187,9 @@ class PageAdmin(admin.ModelAdmin):
         extra = 0
 
     inlines = [PageTextsInlines, PageQuestionsInlines, PageReqTechUsefulnessInlines]
+
+    def num_questions(self, obj):
+        return obj.questions.count()
 
 
 @admin.register(ScoringDeclaration)

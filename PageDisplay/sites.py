@@ -208,5 +208,13 @@ class PageSite:
         """
         return Page.objects.all()
 
+    def on_module_creation(self, page, module):
+        """ Method called when a module is created. Can be useful for triggering other events """
+        pass
+
+    def on_module_deletion(self, page, module):
+        """ Method called when a module is deleted. Can be useful for triggering other events """
+        pass
+
 
 page_site = PageSite()

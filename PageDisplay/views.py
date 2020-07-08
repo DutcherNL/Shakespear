@@ -246,6 +246,7 @@ class PageAddModuleView(PageEditMixin, TemplateView):
             if module_form.is_valid():
                 # Module_form is valid. Save the module and go back to the edit page
                 module_form.save()
+                self.site.on_module_creation(self.page, module_form.instance)
                 position_form.save(module_form.instance)
                 return HttpResponseRedirect(reverse_ns(self.request, 'edit_page', kwargs=self.url_kwargs(self)))
 
@@ -290,11 +291,6 @@ class PageAlterModuleView(ModuleEditBase, UpdateView):
     """ Adjust the details of a given module """
     template_name = 'pagedisplay/page_edit_module.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = build_moduleform(instance=self.selected_module)
-        return context
-
     def get_object(self, queryset=None):
         return self.selected_module
 
@@ -302,7 +298,11 @@ class PageAlterModuleView(ModuleEditBase, UpdateView):
         return reverse_ns(self.request, 'edit_page', kwargs=self.url_kwargs(self))
 
     def get_form_class(self):
-        return build_moduleform(instance=self.selected_module, get_as_class=True)
+        return build_moduleform(
+            instance=self.selected_module,
+            exclude_fields=self.selected_module.exclude_editing_fields,
+            get_as_class=True
+        )
 
 
 class PageMoveModuleView(ModuleEditBase, FormView):
@@ -335,6 +335,10 @@ class PageDeleteModuleView(ModuleEditBase, DeleteView):
 
     def get_object(self, queryset=None):
         return self.selected_module
+
+    def delete(self, *args, **kwargs):
+        self.site.on_module_deletion(self.page, self.get_object())
+        return super(PageDeleteModuleView, self).delete(*args, **kwargs)
 
     def get_success_url(self):
         return reverse_ns(self.request, 'edit_page', kwargs=self.url_kwargs(self))

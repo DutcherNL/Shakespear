@@ -98,7 +98,10 @@ class CheckEmailMixin(AccessMixin):
     adress_issue_url = reverse_lazy('collectives:step_3_email_request')  # The url where the issue is adressed
 
     def check_access_condition(self):
-        return self.inquirer.email and super(CheckEmailMixin, self).check_access_condition()
+        # Check if there is an e-mail adres connected
+        has_mail = self.inquirer.email
+
+        return has_mail and super(CheckEmailMixin, self).check_access_condition()
 
 
 """
@@ -192,6 +195,8 @@ class EmailConfirmPage(InquiryMixin, RedirectThroughUriOnSuccess, ThirdStepDispl
 
     def form_valid(self, form):
         form.save()
+        message = "Wij hebben een mail verstuur om uw e-mail te bevestigen. Check uw mail om uw e-mail te bevestigen."
+        messages.info(self.request, message=message)
         return super(EmailConfirmPage, self).form_valid(form)
 
 

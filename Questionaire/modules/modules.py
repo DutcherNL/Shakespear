@@ -13,10 +13,17 @@ class QuestionModule(BasicModuleMixin, BaseModule):
     _type_id = 17
     verbose = "Question"
     widget = QuestionWidget
+    exclude_editing_fields = ['question']
 
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     required = models.BooleanField(default=False)
 
+    def get_fixed_properties(self, *args):
+        """ Get fixed properties to display in the fixed properties window """
+        return super(QuestionModule, self).get_fixed_properties(
+            ('question', self.question),
+            *args
+        )
 
 class TechScoreModule(BasicModuleMixin, BaseModule):
     """ A module that displays the scores of a technology """

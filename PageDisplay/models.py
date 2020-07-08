@@ -117,6 +117,9 @@ class BaseModule(models.Model):
     # A unique number to identify the type of module
     _type_id = 0
 
+    # List of model attributes that should not be displayed when editing (but will on initialisation)
+    exclude_editing_fields = []
+
     @property
     def type(self):
         return self.verbose
@@ -161,9 +164,9 @@ class BaseModule(models.Model):
     def _render(widget, request, **kwargs):
         return widget.render(request, context=kwargs)
 
-    def get_fixed_properties(self):
+    def get_fixed_properties(self, *args):
         """ Get fixed properties to display in the fixed properties window """
-        properties = [('type', self.type)]
+        properties = [('type', self.type), *args]
         return properties
 
     def save(self, **kwargs):
