@@ -33,6 +33,7 @@ class PageSite:
     extends_template = None
     template_engine = None
     site_context_fields = []
+    renderer = None
 
     view_requires_login = True
     edit_requires_login = True
