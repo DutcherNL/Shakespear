@@ -147,12 +147,47 @@ class CollectiveInfoView(InquiryMixin, CheckEmailMixin, ThirdStepDisplayMixin, D
     pk_url_kwarg = "collective_id"
     context_object_name = "tech_collective"
 
+    def get_collective_scope_as_string(self, restriction):
+        """ Computes the scope """
+        scope = restriction.get_as_child().get_collective_scope(self.inquirer)
+
+        result = ''
+        add_seperation = False
+        for entry in scope:
+            if add_seperation:
+                result += ', '
+            else:
+                add_seperation = True
+            result += entry
+
+        return result
+
     def get_context_data(self, **kwargs):
-        context = super(CollectiveInfoView, self).get_context_data(**kwargs)
-        context['num_interested'] = self.object.get_interested_inquirers(self.inquirer).count()
-        context['create_collective_form'] = StartCollectiveFormTwoStep(inquirer=self.inquirer,
-                                                                       tech_collective=self.object)
-        return context
+
+        try:
+            requirement_scopes = {}
+            for restriction in self.object.restrictions.all():
+                display_string = f'{self.get_collective_scope_as_string(restriction=restriction)}'
+                requirement_scopes[restriction.public_name] = display_string
+
+            has_requisites_in_order = True
+        except InquirerDoesNotContainRestrictionValue:
+            has_requisites_in_order = False
+
+
+        is_interested = TechCollectiveInterest.objects.filter(
+            inquirer=self.inquirer,
+            tech_collective=self.object,
+            is_interested=True,
+        ).exists()
+
+        return super(CollectiveInfoView, self).get_context_data(
+            num_interested=self.object.get_interested_inquirers(self.inquirer).count(),
+            create_collective_form=StartCollectiveFormTwoStep(inquirer=self.inquirer, tech_collective=self.object),
+            is_interested=is_interested,
+            has_collective_requirements_in_order=has_requisites_in_order,
+            requirement_scopes=requirement_scopes
+        )
 
 
 def collective_instructions_pdf(request, collective_id=None):

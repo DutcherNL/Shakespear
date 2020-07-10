@@ -73,7 +73,7 @@ class StartCollectiveFormTwoStep(ModelForm):
 
     class Meta:
         model = InitiatedCollective
-        fields = ["name", "address", "phone_number", "message"]
+        fields = ["name", "phone_number", "message"]
 
     def __init__(self, inquirer, tech_collective, **kwargs):
         self.inquirer = inquirer
@@ -94,7 +94,7 @@ class StartCollectiveFormTwoStep(ModelForm):
             prefix = "shell"
             class Meta:
                 model = InitiatedCollective
-                fields = ["name", "address", "phone_number"]
+                fields = ["name", "phone_number"]
 
         return CreatePartOneForm(self.data if bool(self.data) else None)
 
@@ -105,10 +105,9 @@ class StartCollectiveFormTwoStep(ModelForm):
 
             class Meta:
                 model = InitiatedCollective
-                fields = ["name", "address", "phone_number", 'message']
+                fields = ["name", "phone_number", 'message']
                 widgets = {
                     'name': HiddenInput,
-                    'address': HiddenInput,
                     'phone_number': HiddenInput,
                 }
 
@@ -247,7 +246,7 @@ class SwitchCollectiveStateForm(CollectiveMixin, NoFormDataMixin, Form):
 class RSVPAgreeForm(ModelForm):
     class Meta:
         model = CollectiveApprovalResponse
-        fields = ["name", "address", "phone_number", "message"]
+        fields = ["name", "phone_number", "message"]
 
     def __init__(self, rsvp, **kwargs):
         self.rsvp = rsvp
@@ -356,7 +355,7 @@ class RSVPRefreshExpirationForm(NoFormDataMixin, Form):
 
 class EditPersonalDataForm(Form):
     name = forms.CharField()
-    adres = forms.CharField()
+    #adres = forms.CharField()
     tel_nummer = forms.CharField(validators=[
         RegexValidator("^((\+[1-9]{2})|(00[1-9]{2})|(0[1-9]{1,2}))[ -]{0,1}[1-9]*$",
                        message="Vul in geldig telefoonnummer in", code='invalid_phone_number')])
@@ -383,7 +382,7 @@ class EditPersonalDataForm(Form):
 
         initials = {
             'name': data_object.name,
-            'adres': data_object.address,
+            #'adres': data_object.address,
             'tel_nummer': data_object.phone_number
         }
 
@@ -403,7 +402,7 @@ class EditPersonalDataForm(Form):
     def save(self):
         data_obj = self.cleaned_data['inquirer_data_container']
         data_obj.name = self.cleaned_data['name']
-        data_obj.address = self.cleaned_data['adres']
+        #data_obj.address = self.cleaned_data['adres']
         data_obj.phone_number = self.cleaned_data['tel_nummer']
         data_obj.save()
 

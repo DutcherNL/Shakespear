@@ -3,7 +3,7 @@
 {% load collective_tags %}
 
 {% block collective_content %}
-        {% if not inquirer|get_current_tech_interest:tech_collective %}
+        {% if not is_interested %}
             <h4>Wilt u meedoen?</h4>
             <div class="row">
                 <div class="col-sm-8">
@@ -59,98 +59,112 @@
                     <div class="card-header bg-info text-light">
                         <h3>Start een collectief</h3>
                     </div>
-                    <div class="card-body">
-                        <p class="card-text">
-                            Op dit moment zijn er <b>{{ num_interested }} huishoudens</b> in uw omgeving die interesse hebben in een
-                            gezamenlijk collectief.
-                        </p>
-                        {% if tech_collective.restrictions.all %}
-                            <p>Uw omgeving is eenieder die voldoet aan de volgende voorwaarde:
-                            <br>
-                            {% for restriction in tech_collective.restrictions.all %}
-                                {{ restriction.public_name }}: {{ restriction|get_collective_scope:inquirer }}
-                                <br>
-                            {% endfor %}
+                    {% if has_collective_requirements_in_order %}
+                        <div class="card-body">
+                            <p class="card-text">
+                                Op dit moment zijn er <b>{{ num_interested }} huishoudens</b> in uw omgeving die interesse hebben in een
+                                gezamenlijk collectief.
                             </p>
-                        {% endif %}
-                        <p>
-                            Wilt u het initiatief nemen om een collectief te starten?
-                        </p>
-                        <button class="btn btn-primary btn-lg"
-                                data-toggle="modal" data-target="#start-collectief-1">
-                            <i class="fas fa-users"></i> Start Collectief
-                        </button>
-                    </div>
+                            {% if tech_collective.restrictions.all %}
+                                <p>Uw omgeving is eenieder die voldoet aan de volgende voorwaarde:
+                                <br>
+                                {% for name, value in requirement_scopes.items %}
+                                    {{ name }}: {{ value }}
+                                    <br>
+                                {% endfor %}
+                                </p>
+                            {% endif %}
+                            <p>
+                                Wilt u het initiatief nemen om een collectief te starten?
+                            </p>
+                            <button class="btn btn-primary btn-lg"
+                                    data-toggle="modal" data-target="#start-collectief-1">
+                                <i class="fas fa-users"></i> Start Collectief
+                            </button>
+                        </div>
+                    {% else %}
+                        <div class="card-body">
+                            <p>
+                                {% if is_interested %}
+                                    Op dit moment is het onduidelijk waar u woont. U heeft eerder aangegeven waar u woont,
+                                    echter heeft u dit antwoord terug getrokken in de vragenlijst.
+                                {% else %}
+                                    {# Give the illusion that one needs to be interested first. It is more instinctive for the user to fix the missing location data #}
+                                    Om collectieven te kunnen starten dient u eerst interesse te hebben getoond. Dat kunt
+                                    u doen door op de knop onderaan deze pagina te doen.
+                                {% endif %}
+                            </p>
+
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
     <hr>
-    {% with inquirer|get_current_tech_interest:tech_collective as current_interest %}
-        <div class="d-none">
-            {% adjust_interest_form tech_collective new_state=current_interest|invert as interest_form %}
-            <form action="{{ interest_form.get_post_url }}?redirect_to={{ request.path }}"
-                  method="post" id="interest_{{ technology.slug }}">
-                {% csrf_token %}
-                {% include 'snippets/bootstrap_form.html' with form=interest_form %}
-            </form>
-        </div>
-        {% if current_interest %}
-            <div class="alert alert-success">
-                <div class="row">
-                    <div class="col-md-8">
-                        <h4>Wij houden u op de hoogte</h4>
-                        <div>
-                            U heeft aangegeven open te staan voor uitnodigingen voor collectieve inkoop in de buurt.
-                            Wij informeren u hierover per email.
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <button type="button" class="btn btn-warning btn-block align-bottom" data-toggle="modal" data-target="#unsubscribe_modal">
-                            <i class="fas fa-user-times"></i> Ik heb geen interesse meer
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="modal fade" id="unsubscribe_modal" tabindex="-1" role="dialog" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Afmelden interesse {{ tech_collective }}</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <p>Wanneer u zich afmeld kunt u geen nieuwe uitnodigingen ontvangen. Uitnodigingen die
-                                u eerder heeft ontvangen of geaccepteerd blijven wel behouden.</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-warning"
-                                    type="submit" form="interest_{{ technology.slug }}">
-                                <i class="fas fa-user-check"></i> Ik heb geen interesse meer
-                            </button>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuleren</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% else %}
-            <h4>Wilt u meedoen?</h4>
+    <div class="d-none">
+        {% adjust_interest_form tech_collective new_state=is_interested|invert as interest_form %}
+        <form action="{{ interest_form.get_post_url }}?redirect_to={{ request.path }}"
+              method="post" id="interest_{{ technology.slug }}">
+            {% csrf_token %}
+            {% include 'snippets/bootstrap_form.html' with form=interest_form %}
+        </form>
+    </div>
+    {% if is_interested %}
+        <div class="alert alert-success">
             <div class="row">
-                <div class="col-sm-8">
-                    Heeft u interesse om mogelijk deel te nemen aan een collectief wanneer deze in uw omgeving word gestart en
-                    wilt u hiervoor uitnodigingen ontvangen?
+                <div class="col-md-8">
+                    <h4>Wij houden u op de hoogte</h4>
+                    <div>
+                        U heeft aangegeven open te staan voor uitnodigingen voor collectieve inkoop in de buurt.
+                        Wij informeren u hierover per email.
+                    </div>
                 </div>
-                <div class="col-sm-4">
-                    <button class="btn btn-success btn-block"
-                            type="submit" form="interest_{{ technology.slug }}">
-                        <i class="fas fa-user-check"></i> Ja, houd me op de hoogte
+                <div class="col-md-4">
+                    <button type="button" class="btn btn-warning btn-block align-bottom" data-toggle="modal" data-target="#unsubscribe_modal">
+                        <i class="fas fa-user-times"></i> Ik heb geen interesse meer
                     </button>
                 </div>
             </div>
-        {% endif %}
-    {% endwith %}
+        </div>
+        <div class="modal fade" id="unsubscribe_modal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Afmelden interesse {{ tech_collective }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Wanneer u zich afmeld kunt u geen nieuwe uitnodigingen ontvangen. Uitnodigingen die
+                            u eerder heeft ontvangen of geaccepteerd blijven wel behouden.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-warning"
+                                type="submit" form="interest_{{ technology.slug }}">
+                            <i class="fas fa-user-check"></i> Ik heb geen interesse meer
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuleren</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <h4>Wilt u meedoen?</h4>
+        <div class="row">
+            <div class="col-sm-8">
+                Heeft u interesse om mogelijk deel te nemen aan een collectief wanneer deze in uw omgeving word gestart en
+                wilt u hiervoor uitnodigingen ontvangen?
+            </div>
+            <div class="col-sm-4">
+                <button class="btn btn-success btn-block"
+                        type="submit" form="interest_{{ technology.slug }}">
+                    <i class="fas fa-user-check"></i> Ja, houd me op de hoogte
+                </button>
+            </div>
+        </div>
+    {% endif %}
 
     <!--  The modal for collectve creation -->
     <div class="modal fade" id="start-collectief-1" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -224,7 +238,6 @@
             </div>
         </div>
     </div>
-
 
 
 {% endblock %}

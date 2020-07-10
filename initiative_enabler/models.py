@@ -11,7 +11,8 @@ from Questionaire.models import Inquiry, Inquirer, InquiryQuestionAnswer, Score,
 
 __all__ = ['TechImprovement', 'TechCollective', 'InitiatedCollective', 'CollectiveRSVP', 'CollectiveApprovalResponse',
            'CollectiveDeniedResponse', 'CollectiveRSVPInterest', 'TechCollectiveInterest',
-           'CollectiveRestriction', 'CollectiveQuestionRestriction', 'RestrictionValue']
+           'CollectiveRestriction', 'CollectiveQuestionRestriction', 'RestrictionValue',
+           'InquirerDoesNotContainRestrictionValue']
 
 
 class TechImprovement(models.Model):
@@ -292,7 +293,7 @@ class CollectiveApprovalResponse(models.Model):
     inquirer = models.ForeignKey(Inquirer, on_delete=models.SET_NULL, null=True)
     message = models.TextField(max_length=1200, blank=True, null=True, verbose_name="Bericht aan de initiatiefnemer")
     name = models.CharField(max_length=128)
-    address = models.CharField(max_length=128)
+    address = models.CharField(max_length=128, null=True, blank=True)
     phone_number = models.CharField(max_length=15)
 
 

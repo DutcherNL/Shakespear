@@ -72,7 +72,7 @@ class CollectiveCreationFormTestCase(TestCase):
         prefix = StartCollectiveFormTwoStep.prefix
         data = {
             f'{prefix}-name': "My name",
-            f'{prefix}-address': "straatnaam 3 Stad",
+            # f'{prefix}-address': "straatnaam 3 Stad",
             f'{prefix}-phone_number': "0612345678",
             f'{prefix}-message': "Heya, this is a test",
         }
@@ -83,24 +83,24 @@ class CollectiveCreationFormTestCase(TestCase):
         prefix = StartCollectiveFormTwoStep.prefix
         data = {
             f'{prefix}-name': "My name",
-            f'{prefix}-address': "straatnaam 3 Stad",
+            # f'{prefix}-address': "straatnaam 3 Stad",
             f'{prefix}-phone_number': "0612345678",
         }
         self.assertFalse(StartCollectiveFormTwoStep(self.inquirer_1, self.c_1, data=data).is_valid())
         data = {
             f'{prefix}-name': "My name",
-            f'{prefix}-address': "straatnaam 3 Stad",
+            # f'{prefix}-address': "straatnaam 3 Stad",
             f'{prefix}-message': "Heya, this is a test",
         }
         self.assertFalse(StartCollectiveFormTwoStep(self.inquirer_1, self.c_1, data=data).is_valid())
+        # data = {
+        #     f'{prefix}-name': "My name",
+        #     f'{prefix}-phone_number': "0612345678",
+        #     f'{prefix}-message': "Heya, this is a test",
+        # }
+        # self.assertFalse(StartCollectiveFormTwoStep(self.inquirer_1, self.c_1, data=data).is_valid())
         data = {
-            f'{prefix}-name': "My name",
-            f'{prefix}-phone_number': "0612345678",
-            f'{prefix}-message': "Heya, this is a test",
-        }
-        self.assertFalse(StartCollectiveFormTwoStep(self.inquirer_1, self.c_1, data=data).is_valid())
-        data = {
-            f'{prefix}-address': "straatnaam 3 Stad",
+            # f'{prefix}-address': "straatnaam 3 Stad",
             f'{prefix}-phone_number': "0612345678",
             f'{prefix}-message': "Heya, this is a test",
         }
@@ -114,7 +114,7 @@ class CollectiveCreationFormTestCase(TestCase):
         instance.refresh_from_db()
         self.assertIsNotNone(instance.id)
         self.assertEqual(instance.name, "My name")
-        self.assertEqual(instance.address, "straatnaam 3 Stad")
+        # self.assertEqual(instance.address, "straatnaam 3 Stad")
         self.assertEqual(instance.phone_number, "0612345678")
         self.assertEqual(instance.message, "Heya, this is a test")
         self.assertEqual(instance.inquirer, self.inquirer_1)
@@ -135,7 +135,7 @@ class CollectiveCreationFormTestCase(TestCase):
         final_sub_form = self.form.get_message_form()
         self.assertIsInstance(final_sub_form, forms.BaseForm)
         # The final form hides three fields: name, address and phone number
-        self.assertEqual(len(final_sub_form.hidden_fields()), 3)
+        self.assertEqual(len(final_sub_form.hidden_fields()), 2)
 
     def test_rsvp_creation(self):
         """ Test that get_uninvited_inquirers is run. If so, than all the form works fine

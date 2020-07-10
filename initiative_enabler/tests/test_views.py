@@ -187,5 +187,5 @@ class TestActionOverviewView(TestCase):
 
     def test_context_data(self):
         context_data = self.view.get_context_data()
-        self.assertTrue(hasattr(context_data, 'advised_techs'))
-        self.assertTrue(hasattr(context_data, 'has_not_interested_collectives'))
+        self.assertIn('advised_techs', context_data)
+        self.assertIn('has_not_interested_collectives', context_data)
