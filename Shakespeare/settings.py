@@ -81,7 +81,10 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'Shakespeare.context_processors.questionaire_context'
             ],
-            'builtins': ['reports.templatetags.pdf_tags_preview'],
+            'builtins': [
+                'reports.templatetags.pdf_tags_preview',
+                'general.templatetags.django_extension_tags',
+            ],
         },
     },
     {
