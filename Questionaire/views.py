@@ -183,7 +183,7 @@ class QPageView(FlexCssMixin, FirstStepMixin, FormView):
         context['has_next_page'] = Page.objects.filter(position__gt=self.page.position).exists()
 
         context['inquiry'] = self.inquiry
-        context['techs'] = TechGroup.objects.all()
+        context['techs'] = Technology.objects.filter(display_in_step_1_list=True)
 
         return context
 
@@ -326,7 +326,7 @@ class QuestionaireCompleteView(StepDisplayMixin, BaseTemplateView):
         context = super(QuestionaireCompleteView, self).get_context_data(**kwargs)
 
         context['inquiry'] = self.inquiry
-        context['techs'] = TechGroup.objects.all()
+        context['techs'] = Technology.objects.filter(display_in_step_2_list=True)
 
         # Create lists of various technology states
         techs_recommanded = []
@@ -334,7 +334,10 @@ class QuestionaireCompleteView(StepDisplayMixin, BaseTemplateView):
         techs_varies = []
         techs_discouraged = []
 
-        for tech in TechGroup.objects.all():
+        for tech in context['techs']:
+            if tech.techgroup:
+                tech = tech.techgroup
+
             tech_score = tech.get_score(self.inquiry)
             tech.score = tech_score
 

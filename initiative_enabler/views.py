@@ -243,7 +243,7 @@ class TakeActionOverview(InquiryMixin, CheckEmailMixin, ThirdStepDisplayMixin, T
         """
         advised_techs = []
 
-        for tech_improvement in TechImprovement.objects.filter(is_active=True):
+        for tech_improvement in TechImprovement.objects.filter(is_active=True, technology__display_in_step_3_list=True):
 
             tech_score = tech_improvement.technology.get_score(self.inquiry)
             if tech_score == Technology.TECH_SUCCESS or tech_score == Technology.TECH_VARIES:

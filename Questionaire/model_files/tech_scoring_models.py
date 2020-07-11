@@ -34,6 +34,9 @@ class Technology(models.Model):
                                                 through='TechScoreLink',
                                                 through_fields=('technology', 'score_declaration'))
     information_page = models.ForeignKey(InfoPage, on_delete=models.PROTECT, null=True, blank=True)
+    display_in_step_1_list = models.BooleanField(default=False)
+    display_in_step_2_list = models.BooleanField(default=False)
+    display_in_step_3_list = models.BooleanField(default=False)
 
     TECH_SUCCESS = 1
     TECH_FAIL = 0
