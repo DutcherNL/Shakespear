@@ -37,11 +37,15 @@ class Technology(models.Model):
     display_in_step_1_list = models.BooleanField(default=False)
     display_in_step_2_list = models.BooleanField(default=False)
     display_in_step_3_list = models.BooleanField(default=False)
+    display_order = models.IntegerField(default=499)
 
     TECH_SUCCESS = 1
     TECH_FAIL = 0
     TECH_UNKNOWN = -1
     TECH_VARIES = 2
+
+    class Meta:
+        ordering = ['display_order']
 
     def __str__(self):
         return self.name
