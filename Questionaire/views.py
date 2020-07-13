@@ -335,7 +335,7 @@ class QuestionaireCompleteView(StepDisplayMixin, BaseTemplateView):
         techs_discouraged = []
 
         for tech in context['techs']:
-            if tech.techgroup:
+            if hasattr(tech, 'techgroup'):
                 tech = tech.techgroup
 
             tech_score = tech.get_score(self.inquiry)

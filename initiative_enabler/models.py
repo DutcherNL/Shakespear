@@ -198,12 +198,12 @@ class InitiatedCollective(models.Model):
     is_active = models.BooleanField(default=True)
     is_open = models.BooleanField(default=True)
 
-    message = models.TextField(max_length=500)
+    message = models.TextField(max_length=500, verbose_name="Uitnodigings bericht")
     restriction_scopes = models.ManyToManyField(RestrictionValue)
 
     name = models.CharField(default="", max_length=128, verbose_name="Naam")
     address = models.CharField(default="", max_length=128, verbose_name="Adres")
-    phone_number = models.CharField(max_length=15, verbose_name="Tel")
+    phone_number = models.CharField(max_length=15, verbose_name="Telefoonnummer")
 
     def clean(self):
         super(InitiatedCollective, self).clean()
