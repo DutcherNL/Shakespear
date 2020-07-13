@@ -147,9 +147,9 @@ class CollectiveInfoView(InquiryMixin, CheckEmailMixin, ThirdStepDisplayMixin, D
     pk_url_kwarg = "collective_id"
     context_object_name = "tech_collective"
 
-    def get_collective_scope_as_string(self, restriction):
+    def get_collective_scope_as_string(self, restrictionlink):
         """ Computes the scope """
-        scope = restriction.get_as_child().get_collective_scope(self.inquirer)
+        scope = restrictionlink.get_collective_scope(self.inquirer, as_display_string=True)
 
         result = ''
         add_seperation = False
@@ -158,7 +158,7 @@ class CollectiveInfoView(InquiryMixin, CheckEmailMixin, ThirdStepDisplayMixin, D
                 result += ', '
             else:
                 add_seperation = True
-            result += entry
+            result += str(entry)
 
         return result
 
@@ -166,14 +166,13 @@ class CollectiveInfoView(InquiryMixin, CheckEmailMixin, ThirdStepDisplayMixin, D
 
         try:
             requirement_scopes = {}
-            for restriction in self.object.restrictions.all():
-                display_string = f'{self.get_collective_scope_as_string(restriction=restriction)}'
-                requirement_scopes[restriction.public_name] = display_string
+            for restrictionlink in self.object.restrictionlink_set.all():
+                requirement_scopes[restrictionlink.public_name] =\
+                    f'{self.get_collective_scope_as_string(restrictionlink)}'
 
             has_requisites_in_order = True
         except InquirerDoesNotContainRestrictionValue:
             has_requisites_in_order = False
-
 
         is_interested = TechCollectiveInterest.objects.filter(
             inquirer=self.inquirer,

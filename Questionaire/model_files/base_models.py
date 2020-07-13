@@ -301,10 +301,14 @@ class InquiryQuestionAnswer(models.Model):
             return ""
 
         if self.question.question_type == 3:
-            if self.answer == "0":
+            if self.answer == "0" or self.answer is None or self.answer == "":
                 # The answer has not been given
                 return "not given"
-            return AnswerOption.objects.get(question=self.question, value=self.answer).answer
+
+            try:
+                return AnswerOption.objects.get(question=self.question, value=self.answer).answer
+            except ValueError:
+                return f"! {self.answer}"
 
         return self.answer
 

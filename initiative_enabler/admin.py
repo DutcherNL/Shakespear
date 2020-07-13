@@ -5,12 +5,18 @@ from .models import *
 
 @admin.register(TechCollective)
 class TechCollectiveAdmin(admin.ModelAdmin):
-    fields = ('technology', 'description', 'restrictions', 'instructions_file')
+    fields = ('technology', 'description', 'instructions_file')
     list_display = ('__str__', 'technology', 'has_restrictions')
+
+    class RestrictionLinkInlines(admin.TabularInline):
+        model = TechCollective.restrictions.through
+        extra = 0
 
     def has_restrictions(self, instance):
         return instance.restrictions.count()
     has_restrictions.short_description = 'has restrictions'
+
+    inlines = [RestrictionLinkInlines]
 
 
 @admin.register(TechCollectiveInterest)
@@ -42,6 +48,7 @@ class TechCollectiveInterestAdmin(admin.ModelAdmin):
 
 
 # Register your models here.
+admin.site.register(RestrictionRangeAdjustment)
 admin.site.register(RestrictionValue)
 admin.site.register(TechImprovement)
 

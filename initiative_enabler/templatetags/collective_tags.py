@@ -31,6 +31,67 @@ def get_collective_scope(requirement, inquirer):
 
 
 @register.filter
+def get_collective_restrictions_as_strings(initiated_collective):
+    collective_restrictions = {}
+    for restriction_link in initiated_collective.tech_collective.restrictionlink_set.all():
+        restriction = restriction_link.restriction
+        restriction_values = initiated_collective.restriction_scopes.filter(restriction=restriction)
+
+        if len(restriction_values) == 0:
+            # Loop back when there are no results for this restriction, precaution for rare situations
+            continue
+
+        values = [value.value for value in restriction_values.order_by('value')]
+
+        # Look for consequtive values and present them in a range form (... t/m ...)
+        try:
+            conseq_length = 0
+            stored_start = int(values[0])
+            remove_at = []
+            for i in range(len(values)):
+                current_value = values[i]
+                try:
+                    current_value = int(current_value)
+                except ValueError:
+                    pass
+                if stored_start + conseq_length == current_value:
+                    if i == len(values) - 1:
+                        if conseq_length > 2:
+                            values[i - conseq_length] = f'{values[i-conseq_length]} t/m {values[i-1]}'
+                            for t in range(conseq_length):
+                                remove_at.insert(0, i-conseq_length+t+1)
+                    else:
+                        conseq_length += 1
+                else:
+                    if conseq_length > 2:
+                        values[i - conseq_length] = f'{values[i-conseq_length]} t/m {values[i-1]}'
+                        for t in range(conseq_length - 1):
+                            remove_at.insert(0, i-conseq_length+t+1)
+                    if isinstance(current_value, int):
+                        stored_start = int(values[i])
+                        conseq_length = 1
+                    else:
+                        stored_start = conseq_length = 0
+        except ValueError:
+            pass
+        for i in remove_at:
+            values.pop(i)
+
+        # Create an ordered string
+        display_string = ''
+        add_seperation = False
+        for value in values:
+            if add_seperation:
+                display_string += ', '
+            else:
+                add_seperation = True
+            display_string += str(value)
+
+        collective_restrictions[restriction.public_name] = display_string
+    return collective_restrictions.items()
+
+
+@register.filter
 def phone2international(phone_number):
     """ Converts a phone number to an international number (assumes Dutch origin)"""
     phone_number = phone_number.strip()

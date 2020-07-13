@@ -15,6 +15,17 @@
 
     <div class="row">
         <div class="col-md-8 pb-2 pb-md-0">
+            {% if tech_collective.restrictions.all %}
+                <div>
+                    <p>Er word gezocht in de volgende omgeving:
+                        <br>
+                        {% for name, value in collective|get_collective_restrictions_as_strings %}
+                            {{ name }}: {{ value }}
+                            <br>
+                        {% endfor %}
+                    </p>
+                </div>
+            {% endif %}
             <div>
             {% if collective.is_open %}
                 <h3>Deelnemers</h3>
@@ -132,17 +143,6 @@
                             <td style="width: 1em;"></td>
                             <td>
                                 {{ collective.name|default_if_none:"-" }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-
-                                Address:
-                                <span style="width: 5px;"></span>
-                            </td>
-                            <td></td>
-                            <td>
-                                {{ collective.address|default_if_none:"-" }}
                             </td>
                         </tr>
                         <tr>

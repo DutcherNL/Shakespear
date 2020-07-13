@@ -12,7 +12,7 @@ from Questionaire.models import Inquiry, Inquirer, InquiryQuestionAnswer, Score,
 __all__ = ['TechImprovement', 'TechCollective', 'InitiatedCollective', 'CollectiveRSVP', 'CollectiveApprovalResponse',
            'CollectiveDeniedResponse', 'CollectiveRSVPInterest', 'TechCollectiveInterest',
            'CollectiveRestriction', 'CollectiveQuestionRestriction', 'RestrictionValue',
-           'InquirerDoesNotContainRestrictionValue']
+           'InquirerDoesNotContainRestrictionValue', 'RestrictionRangeAdjustment']
 
 
 class TechImprovement(models.Model):
@@ -33,7 +33,7 @@ class TechCollective(models.Model):
     instructions_file = models.FileField(blank=True, null=True,
                                          validators=[FileExtensionValidator(['pdf'])])
 
-    restrictions = models.ManyToManyField('CollectiveRestriction', blank=True)
+    restrictions = models.ManyToManyField('CollectiveRestriction', through='RestrictionLink', blank=True)
 
     def get_interested_inquirers(self, current_inquirer=None, current_collective=None):
         inquirers = Inquirer.objects.all()
@@ -56,11 +56,11 @@ class TechCollective(models.Model):
             # Interested inquirers should be based through the inquirer. However, when there is no restriction
             # this should not pose problems
             try:
-                for restriction in self.restrictions.all():
+                for restriction_link in self.restrictionlink_set.all():
                     if current_inquirer is None:
                         raise InquirerDoesNotContainRestrictionValue
 
-                    scope = restriction.generate_collective_data(current_inquirer)
+                    scope = restriction_link.generate_collective_data(current_inquirer)
                     if isinstance(scope, RestrictionValue):
                         inquirers = inquirers.filter(
                             techcollectiveinterest__restriction_scopes=scope
@@ -87,6 +87,62 @@ class InquirerDoesNotContainRestrictionValue(Exception):
         super().__init__(self.message)
 
 
+class RestrictionRangeAdjustment(models.Model):
+    """ Adjust a given input value to a range of values. Ideal for selecting e.g. postcodes in a certain range
+    for example 4120 with range 4 yields a list of 4116 to 4124
+    """
+    min = models.IntegerField(default=1000)
+    range = models.IntegerField(default=1)
+    max = models.IntegerField(default=9999)
+
+    def get_range(self, input_value):
+        base_int = int(input_value)
+        return list(range(
+            max(self.min, base_int - self.range),
+            min(self.max, base_int + self.range)
+        ))
+
+    def get_range_as_string(self, input_value):
+        base_int = int(input_value)
+        return f"{max(self.min, base_int - self.range)} t/m {min(self.max, base_int + self.range)}"
+
+    def __str__(self):
+        return f"Range {self.range}"
+
+
+class RestrictionLink(models.Model):
+    collective = models.ForeignKey('TechCollective', on_delete=models.CASCADE)
+    restriction = models.ForeignKey('CollectiveRestriction', on_delete=models.CASCADE)
+    range_adjustment = models.ForeignKey(RestrictionRangeAdjustment, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def get_collective_scope(self, inquirer, as_display_string=False):
+        """ Returns a list of string based requirement values """
+        value = self.restriction.get_as_child().get_collective_scope(inquirer)
+        if value is None:
+            raise InquirerDoesNotContainRestrictionValue(self)
+
+        if self.range_adjustment:
+            if as_display_string:
+                # Ensure it is a list otherwise it will split the string in characters later on
+                return [self.range_adjustment.get_range_as_string(value)]
+            else:
+                return self.range_adjustment.get_range(value)
+        else:
+            return [value]
+
+    def generate_collective_data(self, inquirer):
+        """ Generates the data on the initiated collective that ensures the scope """
+        answers = self.get_collective_scope(inquirer)
+        restr_values = []
+        for answer in answers:
+            restr_values.append(RestrictionValue.objects.get_or_create(restriction=self.restriction, value=answer)[0])
+        return restr_values
+
+    @property
+    def public_name(self):
+        return self.restriction.public_name
+
+
 class CollectiveRestriction(models.Model):
     name = models.CharField(max_length=64)
     public_name = models.CharField(max_length=64)
@@ -109,18 +165,17 @@ class CollectiveRestriction(models.Model):
         """
         return inquirer_queryset
 
-    def generate_collective_data(self, inquirer):
-        """ Generates the data on the initiated collective that ensures the scope """
-        answers = self.get_as_child().get_collective_scope(inquirer)
-        restr_values = []
-        for answer in answers:
-            restr_values.append(RestrictionValue.objects.get_or_create(restriction=self, value=answer)[0])
-        return restr_values
+    def get_base_collective_value(self):
+        raise NotImplementedError("This method should not be called in this class. Use .get_as_child() first to "
+                                  "get the correct class.")
 
     def get_collective_scope(self, inquirer):
         """ Returns a list of string based requirement values """
-        raise NotImplementedError("This method should not be called in this class. Use .get_as_child() first to "
-                                  "get the correct class.")
+        value = self.get_base_collective_value(inquirer)
+        if value is None:
+            raise InquirerDoesNotContainRestrictionValue(self)
+
+        return value
 
     def generate_interest_data(self, inquirer):
         """ Generates the data on the collective interest that ensures the scope """
@@ -137,6 +192,9 @@ class CollectiveRestriction(models.Model):
         """ Returns a form that allows retrieving this value manually in case it can not be found otherwise """
         raise NotImplementedError("This method should not be called in this class. Use .get_as_child() first to "
                                   "get the correct class.")
+
+    def __str__(self):
+        return self.name
 
 
 class CollectiveQuestionRestriction(CollectiveRestriction):
@@ -161,12 +219,8 @@ class CollectiveQuestionRestriction(CollectiveRestriction):
         else:
             return None
 
-    def get_collective_scope(self, inquirer):
-        answer = self.get_question_answer(inquirer)
-        if answer is None:
-            raise InquirerDoesNotContainRestrictionValue(self)
-
-        return [answer]
+    def get_base_collective_value(self, inquirer):
+        return self.get_question_answer(inquirer)
 
     def generate_interest_data(self, inquirer, undo=False):
         """ Generates the data on the collective interest that ensures the scope """
@@ -188,6 +242,9 @@ class CollectiveQuestionRestriction(CollectiveRestriction):
 class RestrictionValue(models.Model):
     restriction = models.ForeignKey(CollectiveRestriction, on_delete=models.CASCADE)
     value = models.CharField(max_length=32)
+
+    def __str__(self):
+        return self.value
 
 
 class InitiatedCollective(models.Model):
@@ -216,7 +273,7 @@ class InitiatedCollective(models.Model):
         """
         inquirer = inquirer or self.inquirer
 
-        for restriction in self.tech_collective.restrictions.all():
+        for restriction in self.tech_collective.restrictionlink_set.all():
             data = restriction.generate_collective_data(inquirer)
             # Determine whether it is a single restriciton value or a list/queryset of restriction values
             if isinstance(data, RestrictionValue):
