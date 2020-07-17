@@ -28,6 +28,8 @@
                 Dit e-mail adress is nog niet bevestigd. Check de inbox van uw e-mail voor een e-mail van ons om uw
                 e-mail adres te bevestigen.
             </div>
+        {% elif not inquirer.email %}
+
         {% else %}
             <div class="alert alert-warning" role="alert">
                 <div class="row">
@@ -44,9 +46,13 @@
         {% endif %}
     {% endif %}
 
+    {% if inquirer.email %}
     <p>
         Wij hebben het volgende mail-adress van u:
     </p>
+    {% else %}
+    <p>Wij hebben nog geen e-mail adres van u. Vul hieronder uw e-mail adres in</p>
+    {% endif %}
     <form method="post" class="" id="email_form">
         {% csrf_token %}
         {% include "snippets/bootstrap_form.html" %}
