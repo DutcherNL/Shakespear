@@ -85,9 +85,13 @@ class InquiryStartScreen(FlexCssMixin, FirstStepMixin, FormView):
 
     def get_success_url(self):
         # Set the page id and inquirer id in the sessions
-        self.request.session['page_id'] = self.inquirer.active_inquiry.current_page.id
         self.request.session['inquiry_id'] = self.inquirer.active_inquiry.id
-        return reverse('run_query')
+
+        current_page = self.inquirer.active_inquiry.current_page
+        if current_page:
+            self.request.session['page_id'] = current_page.id
+
+        return get_continue_url(self.request, self.inquirer, exclude_mail_check=True)
 
     def form_valid(self, form):
         # Save the form
@@ -260,7 +264,7 @@ class QuesetionHomeScreenView(BaseTemplateView):
         return context
 
 
-def get_continue_url(request, inquirer):
+def get_continue_url(request, inquirer, exclude_mail_check=False):
     # If inquiry is complete, display the results page
     if inquirer.active_inquiry is None:
         # There is no inquiry started yet
@@ -270,7 +274,7 @@ def get_continue_url(request, inquirer):
         return reverse('results_display')
 
     # If an inquirer already has an e-mail adres, continue where he left off
-    elif inquirer.email:
+    elif inquirer.email or exclude_mail_check:
         request.session['inquiry_id'] = inquirer.active_inquiry.id
         request.session['page_id'] = inquirer.active_inquiry.current_page.id
         return reverse('run_query')
