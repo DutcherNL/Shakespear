@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'queued_tasks',
     'initiative_enabler',
     'inquirer_settings',
+    'data_analysis',
 ]
 
 MIDDLEWARE = [

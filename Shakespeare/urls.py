@@ -32,6 +32,7 @@ urlpatterns = [
     path('techs/<slug:slug>/', tech_page_site.urls),
     path('test/', page_site.urls),
     path('collective/', include('initiative_enabler.urls')),
-    path('', include('general.urls')),
     path('user/', include('inquirer_settings.urls')),
+    path('data_analysis/', include('data_analysis.urls')),
+    path('', include('general.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

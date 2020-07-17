@@ -1,0 +1,53 @@
+{% extends 'base_with_body.html' %}
+
+{% block body %}
+    <div>
+        <p>Filter for creation date:</p>
+        <form method="get">
+            {% include "snippets/bootstrap_form.html" %}
+            <input type="submit" value="Filter" class="btn btn-primary">
+        </form>
+    </div>
+
+
+    <div id="chart-container" class="w-100">
+        <canvas id="test-chart" data-url="{% url 'data_analysis:json_progress' %}?{{ query_line }}">
+            Loading data....</canvas>
+    </div>
+
+
+
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+
+    <script>
+
+        $(function () {
+
+            var $chart_canvas = $("#test-chart");
+            $.ajax({
+                url: $chart_canvas.data("url"),
+                success: function (data) {
+                    console.log(data.data)
+
+                    var ctx = $chart_canvas[0].getContext("2d");
+
+                    new Chart(ctx, {
+                        type: data.chart_type,
+                        data: data.data,
+                        options: data.options,
+                    });
+
+                }
+            });
+
+        });
+
+    </script>
+
+{% endblock %}
