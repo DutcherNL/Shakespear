@@ -5,7 +5,9 @@ from django.utils.crypto import get_random_string
 from django.shortcuts import reverse
 from django.utils import timezone
 from django.core.validators import FileExtensionValidator
+from django.core.exceptions import ValidationError
 
+from initiative_enabler.postalcode_processors import get_range
 from Questionaire.models import Inquiry, Inquirer, InquiryQuestionAnswer, Score, Technology, Question
 
 
@@ -91,23 +93,43 @@ class RestrictionRangeAdjustment(models.Model):
     """ Adjust a given input value to a range of values. Ideal for selecting e.g. postcodes in a certain range
     for example 4120 with range 4 yields a list of 4116 to 4124
     """
-    min = models.IntegerField(default=1000)
-    range = models.IntegerField(default=1)
-    max = models.IntegerField(default=9999)
+    min = models.CharField(max_length=24, default=1000)
+    range = models.IntegerField(max_length=24, default=1)
+    max = models.CharField(max_length=24, default=9999)
+    type_choices = (
+        ('NUM', 'Normal numeric number'),
+        ('CMX', 'Complex value consisting of numbers and letters')
+    )
+    type = models.CharField(max_length=3, choices=type_choices, default='NUM')
 
     def get_range(self, input_value):
-        base_int = int(input_value)
-        return list(range(
-            max(self.min, base_int - self.range),
-            min(self.max, base_int + self.range)
-        ))
+        if self.type == 'NUM':
+            base_int = int(input_value)
+            return list(range(
+                max(self.min, base_int - self.range),
+                min(self.max, base_int + self.range)
+            ))
+        elif self.type == 'CMX':
+            return get_range(input_value, self.range, min_value=self.min, max_value=self.max)
+
+    def clean(self):
+        if self.type == 'num':
+            # The type is a number, ensure the min and max are too
+            try:
+                float(self.min)
+            except ValueError:
+                raise ValidationError({'min': 'Minimum value must be a numeric entry.'})
+            try:
+                float(self.max)
+            except ValueError:
+                raise ValidationError({'max': 'Minimum value must be a numeric entry.'})
 
     def get_range_as_string(self, input_value):
         base_int = int(input_value)
         return f"{max(self.min, base_int - self.range)} t/m {min(self.max, base_int + self.range)}"
 
     def __str__(self):
-        return f"Range {self.range}"
+        return f"Range {self.type}: {self.range}"
 
 
 class RestrictionLink(models.Model):

@@ -1,17 +1,3 @@
-    -   -   -   Phase 1
-Questionaire view processing testcase
+Fix dubbele laag in resultaten (single groups contain single tech for some reason)
 
-Report live display
-
-
-    -   -   -   Phase 2
-Login/ logout options
-Advanced Permission handling
-
-
-
-    -   -   -   Phase 3
-Automatische mails versturen
-Facebook sharing message, Linkedin sharing message
-Rewrite question pages to pagedisplay pages
-Plaatje in tekst op welkomscherm te kunnen verwerken
+3rd step mail request layout + handling (doesnt update properly?)
