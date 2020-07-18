@@ -55,6 +55,12 @@ class CreateNewInquirerView(FlexCssMixin, FormView):
     template_name = "inquiry/inquiry_accept_policies.html"
     success_url = reverse_lazy('start_query')
 
+    def get_form_kwargs(self):
+        kwargs = super(CreateNewInquirerView, self).get_form_kwargs()
+        if self.request.user.is_authenticated:
+            kwargs['user'] = self.request.user
+        return kwargs
+
     def form_valid(self, form):
         form.save()
         self.request.session['inquirer_id'] = form.instance.id

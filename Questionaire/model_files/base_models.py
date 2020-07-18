@@ -1,6 +1,7 @@
 import ast
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 from Questionaire.processors.code_translation import inquiry_6encoder
 from Questionaire.processors import question_processors
@@ -243,6 +244,7 @@ class Inquirer(models.Model):
     email_validated = models.BooleanField(default=False)
     active_inquiry = models.ForeignKey(Inquiry, on_delete=models.SET_NULL, null=True, blank=True, related_name='active_on_set')
     created_on = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def get_email(self):
         if self.email_validated:

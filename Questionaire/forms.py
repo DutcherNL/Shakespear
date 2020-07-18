@@ -141,6 +141,10 @@ class CreateInquirerForm(forms.ModelForm):
         model = Inquirer
         fields = ['accept_cookies', 'accept_privacy']
 
+    def __init__(self, *args, user=None, **kwargs):
+        super(CreateInquirerForm, self).__init__(*args, **kwargs)
+        self.instance.user = user
+
 
 class InquirerLoadForm(forms.Form):
     """ Form that attemps to retrieve an inquirer model based on the key and the e-mail adres """
