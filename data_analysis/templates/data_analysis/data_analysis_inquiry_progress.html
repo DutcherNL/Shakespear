@@ -1,0 +1,15 @@
+{% extends 'data_analysis/data_analysis_base.html' %}
+
+
+{% block charts %}
+    <div class="row">
+        <div class="col col-md-6">
+            <canvas id="test-chart" class="chart_js_chart" data-url="{% url 'data_analysis:json_creation' %}?{{ query_line }}">
+                Loading data....</canvas>
+        </div>
+        <div class="col col-md-6">
+            <canvas class="chart_js_chart" data-url="{% url 'data_analysis:json_progress' %}?{{ query_line }}">
+                Loading data....</canvas>
+        </div>
+    </div>
+{% endblock %}

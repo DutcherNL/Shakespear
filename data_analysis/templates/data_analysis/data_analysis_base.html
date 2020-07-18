@@ -1,22 +1,33 @@
 {% extends 'base_with_body.html' %}
 
 {% block body %}
-    <div>
-        <p>Filter for creation date:</p>
-        <form method="get">
-            {% include "snippets/bootstrap_form.html" %}
-            <input type="submit" value="Filter" class="btn btn-primary">
-        </form>
+    <div class="btn-group" role="group" aria-label="Basic example">
+        <a class="btn btn-outline-info" href="{% url 'data_analysis:overview' %}">Inquiry stats</a>
+        <a class="btn btn-outline-info" href="">Technology stats</a>
     </div>
+    <hr>
+    <form method="get">
+        <div class="row">
+            {% for form in forms %}
+                <div class="col-4">
+                    <h3>
+                        {{ form.description }}
+                    </h3>
+                    {% include "snippets/bootstrap_form.html" %}
+                </div>
+            {% endfor %}
+        </div>
 
+        <input type="submit" value="Filter" class="btn btn-primary">
+        <a href="{{ request.path }}" class="btn btn-secondary">Clear</a>
+        <a href="{% url 'data_analysis:json_progress' %}?{{ query_line }}"
+           class="btn btn-info" target="_blank">Json Page</a>
+    </form>
 
-    <div id="chart-container" class="w-100">
-        <canvas id="test-chart" data-url="{% url 'data_analysis:json_progress' %}?{{ query_line }}">
-            Loading data....</canvas>
-    </div>
+    <hr>
+    {% block charts %}
 
-
-
+    {% endblock %}
 {% endblock %}
 
 {% block javascript %}
@@ -24,30 +35,6 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
-
-    <script>
-
-        $(function () {
-
-            var $chart_canvas = $("#test-chart");
-            $.ajax({
-                url: $chart_canvas.data("url"),
-                success: function (data) {
-                    console.log(data.data)
-
-                    var ctx = $chart_canvas[0].getContext("2d");
-
-                    new Chart(ctx, {
-                        type: data.chart_type,
-                        data: data.data,
-                        options: data.options,
-                    });
-
-                }
-            });
-
-        });
-
-    </script>
+    <script src="{% static "javascript/load_chart.js" %}"></script>
 
 {% endblock %}
