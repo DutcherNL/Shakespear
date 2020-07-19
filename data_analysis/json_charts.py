@@ -271,8 +271,8 @@ class InquiryCreationChart(DataFilterMixin, JsonChartView):
 
     def __init__(self, *args, **kwargs):
         super(InquiryCreationChart, self).__init__(*args, **kwargs)
-        yAxis = ChartAxis(beginAtZero=True, label="Daily new inquirers")
-        xAxis = ChartAxis(label="Date")
+        self.yAxis = ChartAxis(beginAtZero=True, label="Daily new inquirers")
+        self.xAxis = ChartAxis(label="Date")
 
     def compute_chart_labels(self):
         inquiries = self.filter_data()
@@ -292,35 +292,20 @@ class InquiryCreationChart(DataFilterMixin, JsonChartView):
     def compute_chart_data(self):
         data = super(InquiryCreationChart, self).compute_chart_data()
 
-        from django.db.models.functions import TruncDay
-        from django.db.models import Count
-
         inquiries = self.filter_data()
-        inquiries = inquiries.annotate(creation_day=TruncDay('created_on')).values('creation_day')
-        inquiries = inquiries.annotate(num_created=Count('id')).values('creation_day', 'num_created')
 
-        inquiry_iteration = iter(inquiries)
+        # Ideally this is done through a query search, however for some reason aggreagation on fields
+        # created by TruncDate don't seem to work. Even distinct leaves multiple instances of the same
+        # date. Thus it is done with an old-fashioned (albeit slightly less efficient) for loop.
 
-        line_data = []
-        next_date = next(inquiry_iteration)
-        next_date_at = (next_date.get('creation_day').date() - self.start_date).days
-
-        for i in list(range(0, self.days_dif)):
-            if i == next_date_at:
-                line_data.append(next_date.get('num_created'))
-                try:
-                    next_date = next(inquiry_iteration)
-                    next_date_at = (next_date.get('creation_day').date() - self.start_date).days
-                except StopIteration:
-                    next_date = None
-                    next_date_at = -1
-            else:
-                line_data.append(0)
+        result_data = [0] * (self.days_dif + 1)
+        for inquiry in inquiries:
+            rel_date = (inquiry.created_on.date() - self.start_date).days
+            result_data[rel_date] += 1
 
         data.append(ChartData(
-            line_data,
+            result_data,
         ))
-
 
         return data
 
