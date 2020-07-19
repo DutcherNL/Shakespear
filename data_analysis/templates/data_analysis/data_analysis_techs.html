@@ -1,0 +1,15 @@
+{% extends 'data_analysis/data_analysis_base.html' %}
+
+{% block charts %}
+    <small>* Tech Groups in this overview can not compute varied advices in this overview</small>
+    <div class="row">
+        {% for tech in techs %}
+            <div class="col col-md-4 col-lg-3">
+                <div>{{ tech.name }}{% if tech.get_as_techgroup %}*{% endif %}</div>
+                <canvas id="test-chart" class="chart_js_chart"
+                        data-url="{% url 'data_analysis:json_techs' tech_id=tech.id %}?{{ query_line }}">
+                    Loading data....</canvas>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

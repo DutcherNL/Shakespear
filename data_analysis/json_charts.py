@@ -1,9 +1,9 @@
 import datetime
 from django.views.generic import View
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 
-from Questionaire.models import Inquiry, Page
-
+from Questionaire.models import Inquiry, Page, Technology, Score, TechScoreLink
 from .forms import *
 
 
@@ -323,3 +323,77 @@ class InquiryCreationChart(DataFilterMixin, JsonChartView):
 
 
         return data
+
+
+class TechProgressChart(DataFilterMixin, JsonChartView):
+    form_classes = [InquiryCreatedFilterForm, InquiryLastVisitedFilterForm]
+    model_class = Inquiry
+    chart_type = 'pie'
+    legend = {'display': False}
+
+    def compute_chart_labels(self):
+        return ["Advised", "No advise", "Not recommanded"]
+
+    def compute_chart_data(self):
+        data = super(TechProgressChart, self).compute_chart_data()
+
+        technology = get_object_or_404(Technology, id=self.kwargs['tech_id'])
+
+        # Add the filtered data
+        inquiries = self.filter_data()
+        if self.has_filtered:
+            data.append(
+                ChartData(
+                    self.compute_single_chart_run(technology, inquiries=inquiries),
+                    label="All",
+                    backgroundColor=['#339933', '#999999', '#993333']
+                )
+            )
+
+        # Add the normal basic data
+        data.append(
+            ChartData(
+                self.compute_single_chart_run(technology),
+                label="All",
+                backgroundColor=['#339933', '#999999', '#993333']
+            )
+        )
+        return data
+
+    @staticmethod
+    def compute_single_chart_run(technology, inquiries=None, new=False):
+        if inquiries is None:
+            # It could be that inquiries is an empty dataset, that is fine.
+            inquiries = Inquiry.objects.all()
+
+        # Only process completed inquiries
+        inquiries = inquiries.filter(is_complete=True)
+
+        num_inquiries = inquiries.count()
+        approved_inquiries = inquiries
+        denied_inquiries = inquiries
+        score_links = technology.techscorelink_set.all()
+
+        if score_links.count() == 0:
+            if technology.get_as_techgroup is not None:
+                # In case this is a tech group. Treat it by checking its sub technologies
+                subtechs = technology.get_as_techgroup.sub_technologies.all()
+                score_links = TechScoreLink.objects.filter(technology__in=subtechs)
+            else:
+                # There are no links and no tech groups. So nothing can be displayed
+                return [0, 0, 0]
+
+        for link in score_links:
+            approved_inquiries = approved_inquiries.filter(
+                score__declaration=link.score_declaration,
+                score__score__gte=link.score_threshold_approve
+            )
+            denied_inquiries = denied_inquiries.filter(
+                score__declaration=link.score_declaration,
+                score__score__lte=link.score_threshold_deny
+            )
+
+        num_approved = approved_inquiries.count()
+        num_denied = denied_inquiries.count()
+        num_unknown = num_inquiries - num_approved - num_denied
+        return [num_approved, num_unknown, num_denied]

@@ -3,7 +3,7 @@
 {% block body %}
     <div class="btn-group" role="group" aria-label="Basic example">
         <a class="btn btn-outline-info" href="{% url 'data_analysis:overview' %}">Inquiry stats</a>
-        <a class="btn btn-outline-info" href="">Technology stats</a>
+        <a class="btn btn-outline-info" href="{% url 'data_analysis:techs' %}">Technology stats</a>
     </div>
     <hr>
     <form method="get">
