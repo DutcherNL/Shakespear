@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 
 from Questionaire.models import Inquiry, Page, Technology, Score, TechScoreLink
 from .forms import *
+from .views import AccessRestrictionMixin
 
 
 class ChartData(dict):
@@ -200,7 +201,7 @@ class DataFilterMixin:
         return data
 
 
-class InquiryProgressChart(DataFilterMixin, JsonChartView):
+class InquiryProgressChart(AccessRestrictionMixin, DataFilterMixin, JsonChartView):
     form_classes = [InquiryCreatedFilterForm, InquiryLastVisitedFilterForm]
     model_class = Inquiry
     chart_type = 'bar'
@@ -262,7 +263,7 @@ class InquiryProgressChart(DataFilterMixin, JsonChartView):
         return [round(x * 100 / float(data[0]), 2) for x in data]
 
 
-class InquiryCreationChart(DataFilterMixin, JsonChartView):
+class InquiryCreationChart(AccessRestrictionMixin, DataFilterMixin, JsonChartView):
     form_classes = [InquiryCreatedFilterForm, InquiryLastVisitedFilterForm]
     model_class = Inquiry
     chart_type = 'line'
@@ -310,7 +311,7 @@ class InquiryCreationChart(DataFilterMixin, JsonChartView):
         return data
 
 
-class TechProgressChart(DataFilterMixin, JsonChartView):
+class TechProgressChart(AccessRestrictionMixin, DataFilterMixin, JsonChartView):
     form_classes = [InquiryCreatedFilterForm, InquiryLastVisitedFilterForm]
     model_class = Inquiry
     chart_type = 'pie'

@@ -1,8 +1,14 @@
 import urllib
 from django.views.generic import TemplateView
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from Questionaire.models import Technology
 from .forms import *
+
+
+class AccessRestrictionMixin(PermissionRequiredMixin):
+    """ A view that restricts access to only those who are authorized """
+    permission_required = 'auth.can_access_data_analysis_pages'
 
 
 class FilterDataMixin:
@@ -27,12 +33,12 @@ class FilterDataMixin:
         return context
 
 
-class TestView(FilterDataMixin, TemplateView):
+class InquiryDataView(FilterDataMixin, TemplateView):
     template_name = "data_analysis/data_analysis_inquiry_progress.html"
     form_classes = [InquiryCreatedFilterForm, InquiryLastVisitedFilterForm, InquiryUserExcludeFilterForm]
 
 
-class TechDataView(FilterDataMixin, TemplateView):
+class TechDataView(AccessRestrictionMixin, FilterDataMixin, TemplateView):
     template_name = "data_analysis/data_analysis_techs.html"
     form_classes = [InquiryCreatedFilterForm, InquiryLastVisitedFilterForm, InquiryUserExcludeFilterForm]
 

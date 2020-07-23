@@ -94,7 +94,7 @@ class RestrictionRangeAdjustment(models.Model):
     for example 4120 with range 4 yields a list of 4116 to 4124
     """
     min = models.CharField(max_length=24, default=1000)
-    range = models.IntegerField(max_length=24, default=1)
+    range = models.IntegerField(default=1)
     max = models.CharField(max_length=24, default=9999)
     type_choices = (
         ('NUM', 'Normal numeric number'),
