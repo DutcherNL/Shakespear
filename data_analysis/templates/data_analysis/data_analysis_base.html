@@ -25,6 +25,12 @@
     </form>
 
     <hr>
+    {% if inquiries and inquiries.count < MIN_INQUIRY_REQ %}
+        <div class="alert alert-danger" role="alert">
+            Het aantal resultaten is minder dan {{ MIN_INQUIRY_REQ }}. Voor privacy veiligheid worden deze resultaten
+            niet weergeven.
+        </div>
+    {% endif %}
     {% block charts %}
 
     {% endblock %}

@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from Questionaire.models import Technology
 from .forms import *
 from .models import QuestionFilter
+from . import MIN_INQUIRY_REQ
 
 
 class AccessRestrictionMixin(PermissionRequiredMixin):
@@ -21,10 +22,16 @@ class FilterDataMixin:
         get_data = self.request.GET if self.request.GET else None
         forms = []
         for form_class in self.form_classes:
-            form = form_class(get_data, **self.get_form_kwargs(form_class))
-            if form.has_filter_data():
-                context['inquiries'] = form.get_filtered_inquiries()
-            forms.append(form)
+            if form_class.can_filter(data=get_data, **self.get_form_kwargs(form_class)):
+                form = form_class(get_data, **self.get_form_kwargs(form_class))
+                forms.append(form)
+
+        # Get the current inquiry dataset
+        inquiries = None
+        for form in forms:
+            inquiries = form.get_filtered_inquiries(inquiries=inquiries)
+        context['inquiries'] = inquiries
+        context['MIN_INQUIRY_REQ'] = MIN_INQUIRY_REQ
 
         # The get query parameters in url query format to be used when calling graph data
         context['query_line'] = urllib.parse.urlencode(self.request.GET)
@@ -40,6 +47,14 @@ class FilterDataMixin:
 class InquiryDataView(FilterDataMixin, TemplateView):
     template_name = "data_analysis/data_analysis_inquiry_progress.html"
     form_classes = [InquiryCreatedFilterForm, InquiryLastVisitedFilterForm, InquiryUserExcludeFilterForm]
+
+    def get_form_kwargs(self, form_class):
+        kwargs = super(InquiryDataView, self).get_form_kwargs(form_class)
+        if form_class is FilterInquiryByQuestionForm:
+            kwargs.update({
+                'filter_models': QuestionFilter.objects.filter(use_for_progress_analysis=True)
+            })
+        return kwargs
 
 
 class TechDataView(AccessRestrictionMixin, FilterDataMixin, TemplateView):
@@ -57,6 +72,6 @@ class TechDataView(AccessRestrictionMixin, FilterDataMixin, TemplateView):
         kwargs = super(TechDataView, self).get_form_kwargs(form_class)
         if form_class is FilterInquiryByQuestionForm:
             kwargs.update({
-                'filter_models': QuestionFilter.objects.all()
+                'filter_models': QuestionFilter.objects.filter(use_for_tech_analysis=True)
             })
         return kwargs

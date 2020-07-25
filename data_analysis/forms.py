@@ -28,6 +28,13 @@ class FilterFormBase(Form):
     def filter(self, data):
         return data
 
+    @classmethod
+    def can_filter(cls, **init_kwargs):
+        """ A method to determine whether the given filter arguments would yield a form that has use.
+         Some forms (like once based on models) might not yield certain output.
+         Note: This is irregardless of the given data. Data could yield no filter attributes was called."""
+        return True
+
 
 class DateRangeFilterForm(FilterFormBase):
     start_date = fields.DateField(required=False)
@@ -82,8 +89,10 @@ class FilterInquiriesMixin:
     def get_filtered_inquiries(self, inquiries=None):
         if inquiries is None:
             inquiries = Inquiry.objects.all()
-
-        return self.filter(inquiries)
+        if self.has_filter_data():
+            return self.filter(inquiries)
+        else:
+            return inquiries
 
 
 class InquiryCreatedFilterForm(FilterInquiriesMixin, DateRangeFilterForm):
@@ -132,11 +141,16 @@ class FilterInquiryByQuestionForm(FilterInquiriesMixin, FilterFormBase):
         self.filter_models = filter_models
 
         if self.filter_models:
-            i = 0
-            for filter_instance in self.filter_models:
-                self.create_fields_for_instance(i, filter_instance)
-                i += 1
-            self.fields['num_questions'].initial = len(filter_models)
+            if len(self.filter_models) == 0:
+                # An attribute used in the view to say that it is not used and thus should not be shown
+                # This is the case when there are no related filters set
+                self.not_used = True
+            else:
+                i = 0
+                for filter_instance in self.filter_models:
+                    self.create_fields_for_instance(i, filter_instance)
+                    i += 1
+                self.fields['num_questions'].initial = len(filter_models)
         elif self.is_bound:
             self.create_fields_from_data()
 
@@ -184,12 +198,10 @@ class FilterInquiryByQuestionForm(FilterInquiriesMixin, FilterFormBase):
 
     def filter(self, data):
         data = super(FilterInquiryByQuestionForm, self).filter(data)
-        print(len(data))
         for i in range(self.cleaned_data['num_questions']):
             # Filter for the specific question
             question_filter = QuestionFilter.objects.get(id=self.cleaned_data[f'questionfilter_{i}'])
             answer = self.cleaned_data[f'answer_{i}']
-            print(f'A: {answer}')
 
             if question_filter.question.question_type == Question.TYPE_CHOICE:
                 # -1 is the default no answer value
@@ -204,7 +216,12 @@ class FilterInquiryByQuestionForm(FilterInquiriesMixin, FilterFormBase):
                         inquiryquestionanswer__question=question_filter.question,
                         inquiryquestionanswer__answer__icontains=answer
                     )
-            print(len(data))
         return data
+
+    @classmethod
+    def can_filter(cls, filter_models=None, **init_kwargs):
+        if filter_models is not None:
+            return len(filter_models) > 0
+        return super(FilterInquiryByQuestionForm, cls).can_filter(**init_kwargs)
 
 

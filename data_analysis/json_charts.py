@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from Questionaire.models import Inquiry, Page, Technology, TechScoreLink
 from .forms import *
 from .views import AccessRestrictionMixin
+from . import MIN_INQUIRY_REQ
 
 
 class ChartData(dict):
@@ -197,6 +198,9 @@ class DataFilterMixin:
             if form.has_filter_data():
                 data = form.filter(data)
                 self.has_filtered = True
+
+        if data.count() < MIN_INQUIRY_REQ:
+            return self.model_class.objects.none()
 
         return data
 
