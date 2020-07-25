@@ -1,10 +1,12 @@
-from django.forms import Form, ValidationError, fields
+from django.forms import Form, ValidationError, fields, widgets
 from datetime import datetime
 
-from Questionaire.models import Inquiry
+from Questionaire.models import Inquiry, Question
+from .models import QuestionFilter
 
 
-__all__ = ['InquiryCreatedFilterForm', 'InquiryLastVisitedFilterForm', 'InquiryUserExcludeFilterForm']
+__all__ = ['InquiryCreatedFilterForm', 'InquiryLastVisitedFilterForm', 'InquiryUserExcludeFilterForm',
+           'FilterInquiryByQuestionForm']
 
 
 class FilterFormBase(Form):
@@ -98,9 +100,10 @@ class InquiryLastVisitedFilterForm(FilterInquiriesMixin, DateRangeFilterForm):
 
 class InquiryUserExcludeFilterForm(FilterInquiriesMixin, FilterFormBase):
     """ A checkbox that marks whether Inquiries made by Users should be ignored """
-    filter_users = fields.BooleanField(initial=False, required=False)
+    exclude_users = fields.BooleanField(initial=False, required=False)
+    exclude_uncompleted = fields.BooleanField(initial=False, required=False)
     prefix = 'filter_users'
-    description = "Exclude created by site users"
+    description = "Exclude for..."
 
     def has_filter_data(self):
         """ Returns whether this filter has data it filters on """
@@ -108,14 +111,100 @@ class InquiryUserExcludeFilterForm(FilterInquiriesMixin, FilterFormBase):
             # If a form is not valid, it should by definition not be filtered
             return False
 
-        return self.cleaned_data['filter_users']
+        return any(self.cleaned_data)
 
     def filter(self, data):
         data = super(InquiryUserExcludeFilterForm, self).filter(data)
-        if self.cleaned_data['filter_users']:
+        if self.cleaned_data["exclude_users"]:
             data = data.filter(inquirer__user=None)
+        if self.cleaned_data["exclude_uncompleted"]:
+            data = data.filter(is_complete=True)
         return data
 
 
+class FilterInquiryByQuestionForm(FilterInquiriesMixin, FilterFormBase):
+    description = "Filter by question"
+    num_questions = fields.IntegerField(initial=0, widget=widgets.HiddenInput)
+    prefix = 'filter_q'
+
+    def __init__(self, *args, filter_models=None, **kwargs):
+        super(FilterInquiryByQuestionForm, self).__init__(*args, **kwargs)
+        self.filter_models = filter_models
+
+        if self.filter_models:
+            i = 0
+            for filter_instance in self.filter_models:
+                self.create_fields_for_instance(i, filter_instance)
+                i += 1
+            self.fields['num_questions'].initial = len(filter_models)
+        elif self.is_bound:
+            self.create_fields_from_data()
+
+    def create_fields_for_instance(self, index, filter_instance: QuestionFilter) -> None:
+        # Make sure to hide the question widget, it is only to communicate between the originating view and the
+        # Chart target view
+        question_filter_field = fields.IntegerField(initial=filter_instance.id, widget=widgets.HiddenInput)
+
+        if filter_instance.question.question_type == Question.TYPE_CHOICE:
+            # Multiple choice question, get the answers and set the field
+            choices = [(-1, '---')]
+            for answer in filter_instance.question.answeroption_set.order_by("value"):
+                # Make sure to call answer.value, it is the value that it is stored as on the db.
+                choices.append((answer.value, answer.answer))
+
+            answer_field = fields.ChoiceField(choices=choices, initial=-1)
+        elif filter_instance.question.question_type == Question.TYPE_OPEN:
+            answer_field = fields.CharField(required=False)
+        else:
+            # There is no code implemented for this kind of question, so just return
+            return
+
+        answer_field.label = filter_instance.question.name
+
+        self.fields[f'questionfilter_{index}'] = question_filter_field
+        self.fields[f'answer_{index}'] = answer_field
+
+    def create_fields_from_data(self):
+        # Get the amount of filters that need to be loaded
+        try:
+            field = self.fields['num_questions']
+            value = field.widget.value_from_datadict(
+                self.data,
+                self.files,
+                self.add_prefix('num_questions')
+            )
+            value = field.clean(value)
+        except ValidationError:
+            return
+
+        # Loop over all fields
+        for i in range(value):
+            self.fields[f'questionfilter_{i}'] = fields.IntegerField(initial=-1)
+            self.fields[f'answer_{i}'] = fields.CharField()
+
+    def filter(self, data):
+        data = super(FilterInquiryByQuestionForm, self).filter(data)
+        print(len(data))
+        for i in range(self.cleaned_data['num_questions']):
+            # Filter for the specific question
+            question_filter = QuestionFilter.objects.get(id=self.cleaned_data[f'questionfilter_{i}'])
+            answer = self.cleaned_data[f'answer_{i}']
+            print(f'A: {answer}')
+
+            if question_filter.question.question_type == Question.TYPE_CHOICE:
+                # -1 is the default no answer value
+                if answer != "-1":
+                    data = data.filter(
+                        inquiryquestionanswer__question=question_filter.question,
+                        inquiryquestionanswer__answer=answer
+                    )
+            elif question_filter.question.question_type == Question.TYPE_OPEN:
+                if len(answer) > 0:
+                    data = data.filter(
+                        inquiryquestionanswer__question=question_filter.question,
+                        inquiryquestionanswer__answer__icontains=answer
+                    )
+            print(len(data))
+        return data
 
 

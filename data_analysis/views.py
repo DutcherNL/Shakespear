@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from Questionaire.models import Technology
 from .forms import *
+from .models import QuestionFilter
 
 
 class AccessRestrictionMixin(PermissionRequiredMixin):
@@ -20,7 +21,7 @@ class FilterDataMixin:
         get_data = self.request.GET if self.request.GET else None
         forms = []
         for form_class in self.form_classes:
-            form = form_class(get_data)
+            form = form_class(get_data, **self.get_form_kwargs(form_class))
             if form.has_filter_data():
                 context['inquiries'] = form.get_filtered_inquiries()
             forms.append(form)
@@ -32,6 +33,9 @@ class FilterDataMixin:
 
         return context
 
+    def get_form_kwargs(self, form_class):
+        return {}
+
 
 class InquiryDataView(FilterDataMixin, TemplateView):
     template_name = "data_analysis/data_analysis_inquiry_progress.html"
@@ -40,10 +44,19 @@ class InquiryDataView(FilterDataMixin, TemplateView):
 
 class TechDataView(AccessRestrictionMixin, FilterDataMixin, TemplateView):
     template_name = "data_analysis/data_analysis_techs.html"
-    form_classes = [InquiryCreatedFilterForm, InquiryLastVisitedFilterForm, InquiryUserExcludeFilterForm]
+    form_classes = [InquiryLastVisitedFilterForm,
+                    FilterInquiryByQuestionForm, InquiryUserExcludeFilterForm]
 
     def get_context_data(self, **kwargs):
         return super(TechDataView, self).get_context_data(
             techs=Technology.objects.all(),
             **kwargs
         )
+
+    def get_form_kwargs(self, form_class):
+        kwargs = super(TechDataView, self).get_form_kwargs(form_class)
+        if form_class is FilterInquiryByQuestionForm:
+            kwargs.update({
+                'filter_models': QuestionFilter.objects.all()
+            })
+        return kwargs

@@ -3,7 +3,7 @@ from django.views.generic import View
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
-from Questionaire.models import Inquiry, Page, Technology, Score, TechScoreLink
+from Questionaire.models import Inquiry, Page, Technology, TechScoreLink
 from .forms import *
 from .views import AccessRestrictionMixin
 
@@ -201,6 +201,12 @@ class DataFilterMixin:
         return data
 
 
+class FilterInquiriesMixin(DataFilterMixin):
+    form_classes = [InquiryCreatedFilterForm, InquiryLastVisitedFilterForm,
+                    FilterInquiryByQuestionForm, InquiryUserExcludeFilterForm]
+    model_class = Inquiry
+
+
 class InquiryProgressChart(AccessRestrictionMixin, DataFilterMixin, JsonChartView):
     form_classes = [InquiryCreatedFilterForm, InquiryLastVisitedFilterForm]
     model_class = Inquiry
@@ -311,9 +317,7 @@ class InquiryCreationChart(AccessRestrictionMixin, DataFilterMixin, JsonChartVie
         return data
 
 
-class TechProgressChart(AccessRestrictionMixin, DataFilterMixin, JsonChartView):
-    form_classes = [InquiryCreatedFilterForm, InquiryLastVisitedFilterForm]
-    model_class = Inquiry
+class TechProgressChart(AccessRestrictionMixin, FilterInquiriesMixin, JsonChartView):
     chart_type = 'pie'
     legend = {'display': False}
 
@@ -351,9 +355,6 @@ class TechProgressChart(AccessRestrictionMixin, DataFilterMixin, JsonChartView):
         if inquiries is None:
             # It could be that inquiries is an empty dataset, that is fine.
             inquiries = Inquiry.objects.all()
-
-        # Only process completed inquiries
-        inquiries = inquiries.filter(is_complete=True)
 
         num_inquiries = inquiries.count()
         approved_inquiries = inquiries
