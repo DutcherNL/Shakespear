@@ -83,6 +83,21 @@ class DateRangeFilterForm(FilterFormBase):
 
         return data
 
+    def has_filter_data(self):
+        """ Returns whether this filter has data it filters on """
+        if not self.is_valid():
+            # If a form is not valid, it should by definition not be filtered
+            return False
+
+        for key, value in self.cleaned_data.items():
+            # Check if it had any relevant data, if not, there are no values i.e. nothing to filter on.
+            if value:
+                # A special addition to check that end date is not beyond today i.e. nothing to filter on
+                if key == 'end_date':
+                    continue
+                return True
+        return False
+
 
 class FilterInquiriesMixin:
     """ Returns a queryset of inquiries based on the given filter """
@@ -109,7 +124,7 @@ class InquiryLastVisitedFilterForm(FilterInquiriesMixin, DateRangeFilterForm):
 
 class InquiryUserExcludeFilterForm(FilterInquiriesMixin, FilterFormBase):
     """ A checkbox that marks whether Inquiries made by Users should be ignored """
-    exclude_users = fields.BooleanField(initial=False, required=False)
+    exclude_users = fields.BooleanField(initial=False, required=False, label="Gestart door users")
     exclude_uncompleted = fields.BooleanField(initial=False, required=False)
     prefix = 'filter_users'
     description = "Exclude for..."
@@ -120,7 +135,7 @@ class InquiryUserExcludeFilterForm(FilterInquiriesMixin, FilterFormBase):
             # If a form is not valid, it should by definition not be filtered
             return False
 
-        return any(self.cleaned_data)
+        return any(self.cleaned_data.values())
 
     def filter(self, data):
         data = super(InquiryUserExcludeFilterForm, self).filter(data)

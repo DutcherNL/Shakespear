@@ -46,7 +46,7 @@ class FilterDataMixin:
 
 class InquiryDataView(FilterDataMixin, TemplateView):
     template_name = "data_analysis/data_analysis_inquiry_progress.html"
-    form_classes = [InquiryCreatedFilterForm, InquiryLastVisitedFilterForm, InquiryUserExcludeFilterForm]
+    form_classes = [InquiryLastVisitedFilterForm, InquiryUserExcludeFilterForm, FilterInquiryByQuestionForm]
 
     def get_form_kwargs(self, form_class):
         kwargs = super(InquiryDataView, self).get_form_kwargs(form_class)
