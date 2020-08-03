@@ -44,7 +44,7 @@ class FilterDataMixin:
         return {}
 
 
-class InquiryDataView(FilterDataMixin, TemplateView):
+class InquiryDataView(AccessRestrictionMixin, FilterDataMixin, TemplateView):
     template_name = "data_analysis/data_analysis_inquiry_progress.html"
     form_classes = [InquiryLastVisitedFilterForm, InquiryUserExcludeFilterForm, FilterInquiryByQuestionForm]
 

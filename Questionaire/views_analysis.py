@@ -3,6 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView, DetailView, ListView
 from django.urls import reverse
 from django.contrib import messages
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from .models import Inquiry, TechGroup, InquiryQuestionAnswer
 from .views import FlexCssMixin
@@ -11,20 +12,21 @@ from .forms import InquiryMailForm
 from mailing.views import ConstructMailView
 
 
-class SiteDetailView(FlexCssMixin, DetailView):
+class AccessRestrictionMixin(PermissionRequiredMixin):
+    """ A view that restricts access to only those who are authorized """
+    permission_required = 'auth.can_access_entry_analysis'
+
+
+class SiteDetailView(FlexCssMixin, AccessRestrictionMixin, DetailView):
     pass
 
 
-class AnalysisListView(LoginRequiredMixin, FlexCssMixin, ListView):
+class AnalysisListView(AccessRestrictionMixin, FlexCssMixin, ListView):
     template_name = "inquiry/analysis/inquiry_analysis_overview.html"
     model = Inquiry
 
 
-class AnalysisDetailView(LoginRequiredMixin, SiteDetailView):
-    pass
-
-
-class InquiryAnalysis(AnalysisDetailView):
+class InquiryAnalysis(SiteDetailView):
     model = Inquiry
     template_name_field = "inquiry"
     template_name = "inquiry/analysis/inquiry_analysis_detail.html"
@@ -38,7 +40,7 @@ class InquiryAnalysis(AnalysisDetailView):
         return context
 
 
-class ConstructMailForInquiryView(SingleObjectMixin, ConstructMailView):
+class ConstructMailForInquiryView(SingleObjectMixin, AccessRestrictionMixin, ConstructMailView):
     form_class = InquiryMailForm
     model = Inquiry
     template_name_field = "inquiry"

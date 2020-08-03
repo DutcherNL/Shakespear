@@ -36,22 +36,24 @@
                                    href="{% url 'setup:home' %}">
                                     Setup
                                 </a>
+                                {% if perms.auth.can_access_data_analysis_pages %}
                                 <a class="dropdown-item"
                                    href="{% url 'data_analysis:overview' %}">
                                     Data analysis
                                 </a>
+                                {% endif %}
+                                {% if perms.auth.can_access_entry_analysis %}
                                 <a class="dropdown-item"
                                    href="{% url 'analysis_overview' %}">
-                                    Result Analysis
+                                    Entry Analysis
                                 </a>
+                                {% endif %}
+                                {% if user.is_staff %}
                                 <a class="dropdown-item"
                                    href="{% url 'admin:index' %}">
                                     Admin Panel
                                 </a>
-                                <a class="dropdown-item"
-                                   href="{% url 'collectives:overview' %}">
-                                    Collectives
-                                </a>
+                                {% endif %}
                                 <hr>
                                 <a class="dropdown-item"
                                    href="{% url 'general:logout' %}">
