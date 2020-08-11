@@ -7,7 +7,6 @@ from questionaire_mailing.models import TriggeredMailTask
 
 
 class RemoveInquiryDataForm(Form):
-
     def __init__(self, *args, inquiry=None, **kwargs):
         assert inquiry is not None
         self.inquiry = inquiry
@@ -38,7 +37,7 @@ class EmailForm(Form):
 
         super(EmailForm, self).__init__(*args, **kwargs)
 
-        # Set the initial e-mail adress, the pending one if one is pending, otherwise the affirmed one
+        # Set the initial e-mail address, the pending one if one is pending, otherwise the affirmed one
         email = PendingMailVerifyer.objects.filter(
             inquirer=self.inquirer,
             active=True,
@@ -59,10 +58,13 @@ class EmailForm(Form):
             self.inquirer.email_validated = False
             self.inquirer.save()
 
+            # Ensure there are no other pending mail adresses active for this Inquirer
             PendingMailVerifyer.objects.filter(inquirer=self.inquirer).update(active=False)
             return
 
         if self.inquirer.email != email:
+            # Mail address has changed
+
             # Seek a pending mail validation object
             try:
                 pending_mail = PendingMailVerifyer.objects.get(
@@ -84,6 +86,8 @@ class EmailForm(Form):
                 self.create_instance_and_send_mail(email)
 
     def create_instance_and_send_mail(self, email):
+        # NOTE: Upon PendingMailVerifyer object creation it automatically deactivates any active PMV for this inquirer
+        # So there is always at most 1 PMV active at the same time
         PendingMailVerifyer.objects.create(
             inquirer=self.inquirer,
             email=email,
@@ -139,3 +143,30 @@ class PendingMailForm(Form):
         self.instance.verify()
 
 
+class ResendPendingMailForm(Form):
+    """
+    Form that resends the e-mail for a pending email confirmation
+    """
+
+    def __init__(self, *args, inquirer=None, **kwargs):
+        assert inquirer is not None
+        self.inquirer=inquirer
+        super(ResendPendingMailForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        pending_mails = PendingMailVerifyer.objects.filter(inquirer=self.inquirer, active=True)
+        if pending_mails.count() == 0:
+            raise ValidationError("There are no pending e-mails")
+
+        if pending_mails.count() > 1:
+            raise RuntimeError(f"There were multiple active pending mails for {self.inquirer.id}")
+
+    def send(self):
+        """ Send the verification mail again """
+        pending_mail = PendingMailVerifyer.objects.filter(inquirer=self.inquirer, active=True).last()
+
+        TriggeredMailTask.trigger(
+            TriggeredMailTask.TRIGGER_MAIL_CHANGED,
+            inquirer=self.inquirer,
+            email=pending_mail.email,
+        )

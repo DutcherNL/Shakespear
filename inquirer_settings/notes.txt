@@ -1,0 +1,16 @@
+
+
+--- EMAIL AND CONFIRMATION ---
+Upon email entered when none was given:
+    1) set inquier.email to given value
+    2) create pending mail object and send it
+
+Upon adress change
+    1) Create new pending mail object
+    Upon mail confirmation
+        1) Set inquirer.email to given value
+        2) Set inquirer.email_validated to True
+
+Upon adress left empty
+    1) Set inquirer.email to NULL
+    2) Set inquirer.email_validated to False

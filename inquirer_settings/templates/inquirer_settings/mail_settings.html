@@ -17,16 +17,25 @@
         </li>
     </ul>
     {% if current_pending %}
+        {# The e-mail adress was changed and the new adress is currently pending #}
         <div class="alert alert-warning" role="alert">
-            Dit e-mail adress is nog niet bevestigd. Check de inbox van uw e-mail voor een e-mail van ons om uw
-            e-mail adres te bevestigen. Zolang deze niet bevestigd is sturen we e-mails naar uw vorige bevestigde
-            e-mail adres ({{ inquirer.email }})
+           U heeft uw e-mail adres nog niet bevestigd. Zolang u uw e-mail adres niet bevestigd blijven wij e-mails sturen naar: <i>{{ inquirer.email }}</i><br>
+            Check uw e-mail om uw adress te bevestigen. Niet ontvangen? Druk op de knop hieronder
+            <form method="post" action="{% url "inquirer_settings:resend_validation_mail" %}">
+                {% csrf_token %}
+                <input type="submit" class="btn btn-outline-primary" value="Herstuur bevestigingsmail">
+            </form>
         </div>
     {% elif not inquirer.email_validated %}
         {% if inquirer|has_pending_email_address %}
             <div class="alert alert-warning" role="alert">
                 Dit e-mail adress is nog niet bevestigd. Check de inbox van uw e-mail voor een e-mail van ons om uw
-                e-mail adres te bevestigen.
+                e-mail adres te bevestigen. Niet ontvangen? Druk op de knop hieronder.
+                <br>
+                <form method="post" action="{% url "inquirer_settings:resend_validation_mail" %}">
+                    {% csrf_token %}
+                    <input type="submit" class="btn btn-outline-primary" value="Herstuur bevestigingsmail">
+                </form>
             </div>
         {% elif not inquirer.email %}
 
@@ -51,12 +60,11 @@
         Wij hebben het volgende mail-adress van u:
     </p>
     {% else %}
-    <p>Wij hebben nog geen e-mail adres van u. Vul hieronder uw e-mail adres in</p>
+        <p>Wij hebben nog geen e-mail adres van u. Vul hieronder uw e-mail adres in</p>
     {% endif %}
     <form method="post" class="" id="email_form">
         {% csrf_token %}
         {% include "snippets/bootstrap_form.html" %}
-
     </form>
 
 

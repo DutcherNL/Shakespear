@@ -1,5 +1,7 @@
 from django.views.generic import TemplateView, FormView
 from django.urls import reverse_lazy
+from django.contrib import messages
+from django.http import HttpResponseRedirect
 
 from general.mixins import InquiryMixin
 from initiative_enabler.models import TechCollective
@@ -23,16 +25,18 @@ class InquirerSettingsHome(InquiryMixin, SelectedSubsectionMixin, TemplateView):
 
 class InquirerMailSettingsView(InquiryMixin, SelectedSubsectionMixin, FormView):
     template_name = "inquirer_settings/mail_settings.html"
-    success_url = "inquirer_settings:mail:"
+    success_url = reverse_lazy("inquirer_settings:mail")
     section_name = 'mail'
     form_class = EmailForm
 
     def get_context_data(self, **kwargs):
+        # Check if a new mail was given even though a previous one was already confirmed.
+        # In that case it should keep sending mails to the old address until the new mail adress is confirmed.
         if self.inquirer.email and self.inquirer.email_validated:
             current_pending = PendingMailVerifyer.objects.filter(
                 inquirer=self.inquirer,
                 active=True,
-            ).first()
+            ).last()
         else:
             current_pending = None
 
@@ -51,6 +55,25 @@ class InquirerMailSettingsView(InquiryMixin, SelectedSubsectionMixin, FormView):
     def form_valid(self, form):
         form.save()
         return super(InquirerMailSettingsView, self).form_valid(form)
+
+
+class ReSendMailValidationView(InquiryMixin, FormView):
+    form_class = ResendPendingMailForm
+    success_url = reverse_lazy('inquirer_settings:mail')
+
+    def get_form_kwargs(self):
+        kwargs = super(ReSendMailValidationView, self).get_form_kwargs()
+        kwargs['inquirer'] = self.inquirer
+        return kwargs
+
+    def form_valid(self, form):
+        form.send()
+        messages.success(self.request, 'Wij hebben u een nieuwe e-mail verstuurd met de code')
+        return super(ReSendMailValidationView, self).form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Wij konden niet de mail versturen")
+        return HttpResponseRedirect(redirect_to=self.success_url)
 
 
 class CollectiveInterestView(InquiryMixin, SelectedSubsectionMixin, TemplateView):
