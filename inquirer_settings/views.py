@@ -9,21 +9,23 @@ from inquirer_settings.forms import *
 from inquirer_settings.models import PendingMailVerifyer
 
 
-class SelectedSubsectionMixin:
+class SettingsViewMixin:
     section_name = None
+    top_header_continue_message = "Druk hier om terug te gaan naar uw vragenlijst"
 
     def get_context_data(self, **kwargs):
-        return super(SelectedSubsectionMixin, self).get_context_data(
+        return super(SettingsViewMixin, self).get_context_data(
             section_name=self.section_name,
+            top_header_continue_message=self.top_header_continue_message,
             **kwargs)
 
 
-class InquirerSettingsHome(InquiryMixin, SelectedSubsectionMixin, TemplateView):
+class InquirerSettingsHome(InquiryMixin, SettingsViewMixin, TemplateView):
     template_name = "inquirer_settings/home.html"
     section_name = 'home'
 
 
-class InquirerMailSettingsView(InquiryMixin, SelectedSubsectionMixin, FormView):
+class InquirerMailSettingsView(InquiryMixin, SettingsViewMixin, FormView):
     template_name = "inquirer_settings/mail_settings.html"
     success_url = reverse_lazy("inquirer_settings:mail")
     section_name = 'mail'
@@ -76,7 +78,7 @@ class ReSendMailValidationView(InquiryMixin, FormView):
         return HttpResponseRedirect(redirect_to=self.success_url)
 
 
-class CollectiveInterestView(InquiryMixin, SelectedSubsectionMixin, TemplateView):
+class CollectiveInterestView(InquiryMixin, SettingsViewMixin, TemplateView):
     template_name = "inquirer_settings/collective_interest.html"
     section_name = 'tech_cols'
 
@@ -87,7 +89,7 @@ class CollectiveInterestView(InquiryMixin, SelectedSubsectionMixin, TemplateView
         )
 
 
-class InquirerAnswersView(InquiryMixin, SelectedSubsectionMixin, FormView):
+class InquirerAnswersView(InquiryMixin, SettingsViewMixin, FormView):
     template_name = "inquirer_settings/answers_overview.html"
     form_class = RemoveInquiryDataForm
     section_name = 'answers'

@@ -57,7 +57,11 @@
             {% else %}
                 <div class="d-flex justify-content-center">
                     <div>
-                        U heeft momenteel al een actieve sessie. Wilt u deze sessie hervatten?
+                        {% if top_header_continue_message %}
+                            {{ top_header_continue_message }}
+                        {% else %}
+                            U heeft momenteel al een actieve sessie. Wilt u deze sessie hervatten?
+                        {% endif %}
                         <a href="{% url 'jump_to_current' %}" class="btn btn-primary ml-3">
                             <i class="fas fa-arrow-right"></i> Ga door met {{ inquirer.get_inquiry_code }}
                         </a>
@@ -70,6 +74,18 @@
                 <div>
                     Uw code:<br>
                     <span class=" font-weight-bolder">{{ inquirer.get_inquiry_code }}</span>
+                </div>
+                <div class="nav-item dropdown">
+                    {# (mb-0 is needed to cancel the margin that gets added by h4) #}
+                    <a class="nav-link dropdown-toggle mb-0" href="#" data-toggle="dropdown">
+                        <i class="fas fa-cog"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item"
+                           href="{% url 'inquirer_settings:home' %}">
+                            Mijn settings
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
