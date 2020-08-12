@@ -117,16 +117,15 @@ class CollectiveRestrictionTestCase(TestCase):
         self.assertTrue(self.rest_1.has_working_restriction(self.inquirer_1))
         self.assertFalse(self.rest_1.has_working_restriction(self.inquirer_answerless))
 
-        rest_value = self.rest_1.generate_collective_data(self.inquirer_1)
-        # It returns a list of collective data instances
-        self.assertEqual(len(rest_value), 1)
-        rest_value = rest_value[0]
-        self.assertEqual(rest_value.value, '1234')
-        self.assertEqual(rest_value.restriction_id, self.rest_1.id)
-
+        # Test that it gives the correct value in the generated interest instance
         rest_value = self.rest_1.generate_interest_data(self.inquirer_1)
         self.assertEqual(rest_value.value, '1234')
         self.assertEqual(rest_value.restriction_id, self.rest_1.id)
+
+        # Test that it returns the correct collective restriction value
+        rest_value = self.rest_1.get_collective_restriction_value(self.inquirer_1)
+        # It returns a list of collective data instances
+        self.assertEqual(rest_value, '1234')
 
     def test_collection_creation(self):
         collective = InitiatedCollective.objects.create(

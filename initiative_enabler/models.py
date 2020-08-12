@@ -38,16 +38,27 @@ class TechCollective(models.Model):
     restrictions = models.ManyToManyField('CollectiveRestriction', through='RestrictionLink', blank=True)
 
     def get_interested_inquirers(self, current_inquirer=None, current_collective=None):
+        """
+        Retrusn a queryset of the currently interested inquirers
+        :param current_inquirer: Optional: The current inquirer (this will be excluded in the list)
+        :param current_collective: Optional: An initiated collective. Uses the Restricted values associated otherwise
+        it uses the restricted values of the current_inquirer
+        :return:
+        """
         inquirers = Inquirer.objects.all()
 
+        # Exclude the current inquirer
         if current_inquirer:
             inquirers = inquirers.exclude(id=current_inquirer.id)
 
+        # Filter on those who have an interest in this tec
         inquirers = inquirers.filter(
             techcollectiveinterest__is_interested=True,
             techcollectiveinterest__tech_collective_id=self.id,
         )
 
+        # Now it's needed to filter for the restriction values. If an initiated collective is given. Use the ones
+        # on that instance. Otherwise obtain it through the current inquirer
         if current_collective:
             if self.restrictions.all():
                 # If itself contains restrictions, filter for those restriction values
@@ -60,9 +71,11 @@ class TechCollective(models.Model):
             try:
                 for restriction_link in self.restrictionlink_set.all():
                     if current_inquirer is None:
-                        raise InquirerDoesNotContainRestrictionValue
+                        # There is no current inquirer given, so also no restriction value
+                        raise InquirerDoesNotContainRestrictionValue(restriction=restriction_link.restriction)
 
                     scope = restriction_link.generate_collective_data(current_inquirer)
+                    # filter for the scope if it is a single value, otherwise it's an iterable so treat it as such
                     if isinstance(scope, RestrictionValue):
                         inquirers = inquirers.filter(
                             techcollectiveinterest__restriction_scopes=scope
@@ -73,6 +86,7 @@ class TechCollective(models.Model):
                         )
             except InquirerDoesNotContainRestrictionValue:
                 # The restriction value can not be obtained, so there are no matches
+                # This error can also be raised through any of the restriction links, hence the catch
                 return inquirers.none()
 
         return inquirers
@@ -106,8 +120,8 @@ class RestrictionRangeAdjustment(models.Model):
         if self.type == 'NUM':
             base_int = int(input_value)
             return list(range(
-                max(self.min, base_int - self.range),
-                min(self.max, base_int + self.range)
+                max(int(self.min), base_int - self.range),
+                min(int(self.max), base_int + self.range)
             ))
         elif self.type == 'CMX':
             return get_range(input_value, self.range, min_value=self.min, max_value=self.max)
@@ -126,7 +140,10 @@ class RestrictionRangeAdjustment(models.Model):
 
     def get_range_as_string(self, input_value):
         base_int = int(input_value)
-        return f"{max(self.min, base_int - self.range)} t/m {min(self.max, base_int + self.range)}"
+        min_y = self.min
+        range_y = self.range
+        max_y = self.max
+        return f"{max(int(self.min), base_int - self.range)} t/m {min(int(self.max), base_int + self.range)}"
 
     def __str__(self):
         return f"Range {self.type}: {self.range}"
@@ -139,7 +156,7 @@ class RestrictionLink(models.Model):
 
     def get_collective_scope(self, inquirer, as_display_string=False):
         """ Returns a list of string based requirement values """
-        value = self.restriction.get_as_child().get_collective_scope(inquirer)
+        value = self.restriction.get_as_child().get_collective_restriction_value(inquirer)
         if value is None:
             raise InquirerDoesNotContainRestrictionValue(self)
 
@@ -155,6 +172,7 @@ class RestrictionLink(models.Model):
     def generate_collective_data(self, inquirer):
         """ Generates the data on the initiated collective that ensures the scope """
         answers = self.get_collective_scope(inquirer)
+
         restr_values = []
         for answer in answers:
             restr_values.append(RestrictionValue.objects.get_or_create(restriction=self.restriction, value=answer)[0])
@@ -191,8 +209,13 @@ class CollectiveRestriction(models.Model):
         raise NotImplementedError("This method should not be called in this class. Use .get_as_child() first to "
                                   "get the correct class.")
 
-    def get_collective_scope(self, inquirer):
-        """ Returns a list of string based requirement values """
+    def get_collective_restriction_value(self, inquirer):
+        """
+        Returns the collective restriction value.
+        Raises InquirerDoesNotContainRestrictionValue if none can be found
+        :param inquirer: the inquirer through which the value is obtained
+        :return: A single string representing the value of the restriction
+        """""
         value = self.get_base_collective_value(inquirer)
         if value is None:
             raise InquirerDoesNotContainRestrictionValue(self)
@@ -408,7 +431,7 @@ class TechCollectiveInterest(models.Model):
         """
         inquirer = inquirer or self.inquirer
         for restriction in self.tech_collective.restrictions.all():
-            data = restriction.generate_collective_data(inquirer)
+            data = restriction.generate_interest_data(inquirer)
             # Determine whether it is a single restriciton value or a list/queryset of restriction values
             if isinstance(data, RestrictionValue):
                 self.restriction_scopes.add(data)
