@@ -18,12 +18,23 @@
             {{ report.description }}
         </div>
     </div>
-    <a href="{% url "setup:reports:edit_report" report_slug=report.slug %}" class="btn btn-primary">
-        Edit report options
-    </a>
-    <a href="{% url "setup:reports:edit_display" report_slug=report.slug %}" class="btn btn-primary">
-        Edit report display
-    </a>
+    <div class="row">
+        <div class="col">
+            <a href="{% url "setup:reports:edit_report" report_slug=report.slug %}" class="btn btn-primary">
+                Edit report options
+            </a>
+            <a href="{% url "setup:reports:edit_display" report_slug=report.slug %}" class="btn btn-primary">
+                Edit report display
+            </a>
+        </div>
+    </div>
+    <div class="row my-2">
+        <div class="col">
+            <a href="{% url "setup:reports:layout_overview" report_slug=report.slug %}" class="btn btn-primary">
+                View Layouts
+            </a>
+        </div>
+    </div>
     <br>
 
     <h2>Pages</h2>

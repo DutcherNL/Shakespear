@@ -1,5 +1,8 @@
+from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.db import models
 from django.utils.text import slugify
+from django.conf import settings
 
 from Questionaire.models import Technology
 from PageDisplay.models import Page
@@ -25,6 +28,49 @@ class Report(models.Model):
         return self.reportpage_set.order_by('page_number').all()
 
 
+def upload_layout_path(instance, filename):
+    # Throws these files in their seperate report folder
+    return 'reports/{id}/layout_templates/{file_name}'.format(id=instance.report.id, file_name=filename)
+
+
+class PageLayout(models.Model):
+    """ Class that contains a visual layout for a certain page """
+    report = models.ForeignKey(Report, on_delete=models.CASCADE)
+    name = models.CharField(max_length=64)
+    slug = models.SlugField(editable=False, blank=True, max_length=128, unique=True)
+    description = models.CharField(max_length=512, null=True, blank=True)
+    template = models.FileField(upload_to=upload_layout_path, blank=True)
+    margins = models.CharField(max_length=64, default="20mm 20mm 20mm 20mm")
+
+    allowed_template_extensions = ('html', 'txt')
+
+    @property
+    def template_content(self):
+        """ Returns the template content"""
+        self.template.open(mode='rt')
+        file_content = self.template.read()
+        self.template.close()
+        return file_content
+
+    def clean(self):
+        if self.template:
+            if not self.template.name.lower().endswith(self.allowed_template_extensions):
+                raise ValidationError(
+                    f"The template file should be of any of the following types: {self.allowed_template_extensions}"
+                )
+
+    def save(self, **kwargs):
+        self.slug = slugify(self.name)
+
+        if not self.template:
+            file_name = f'{self.slug}_template.html'
+            file_path = settings.MEDIA_ROOT + upload_layout_path(self, file_name)
+
+            self.template.save(file_name, ContentFile(''))
+
+        super(PageLayout, self).save(**kwargs)
+
+
 class ReportDisplayOptions(models.Model):
     report = models.OneToOneField(to=Report, on_delete=models.CASCADE, related_name="display_options", editable=False)
 
@@ -48,12 +94,19 @@ class ReportDisplayOptions(models.Model):
     @property
     def paper_proportions(self):
         """ Returns a dict of the height and width of the pages in the report"""
+        sizes = self.get_paper_sizes_mm()
+        sizes['wdith'] = str(sizes['width'])+"mm"
+        sizes['height'] = str(sizes['height'])+"mm"
+        return sizes
+
+    def get_paper_sizes_mm(self):
+        """ Returns the value of the paper size in mm """
         if self.size == 'A3':
-            size = ("297mm", "420mm")
+            sizes = (297, 420)
         if self.size == 'A4':
-            sizes = ("210mm", "297mm")
+            sizes = (210, 297)
         if self.size == 'A5':
-            sizes = ("148mm", "210mm")
+            sizes = (148, 210)
 
         if self.orientation:
             return {'width': sizes[0], 'height': sizes[1]}
@@ -66,6 +119,7 @@ class ReportPage(Page):
     report = models.ForeignKey(Report, on_delete=models.PROTECT)
     page_number = models.PositiveIntegerField(default=1)
     last_edited = models.DateTimeField(auto_now=True)
+    layout = models.ForeignKey(PageLayout, on_delete=models.SET_NULL, null=True)
 
     # Display options
     has_header_footer = models.BooleanField(verbose_name="Has a header or footer", default=True)

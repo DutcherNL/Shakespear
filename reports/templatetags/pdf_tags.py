@@ -1,10 +1,11 @@
 from django import template
 from django.templatetags import static
 from django.conf import settings
+from django.utils.safestring import mark_safe
 
 import os
 
-from reports.models import ReportPage
+from reports.models import ReportPage, PageLayout
 
 
 register = template.Library()
@@ -45,4 +46,12 @@ def do_static(parser, token):
     """ Overrides the standard static to include the local adresses """
     return LocalStaticNode.handle_token(parser, token)
 
+
+@register.simple_tag(takes_context=True)
+def render_layout(context, layout=None):
+    if layout is None:
+        layout = context['report_page'].layout
+    if layout:
+        return mark_safe(layout.template_content)
+    return ''
 

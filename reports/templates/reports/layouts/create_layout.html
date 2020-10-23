@@ -1,0 +1,30 @@
+{% extends 'base_with_body.html' %}
+
+{% load django_bootstrap_breadcrumbs  %}
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Setup" "setup:home" %}
+    {% breadcrumb "Reports" "setup:reports:reports_overview" %}
+    {% breadcrumb report.report_name "setup:reports:details" report_slug=report.slug %}
+    {% breadcrumb "Layouts" "setup:reports:layout_overview" report_slug=report.slug %}
+    {% breadcrumb "Add new layout" "setup:reports:details" %}
+{% endblock %}
+
+{% block body %}
+    <form method="post">
+        {% csrf_token %}
+        {% include "snippets/bootstrap_form.html" %}
+        <div class="row">
+            <div class="offset-3 col-9 btn-group ">
+                {% if object %}
+                    <input class="btn-primary btn" type="submit" value="Save">
+                {% else %}
+                    <input class="btn-primary btn" type="submit" value="Create">
+                {% endif %}
+                <a href="{% url 'setup:reports:layout_overview' report_slug=report.slug %}" class="btn btn-secondary">
+                    Annuleren
+                </a>
+            </div>
+        </div>
+    </form>
+{% endblock %}
