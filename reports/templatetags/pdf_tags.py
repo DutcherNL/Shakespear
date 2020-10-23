@@ -5,6 +5,7 @@ from django.utils.safestring import mark_safe
 
 import os
 
+from reports.utils import full_render_layout
 from reports.models import ReportPage, PageLayout
 
 
@@ -52,6 +53,6 @@ def render_layout(context, layout=None):
     if layout is None:
         layout = context['report_page'].layout
     if layout:
-        return mark_safe(layout.template_content)
+        return full_render_layout(layout.template_content, context.get('layout_context', {}))
     return ''
 

@@ -14,15 +14,26 @@ class ReportPageRenderer(BasePageRenderer):
         context = super(ReportPageRenderer, self).get_context_data(**kwargs)
         report_display_options = self.page.report.display_options
 
+        if self.page.layout:
+            margins = self.page.layout.margins
+        else:
+            margins = report_display_options.margins
+
         context['measurements'] = {
-            'margins': report_display_options.margins,
+            'margins': margins,
             'size': report_display_options.paper_proportions
         }
 
-        if self.page.has_header_footer:
-            context['header'] = report_display_options.header
-            context['footer'] = report_display_options.footer
+        context['layout_context'] = self.get_layout_context(**kwargs)
+
         return context
+
+    def get_layout_context(self, **kwargs):
+        return {
+            'header': self.page.report.display_options.header,
+            'footer': self.page.report.display_options.footer,
+            'p_num': kwargs.get('p_num', 1)
+        }
 
 
 class ReportPagePDFRenderer(ReportPageRenderer):

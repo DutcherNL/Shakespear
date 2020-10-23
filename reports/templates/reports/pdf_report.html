@@ -3,6 +3,6 @@
 
 {% block base %}
     {% for report_page in pages %}
-        {% render_page report_page %}
+        {% render_page report_page p_num=forloop.counter %}
     {% endfor %}
 {% endblock %}
