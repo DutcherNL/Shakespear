@@ -9,7 +9,7 @@ class AlterLayoutForm(ModelForm):
 
     class Meta:
         model = PageLayout
-        fields = ['name', 'description', 'margins', 'contents']
+        fields = ['margins', 'contents']
 
     def __init__(self, *args, **kwargs):
         super(AlterLayoutForm, self).__init__(*args, **kwargs)
@@ -24,5 +24,11 @@ class AlterLayoutForm(ModelForm):
             file.open(mode='tw')
             file.write(self.cleaned_data['contents'])
             file.close()
-            print(file)
+
+
+class LayoutSettingsForm(ModelForm):
+    class Meta:
+        model = PageLayout
+        fields = ['name', 'description']
+
 

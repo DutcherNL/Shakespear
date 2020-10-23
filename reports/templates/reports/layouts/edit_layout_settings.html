@@ -57,37 +57,20 @@
             <div class="pe_sidebar">
                 <div>
                     {% block sidebar_content %}
-                        <div class="row">
-                            <div class="h3 col">{{ layout.name }}</div>
-                            <div class="col-auto">
-                                <a href="{% url "setup:reports:edit_layout_settings" layout=layout report_slug=report.slug %}"
-                                   class="btn btn-primary"><i class="fas fa-wrench"></i></a>
-                            </div>
-                        </div>
+                        <h3>{{ layout.name }}</h3>
                         <p> {{ layout.description }} </p>
                         <hr>
                         <form method="post" id="layout_form">
                             {% csrf_token %}
 
-                            {% for field in form.visible_fields %}
-                                <label for="{{ field.id_for_label }}" class="">
-                                    {{ field.label }}
-                                </label>
-                                {% if field.errors %}
-                                    {# Errors present #}
-                                    {% for error in field.errors %}
-                                        <div class="alert alert-danger mb-0">
-                                            {{ error }}
-                                        </div>
-                                    {% endfor %}
-                                {% endif %}
-                                {% render_field field class="form-control" placeholder=field.label %}
-                            {% endfor %}
+                            {% include "snippets/bootstrap_form.html" %}
 
-                            <div class="my-4">
-                                <a onclick="preview_layout()" class="btn btn-primary">Preview style</a>
-                                <a onclick="reset_layout()" class="btn btn-primary">Reset style</a>
-                                <input class="btn-success btn" type="submit" value="Save">
+                            <div class="btn-group d-flex" role="group">
+                                <input class="btn-success btn w-50" type="submit" value="Save">
+                                <a class="btn btn-secondary w-50"
+                                   href="{% url "setup:reports:edit_layout" report_slug=report.slug layout=layout %}">
+                                    Cancel
+                                </a>
                             </div>
                         </form>
                     {% endblock %}

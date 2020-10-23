@@ -26,7 +26,8 @@ urlpatterns = [
                 path('', views_setup.ReportLayoutListView.as_view(), name='layout_overview'),
                 path('add/', views_setup.ReportAddLayoutView.as_view(), name='add_layout'),
                 path('<layout:layout>/', include([
-                    path('', views_setup.ReportChangeLayoutView.as_view(), name='edit_layout'),
+                    path('layout/', views_setup.ReportChangeLayoutView.as_view(), name='edit_layout'),
+                    path('edit/', views_setup.ReportChangeLayoutSettingsView.as_view(), name='edit_layout_settings'),
                 ])),
             ])),
 

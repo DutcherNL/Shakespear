@@ -28,13 +28,17 @@
                             </div>
                             <hr>
                             <div>
-                                Margins: <small id="layout-preview-margins">-</small>
+                                Margins: <span id="layout-preview-margins">-</span>
+                            </div>
+                            <div>
+                                Used on <span id="layout-preview-used">-</span> page(s)
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row my-2">
                         <div class="col">
-                            <a href="#" id="layout-preview-edit-url" class="btn btn-secondary">Edit layout</a>
+                            <a href="#" id="layout-preview-edit-url" class="btn btn-secondary disabled"><i class="fas fa-paint-brush"></i> Edit layout</a>
+                            <a href="#" id="layout-preview-settings-url" class="btn btn-secondary disabled"><i class="fas fa-wrench"></i> Edit Settings</a>
                         </div>
                     </div>
                 </div>
@@ -59,7 +63,7 @@
 
     <div class="row">
         {% for layout in layouts %}
-            <div class="col">
+            <div class="col my-2">
                 <div class="btn card btn-outline-info" style=""
                      name="layout-info-btn" >
                     <div class="card-body">
@@ -70,14 +74,18 @@
                         <div name="layout-preview-description" data-content-type="txt">{{ layout.description }}</div>
                         <div name="layout-preview-window" data-content-type="html">{{ layout.template_content }}</div>
                         <div name="layout-preview-margins" data-content-type="txt">{{ layout.margins }}</div>
+                        <div name="layout-preview-used" data-content-type="txt">{{ layout.reportpage_set.count }}</div>
                         <div name="layout-preview-edit-url" data-content-type="url">
                             {% url "setup:reports:edit_layout" report_slug=report.slug layout=layout %}
+                        </div>
+                        <div name="layout-preview-settings-url" data-content-type="url">
+                            {% url "setup:reports:edit_layout_settings" report_slug=report.slug layout=layout %}
                         </div>
                     </metadata>
                 </div>
             </div>
         {% endfor %}
-        <div class="col">
+        <div class="col my-2">
             <a class="btn card btn-outline-primary" style=""
                 href="{% url "setup:reports:add_layout" report_slug=report.slug %}">
                 <div class="card-body">

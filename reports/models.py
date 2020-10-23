@@ -70,6 +70,9 @@ class PageLayout(models.Model):
 
         super(PageLayout, self).save(**kwargs)
 
+    def __str__(self):
+        return self.name
+
 
 class ReportDisplayOptions(models.Model):
     report = models.OneToOneField(to=Report, on_delete=models.CASCADE, related_name="display_options", editable=False)
@@ -104,7 +107,7 @@ class ReportDisplayOptions(models.Model):
         if self.size == 'A3':
             sizes = (297, 420)
         if self.size == 'A4':
-            sizes = (210, 297)
+            sizes = (210, 297.2)
         if self.size == 'A5':
             sizes = (148, 210)
 

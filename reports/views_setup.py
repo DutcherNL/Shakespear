@@ -1,4 +1,4 @@
-from django.views.generic import ListView, CreateView, TemplateView, View, UpdateView, DetailView, FormView
+from django.views.generic import ListView, CreateView, TemplateView, View, UpdateView, FormView
 from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
@@ -149,17 +149,7 @@ class LayoutMixin:
         return context
 
 
-class ReportChangeLayoutView(AccessabilityMixin, ReportMixin, LayoutMixin, FormView):
-    template_name = "reports/layouts/edit_layout.html"
-    form_class = AlterLayoutForm
-
-    def get_form_kwargs(self):
-        kwargs = super(ReportChangeLayoutView, self).get_form_kwargs()
-        kwargs.update({
-            'instance': self.layout,
-        })
-        return kwargs
-
+class PreviewLayoutMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         report_display_options = self.report.display_options
@@ -169,6 +159,29 @@ class ReportChangeLayoutView(AccessabilityMixin, ReportMixin, LayoutMixin, FormV
             'size': report_display_options.paper_proportions
         }
         return context
+
+
+class ReportChangeLayoutSettingsView(AccessabilityMixin, ReportMixin, LayoutMixin, PreviewLayoutMixin, UpdateView):
+    fields = ['name', 'description']
+    template_name = "reports/layouts/edit_layout_settings.html"
+
+    def get_object(self, queryset=None):
+        return self.layout
+
+    def get_success_url(self):
+        return reverse('setup:reports:edit_layout', kwargs={'report_slug': self.report.slug, 'layout': self.layout})
+
+
+class ReportChangeLayoutView(AccessabilityMixin, ReportMixin, LayoutMixin, PreviewLayoutMixin, FormView):
+    template_name = "reports/layouts/edit_layout.html"
+    form_class = AlterLayoutForm
+
+    def get_form_kwargs(self):
+        kwargs = super(ReportChangeLayoutView, self).get_form_kwargs()
+        kwargs.update({
+            'instance': self.layout,
+        })
+        return kwargs
 
     def form_valid(self, form):
         form.save()

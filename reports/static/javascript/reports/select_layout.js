@@ -18,6 +18,7 @@ $("[name='layout-info-btn']").on('click', function (event) {
             $(new_el_id).html($(this).text());
         }else if (content_type == "url"){
             $(new_el_id).attr('href', $(this).text());
+            $(new_el_id).removeClass('disabled');
         }
     });
 });
