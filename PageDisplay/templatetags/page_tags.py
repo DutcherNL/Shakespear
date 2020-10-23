@@ -66,8 +66,8 @@ def render_module(context, module, use_overlay=True):
 
 
 @register.simple_tag(takes_context=True)
-def render_page(context, page):
-    return page.render(**context.flatten())
+def render_page(context, page, **kwargs):
+    return page.render(**context.flatten(), **kwargs)
 
 
 @register.simple_tag(takes_context=True)
