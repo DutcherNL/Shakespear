@@ -11,31 +11,39 @@
 {% block body %}
     <h1>Report: {{ report.report_name }}</h1>
     <div class="row">
-        <div class="col-md-3">
-            Description:
+        <div class="col-md-6">
+            <h4>Details</h4>
+            <div class="row">
+                <div class="col-md-3">
+                    Description:
+                </div>
+                <div class="col-md-9">
+                    {{ report.description }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <a href="{% url "setup:reports:edit_report" report_slug=report.slug %}" class="btn btn-primary">
+                        Edit report options
+                    </a>
+                    <a href="{% url "setup:reports:edit_display" report_slug=report.slug %}" class="btn btn-primary">
+                        Edit report display
+                    </a>
+                </div>
+            </div>
         </div>
-        <div class="col-md-9">
-            {{ report.description }}
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <a href="{% url "setup:reports:edit_report" report_slug=report.slug %}" class="btn btn-primary">
-                Edit report options
-            </a>
-            <a href="{% url "setup:reports:edit_display" report_slug=report.slug %}" class="btn btn-primary">
-                Edit report display
-            </a>
-        </div>
-    </div>
-    <div class="row my-2">
-        <div class="col">
+        <div class="col-md-6">
+            <h4>Layouts</h4>
+            <div>
+                Number of layouts: {{ report.pagelayout_set.count }}
+            </div>
             <a href="{% url "setup:reports:layout_overview" report_slug=report.slug %}" class="btn btn-primary">
                 View Layouts
             </a>
         </div>
+
+
     </div>
-    <br>
 
     <h2>Pages</h2>
     <div class="table-responsive">
