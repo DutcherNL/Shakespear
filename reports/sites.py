@@ -22,7 +22,7 @@ class ReportDesignSite(PageSite):
                 return None
 
             url_kwargs = {
-                'report_slug': target_page.report.slug,
+                'report_slug': target_page.reportpagelink.report.slug,
                 'report_page_id': target_page.id,
             }
             if view_class == PageInfoView:
@@ -32,16 +32,16 @@ class ReportDesignSite(PageSite):
 
         def get_next_page_url(view_obj):
             target_page = ReportPage.objects. \
-                filter(report=view_obj.report_page.report,
-                       page_number__gt=view_obj.report_page.page_number). \
-                order_by('page_number').first()
+                filter(reportpagelink__report=view_obj.report_page.reportpagelink.report,
+                       reportpagelink__page_number__gt=view_obj.report_page.reportpagelink.page_number). \
+                order_by('reportpagelink__page_number').first()
             return reverse_url(target_page)
 
         def get_prev_page_url(view_obj):
             target_page = ReportPage.objects. \
-                filter(report=view_obj.report_page.report,
-                       page_number__lt=view_obj.report_page.page_number). \
-                order_by('page_number').last()
+                filter(reportpagelink__report=view_obj.report_page.reportpagelink.report,
+                       reportpagelink__page_number__lt=view_obj.report_page.reportpagelink.page_number). \
+                order_by('reportpagelink__page_number').last()
             return reverse_url(target_page)
 
         buttons['Next page'] = get_next_page_url
@@ -61,7 +61,7 @@ class ReportDesignSite(PageSite):
     def get_url_kwargs(view_obj):
         return {
             'report_page_id': view_obj.report_page.id,
-            'report_slug': view_obj.report_page.report.slug,
+            'report_slug': view_obj.report_page.reportpagelink.report.slug,
         }
 
 

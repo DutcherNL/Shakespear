@@ -2,5 +2,5 @@
 
 {% breadcrumb "Setup" "setup:home" %}
 {% breadcrumb "Reports" "setup:reports:reports_overview" %}
-{% breadcrumb report_page.report.report_name "setup:reports:details" report_slug=report_page.report.slug %}
-{% breadcrumb report_page.name "setup:reports:details" report_slug=report_page.report.slug report_page_id=report_page.id %}
+{% breadcrumb report_page.reportpagelink.report.report_name "setup:reports:details" report_slug=report_page.reportpagelink.report.slug %}
+{% breadcrumb report_page.name "setup:reports:details" report_slug=report_page.reportpagelink.report.slug report_page_id=report_page.id %}

@@ -29,9 +29,12 @@ class QuestionaireCompletePDFView(LoginRequiredMixin, QuestionaireCompleteView):
 
     def get_context_data(self, **kwargs):
         context = super(QuestionaireCompletePDFView, self).get_context_data(**kwargs)
-        context['pages'] = ReportPage.objects.filter(report__is_live=True).order_by('page_number')
+        context['pages'] = ReportPage.objects.filter(report__is_live=True).order_by('reportpagelink__page_number')
         if self.page:
-            context['pages'] = context['pages'].filter(page_number=self.page.page_number)
+            context['pages'] = context['pages'].filter(
+                reportpagelink__page_number=self.page.page_number,
+                reportpagelink__report=self.report,
+            )
         else:
             context['show_overview'] = True
 

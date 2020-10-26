@@ -25,7 +25,11 @@ class Report(models.Model):
         super(Report, self).save(**kwargs)
 
     def get_pages(self):
-        return self.reportpage_set.order_by('page_number').all()
+        return ReportPage.objects.filter(
+            reportpagelink__report=self,
+        ).order_by(
+            'reportpagelink__page_number'
+        ).all()
 
 
 def upload_layout_path(instance, filename):
@@ -119,9 +123,6 @@ class ReportDisplayOptions(models.Model):
 class ReportPage(Page):
     # General options
     description = models.TextField()
-    report = models.ForeignKey(Report, on_delete=models.PROTECT)
-    page_number = models.PositiveIntegerField(default=1)
-    last_edited = models.DateTimeField(auto_now=True)
     layout = models.ForeignKey(PageLayout, on_delete=models.SET_NULL, null=True)
 
     # Display options
@@ -133,6 +134,16 @@ class ReportPage(Page):
     def is_valid(self, inquiry):
         """ Tests whether this page is valid for the given inquiry """
         return True
+
+    def get_num_plotted_pages(self):
+        return 1
+
+
+class ReportPageLink(models.Model):
+    """ Symbolises the link of a page in a report """
+    report = models.ForeignKey(Report, on_delete=models.PROTECT)
+    page = models.OneToOneField(ReportPage, on_delete=models.CASCADE)
+    page_number = models.PositiveIntegerField(default=1)
 
 
 class PageCriteria(models.Model):

@@ -6,7 +6,7 @@ from django.http import Http404
 from django.urls import reverse
 from string import Formatter
 
-from .models import Report, ReportPage, ReportDisplayOptions, PageLayout
+from .models import Report, ReportPage, ReportDisplayOptions, PageLayout, ReportPageLink
 from .responses import PDFResponse
 from .renderers import ReportPagePDFRenderer, ReportPageRenderer
 from .forms import AlterLayoutForm
@@ -197,12 +197,8 @@ class ReportChangeLayoutView(AccessabilityMixin, ReportMixin, LayoutMixin, Previ
 
 class CreateReportPageView(AccessabilityMixin, ReportMixin, CreateView):
     model = ReportPage
-    fields = ['name', 'description', 'page_number']
+    fields = ['name', 'description', 'layout']
     template_name = "reports/reportpage_form_add.html"
-
-    def form_valid(self, form):
-        form.instance.report = self.report
-        return super(CreateReportPageView, self).form_valid(form)
 
     def get_initial(self):
         initials = super(CreateReportPageView, self).get_initial()
@@ -216,12 +212,26 @@ class CreateReportPageView(AccessabilityMixin, ReportMixin, CreateView):
         }
         return reverse("setup:reports:details", kwargs=url_kwargs)
 
+    def form_valid(self, form):
+        form.instance.report = self.report
+        result = super(CreateReportPageView, self).form_valid(form)
+
+        page_num = ReportPageLink.objects.filter(report=self.report).order_by('page_number').last().page_number + 2
+
+        ReportPageLink.objects.create(
+            report=self.report,
+            page=form.instance,
+            page_number = page_num
+        )
+
+        return result
+
 
 class ReportPageMixinPrep:
     report_page = None
 
     def dispatch(self, request, *args, **kwargs):
-        self.report_page = get_object_or_404(ReportPage, id=kwargs.pop('report_page_id'), report=self.report)
+        self.report_page = get_object_or_404(ReportPage, id=kwargs.pop('report_page_id'), reportpagelink__report=self.report)
         return super(ReportPageMixinPrep, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self):
@@ -241,7 +251,7 @@ class ReportPageInfoView(ReportPageMixin, TemplateView):
 
 class ReportPageUpdateView(AccessabilityMixin, ReportMixin, UpdateView):
     model = ReportPage
-    fields = ['name', 'description', 'page_number', 'layout']
+    fields = ['name', 'description', 'layout']
     pk_url_kwarg = "report_page_id"
     template_name_field = "report_page"
 

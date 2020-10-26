@@ -12,7 +12,7 @@ class ReportPageRenderer(BasePageRenderer):
 
     def get_context_data(self, **kwargs):
         context = super(ReportPageRenderer, self).get_context_data(**kwargs)
-        report_display_options = self.page.report.display_options
+        report_display_options = self.page.reportpagelink.report.display_options
 
         if self.page.layout:
             margins = self.page.layout.margins
@@ -30,8 +30,8 @@ class ReportPageRenderer(BasePageRenderer):
 
     def get_layout_context(self, **kwargs):
         return {
-            'header': self.page.report.display_options.header,
-            'footer': self.page.report.display_options.footer,
+            'header': self.page.reportpagelink.report.display_options.header,
+            'footer': self.page.reportpagelink.report.display_options.footer,
             'p_num': kwargs.get('p_num', 1)
         }
 
