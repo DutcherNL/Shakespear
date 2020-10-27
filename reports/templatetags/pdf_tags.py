@@ -49,10 +49,10 @@ def do_static(parser, token):
 
 
 @register.simple_tag(takes_context=True)
-def render_layout(context, layout=None):
+def render_layout(context, layout=None, **kwargs):
     if layout is None:
         layout = context['report_page'].layout
     if layout:
-        return full_render_layout(layout.template_content, context.get('layout_context', {}))
+        return full_render_layout(layout.template_content, context.get('layout_context', {}), **kwargs)
     return ''
 

@@ -31,5 +31,4 @@ class TechScoreFromIterablePDFWidget(TechScoreFromIterableWidget):
     template_name = "modules/module_tech_score_forPDF.html"
 
     def get_context_data(self, request=None, **kwargs):
-        print("I have been here")
         return super(TechScoreFromIterablePDFWidget, self).get_context_data(request=request, **kwargs)

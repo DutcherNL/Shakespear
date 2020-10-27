@@ -1,3 +1,5 @@
+import math
+
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import models
@@ -9,6 +11,7 @@ from PageDisplay.models import Page
 
 # Import the modules and containers
 from .renderers import *
+from .utils import TechListReportPageRetrieval
 
 
 class Report(models.Model):
@@ -146,8 +149,6 @@ class ReportPage(Page):
     option_fields = ['name', 'description', 'has_header_footer']
     renderer = ReportSinglePageRenderer
 
-
-
     def get_as_child(self):
         # There is only a proxy child that is the case when type is not None
         if self.multi_type is None:
@@ -159,7 +160,7 @@ class ReportPage(Page):
         """ Tests whether this page is valid for the given inquiry """
         return True
 
-    def get_num_plotted_pages(self):
+    def get_num_plotted_pages(self, request):
         return 1
 
 
@@ -184,6 +185,7 @@ class ReportPageMultiManager(models.Manager):
 
 
 class ReportPageMultiGenerated(ReportPage):
+    elements_per_page = 3
 
     objects = ReportPageMultiManager()
     renderer = ReportMultiPageRenderer
@@ -191,9 +193,12 @@ class ReportPageMultiGenerated(ReportPage):
     class Meta:
         proxy = True
 
+    def get_num_plotted_pages(self, request):
+        elements = TechListReportPageRetrieval.get_iterable(request=request, mode=self.multi_type)
+        num_plotted = int(math.ceil(len(elements)/self.elements_per_page))
+        return num_plotted
 
     def _render(self, **kwargs):
-        print(kwargs)
         if kwargs.get('renderer', None) == ReportSinglePagePDFRenderer:
             kwargs['renderer'] = ReportMultiPagePDFRenderer
         return super(ReportPageMultiGenerated, self)._render(**kwargs)

@@ -14,6 +14,6 @@ def render_report(context, report):
 
     for page in report.get_pages():
         rendered_html += page.render(**context_dict, report_page=page, p_num=page_num)
-        page_num += page.get_num_plotted_pages()
+        page_num += page.get_as_child().get_num_plotted_pages(context['request'])
 
     return mark_safe(rendered_html)
