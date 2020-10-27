@@ -1,6 +1,7 @@
 from django.template import Context, Template, Engine
 
 from Questionaire.models import Technology, Inquiry
+from Questionaire.utils import get_inquiry_from_request
 
 
 
@@ -22,10 +23,7 @@ class TechListReportPageRetrieval:
     @classmethod
     def get_applicable_techs(cls, request, score_mode):
         """ Returns the applicable technologies for the given score_mode """
-        try:
-            inquiry = Inquiry.objects.get(id=request.session.get('inquiry_id', None))
-        except Inquiry.DoesNotExist:
-            return Technology.objects.none()
+        inquiry = get_inquiry_from_request(request)
 
         # Create lists of various technology states
         techs = []

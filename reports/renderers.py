@@ -1,9 +1,12 @@
 from PageDisplay.renderers import BasePageRenderer
-from reports.modules.widgets import TechScorePDFWidget, ImagePDFWidget, TechScorePreviewPDFWidget
-from django.conf import settings
+from reports.modules.widgets import *
 
 
 from reports.utils import TechListReportPageRetrieval
+
+
+__all__ = ['ReportSinglePageRenderer', 'ReportSinglePagePDFRenderer', 'ReportMultiPageRenderer', 'ReportMultiPagePDFRenderer']
+
 
 class ReportRenderingMixin:
     """ Mixin that readies default data when rendering any report page """
@@ -54,7 +57,7 @@ class ReportMultiPageRenderer(ReportRenderingMixin, BasePageRenderer):
     max_per_page = 3
 
     replaced_module_widgets = [
-        ('TechScoreModule', TechScorePreviewPDFWidget)
+        ('TechScoreModule', TechScoreFromIterableWidget)
     ]
 
     def get_context_data(self, **kwargs):
@@ -81,3 +84,10 @@ class ReportMultiPageRenderer(ReportRenderingMixin, BasePageRenderer):
             )
 
         return iterable_pages
+
+
+class ReportMultiPagePDFRenderer(ReportMultiPageRenderer):
+    replaced_module_widgets = [
+        ('ImageModule', ImagePDFWidget),
+        ('TechScoreModule', TechScoreFromIterablePDFWidget),
+    ]

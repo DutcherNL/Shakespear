@@ -335,10 +335,10 @@ class PrintPageAsPDFView(ReportPageMixin, PDFTemplateView):
 
     def get_page_options(self):
         options = super(PrintPageAsPDFView, self).get_page_options()
-        orientation = 'Portrait' if self.report_page.report.display_options.orientation else 'Landscape'
+        orientation = 'Portrait' if self.report_page.reportpagelink.report.display_options.orientation else 'Landscape'
 
         options.update({
-            'page-size': self.report_page.report.display_options.size,
+            'page-size': self.report_page.reportpagelink.report.display_options.size,
             'orientation': orientation,
         })
         return options

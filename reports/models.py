@@ -8,7 +8,7 @@ from Questionaire.models import Technology
 from PageDisplay.models import Page
 
 # Import the modules and containers
-from .renderers import ReportSinglePageRenderer, ReportMultiPageRenderer
+from .renderers import *
 
 
 class Report(models.Model):
@@ -190,6 +190,13 @@ class ReportPageMultiGenerated(ReportPage):
 
     class Meta:
         proxy = True
+
+
+    def _render(self, **kwargs):
+        print(kwargs)
+        if kwargs.get('renderer', None) == ReportSinglePagePDFRenderer:
+            kwargs['renderer'] = ReportMultiPagePDFRenderer
+        return super(ReportPageMultiGenerated, self)._render(**kwargs)
 
 
 class ReportPageLink(models.Model):
