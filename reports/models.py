@@ -180,7 +180,6 @@ class ReportPageMultiManager(models.Manager):
     """ Represents a report page that contains multiple items of a queryset """
 
     def get_queryset(self):
-        print("Well, well. How the turntables")
         return super().get_queryset().filter(multi_type__isnull=False)
 
 

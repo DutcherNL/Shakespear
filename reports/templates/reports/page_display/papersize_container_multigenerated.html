@@ -1,0 +1,31 @@
+{% load page_tags %}
+{% load pdf_tags %}
+
+{% for iterable_page in iterable_pages %}
+<div name="page_container" style="
+        width:{{ measurements.size.width }};
+        height:{{ measurements.size.height }};
+        position:relative;
+    ">
+    <div name="layout_container" style="width: 100%; height: 100%; position: absolute;">
+        {% render_layout %}
+    </div>
+    <div class="" style="
+            width:100%;
+            height:100%;
+            border: 1px solid black;
+            overflow: hidden;
+            padding: {{ measurements.margins }};
+            box-sizing: border-box;
+            border: 1px solid red;">
+
+        <div style="height: 100%; position:relative;">
+            {% for iterable_content in iterable_page %}
+                <div style="height: {{ iterable_element_height }}%; overflow: hidden;">
+                    {% render_module page.root_module use_overlay=False %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endfor %}

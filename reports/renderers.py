@@ -50,21 +50,34 @@ class ReportSinglePagePDFRenderer(ReportSinglePageRenderer):
 
 
 class ReportMultiPageRenderer(ReportRenderingMixin, BasePageRenderer):
-    template_name = "reports/page_display/papersize_container.html"
+    template_name = "reports/page_display/papersize_container_multigenerated.html"
+    max_per_page = 3
 
     replaced_module_widgets = [
         ('TechScoreModule', TechScorePreviewPDFWidget)
     ]
 
     def get_context_data(self, **kwargs):
-        kwargs = super(ReportMultiPageRenderer  , self).get_context_data(**kwargs)
+        kwargs = super(ReportMultiPageRenderer, self).get_context_data(**kwargs)
         kwargs.update({
-            'listable': self.get_queryset(kwargs.get('request'))
+            'iterable_pages': self.get_elements(kwargs.get('request')),
+            'iterable_element_height': 100/self.max_per_page,
         })
-
 
         return kwargs
 
-    def get_queryset(self, request):
-        # self.page = ReportPageMultiGenerated.objects.get()
-        return TechListReportPageRetrieval.get_iterable(request=request, mode=self.page.multi_type)
+    def get_elements(self, request):
+        iterable_pages = []
+        elements = TechListReportPageRetrieval.get_iterable(request=request, mode=self.page.multi_type)
+        num_elements = len(elements)
+        for t in range(int(num_elements/self.max_per_page)):
+            iterable_pages.append(
+                elements[t:t+self.max_per_page]
+            )
+        remaining = num_elements - int(num_elements/self.max_per_page)*self.max_per_page
+        if remaining > 0:
+            iterable_pages.append(
+                elements[num_elements-remaining:num_elements]
+            )
+
+        return iterable_pages

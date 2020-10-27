@@ -41,6 +41,8 @@ class TechListReportPageRetrieval:
 
     @classmethod
     def get_iterable(cls, request, mode):
+        if mode == 0:
+            return Technology.objects.filter(display_in_step_2_list=True)[0:8]
         if mode == cls.TECHS_ADVISED:
             return cls.get_applicable_techs(request, Technology.TECH_SUCCESS)
         elif mode == cls.TECHS_DENIED:
