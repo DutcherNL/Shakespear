@@ -63,6 +63,11 @@
                         {{ page.reportpagelink.page_number }}
                     </td>
                     <td>
+                        {% if page.multi_type %}
+                            <i class="fas fa-copy"></i>
+                        {% else %}
+                            <i class="far fa-file"></i>
+                        {% endif %}
                         {{ page.name }}
                     </td>
                     <td>
