@@ -8,7 +8,7 @@ from Questionaire.models import Technology
 from PageDisplay.models import Page
 
 # Import the modules and containers
-from .renderers import ReportPageRenderer
+from .renderers import ReportSinglePageRenderer, ReportMultiPageRenderer
 
 
 class Report(models.Model):
@@ -125,11 +125,35 @@ class ReportPage(Page):
     description = models.TextField()
     layout = models.ForeignKey(PageLayout, on_delete=models.SET_NULL, null=True)
 
+    TECHS_ADVISED = 11
+    TECHS_DENIED = 12
+    TECHS_UNKNOWN = 13
+
+    multi_type = models.IntegerField(
+        choices=[
+            (TECHS_ADVISED, 'Advised techs'),
+            (TECHS_DENIED, 'Not advised techs'),
+            (TECHS_UNKNOWN, 'No advise techs')
+        ],
+        blank=True,
+        null=True,
+        default=None,
+    )
+
     # Display options
     has_header_footer = models.BooleanField(verbose_name="Has a header or footer", default=True)
 
     option_fields = ['name', 'description', 'has_header_footer']
-    renderer = ReportPageRenderer
+    renderer = ReportSinglePageRenderer
+
+
+
+    def get_as_child(self):
+        # There is only a proxy child that is the case when type is not None
+        if self.multi_type is None:
+            return ReportPageSingle.objects.get(id=self.id)
+        else:
+            return ReportPageMultiGenerated.objects.get(id=self.id)
 
     def is_valid(self, inquiry):
         """ Tests whether this page is valid for the given inquiry """
@@ -139,11 +163,44 @@ class ReportPage(Page):
         return 1
 
 
+class ReportPageManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(multi_type__isnull=True)
+
+
+class ReportPageSingle(ReportPage):
+    """ Represents a report page that renders a single page """
+    objects = ReportPageManager()
+
+    class Meta:
+        proxy = True
+
+
+class ReportPageMultiManager(models.Manager):
+    """ Represents a report page that contains multiple items of a queryset """
+
+    def get_queryset(self):
+        print("Well, well. How the turntables")
+        return super().get_queryset().filter(multi_type__isnull=False)
+
+
+class ReportPageMultiGenerated(ReportPage):
+
+    objects = ReportPageMultiManager()
+    renderer = ReportMultiPageRenderer
+
+    class Meta:
+        proxy = True
+
+
 class ReportPageLink(models.Model):
     """ Symbolises the link of a page in a report """
     report = models.ForeignKey(Report, on_delete=models.PROTECT)
     page = models.OneToOneField(ReportPage, on_delete=models.CASCADE)
     page_number = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f'{self.report} - {self.page}'
 
 
 class PageCriteria(models.Model):

@@ -8,7 +8,7 @@ from string import Formatter
 
 from .models import Report, ReportPage, ReportDisplayOptions, PageLayout, ReportPageLink
 from .responses import PDFResponse
-from .renderers import ReportPagePDFRenderer, ReportPageRenderer
+from .renderers import ReportSinglePagePDFRenderer, ReportSinglePageRenderer
 from .forms import AlterLayoutForm
 
 
@@ -269,7 +269,7 @@ class PDFTemplateView(TemplateResponseMixin, ContextMixin, View):
     template_engine = "PDFTemplates"
     response_class = PDFResponse
     file_name = 'test_file'
-    page_renderer_class = ReportPagePDFRenderer
+    page_renderer_class = ReportSinglePagePDFRenderer
 
     def get_file_name(self):
         """ Construct the file name from the given file name replaced with local attributes """

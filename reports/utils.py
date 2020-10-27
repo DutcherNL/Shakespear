@@ -3,6 +3,7 @@ from django.template import Context, Template, Engine
 from Questionaire.models import Technology, Inquiry
 
 
+
 def full_render_layout(layout_html, context):
     template = Template(layout_html)
 
@@ -13,14 +14,18 @@ def full_render_layout(layout_html, context):
 
 
 class TechListReportPageRetrieval:
-    TECHS_ADVISED = 'reports.techs.advised'
-    TECHS_DENIED = 'reports.techs.denied'
-    TECHS_UNKNOWN = 'reports.techs.unknown'
+
+    TECHS_ADVISED = 11
+    TECHS_DENIED = 12
+    TECHS_UNKNOWN = 13
 
     @classmethod
     def get_applicable_techs(cls, request, score_mode):
         """ Returns the applicable technologies for the given score_mode """
-        inquiry = Inquiry.objects.get(id=request.session.get('inquiry_id', None))
+        try:
+            inquiry = Inquiry.objects.get(id=request.session.get('inquiry_id', None))
+        except Inquiry.DoesNotExist:
+            return Technology.objects.none()
 
         # Create lists of various technology states
         techs = []
