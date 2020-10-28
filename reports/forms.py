@@ -1,7 +1,7 @@
 from django.forms import forms, ModelForm, fields
 from django.forms.widgets import Textarea
 
-from reports.models import PageLayout
+from reports.models import *
 
 
 class AlterLayoutForm(ModelForm):
@@ -30,5 +30,15 @@ class LayoutSettingsForm(ModelForm):
     class Meta:
         model = PageLayout
         fields = ['name', 'description']
+
+
+class SelectPageLayoutForm(ModelForm):
+
+    class Meta:
+        model = ReportPage
+        fields = ['layout']
+
+    def __init__(self, *args, page=None, **kwargs):
+        super(SelectPageLayoutForm, self).__init__(*args, instance=page, **kwargs)
 
 

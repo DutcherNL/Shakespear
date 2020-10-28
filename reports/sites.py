@@ -1,6 +1,8 @@
 from django.shortcuts import get_object_or_404
+from django.utils.safestring import mark_safe
 
 from reports.models import ReportPage
+from reports.forms import SelectPageLayoutForm
 from PageDisplay.sites import PageSite
 from PageDisplay.views import PageInfoView
 
@@ -12,6 +14,24 @@ class ReportDesignSite(PageSite):
     template_engine = "Default_Template"
     breadcrumb_trail_template = "reports/page_display/snippet_report_breadcrumbs.html"
     site_context_fields = ['report_page']
+
+    extra_page_options = {
+        'layout_settings': {
+            'button': {
+                'type': 'btn-info',
+                'text': mark_safe('<i class="fas fa-palette"></i> Layout settings')
+            },
+            'form_class': SelectPageLayoutForm,
+            'return_on_success': False,
+        },
+        'download_pdf': {
+            'button': {
+                'type': 'btn-warning',
+                'url': 'setup:reports:pdf',
+                'text': mark_safe('<i class="fas fa-file-download"></i> Download as pdf'),
+            }
+        }
+    }
 
     def get_header_buttons(self, view_class):
         from django.urls import reverse

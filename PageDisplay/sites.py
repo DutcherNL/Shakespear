@@ -44,6 +44,9 @@ class PageSite:
     include_modules = None
     exclude_modules = None
 
+    # Add additional options
+    extra_page_options = { }
+
     @property
     def urls(self):
         return self.get_urls(), 'PageDisplay', self.namespace
@@ -85,6 +88,7 @@ class PageSite:
                     path('move/', wrap(views.PageMoveModuleView), name='edit_page_move_module'),
                     path('delete/', wrap(views.PageDeleteModuleView), name='edit_page_delete_module'),
                 ])),
+                path('e/<str:extra_slug>/', wrap(views.PageEditExtraOptionView), name='edit_extra_option'),
             ]))
 
             urlpatterns += [

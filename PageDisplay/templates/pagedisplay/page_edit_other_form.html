@@ -1,0 +1,27 @@
+{% extends 'pagedisplay/page_edit_base.html' %}
+{% load page_tags %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb extra_option.button.text "" %}
+{% endblock %}
+
+{% block sidebar_title %}
+    Edit page
+{% endblock %}
+
+{% block sidebar_content %}
+    <div class="row">
+        <div class="h4 col-12">
+            Page Settings
+        </div>
+        <form method="post" id="property_form" class="col-12">
+            {% csrf_token %}
+            {% include "snippets/bootstrap_form.html" %}
+        </form>
+        <div class="btn-group col-12" role="group" aria-label="Opties">
+            <input type="submit" class="btn btn-success" value="Opslaan" form="property_form">
+            <a class="btn btn-secondary" href="{% ns_url 'edit_page' %}">Terug</a>
+        </div>
+    </div>
+{% endblock %}

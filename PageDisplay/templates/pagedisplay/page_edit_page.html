@@ -16,5 +16,8 @@
         <hr class="col-12 border-white my-2">
         <a class="btn btn-primary btn-block" href="{% ns_url 'edit_page_add' %}">Voeg module toe</a>
         <a class="btn btn-primary btn-block" href="{% ns_url 'edit_page_settings' %}">Change settings</a>
+        {% for button in extra_buttons %}
+            <a class="btn {{ button.type }} btn-block" href="{{ button.url }}">{{ button.text }}</a>
+        {% endfor %}
     </div>
 {% endblock %}
