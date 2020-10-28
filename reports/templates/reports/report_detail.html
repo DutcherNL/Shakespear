@@ -74,7 +74,7 @@
                         {{ page.last_edited }}
                     </td>
                     <td class="py-1">
-                        <a href="{% url "setup:reports:details" report_slug=report.slug report_page_id=page.id %}"
+                        <a href="{% url "setup:reports:pages:edit_page" report_slug=report.slug report_page_id=page.id %}"
                            class="py-1 btn btn-info">
                             View
                         </a>
