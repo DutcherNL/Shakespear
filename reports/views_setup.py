@@ -101,7 +101,7 @@ class ReportDisplayOptionsUpdateView(AccessabilityMixin, ReportMixin, UpdateView
 
 
 # #######################################################################
-# #################        Page Setup Views      ########################
+# ################        Page Layout Views       #######################
 # #######################################################################
 
 
@@ -153,11 +153,17 @@ class PreviewLayoutMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         report_display_options = self.report.display_options
+        context.update({
+            'layout_context': {
+                'header': self.layout.report.display_options.header,
+                'footer': self.layout.report.display_options.footer,
+            },
+            'measurements': {
+                'margins': self.layout.margins,
+                'size': report_display_options.paper_proportions
+            }
 
-        context['measurements'] = {
-            'margins': self.layout.margins,
-            'size': report_display_options.paper_proportions
-        }
+        })
         return context
 
 

@@ -4,12 +4,11 @@ from Questionaire.models import Technology, Inquiry
 from Questionaire.utils import get_inquiry_from_request
 
 
-
 def full_render_layout(layout_html, context, p_num_increment=0, **kwargs):
     template = Template(layout_html)
 
     # Increment page number, used for multi page generation
-    context['p_num'] = context['p_num'] + p_num_increment
+    context['p_num'] = context.get('p_num', 0) + p_num_increment
 
     context = Context(context)
     result = template.render(context)
