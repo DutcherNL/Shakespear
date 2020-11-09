@@ -26,6 +26,8 @@ class TechListReportPageRetrieval:
     def get_applicable_techs(cls, request, score_mode):
         """ Returns the applicable technologies for the given score_mode """
         inquiry = get_inquiry_from_request(request)
+        if inquiry is None:
+            return Technology.objects.none()
 
         # Create lists of various technology states
         techs = []

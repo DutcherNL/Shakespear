@@ -146,7 +146,7 @@ class ReportPage(Page):
     # Display options
     has_header_footer = models.BooleanField(verbose_name="Has a header or footer", default=True)
 
-    option_fields = ['name', 'description', 'has_header_footer']
+    option_fields = ['name', 'description']
     renderer = ReportSinglePageRenderer
 
     def get_as_child(self):

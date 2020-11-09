@@ -233,6 +233,15 @@ class CreateReportPageView(AccessabilityMixin, ReportMixin, CreateView):
         return result
 
 
+class CreateReportMultiPageView(CreateReportPageView):
+    fields = ['name', 'description', 'layout', 'multi_type']
+
+    def get_form(self, form_class=None):
+        form = super(CreateReportMultiPageView, self).get_form(form_class=form_class)
+        form.fields['multi_type'].required = True
+        return form
+
+
 class ReportPageMixinPrep:
     report_page = None
 

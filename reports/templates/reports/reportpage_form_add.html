@@ -5,8 +5,8 @@
     {{ block.super }}
     {% breadcrumb "Setup" "setup:home" %}
     {% breadcrumb "Reports" "setup:reports:reports_overview" %}
-    {% breadcrumb report.report_name "setup:reports:details" %}
-    {% breadcrumb "Add page" "setup:reports:details" %}
+    {% breadcrumb report.report_name "setup:reports:details" report_slug=report.slug %}
+    {% breadcrumb "Add page" "setup:reports:details" report_slug=report.slug %}
 {% endblock %}
 
 {% block body %}
