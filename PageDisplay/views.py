@@ -181,6 +181,8 @@ class PageAlterView(PageEditMixin, TemplateView):
             option['button'].setdefault('text', key)
             option['button'].setdefault('type', 'btn-primary')
 
+            option.setdefault('text', key)
+
             # Set the url
             if option.get('form_class', None):
                 # Overwrite the present url, there is a site view implemented

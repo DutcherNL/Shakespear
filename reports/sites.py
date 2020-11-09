@@ -21,6 +21,7 @@ class ReportDesignSite(PageSite):
                 'type': 'btn-info',
                 'text': mark_safe('<i class="fas fa-palette"></i> Layout settings')
             },
+            'text': "Layout settings",
             'form_class': SelectPageLayoutForm,
             'return_on_success': False,
         },
