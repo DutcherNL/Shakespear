@@ -1,4 +1,5 @@
 {% extends 'base_with_body.html' %}
+{% load setup_report_tags %}
 
 {% load django_bootstrap_breadcrumbs  %}
 {% block breadcrumbs %}
@@ -59,8 +60,30 @@
             <tbody>
             {% for page in report.get_pages %}
                 <tr>
-                    <td>
-                        {{ page.reportpagelink.page_number }}
+                    <td class="d-flex">
+                        <form id="{{ page.id }}-move-up" class="d-none"
+                            action="{% url "setup:reports:move_page" report_slug=report.slug %}"
+                            method="post">
+                            {% csrf_token %}
+                            {% create_move_up_form page %}
+                        </form>
+                        <form id="{{ page.id }}-move-down" class="d-none"
+                              action="{% url "setup:reports:move_page" report_slug=report.slug %}"
+                              method="post">
+                            {% csrf_token %}
+                            {% create_move_down_form page %}
+                        </form>
+
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Move page">
+                            <button type="submit" class="btn btn-outline-secondary"
+                                    form="{{ page.id }}-move-up">
+                                <i class="fas fa-caret-up"></i>
+                            </button>
+                            <button type="submit" class="btn btn-outline-secondary"
+                                form="{{ page.id }}-move-down">
+                                <i class="fas fa-caret-down"></i>
+                            </button>
+                        </div>
                     </td>
                     <td>
                         {% if page.multi_type %}

@@ -34,6 +34,7 @@ urlpatterns = [
             path('page/', include([
                 path('add/', views_setup.CreateReportPageView.as_view(), name='add_page'),
                 path('add_multi/', views_setup.CreateReportMultiPageView.as_view(), name='add_multi_page'),
+                path('move_order/', views_setup.ReportMovePageView.as_view(), name='move_page'),
                 path('<int:report_page_id>/', include([
                     path('', views_setup.ReportPageInfoView.as_view(), name='details'),
                     path('edit/', views_setup.ReportPageUpdateView.as_view(), name='edit_page'),

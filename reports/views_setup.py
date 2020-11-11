@@ -1,15 +1,18 @@
+import datetime
+
 from django.views.generic import ListView, CreateView, TemplateView, View, UpdateView, FormView
 from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
 from django.shortcuts import get_object_or_404
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 from string import Formatter
 
 from .models import Report, ReportPage, ReportDisplayOptions, PageLayout, ReportPageLink
 from .responses import PDFResponse
 from .renderers import ReportSinglePagePDFRenderer, ReportSinglePageRenderer
-from .forms import AlterLayoutForm
+from .forms import AlterLayoutForm, MovePageForm
 
 
 class AccessabilityMixin(LoginRequiredMixin):
@@ -195,6 +198,33 @@ class ReportChangeLayoutView(AccessabilityMixin, ReportMixin, LayoutMixin, Previ
 
     def get_success_url(self):
         return reverse('setup:reports:edit_layout', kwargs={'report_slug': self.report.slug, 'layout': self.layout})
+
+
+class ReportMovePageView(AccessabilityMixin, ReportMixin, FormView):
+    form_class = MovePageForm
+
+    def get_form_kwargs(self):
+        kwargs = super(ReportMovePageView, self).get_form_kwargs()
+        kwargs.update({
+            'report': self.report
+        })
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        direction = "upward" if form.cleaned_data['move_up'] else "downward"
+        page = form.cleaned_data['report_page']
+
+        messages.success(self.request, f"Succesfully moved {page} {direction}")
+        return super(ReportMovePageView, self).form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, f"An error occured: {form.errors}")
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse('setup:reports:details', kwargs={'report_slug': self.report.slug})
+
 
 # #######################################################################
 # #################        Page Setup Views      ########################
