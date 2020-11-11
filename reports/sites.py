@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.utils.safestring import mark_safe
+from django.urls import reverse
 
 from reports.models import ReportPage
 from reports.forms import SelectPageLayoutForm
@@ -14,6 +15,8 @@ class ReportDesignSite(PageSite):
     template_engine = "Default_Template"
     breadcrumb_trail_template = "reports/page_display/snippet_report_breadcrumbs.html"
     site_context_fields = ['report_page']
+
+    can_be_deleted = True
 
     extra_page_options = {
         'layout_settings': {
@@ -84,6 +87,9 @@ class ReportDesignSite(PageSite):
             'report_page_id': view_obj.report_page.id,
             'report_slug': view_obj.report_page.reportpagelink.report.slug,
         }
+
+    def delete_success_url(self, page, **url_kwargs):
+        return reverse('setup:reports:details', kwargs={'report_slug': url_kwargs['report_slug']})
 
 
 report_site = ReportDesignSite()

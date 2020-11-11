@@ -1,0 +1,27 @@
+{% extends 'pagedisplay/page_edit_base.html' %}
+{% load page_tags %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb extra_option.text "" %}
+{% endblock %}
+
+{% block sidebar_title %}
+    Delete page
+{% endblock %}
+
+{% block sidebar_content %}
+    <div class="row">
+        <p class="col-12">
+            Are you sure you want to delete this page?
+        </p>
+        <form method="post" id="property_form" class="col-12">
+            {% csrf_token %}
+            {% include "snippets/bootstrap_form.html" %}
+        </form>
+        <div class="btn-group col-12" role="group" aria-label="Opties">
+            <input type="submit" class="btn btn-danger" value="Yes, delete it" form="property_form">
+            <a class="btn btn-secondary" href="{% ns_url 'edit_page' %}">No, go back</a>
+        </div>
+    </div>
+{% endblock %}

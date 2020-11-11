@@ -29,6 +29,7 @@ class PageSite:
     use_overview = False
     use_page_keys = True
     can_be_edited = True
+    can_be_deleted = False
 
     extends_template = None
     template_engine = None
@@ -45,7 +46,7 @@ class PageSite:
     exclude_modules = None
 
     # Add additional options
-    extra_page_options = { }
+    extra_page_options = {}
 
     @property
     def urls(self):
@@ -74,10 +75,18 @@ class PageSite:
 
         # Whether the page id is determined by itself or something else
         if self.use_page_keys:
-            url_string = '<int:page_id>/'
+            page_key_string = '<int:page_id>/'
         else:
-            url_string = ''
+            page_key_string = ''
 
+        # Add display page without additonal options
+        urlpatterns += [
+            path(page_key_string, include([
+                path('', wrap(views.PageInfoView), name='view_page'),
+            ])),
+        ]
+
+        # Add display page with editing functionality
         if self.can_be_edited:
             edit_urls = path('edit/', include([
                 path('', wrap(views.PageAlterView), name='edit_page'),
@@ -92,17 +101,17 @@ class PageSite:
             ]))
 
             urlpatterns += [
-                path(url_string, include([
-                    path('', wrap(views.PageInfoView), name='view_page'),
+                path(page_key_string, include([
                     edit_urls
                 ])),
             ]
-        else:
+
+        # Add deletability functionality
+        if self.can_be_deleted:
             urlpatterns += [
-                path(url_string, include([
-                    path('', wrap(views.PageInfoView), name='view_page')
-                ]
-                )),
+                path(page_key_string, include([
+                    path('delete/', wrap(views.PageDeleteView), name='delete_page')
+                ])),
             ]
 
         return urlpatterns

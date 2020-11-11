@@ -205,6 +205,8 @@ class PageAlterView(PageEditMixin, TemplateView):
             *[option['button'] for key, option in extra_buttons.items()]
         ]
 
+        context['can_be_deleted'] = self.site.can_be_deleted
+
         return context
 
 
@@ -250,7 +252,6 @@ class PageEditExtraOptionView(PageMixin, FormView):
         return kwargs
 
 
-
 class PageAlterSettingsView(PageEditMixin, UpdateView):
     """ Contains a form for page settings """
     template_name = 'pagedisplay/page_edit_settings.html'
@@ -267,6 +268,38 @@ class PageAlterSettingsView(PageEditMixin, UpdateView):
         self.model = self.page.__class__
         # Below the modelform is automatically created
         return super(PageAlterSettingsView, self).get_form_class()
+
+
+class PageDeleteView(PageMixin, DeleteView):
+    template_name = "pagedisplay/page_delete_form.html"
+
+    def get_object(self, queryset=None):
+        return self.page
+
+    def get_success_url(self):
+        if self.site.delete_success_url:
+            if callable(self.site.delete_success_url):
+                return self.site.delete_success_url(self.page, **self.kwargs)
+            elif isinstance(self.site.delete_success_url, str):
+                return self.site.delete_success_url
+            else:
+                raise AttributeError(
+                    f"{self.site.__class__} has an incorrect delete_success_url defined. Make sure it's either "
+                    f"a callable with 'page' as input argument and all current url-kwargs as input kwargs "
+                    f"or a url string."
+                )
+        elif self.site.use_overview:
+            return reverse_ns(self.request, 'overview', kwargs=self.url_kwargs(self))
+        else:
+            raise AttributeError(
+                f"{self.site.__class__} has no delete_success_url defined. Define this (attribute or method) so "
+                f"the site can redirect to the correct page upon page deletion"
+            )
+
+
+# ####################################################
+# ############    Page Module Views    ###############
+# ####################################################
 
 
 class PageAddModuleView(PageEditMixin, TemplateView):
