@@ -40,7 +40,15 @@ urlpatterns = [
                     path('edit/', views_setup.ReportPageUpdateView.as_view(), name='edit_page'),
                     path('pdf/', views_setup.PrintPageAsPDFView.as_view(), name='pdf'),
                     path('pdf_preview/', views_setup.PrintPageAsHTMLView.as_view(), name='pdf_preview'),
-                    path('display/', report_site.urls)
+                    path('display/', report_site.urls),
+                    path('conditions/', include([
+                        path('', views_setup.ReportPageCriteriaOverview.as_view(), name='page_criterias'),
+                        path('create/', views_setup.CreateTechCriteriaView.as_view(), name='add_page_criteria'),
+                        path('<int:criteria_id>/', include([
+                            path('edit/', views_setup.EditCriteriaView.as_view(), name='edit_page_criteria'),
+                            path('delete/', views_setup.DeleteCriteriaView.as_view(), name='delete_page_criteria'),
+                        ]))
+                    ])),
                 ])),
             ])),
         ])),

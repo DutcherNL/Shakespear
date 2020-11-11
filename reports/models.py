@@ -14,6 +14,10 @@ from .renderers import *
 from .utils import TechListReportPageRetrieval
 
 
+__all__ = ["Report", "ReportPage", "ReportDisplayOptions", "PageLayout", "ReportPageSingle", "ReportPageMultiGenerated",
+           "ReportPageLink", "PageCriteria", "TechnologyPageCriteria"]
+
+
 class Report(models.Model):
     report_name = models.CharField(max_length=128, unique=True)
     file_name = models.CharField(max_length=128)
@@ -221,6 +225,15 @@ class PageCriteria(models.Model):
     def is_met(self, inquiry):
         return NotImplementedError
 
+    def get_as_child(self):
+        """ Returns the child object of this class"""
+        # Loop over all children
+        for child in self.__class__.__subclasses__():
+            # If the child object exists
+            if child.objects.filter(id=self.id).exists():
+                return child.objects.get(id=self.id).get_as_child()
+        return self
+
 
 class TechnologyPageCriteria(PageCriteria):
     """ Adds a criteria based on the score of a technology """
@@ -232,6 +245,12 @@ class TechnologyPageCriteria(PageCriteria):
             (Technology.TECH_UNKNOWN, 'Onbekend'),
     ]
     score = models.IntegerField(choices=_score_options)
+
+    def is_met(self, inquiry):
+        if self.technology is not None:
+            score = self.technology.get_score(inquiry)
+            return True if score == self.score else False
+        return False
 
 
 class LogicPageCriteria(PageCriteria):

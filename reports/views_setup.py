@@ -9,10 +9,10 @@ from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 from string import Formatter
 
-from .models import Report, ReportPage, ReportDisplayOptions, PageLayout, ReportPageLink
+from .models import *
 from .responses import PDFResponse
 from .renderers import ReportSinglePagePDFRenderer, ReportSinglePageRenderer
-from .forms import AlterLayoutForm, MovePageForm
+from .forms import *
 
 
 class AccessabilityMixin(LoginRequiredMixin):
@@ -279,8 +279,8 @@ class ReportPageMixinPrep:
         self.report_page = get_object_or_404(ReportPage, id=kwargs.pop('report_page_id'), reportpagelink__report=self.report)
         return super(ReportPageMixinPrep, self).dispatch(request, *args, **kwargs)
 
-    def get_context_data(self):
-        context = super(ReportPageMixinPrep, self).get_context_data()
+    def get_context_data(self, **kwargs):
+        context = super(ReportPageMixinPrep, self).get_context_data(**kwargs)
         context['report_page'] = self.report_page
         return context
 
@@ -363,6 +363,69 @@ class PDFTemplateView(TemplateResponseMixin, ContextMixin, View):
 
     def get_page_options(self):
         return {}
+
+
+# #######################################################################
+# ################# Report Page Display Criteria ########################
+# #######################################################################
+
+
+class ReportPageCriteriaOverview(ReportPageMixin, ListView):
+    paginate_by = 100
+    template_name = "reports/page_conditions/reportpage_criteria_list.html"
+
+    def get_queryset(self):
+        return self.report_page.pagecriteria_set.all()
+
+
+class CreateTechCriteriaView(ReportPageMixin, CreateView):
+    template_name = "reports/page_conditions/reportpage_criteria_create.html"
+    model = TechnologyPageCriteria
+    fields = ['technology', 'score']
+
+    def form_valid(self, form):
+        form.instance.page = self.report_page
+        form.save()
+        return super(CreateTechCriteriaView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse("setup:reports:page_criterias",
+                       kwargs={'report_page_id': self.report_page.id, 'report_slug': self.report.slug})
+
+
+class EditCriteriaView(ReportPageMixin, UpdateView):
+    template_name = "reports/page_conditions/reportpage_criteria_edit.html"
+    model = TechnologyPageCriteria
+    fields = ['technology', 'score']
+
+    def get_object(self, queryset=None):
+        object = self.report_page.pagecriteria_set.filter(id=self.kwargs.get('criteria_id', None))
+        try:
+            object = object.get()
+        except PageCriteria.DoesNotExist:
+            raise Http404("This criteria is not associated to this page")
+        return object.get_as_child()
+
+    def get_success_url(self):
+        return reverse("setup:reports:page_criterias",
+                       kwargs={'report_page_id': self.report_page.id, 'report_slug': self.report.slug})
+
+
+class DeleteCriteriaView(ReportPageMixin, DeleteView):
+    template_name = "reports/page_conditions/reportpage_criteria_delete.html"
+    model = PageCriteria
+
+    def get_object(self, queryset=None):
+        object = self.report_page.pagecriteria_set.filter(id=self.kwargs.get('criteria_id', None))
+        try:
+            object = object.get()
+        except PageCriteria.DoesNotExist:
+            raise Http404("This criteria is not associated to this page")
+        return object
+
+    def get_success_url(self):
+        return reverse("setup:reports:page_criterias",
+                       kwargs={'report_page_id': self.report_page.id, 'report_slug': self.report.slug})
 
 
 # #######################################################################
