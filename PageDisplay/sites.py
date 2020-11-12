@@ -150,7 +150,7 @@ class PageSite:
         else:
             # It is one of the Editing views by exclusion
             if not request.user.is_authenticated and self.edit_requires_login:
-                raise False
+                return False
             # Check all persmissions
             for permission in self.edit_requires_permissions:
                 if not request.user.has_perm(permission):
