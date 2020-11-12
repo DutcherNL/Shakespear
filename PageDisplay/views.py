@@ -1,7 +1,9 @@
+import copy
+
 from django.views.generic import TemplateView, UpdateView, DeleteView, FormView
 from django.views.generic.list import ListView
-from django.http import HttpResponseRedirect, HttpResponseForbidden
-from django.urls import reverse
+from django.http import HttpResponseRedirect, HttpResponseForbidden, Http404
+from django.urls import reverse, NoReverseMatch
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Page, BaseModule
@@ -170,6 +172,85 @@ class PageAlterView(PageEditMixin, TemplateView):
     def get_overlay(self):
         return ModuleSelectOverlay()
 
+    def get_context_data(self, **kwargs):
+        context = super(PageAlterView, self).get_context_data()
+
+        extra_buttons = copy.deepcopy(self.site.extra_page_options)
+        for key, option in extra_buttons.items():
+            option.setdefault('button', {})
+            option['button'].setdefault('text', key)
+            option['button'].setdefault('type', 'btn-primary')
+
+            option.setdefault('text', key)
+
+            # Set the url
+            if option.get('form_class', None):
+                # Overwrite the present url, there is a site view implemented
+                option['button']['url'] = reverse_ns(
+                    self.request,
+                    'edit_extra_option',
+                    kwargs={'extra_slug': key, **self.url_kwargs(self)}
+                )
+            else:
+                # Try to form a url. Likely it is a custom user view with the same input attributes
+                try:
+                    option['button']['url'] = reverse(
+                        option['button'].get('url'),
+                        kwargs={**self.url_kwargs(self)}
+                    )
+                except KeyError:
+                    option['button'].setdefault('úrl', '')
+
+        context['extra_buttons'] = [
+            *[option['button'] for key, option in extra_buttons.items()]
+        ]
+
+        context['can_be_deleted'] = self.site.can_be_deleted
+
+        return context
+
+
+class PageEditExtraOptionView(PageMixin, FormView):
+    template_name = 'pagedisplay/page_edit_other_form.html'
+
+    # The defined extra option containing all data that is relevant for this view
+    extra_option = None
+
+    def get_success_url(self):
+        if self.extra_option.get('return_on_success', True):
+            return reverse_ns(self.request, 'edit_page', kwargs=self.url_kwargs(self))
+        else:
+            return reverse_ns(self.request, 'edit_extra_option',
+                              kwargs={**self.url_kwargs(self), 'extra_slug': self.kwargs['extra_slug']})
+
+    def get_form_kwargs(self):
+        kwargs = super(PageEditExtraOptionView, self).get_form_kwargs()
+        kwargs.update({
+            'page': self.page,
+        })
+        return kwargs
+
+    def get_form_class(self):
+        return self.extra_option['form_class']
+
+    def form_valid(self, form):
+        form.save()
+        return super(PageEditExtraOptionView, self).form_valid(form)
+
+    def dispatch(self, request, *args, **kwargs):
+        # Get the extra options dict or raise 404 if not set-up correctly
+        self.extra_option = self.site.extra_page_options.get(kwargs['extra_slug'], None)
+        if self.extra_option is None or self.extra_option.get('form_class', None) is None:
+            raise Http404()
+        return super(PageEditExtraOptionView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        kwargs = super(PageEditExtraOptionView, self).get_context_data(**kwargs)
+        kwargs.update({
+            'extra_option': self.extra_option
+        })
+        return kwargs
+
 
 class PageAlterSettingsView(PageEditMixin, UpdateView):
     """ Contains a form for page settings """
@@ -187,6 +268,38 @@ class PageAlterSettingsView(PageEditMixin, UpdateView):
         self.model = self.page.__class__
         # Below the modelform is automatically created
         return super(PageAlterSettingsView, self).get_form_class()
+
+
+class PageDeleteView(PageMixin, DeleteView):
+    template_name = "pagedisplay/page_delete_form.html"
+
+    def get_object(self, queryset=None):
+        return self.page
+
+    def get_success_url(self):
+        if self.site.delete_success_url:
+            if callable(self.site.delete_success_url):
+                return self.site.delete_success_url(self.page, **self.kwargs)
+            elif isinstance(self.site.delete_success_url, str):
+                return self.site.delete_success_url
+            else:
+                raise AttributeError(
+                    f"{self.site.__class__} has an incorrect delete_success_url defined. Make sure it's either "
+                    f"a callable with 'page' as input argument and all current url-kwargs as input kwargs "
+                    f"or a url string."
+                )
+        elif self.site.use_overview:
+            return reverse_ns(self.request, 'overview', kwargs=self.url_kwargs(self))
+        else:
+            raise AttributeError(
+                f"{self.site.__class__} has no delete_success_url defined. Define this (attribute or method) so "
+                f"the site can redirect to the correct page upon page deletion"
+            )
+
+
+# ####################################################
+# ############    Page Module Views    ###############
+# ####################################################
 
 
 class PageAddModuleView(PageEditMixin, TemplateView):

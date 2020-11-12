@@ -1,0 +1,103 @@
+{% extends 'base_with_body.html' %}
+{% load pdf_tags %}
+{% load static %}
+
+{% load django_bootstrap_breadcrumbs  %}
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Setup" "setup:home" %}
+    {% breadcrumb "Reports" "setup:reports:reports_overview" %}
+    {% breadcrumb report.report_name "setup:reports:details" report_slug=report.slug %}
+    {% breadcrumb "Layouts" "setup:resports:layout_oververiew" report_slug=report.slug %}
+
+{% endblock %}
+
+{% block body %}
+    <h1>Layouts</h1>
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row">
+                <div class="col">
+                    <div class="row">
+                        <div class="col">
+                            <h3 id="layout-preview-name">
+
+                            </h3>
+                            <div id="layout-preview-description">
+                                Select a layout below
+                            </div>
+                            <hr>
+                            <div>
+                                Margins: <span id="layout-preview-margins">-</span>
+                            </div>
+                            <div>
+                                Used on <span id="layout-preview-used">-</span> page(s)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row my-2">
+                        <div class="col">
+                            <a href="#" id="layout-preview-edit-url" class="btn btn-secondary disabled"><i class="fas fa-paint-brush"></i> Edit layout</a>
+                            <a href="#" id="layout-preview-settings-url" class="btn btn-secondary disabled"><i class="fas fa-wrench"></i> Edit Settings</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <div style="
+                    position: relative;
+                    width: {{ preview_width }}rem;
+                    height: {{ preview_height }}rem;
+                    font-size: {{ preview_scale }}rem;
+                    border: 1px solid black;"
+                         id="layout-preview-window">
+                        {% render_layout layout=layouts.first %}
+                    </div>
+                    <small>
+                    * Not correctly scaled
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        {% for layout in layouts %}
+            <div class="col my-2">
+                <div class="btn card btn-outline-info" style=""
+                     name="layout-info-btn" >
+                    <div class="card-body">
+                        <h5 class="card-title">{{ layout.name }}</h5>
+                    </div>
+                    <metadata class="d-none">
+                        <div name="layout-preview-name" data-content-type="txt">{{ layout.name }}</div>
+                        <div name="layout-preview-description" data-content-type="txt">{{ layout.description }}</div>
+                        <div name="layout-preview-window" data-content-type="html">{{ layout.template_content }}</div>
+                        <div name="layout-preview-margins" data-content-type="txt">{{ layout.margins }}</div>
+                        <div name="layout-preview-used" data-content-type="txt">{{ layout.reportpage_set.count }}</div>
+                        <div name="layout-preview-edit-url" data-content-type="url">
+                            {% url "setup:reports:edit_layout" report_slug=report.slug layout=layout %}
+                        </div>
+                        <div name="layout-preview-settings-url" data-content-type="url">
+                            {% url "setup:reports:edit_layout_settings" report_slug=report.slug layout=layout %}
+                        </div>
+                    </metadata>
+                </div>
+            </div>
+        {% endfor %}
+        <div class="col my-2">
+            <a class="btn card btn-outline-primary" style=""
+                href="{% url "setup:reports:add_layout" report_slug=report.slug %}">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-plus"></i> New layout</h5>
+                </div>
+            </a>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static "javascript/reports/select_layout.js" %}"></script>
+{% endblock %}

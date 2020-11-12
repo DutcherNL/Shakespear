@@ -1,0 +1,104 @@
+{% extends 'base_with_body.html' %}
+{% load pdf_tags %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% load django_bootstrap_breadcrumbs  %}
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Setup" "setup:home" %}
+    {% breadcrumb "Reports" "setup:reports:reports_overview" %}
+    {% breadcrumb report.report_name "setup:reports:details" report_slug=report.slug %}
+    {% breadcrumb "Layouts" "setup:reports:layout_overview" report_slug=report.slug %}
+    {% breadcrumb layout.name "setup:resports:layout_oververiew" report_slug=report.slug layout=layout %}
+
+{% endblock %}
+
+
+{% block head %}
+    {{ block.super }}
+    <link href="{% static "css/page_edit.css" %}" rel="stylesheet">
+{% endblock %}
+
+
+{% block body-containerless %}
+    <div class="container-fluid my-3">
+        <div class="row">
+            <div class="pe_main col-sm-12">
+                <div class="container">
+                    {% block page %}
+                        <div name="page_container" style="
+                                width:{{ measurements.size.width }};
+                                height:{{ measurements.size.height }};
+                                position:relative;
+                                ">
+                            <div id="layout_container" style="width: 100%; height: 100%; position: absolute; z-index:-50;">
+                                {% render_layout layout=layout %}
+                            </div>
+                            <div id="content_container" style="
+                                    width:100%;
+                                    height:100%;
+                                    border: 1px solid black;
+                                    overflow: hidden;
+                                    padding: {{ measurements.margins }};
+                                    box-sizing: border-box;
+                                    border: 2px double #777;">
+                                <div style="
+                                    width: 100%;
+                                    height: 100%;
+                                    border: 1px dashed #777;">
+
+                                </div>
+                            </div>
+                        </div>
+                    {% endblock %}
+                </div>
+            </div>
+            <div class="pe_sidebar">
+                <div>
+                    {% block sidebar_content %}
+                        <div class="row">
+                            <div class="h3 col">{{ layout.name }}</div>
+                            <div class="col-auto">
+                                <a href="{% url "setup:reports:edit_layout_settings" layout=layout report_slug=report.slug %}"
+                                   class="btn btn-primary"><i class="fas fa-wrench"></i></a>
+                            </div>
+                        </div>
+                        <p> {{ layout.description }} </p>
+                        <hr>
+                        <form method="post" id="layout_form">
+                            {% csrf_token %}
+
+                            {% for field in form.visible_fields %}
+                                <label for="{{ field.id_for_label }}" class="">
+                                    {{ field.label }}
+                                </label>
+                                {% if field.errors %}
+                                    {# Errors present #}
+                                    {% for error in field.errors %}
+                                        <div class="alert alert-danger mb-0">
+                                            {{ error }}
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                                {% render_field field class="form-control" placeholder=field.label %}
+                            {% endfor %}
+
+                            <div class="my-4">
+                                <a onclick="preview_layout()" class="btn btn-primary">Preview style</a>
+                                <a onclick="reset_layout()" class="btn btn-primary">Reset style</a>
+                                <input class="btn-success btn" type="submit" value="Save">
+                            </div>
+                        </form>
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock  %}
+
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static "javascript/reports/preview_layout.js" %}"></script>
+{% endblock %}

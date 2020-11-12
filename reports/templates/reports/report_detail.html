@@ -1,4 +1,5 @@
 {% extends 'base_with_body.html' %}
+{% load setup_report_tags %}
 
 {% load django_bootstrap_breadcrumbs  %}
 {% block breadcrumbs %}
@@ -11,20 +12,39 @@
 {% block body %}
     <h1>Report: {{ report.report_name }}</h1>
     <div class="row">
-        <div class="col-md-3">
-            Description:
+        <div class="col-md-6">
+            <h4>Details</h4>
+            <div class="row">
+                <div class="col-md-3">
+                    Description:
+                </div>
+                <div class="col-md-9">
+                    {{ report.description }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <a href="{% url "setup:reports:edit_report" report_slug=report.slug %}" class="btn btn-primary">
+                        Edit report options
+                    </a>
+                    <a href="{% url "setup:reports:edit_display" report_slug=report.slug %}" class="btn btn-primary">
+                        Edit report display
+                    </a>
+                </div>
+            </div>
         </div>
-        <div class="col-md-9">
-            {{ report.description }}
+        <div class="col-md-6">
+            <h4>Layouts</h4>
+            <div>
+                Number of layouts: {{ report.pagelayout_set.count }}
+            </div>
+            <a href="{% url "setup:reports:layout_overview" report_slug=report.slug %}" class="btn btn-primary">
+                View Layouts
+            </a>
         </div>
+
+
     </div>
-    <a href="{% url "setup:reports:edit_report" report_slug=report.slug %}" class="btn btn-primary">
-        Edit report options
-    </a>
-    <a href="{% url "setup:reports:edit_display" report_slug=report.slug %}" class="btn btn-primary">
-        Edit report display
-    </a>
-    <br>
 
     <h2>Pages</h2>
     <div class="table-responsive">
@@ -33,26 +53,59 @@
             <tr class="font-weight-bold">
                 <td style="min-width: 10rem">Number</td>
                 <td style="min-width: 10rem">Name</td>
-                <td style="min-width: 10rem;">Last edited</td>
+                <td style="min-width: 10rem">Criteria</td>
                 <td style="min-width: 10rem;">Options</td>
             </tr>
             </thead>
             <tbody>
             {% for page in report.get_pages %}
                 <tr>
-                    <td>
-                        {{ page.page_number }}
+                    <td class="d-flex">
+                        <form id="{{ page.id }}-move-up" class="d-none"
+                            action="{% url "setup:reports:move_page" report_slug=report.slug %}"
+                            method="post">
+                            {% csrf_token %}
+                            {% create_move_up_form page %}
+                        </form>
+                        <form id="{{ page.id }}-move-down" class="d-none"
+                              action="{% url "setup:reports:move_page" report_slug=report.slug %}"
+                              method="post">
+                            {% csrf_token %}
+                            {% create_move_down_form page %}
+                        </form>
+
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Move page">
+                            <button type="submit" class="btn btn-outline-secondary"
+                                    form="{{ page.id }}-move-up">
+                                <i class="fas fa-caret-up"></i>
+                            </button>
+                            <button type="submit" class="btn btn-outline-secondary"
+                                form="{{ page.id }}-move-down">
+                                <i class="fas fa-caret-down"></i>
+                            </button>
+                        </div>
                     </td>
                     <td>
+                        {% if page.multi_type %}
+                            <i class="fas fa-copy"></i>
+                        {% else %}
+                            <i class="far fa-file"></i>
+                        {% endif %}
                         {{ page.name }}
                     </td>
                     <td>
-                        {{ page.last_edited }}
+                        {% if page.pagecriteria_set.count == 0 %}
+                            No conditions
+                        {% elif page.pagecriteria_set.count == 1 %}
+                            {{ page.pagecriteria_set.first.get_key_name }} / {{ page.pagecriteria_set.first.get_value_name }}
+                        {% else %}
+                            {{ page.pagecriteria_set.count }} conditions
+                        {% endif %}
                     </td>
-                    <td class="py-1">
-                        <a href="{% url "setup:reports:details" report_slug=report.slug report_page_id=page.id %}"
-                           class="py-1 btn btn-info">
-                            View
+                    <td class="">
+                        <a href="{% url "setup:reports:pages:edit_page" report_slug=report.slug report_page_id=page.id %}"
+                           class="py-1 btn btn-primary">
+                            <i class="fas fa-edit"></i> Edit
                         </a>
                     </td>
                 </tr>
@@ -65,9 +118,16 @@
             {% endfor %}
             </tbody>
         </table>
-        <a href="{% url "setup:reports:add_page" report_slug=report.slug %}" class="btn btn-primary">
-            Add page
-        </a>
+        <div class="btn-group" role="group" aria-label="Basic example">
+            <a type="button" href="{% url "setup:reports:add_page" report_slug=report.slug %}"
+               class="btn btn-primary">
+                <i class="fas fa-plus"></i> Single page
+            </a>
+            <a type="button" href="{% url "setup:reports:add_multi_page" report_slug=report.slug %}"
+               class="btn btn-primary">
+                <i class="fas fa-plus"></i> Multi-page
+            </a>
+        </div>
         <a href="{% url "setup:reports:pdf" report_slug=report.slug %}"
            class="btn btn-warning">
             Download as PDF

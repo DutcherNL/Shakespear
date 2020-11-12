@@ -6,7 +6,8 @@
     {% breadcrumb "Setup" "setup:home" %}
     {% breadcrumb "Reports" "setup:reports:reports_overview" %}
     {% breadcrumb report.report_name "setup:reports:details" report_slug=report.slug %}
-    {% breadcrumb "Add page" "setup:reports:details" report_slug=report.slug %}
+    {% breadcrumb "Layouts" "setup:reports:layout_overview" report_slug=report.slug %}
+    {% breadcrumb "Add new layout" "setup:reports:details" %}
 {% endblock %}
 
 {% block body %}
@@ -20,7 +21,7 @@
                 {% else %}
                     <input class="btn-primary btn" type="submit" value="Create">
                 {% endif %}
-                <a href="{% url 'setup:reports:details' report_slug=report.slug %}" class="btn btn-secondary">
+                <a href="{% url 'setup:reports:layout_overview' report_slug=report.slug %}" class="btn btn-secondary">
                     Annuleren
                 </a>
             </div>

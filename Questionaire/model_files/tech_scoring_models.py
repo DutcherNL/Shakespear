@@ -59,6 +59,9 @@ class Technology(models.Model):
         :param inquiry: the inquiry model
         :return: 0 is not met, 1 if met, 0.5 if unsure
         """
+        if inquiry is None:
+            return self.TECH_UNKNOWN
+
         all_fail = True
         all_pass = True
         # Check for all sub_techs the states and mark trends

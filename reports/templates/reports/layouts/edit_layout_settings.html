@@ -1,0 +1,87 @@
+{% extends 'base_with_body.html' %}
+{% load pdf_tags %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% load django_bootstrap_breadcrumbs  %}
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Setup" "setup:home" %}
+    {% breadcrumb "Reports" "setup:reports:reports_overview" %}
+    {% breadcrumb report.report_name "setup:reports:details" report_slug=report.slug %}
+    {% breadcrumb "Layouts" "setup:reports:layout_overview" report_slug=report.slug %}
+    {% breadcrumb layout.name "setup:resports:layout_oververiew" report_slug=report.slug layout=layout %}
+
+{% endblock %}
+
+
+{% block head %}
+    {{ block.super }}
+    <link href="{% static "css/page_edit.css" %}" rel="stylesheet">
+{% endblock %}
+
+
+{% block body-containerless %}
+    <div class="container-fluid my-3">
+        <div class="row">
+            <div class="pe_main col-sm-12">
+                <div class="container">
+                    {% block page %}
+                        <div name="page_container" style="
+                                width:{{ measurements.size.width }};
+                                height:{{ measurements.size.height }};
+                                position:relative;
+                                ">
+                            <div id="layout_container" style="width: 100%; height: 100%; position: absolute;">
+                                {% render_layout layout=layout %}
+                            </div>
+                            <div id="content_container" style="
+                                    width:100%;
+                                    height:100%;
+                                    border: 1px solid black;
+                                    overflow: hidden;
+                                    padding: {{ measurements.margins }};
+                                    box-sizing: border-box;
+                                    border: 2px double #777;">
+                                <div style="
+                                    width: 100%;
+                                    height: 100%;
+                                    border: 1px dashed #777;">
+
+                                </div>
+                            </div>
+                        </div>
+                    {% endblock %}
+                </div>
+            </div>
+            <div class="pe_sidebar">
+                <div>
+                    {% block sidebar_content %}
+                        <h3>{{ layout.name }}</h3>
+                        <p> {{ layout.description }} </p>
+                        <hr>
+                        <form method="post" id="layout_form">
+                            {% csrf_token %}
+
+                            {% include "snippets/bootstrap_form.html" %}
+
+                            <div class="btn-group d-flex" role="group">
+                                <input class="btn-success btn w-50" type="submit" value="Save">
+                                <a class="btn btn-secondary w-50"
+                                   href="{% url "setup:reports:edit_layout" report_slug=report.slug layout=layout %}">
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock  %}
+
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static "javascript/reports/preview_layout.js" %}"></script>
+{% endblock %}

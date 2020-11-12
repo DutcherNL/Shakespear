@@ -1,13 +1,18 @@
-from django.views.generic import ListView, CreateView, TemplateView, View, UpdateView
+import datetime
+
+from django.views.generic import ListView, CreateView, TemplateView, View, UpdateView, FormView, DeleteView
 from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
 from django.shortcuts import get_object_or_404
+from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 from string import Formatter
 
-from .models import Report, ReportPage, ReportDisplayOptions
+from .models import *
 from .responses import PDFResponse
-from .renderers import ReportPagePDFRenderer, ReportPageRenderer
+from .renderers import ReportSinglePagePDFRenderer, ReportSinglePageRenderer
+from .forms import *
 
 
 class AccessabilityMixin(LoginRequiredMixin):
@@ -47,8 +52,8 @@ class ReportMixin:
         self.report = get_object_or_404(Report, slug=kwargs.pop('report_slug'))
         return super(ReportMixin, self).dispatch(request, *args, **kwargs)
 
-    def get_context_data(self):
-        context = super(ReportMixin, self).get_context_data()
+    def get_context_data(self, **kwargs):
+        context = super(ReportMixin, self).get_context_data(**kwargs)
         context['report'] = self.report
         return context
 
@@ -98,14 +103,112 @@ class ReportDisplayOptionsUpdateView(AccessabilityMixin, ReportMixin, UpdateView
         return reverse("setup:reports:details", kwargs=url_kwargs)
 
 
-class CreateReportPageView(AccessabilityMixin, ReportMixin, CreateView):
-    model = ReportPage
-    fields = ['name', 'description', 'page_number']
-    template_name = "reports/reportpage_form_add.html"
+# #######################################################################
+# ################        Page Layout Views       #######################
+# #######################################################################
+
+
+class ReportLayoutListView(AccessabilityMixin, ReportMixin, ListView):
+    template_name = "reports/layouts/layout_overview.html"
+    context_object_name = "layouts"
+
+    def get_queryset(self):
+        return PageLayout.objects.filter(report=self.report)
+
+    def get_context_data(self):
+        paper_size = self.report.display_options.get_paper_sizes_mm()
+
+        kwargs = super(ReportLayoutListView, self).get_context_data()
+        kwargs.update({
+            # preview width is set in em
+            'preview_width': 10,
+            'preview_height': 10 * paper_size['height'] / paper_size['width'],
+            'preview_scale': 0.4,
+        })
+        return kwargs
+
+
+class ReportAddLayoutView(AccessabilityMixin, ReportMixin, CreateView):
+    model = PageLayout
+    fields = "__all__"
+    template_name = "reports/layouts/create_layout.html"
+
+    def get_success_url(self):
+        return reverse('setup:reports:edit_layout', kwargs={'report_slug': self.report.slug, 'layout': self.object})
+
+
+class LayoutMixin:
+    layout = None
+
+    def dispatch(self, request, *args, layout=None, **kwargs):
+        self.layout = layout
+        if self.layout.report != self.report:
+            raise Http404("The selected layout is not part of this report")
+        return super(LayoutMixin, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(LayoutMixin, self).get_context_data(**kwargs)
+        context['layout'] = self.layout
+        return context
+
+
+class PreviewLayoutMixin:
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        report_display_options = self.report.display_options
+        context.update({
+            'layout_context': {
+                'header': self.layout.report.display_options.header,
+                'footer': self.layout.report.display_options.footer,
+            },
+            'measurements': {
+                'margins': self.layout.margins,
+                'size': report_display_options.paper_proportions
+            }
+
+        })
+        return context
+
+
+class ReportChangeLayoutSettingsView(AccessabilityMixin, ReportMixin, LayoutMixin, PreviewLayoutMixin, UpdateView):
+    fields = ['name', 'description']
+    template_name = "reports/layouts/edit_layout_settings.html"
+
+    def get_object(self, queryset=None):
+        return self.layout
+
+    def get_success_url(self):
+        return reverse('setup:reports:edit_layout', kwargs={'report_slug': self.report.slug, 'layout': self.layout})
+
+
+class ReportChangeLayoutView(AccessabilityMixin, ReportMixin, LayoutMixin, PreviewLayoutMixin, FormView):
+    template_name = "reports/layouts/edit_layout.html"
+    form_class = AlterLayoutForm
+
+    def get_form_kwargs(self):
+        kwargs = super(ReportChangeLayoutView, self).get_form_kwargs()
+        kwargs.update({
+            'instance': self.layout,
+        })
+        return kwargs
 
     def form_valid(self, form):
-        form.instance.report = self.report
-        return super(CreateReportPageView, self).form_valid(form)
+        form.save()
+        return super(ReportChangeLayoutView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('setup:reports:edit_layout', kwargs={'report_slug': self.report.slug, 'layout': self.layout})
+
+
+# #######################################################################
+# #################        Page Setup Views      ########################
+# #######################################################################
+
+
+class CreateReportPageView(AccessabilityMixin, ReportMixin, CreateView):
+    model = ReportPage
+    fields = ['name', 'description', 'layout']
+    template_name = "reports/reportpage_form_add.html"
 
     def get_initial(self):
         initials = super(CreateReportPageView, self).get_initial()
@@ -119,16 +222,65 @@ class CreateReportPageView(AccessabilityMixin, ReportMixin, CreateView):
         }
         return reverse("setup:reports:details", kwargs=url_kwargs)
 
+    def form_valid(self, form):
+        form.instance.report = self.report
+        result = super(CreateReportPageView, self).form_valid(form)
+
+        page_num = ReportPageLink.objects.filter(report=self.report).order_by('page_number').last().page_number + 2
+
+        ReportPageLink.objects.create(
+            report=self.report,
+            page=form.instance,
+            page_number = page_num
+        )
+
+        return result
+
+
+class ReportMovePageView(AccessabilityMixin, ReportMixin, FormView):
+    form_class = MovePageForm
+
+    def get_form_kwargs(self):
+        kwargs = super(ReportMovePageView, self).get_form_kwargs()
+        kwargs.update({
+            'report': self.report
+        })
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        direction = "upward" if form.cleaned_data['move_up'] else "downward"
+        page = form.cleaned_data['report_page']
+
+        messages.success(self.request, f"Succesfully moved {page} {direction}")
+        return super(ReportMovePageView, self).form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, f"An error occured: {form.errors}")
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse('setup:reports:details', kwargs={'report_slug': self.report.slug})
+
+
+class CreateReportMultiPageView(CreateReportPageView):
+    fields = ['name', 'description', 'layout', 'multi_type']
+
+    def get_form(self, form_class=None):
+        form = super(CreateReportMultiPageView, self).get_form(form_class=form_class)
+        form.fields['multi_type'].required = True
+        return form
+
 
 class ReportPageMixinPrep:
     report_page = None
 
     def dispatch(self, request, *args, **kwargs):
-        self.report_page = get_object_or_404(ReportPage, id=kwargs.pop('report_page_id'), report=self.report)
+        self.report_page = get_object_or_404(ReportPage, id=kwargs.pop('report_page_id'), reportpagelink__report=self.report)
         return super(ReportPageMixinPrep, self).dispatch(request, *args, **kwargs)
 
-    def get_context_data(self):
-        context = super(ReportPageMixinPrep, self).get_context_data()
+    def get_context_data(self, **kwargs):
+        context = super(ReportPageMixinPrep, self).get_context_data(**kwargs)
         context['report_page'] = self.report_page
         return context
 
@@ -144,7 +296,7 @@ class ReportPageInfoView(ReportPageMixin, TemplateView):
 
 class ReportPageUpdateView(AccessabilityMixin, ReportMixin, UpdateView):
     model = ReportPage
-    fields = ['name', 'description', 'page_number']
+    fields = ['name', 'description', 'layout']
     pk_url_kwarg = "report_page_id"
     template_name_field = "report_page"
 
@@ -162,7 +314,7 @@ class PDFTemplateView(TemplateResponseMixin, ContextMixin, View):
     template_engine = "PDFTemplates"
     response_class = PDFResponse
     file_name = 'test_file'
-    page_renderer_class = ReportPagePDFRenderer
+    page_renderer_class = ReportSinglePagePDFRenderer
 
     def get_file_name(self):
         """ Construct the file name from the given file name replaced with local attributes """
@@ -213,6 +365,73 @@ class PDFTemplateView(TemplateResponseMixin, ContextMixin, View):
         return {}
 
 
+# #######################################################################
+# ################# Report Page Display Criteria ########################
+# #######################################################################
+
+
+class ReportPageCriteriaOverview(ReportPageMixin, ListView):
+    paginate_by = 100
+    template_name = "reports/page_conditions/reportpage_criteria_list.html"
+
+    def get_queryset(self):
+        return self.report_page.pagecriteria_set.all()
+
+
+class CreateTechCriteriaView(ReportPageMixin, CreateView):
+    template_name = "reports/page_conditions/reportpage_criteria_create.html"
+    model = TechnologyPageCriteria
+    fields = ['technology', 'score']
+
+    def form_valid(self, form):
+        form.instance.page = self.report_page
+        form.save()
+        return super(CreateTechCriteriaView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse("setup:reports:page_criterias",
+                       kwargs={'report_page_id': self.report_page.id, 'report_slug': self.report.slug})
+
+
+class EditCriteriaView(ReportPageMixin, UpdateView):
+    template_name = "reports/page_conditions/reportpage_criteria_edit.html"
+    model = TechnologyPageCriteria
+    fields = ['technology', 'score']
+
+    def get_object(self, queryset=None):
+        object = self.report_page.pagecriteria_set.filter(id=self.kwargs.get('criteria_id', None))
+        try:
+            object = object.get()
+        except PageCriteria.DoesNotExist:
+            raise Http404("This criteria is not associated to this page")
+        return object.get_as_child()
+
+    def get_success_url(self):
+        return reverse("setup:reports:page_criterias",
+                       kwargs={'report_page_id': self.report_page.id, 'report_slug': self.report.slug})
+
+
+class DeleteCriteriaView(ReportPageMixin, DeleteView):
+    template_name = "reports/page_conditions/reportpage_criteria_delete.html"
+    model = PageCriteria
+
+    def get_object(self, queryset=None):
+        object = self.report_page.pagecriteria_set.filter(id=self.kwargs.get('criteria_id', None))
+        try:
+            object = object.get()
+        except PageCriteria.DoesNotExist:
+            raise Http404("This criteria is not associated to this page")
+        return object
+
+    def get_success_url(self):
+        return reverse("setup:reports:page_criterias",
+                       kwargs={'report_page_id': self.report_page.id, 'report_slug': self.report.slug})
+
+
+# #######################################################################
+# #################       Print output views     ########################
+# #######################################################################
+
 class PrintPageAsPDFView(ReportPageMixin, PDFTemplateView):
     template_name = "reports/pdf_page.html"
     file_name = 'Example_pdf_page_{report_page.id}'
@@ -224,10 +443,10 @@ class PrintPageAsPDFView(ReportPageMixin, PDFTemplateView):
 
     def get_page_options(self):
         options = super(PrintPageAsPDFView, self).get_page_options()
-        orientation = 'Portrait' if self.report_page.report.display_options.orientation else 'Landscape'
+        orientation = 'Portrait' if self.report_page.reportpagelink.report.display_options.orientation else 'Landscape'
 
         options.update({
-            'page-size': self.report_page.report.display_options.size,
+            'page-size': self.report_page.reportpagelink.report.display_options.size,
             'orientation': orientation,
         })
         return options

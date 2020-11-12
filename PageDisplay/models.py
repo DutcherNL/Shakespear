@@ -15,6 +15,7 @@ class Page(models.Model):
     Is a wrapper of sorts for root module container contained in layout
     """
     root_module = models.ForeignKey('BaseModule', on_delete=models.CASCADE, blank=True, null=True)
+    last_edited = models.DateTimeField(auto_now=True)
     name = models.CharField(max_length=63)
 
     option_fields = ['name']
