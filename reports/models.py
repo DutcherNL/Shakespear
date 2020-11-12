@@ -223,7 +223,10 @@ class PageCriteria(models.Model):
     page = models.ForeignKey(ReportPage, on_delete=models.CASCADE)
 
     def is_met(self, inquiry):
-        return NotImplementedError
+        return self.get_as_child()._is_met(inquiry)
+
+    def _is_met(self, inquiry):
+        return NotImplementedError(f"{self.__class__} has not implemented '_is_met(inquiry)' method")
 
     def get_as_child(self):
         """ Returns the child object of this class"""
@@ -233,6 +236,20 @@ class PageCriteria(models.Model):
             if child.objects.filter(id=self.id).exists():
                 return child.objects.get(id=self.id).get_as_child()
         return self
+
+    def get_key_name(self):
+        """ A condition is set up as attribute K == value Y. This method returns K for any type of condition"""
+        return self.get_as_child()._get_key_name()
+
+    def _get_key_name(self):
+        raise NotImplementedError(f"{self.__class__} has not implemented '_get_key_name()' method")
+
+    def get_value_name(self):
+        """ A condition is set up as attribute K == value Y. This method returns K for any type of condition"""
+        return self.get_as_child()._get_value_name()
+
+    def _get_value_name(self):
+        raise NotImplementedError(f"{self.__class__} has not implemented '_get_value_name()' method")
 
 
 class TechnologyPageCriteria(PageCriteria):
@@ -246,11 +263,17 @@ class TechnologyPageCriteria(PageCriteria):
     ]
     score = models.IntegerField(choices=_score_options)
 
-    def is_met(self, inquiry):
+    def _is_met(self, inquiry):
         if self.technology is not None:
             score = self.technology.get_score(inquiry)
             return True if score == self.score else False
         return False
+
+    def _get_key_name(self):
+        return self.technology
+
+    def _get_value_name(self):
+        return self.get_score_display()
 
 
 class LogicPageCriteria(PageCriteria):

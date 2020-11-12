@@ -53,7 +53,7 @@
             <tr class="font-weight-bold">
                 <td style="min-width: 10rem">Number</td>
                 <td style="min-width: 10rem">Name</td>
-                <td style="min-width: 10rem;">Last edited</td>
+                <td style="min-width: 10rem">Criteria</td>
                 <td style="min-width: 10rem;">Options</td>
             </tr>
             </thead>
@@ -94,12 +94,18 @@
                         {{ page.name }}
                     </td>
                     <td>
-                        {{ page.last_edited }}
+                        {% if page.pagecriteria_set.count == 0 %}
+                            No conditions
+                        {% elif page.pagecriteria_set.count == 1 %}
+                            {{ page.pagecriteria_set.first.get_key_name }} / {{ page.pagecriteria_set.first.get_value_name }}
+                        {% else %}
+                            {{ page.pagecriteria_set.count }} conditions
+                        {% endif %}
                     </td>
-                    <td class="py-1">
+                    <td class="">
                         <a href="{% url "setup:reports:pages:edit_page" report_slug=report.slug report_page_id=page.id %}"
-                           class="py-1 btn btn-info">
-                            View
+                           class="py-1 btn btn-primary">
+                            <i class="fas fa-edit"></i> Edit
                         </a>
                     </td>
                 </tr>

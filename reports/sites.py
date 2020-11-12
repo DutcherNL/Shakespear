@@ -28,6 +28,13 @@ class ReportDesignSite(PageSite):
             'form_class': SelectPageLayoutForm,
             'return_on_success': False,
         },
+        'criterias': {
+            'button': {
+                'type': 'btn-info',
+                'url': 'setup:reports:page_criterias',
+                'text': mark_safe('<i class="fas fa-filter"></i> Set criteria')
+            },
+        },
         'download_pdf': {
             'button': {
                 'type': 'btn-warning',
