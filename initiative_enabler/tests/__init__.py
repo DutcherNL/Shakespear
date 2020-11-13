@@ -59,7 +59,7 @@ def set_up_restrictions(testcase):
 
 
 def set_up_tech_scores(testcase, inquiry=None):
-    t1 = Technology.objects.create(name="Tech_1")
+    t1 = Technology.objects.create(name="Tech_1", display_in_step_3_list=True)
     sd1 = ScoringDeclaration.objects.create(name="tech_1_score")
     TechScoreLink.objects.create(score_declaration=sd1, technology=t1)
 
