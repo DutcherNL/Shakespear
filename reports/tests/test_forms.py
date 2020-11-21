@@ -164,4 +164,29 @@ class TestMovePageOrderForm(FormValidityMixin, TestCase):
         }, 'is_last_page')
 
 
+class TestAlterLayoutForm(FormValidityMixin, TestCase):
+    fixtures = ['test_report.json']
+    form_class = AlterLayoutForm
 
+    def get_form_kwargs(self, **kwargs):
+        return super(TestAlterLayoutForm, self).get_form_kwargs(
+            instance=PageLayout.objects.get(id=1),
+            **kwargs
+        )
+
+    def test_initial_template_contents(self):
+        self.assertHasField('contents')
+        form = self.build_form(None)
+        self.assertEqual(form.fields['contents'].initial, "<div>Plain header</div>")
+
+    def test_margins(self):
+        self.assertHasField('margins')
+
+    def test_template_content_saving(self):
+        new_layout_content = '<p>This is a header</p>'
+        form = self.assertFormValid({
+            'margins': '20mm 40mm 40mm 20mm',
+            'contents': new_layout_content,
+        })
+        form.save()
+        self.assertEqual(PageLayout.objects.get(id=1).template_content, new_layout_content)

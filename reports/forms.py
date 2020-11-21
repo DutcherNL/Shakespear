@@ -84,7 +84,7 @@ class MovePageForm(forms.Form):
     def save(self):
         """ Save the move by switching the page numbers of the two pages """
         this_page_link = self.cleaned_data['report_page'].reportpagelink
-        current_page_number = this_page_link.page_number.page_number
+        current_page_number = this_page_link.page_number
 
         switch_with_link = ReportPageLink.objects. \
             filter(report=self.report). \
