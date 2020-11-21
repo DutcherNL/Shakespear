@@ -26,15 +26,15 @@ class Report(models.Model):
     promotion_text = models.TextField(blank=True, null=True, verbose_name="Text displayed near download option")
     is_live = models.BooleanField(default=False)
     last_edited = models.DateTimeField(auto_now=True)
+    pages = models.ManyToManyField(to="ReportPage", through="ReportPageLink")
 
     def save(self, **kwargs):
         self.slug = slugify(self.report_name)
         super(Report, self).save(**kwargs)
 
     def get_pages(self):
-        return ReportPage.objects.filter(
-            reportpagelink__report=self,
-        ).order_by(
+        """ Returns all pages in this report in the correct order """
+        return self.pages.order_by(
             'reportpagelink__page_number'
         ).all()
 
@@ -67,7 +67,8 @@ class PageLayout(models.Model):
         if self.template:
             if not self.template.name.lower().endswith(self.allowed_template_extensions):
                 raise ValidationError(
-                    f"The template file should be of any of the following types: {self.allowed_template_extensions}"
+                    f"The template file should be of any of the following types: {self.allowed_template_extensions}",
+                    code="Invalid extension"
                 )
 
     def save(self, **kwargs):
@@ -109,7 +110,7 @@ class ReportDisplayOptions(models.Model):
     def paper_proportions(self):
         """ Returns a dict of the height and width of the pages in the report"""
         sizes = self.get_paper_sizes_mm()
-        sizes['wdith'] = str(sizes['width'])+"mm"
+        sizes['width'] = str(sizes['width'])+"mm"
         sizes['height'] = str(sizes['height'])+"mm"
         return sizes
 

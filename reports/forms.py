@@ -59,11 +59,33 @@ class MovePageForm(forms.Form):
     def clean_report_page(self):
         report_page = self.cleaned_data['report_page']
         if report_page not in self.report.get_pages():
-            raise ValidationError("Page is not part of this report")
+            raise ValidationError("Page is not part of this report", code='report_invalid')
         return report_page
 
+    def clean(self):
+        if 'report_page' not in self.cleaned_data:
+            # There is no report page, so likely an error occured in clean_report_page
+            return
+        cur_link = ReportPageLink.objects.get(page=self.cleaned_data['report_page'])
+
+        if self.cleaned_data['move_up']:
+            if ReportPageLink.objects.filter(report=self.report, page_number__lt=cur_link.page_number).count() == 0:
+                raise ValidationError(
+                    "This page was already the first page", code='is_first_page'
+                )
+        else:
+            if ReportPageLink.objects.filter(report=self.report, page_number__gt=cur_link.page_number).count() == 0:
+                raise ValidationError(
+                    "This page was already the last page", code='is_last_page'
+                )
+
+        return self.cleaned_data
+
     def save(self):
-        current_page_number = self.cleaned_data['report_page'].reportpagelink.page_number
+        """ Save the move by switching the page numbers of the two pages """
+        this_page_link = self.cleaned_data['report_page'].reportpagelink
+        current_page_number = this_page_link.page_number.page_number
+
         switch_with_link = ReportPageLink.objects. \
             filter(report=self.report). \
             order_by('page_number')
@@ -76,7 +98,7 @@ class MovePageForm(forms.Form):
             switch_with_link = switch_with_link. \
                 filter(page_number__gt=current_page_number). \
                 first()
-        this_page_link = self.cleaned_data['report_page'].reportpagelink
+
         this_page_link.page_number = switch_with_link.page_number
         this_page_link.save()
         switch_with_link.page_number = current_page_number

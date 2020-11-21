@@ -226,7 +226,11 @@ class CreateReportPageView(AccessabilityMixin, ReportMixin, CreateView):
         form.instance.report = self.report
         result = super(CreateReportPageView, self).form_valid(form)
 
-        page_num = ReportPageLink.objects.filter(report=self.report).order_by('page_number').last().page_number + 2
+        try:
+            page_num = ReportPageLink.objects.filter(report=self.report).order_by('page_number').last().page_number + 2
+        except AttributeError:
+            # There is no page yet
+            page_num = 1
 
         ReportPageLink.objects.create(
             report=self.report,

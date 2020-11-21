@@ -1,0 +1,367 @@
+[
+   {
+      "model": "PageDisplay.page",
+      "pk": 2,
+      "fields": {
+         "root_module": 2,
+         "last_edited": "2020-11-21T14:37:52.151Z",
+         "name": "First page"
+      }
+   },
+   {
+      "model": "PageDisplay.page",
+      "pk": 3,
+      "fields": {
+         "root_module": 5,
+         "last_edited": "2020-11-21T14:45:27.685Z",
+         "name": "3rd page"
+      }
+   },
+   {
+      "model": "PageDisplay.page",
+      "pk": 4,
+      "fields": {
+         "root_module": 6,
+         "last_edited": "2020-11-21T14:45:59.372Z",
+         "name": "2nd page"
+      }
+   },
+   {
+      "model": "PageDisplay.page",
+      "pk": 5,
+      "fields": {
+         "root_module": 7,
+         "last_edited": "2020-11-21T14:46:11.729Z",
+         "name": "Final page"
+      }
+   },
+   {
+      "model": "PageDisplay.page",
+      "pk": 6,
+      "fields": {
+         "root_module": 8,
+         "last_edited": "2020-11-21T17:15:42.954Z",
+         "name": "Sole page"
+      }
+   },
+   {
+      "model": "PageDisplay.basemodule",
+      "pk": 1,
+      "fields": {
+         "_type": 10
+      }
+   },
+   {
+      "model": "PageDisplay.basemodule",
+      "pk": 2,
+      "fields": {
+         "_type": 10
+      }
+   },
+   {
+      "model": "PageDisplay.basemodule",
+      "pk": 3,
+      "fields": {
+         "_type": 1
+      }
+   },
+   {
+      "model": "PageDisplay.basemodule",
+      "pk": 4,
+      "fields": {
+         "_type": 2
+      }
+   },
+   {
+      "model": "PageDisplay.basemodule",
+      "pk": 5,
+      "fields": {
+         "_type": 10
+      }
+   },
+   {
+      "model": "PageDisplay.basemodule",
+      "pk": 6,
+      "fields": {
+         "_type": 10
+      }
+   },
+   {
+      "model": "PageDisplay.basemodule",
+      "pk": 7,
+      "fields": {
+         "_type": 10
+      }
+   },
+   {
+      "model": "PageDisplay.basemodule",
+      "pk": 8,
+      "fields": {
+         "_type": 10
+      }
+   },
+   {
+      "model": "PageDisplay.orderedcontainermodule",
+      "pk": 1,
+      "fields": {}
+   },
+   {
+      "model": "PageDisplay.orderedcontainermodule",
+      "pk": 2,
+      "fields": {}
+   },
+   {
+      "model": "PageDisplay.orderedcontainermodule",
+      "pk": 5,
+      "fields": {}
+   },
+   {
+      "model": "PageDisplay.orderedcontainermodule",
+      "pk": 6,
+      "fields": {}
+   },
+   {
+      "model": "PageDisplay.orderedcontainermodule",
+      "pk": 7,
+      "fields": {}
+   },
+   {
+      "model": "PageDisplay.orderedcontainermodule",
+      "pk": 8,
+      "fields": {}
+   },
+   {
+      "model": "PageDisplay.containermodulepositionallink",
+      "pk": 1,
+      "fields": {
+         "container": 2,
+         "position": 101,
+         "module": 3
+      }
+   },
+   {
+      "model": "PageDisplay.containermodulepositionallink",
+      "pk": 2,
+      "fields": {
+         "container": 2,
+         "position": 151,
+         "module": 4
+      }
+   },
+   {
+      "model": "PageDisplay.verticalcontainermodule",
+      "pk": 1,
+      "fields": {}
+   },
+   {
+      "model": "PageDisplay.verticalcontainermodule",
+      "pk": 2,
+      "fields": {}
+   },
+   {
+      "model": "PageDisplay.verticalcontainermodule",
+      "pk": 5,
+      "fields": {}
+   },
+   {
+      "model": "PageDisplay.verticalcontainermodule",
+      "pk": 6,
+      "fields": {}
+   },
+   {
+      "model": "PageDisplay.verticalcontainermodule",
+      "pk": 7,
+      "fields": {}
+   },
+   {
+      "model": "PageDisplay.verticalcontainermodule",
+      "pk": 8,
+      "fields": {}
+   },
+   {
+      "model": "PageDisplay.titlemodule",
+      "pk": 3,
+      "fields": {
+         "title": "First page",
+         "size": 1,
+         "css": null
+      }
+   },
+   {
+      "model": "PageDisplay.textmodule",
+      "pk": 4,
+      "fields": {
+         "text": "A little bit of text",
+         "css": null
+      }
+   },
+   {
+      "model": "reports.report",
+      "pk": 1,
+      "fields": {
+         "report_name": "Test basic report",
+         "file_name": "some_simple_file_name",
+         "slug": "test-basic-report",
+         "description": "",
+         "promotion_text": null,
+         "is_live": false,
+         "last_edited": "2020-11-21T14:33:03.915Z"
+      }
+   },
+   {
+      "model": "reports.report",
+      "pk": 2,
+      "fields": {
+         "report_name": "Another report",
+         "file_name": "howtodo",
+         "slug": "another-report",
+         "description": "",
+         "promotion_text": null,
+         "is_live": false,
+         "last_edited": "2020-11-21T17:15:06.247Z"
+      }
+   },
+   {
+      "model": "reports.pagelayout",
+      "pk": 1,
+      "fields": {
+         "report": 1,
+         "name": "Simple layout",
+         "slug": "simple-layout",
+         "description": "Simple layout description",
+         "template": "reports/1/layout_templates/simple-layout_template.html",
+         "margins": "20mm 20mm 20mm 20mm"
+      }
+   },
+   {
+      "model": "reports.pagelayout",
+      "pk": 2,
+      "fields": {
+         "report": 2,
+         "name": "Front page",
+         "slug": "front-page",
+         "description": null,
+         "template": "reports/2/layout_templates/front-page_template.html",
+         "margins": "20mm 20mm 20mm 20mm"
+      }
+   },
+   {
+      "model": "reports.reportdisplayoptions",
+      "pk": 1,
+      "fields": {
+         "report": 1,
+         "size": "A4",
+         "orientation": true,
+         "margins": "20mm 20mm 20mm 20mm",
+         "header": "header",
+         "footer": "footer"
+      }
+   },
+   {
+      "model": "reports.reportdisplayoptions",
+      "pk": 2,
+      "fields": {
+         "report": 2,
+         "size": "A4",
+         "orientation": true,
+         "margins": "20mm 20mm 20mm 20mm",
+         "header": "header",
+         "footer": "footer"
+      }
+   },
+   {
+      "model": "reports.reportpage",
+      "pk": 2,
+      "fields": {
+         "description": "The first page",
+         "layout": 1,
+         "multi_type": null,
+         "has_header_footer": true
+      }
+   },
+   {
+      "model": "reports.reportpage",
+      "pk": 3,
+      "fields": {
+         "description": "3rd page",
+         "layout": 1,
+         "multi_type": null,
+         "has_header_footer": true
+      }
+   },
+   {
+      "model": "reports.reportpage",
+      "pk": 4,
+      "fields": {
+         "description": "A normal 2nd page",
+         "layout": 1,
+         "multi_type": null,
+         "has_header_footer": true
+      }
+   },
+   {
+      "model": "reports.reportpage",
+      "pk": 5,
+      "fields": {
+         "description": "Last page",
+         "layout": 1,
+         "multi_type": null,
+         "has_header_footer": true
+      }
+   },
+   {
+      "model": "reports.reportpage",
+      "pk": 6,
+      "fields": {
+         "description": "Some information",
+         "layout": 1,
+         "multi_type": null,
+         "has_header_footer": true
+      }
+   },
+   {
+      "model": "reports.reportpagelink",
+      "pk": 1,
+      "fields": {
+         "report": 1,
+         "page": 2,
+         "page_number": 1
+      }
+   },
+   {
+      "model": "reports.reportpagelink",
+      "pk": 2,
+      "fields": {
+         "report": 1,
+         "page": 3,
+         "page_number": 5
+      }
+   },
+   {
+      "model": "reports.reportpagelink",
+      "pk": 3,
+      "fields": {
+         "report": 1,
+         "page": 4,
+         "page_number": 3
+      }
+   },
+   {
+      "model": "reports.reportpagelink",
+      "pk": 4,
+      "fields": {
+         "report": 1,
+         "page": 5,
+         "page_number": 7
+      }
+   },
+   {
+      "model": "reports.reportpagelink",
+      "pk": 5,
+      "fields": {
+         "report": 2,
+         "page": 6,
+         "page_number": 1
+      }
+   }
+]
