@@ -253,8 +253,8 @@
          "size": "A4",
          "orientation": true,
          "margins": "20mm 20mm 20mm 20mm",
-         "header": "header",
-         "footer": "footer"
+         "header": "a custom header",
+         "footer": "a custom footer"
       }
    },
    {

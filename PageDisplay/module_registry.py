@@ -66,6 +66,12 @@ class ModuleRegister:
         else:
             return None
 
+    def get_module_from_name(self, module_name):
+        for registered_module in self._modules.values():
+            if registered_module.module.__name__ == module_name:
+                return registered_module.module
+        raise KeyError("Module "+module_name+" not found in register")
+
 
 # Create the registry instance
 registry = ModuleRegister()

@@ -130,8 +130,14 @@ class ReportLayoutListView(AccessabilityMixin, ReportMixin, ListView):
 
 class ReportAddLayoutView(AccessabilityMixin, ReportMixin, CreateView):
     model = PageLayout
-    fields = "__all__"
+    fields = ['name', 'description', 'template', 'margins']
     template_name = "reports/layouts/create_layout.html"
+
+    def get_form(self, form_class=None):
+        form = super(ReportAddLayoutView, self).get_form(form_class=form_class)
+        # Set the report on the form instance
+        form.instance.report = self.report
+        return form
 
     def get_success_url(self):
         return reverse('setup:reports:edit_layout', kwargs={'report_slug': self.report.slug, 'layout': self.object})
@@ -210,11 +216,6 @@ class CreateReportPageView(AccessabilityMixin, ReportMixin, CreateView):
     fields = ['name', 'description', 'layout']
     template_name = "reports/reportpage_form_add.html"
 
-    def get_initial(self):
-        initials = super(CreateReportPageView, self).get_initial()
-        initials['report'] = self.report
-        return initials
-
     def get_success_url(self):
         url_kwargs = {
             'report_slug': self.report.slug,
@@ -227,7 +228,7 @@ class CreateReportPageView(AccessabilityMixin, ReportMixin, CreateView):
         result = super(CreateReportPageView, self).form_valid(form)
 
         try:
-            page_num = ReportPageLink.objects.filter(report=self.report).order_by('page_number').last().page_number + 2
+            page_num = ReportPageLink.objects.filter(report=self.report).order_by('page_number').last().page_number + 1
         except AttributeError:
             # There is no page yet
             page_num = 1
@@ -235,14 +236,18 @@ class CreateReportPageView(AccessabilityMixin, ReportMixin, CreateView):
         ReportPageLink.objects.create(
             report=self.report,
             page=form.instance,
-            page_number = page_num
+            page_number=page_num
         )
-
         return result
 
 
 class ReportMovePageView(AccessabilityMixin, ReportMixin, FormView):
     form_class = MovePageForm
+
+    def get(self, request, *args, **kwargs):
+        messages.error(request, message="The page you tried to visit is unvisitable and only used to process data. "
+                                        "You have been redirected to this page instead")
+        return HttpResponseRedirect(self.get_success_url())
 
     def get_form_kwargs(self):
         kwargs = super(ReportMovePageView, self).get_form_kwargs()
@@ -260,7 +265,10 @@ class ReportMovePageView(AccessabilityMixin, ReportMixin, FormView):
         return super(ReportMovePageView, self).form_valid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, f"An error occured: {form.errors}")
+        invalidation_errors = form.errors.as_data()
+        first_form_error = invalidation_errors.get(list(invalidation_errors.keys())[0])[0]
+
+        messages.error(self.request, f"An error occured: {first_form_error}")
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
@@ -294,6 +302,7 @@ class ReportPageMixin(AccessabilityMixin, ReportMixin, ReportPageMixinPrep):
     pass
 
 
+# Todo: redact these views, they are part of the sitedisplay options now
 class ReportPageInfoView(ReportPageMixin, TemplateView):
     template_name = "reports/reportpage_detail.html"
 
@@ -310,6 +319,74 @@ class ReportPageUpdateView(AccessabilityMixin, ReportMixin, UpdateView):
             'report_page_id': self.object.id
         }
         return reverse("setup:reports:details", kwargs=url_kwargs)
+
+
+# #######################################################################
+# ################# Report Page Display Criteria ########################
+# #######################################################################
+
+
+class ReportPageCriteriaOverview(ReportPageMixin, ListView):
+    paginate_by = 100
+    template_name = "reports/page_conditions/reportpage_criteria_list.html"
+
+    def get_queryset(self):
+        return self.report_page.pagecriteria_set.order_by('page_id')
+
+
+class CreateTechCriteriaView(ReportPageMixin, CreateView):
+    template_name = "reports/page_conditions/reportpage_criteria_create.html"
+    model = TechnologyPageCriteria
+    fields = ['technology', 'score']
+
+    def form_valid(self, form):
+        form.instance.page = self.report_page
+        form.save()
+        return super(CreateTechCriteriaView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse("setup:reports:page_criterias",
+                       kwargs={'report_page_id': self.report_page.id, 'report_slug': self.report.slug})
+
+
+class EditCriteriaView(ReportPageMixin, UpdateView):
+    template_name = "reports/page_conditions/reportpage_criteria_edit.html"
+    model = TechnologyPageCriteria
+    fields = ['technology', 'score']
+
+    def get_object(self, queryset=None):
+        object = self.report_page.pagecriteria_set.filter(id=self.kwargs.get('criteria_id', None))
+        try:
+            object = object.get()
+        except PageCriteria.DoesNotExist:
+            raise Http404("This criteria is not associated to this page")
+        return object.get_as_child()
+
+    def get_success_url(self):
+        return reverse("setup:reports:page_criterias",
+                       kwargs={'report_page_id': self.report_page.id, 'report_slug': self.report.slug})
+
+
+class DeleteCriteriaView(ReportPageMixin, DeleteView):
+    template_name = "reports/page_conditions/reportpage_criteria_delete.html"
+    model = PageCriteria
+
+    def get_object(self, queryset=None):
+        object = self.report_page.pagecriteria_set.filter(id=self.kwargs.get('criteria_id', None))
+        try:
+            object = object.get()
+        except PageCriteria.DoesNotExist:
+            raise Http404("This criteria is not associated to this page")
+        return object
+
+    def get_success_url(self):
+        return reverse("setup:reports:page_criterias",
+                       kwargs={'report_page_id': self.report_page.id, 'report_slug': self.report.slug})
+
+
+# #######################################################################
+# #################       Print output views     ########################
+# #######################################################################
 
 
 class PDFTemplateView(TemplateResponseMixin, ContextMixin, View):
@@ -368,73 +445,6 @@ class PDFTemplateView(TemplateResponseMixin, ContextMixin, View):
     def get_page_options(self):
         return {}
 
-
-# #######################################################################
-# ################# Report Page Display Criteria ########################
-# #######################################################################
-
-
-class ReportPageCriteriaOverview(ReportPageMixin, ListView):
-    paginate_by = 100
-    template_name = "reports/page_conditions/reportpage_criteria_list.html"
-
-    def get_queryset(self):
-        return self.report_page.pagecriteria_set.all()
-
-
-class CreateTechCriteriaView(ReportPageMixin, CreateView):
-    template_name = "reports/page_conditions/reportpage_criteria_create.html"
-    model = TechnologyPageCriteria
-    fields = ['technology', 'score']
-
-    def form_valid(self, form):
-        form.instance.page = self.report_page
-        form.save()
-        return super(CreateTechCriteriaView, self).form_valid(form)
-
-    def get_success_url(self):
-        return reverse("setup:reports:page_criterias",
-                       kwargs={'report_page_id': self.report_page.id, 'report_slug': self.report.slug})
-
-
-class EditCriteriaView(ReportPageMixin, UpdateView):
-    template_name = "reports/page_conditions/reportpage_criteria_edit.html"
-    model = TechnologyPageCriteria
-    fields = ['technology', 'score']
-
-    def get_object(self, queryset=None):
-        object = self.report_page.pagecriteria_set.filter(id=self.kwargs.get('criteria_id', None))
-        try:
-            object = object.get()
-        except PageCriteria.DoesNotExist:
-            raise Http404("This criteria is not associated to this page")
-        return object.get_as_child()
-
-    def get_success_url(self):
-        return reverse("setup:reports:page_criterias",
-                       kwargs={'report_page_id': self.report_page.id, 'report_slug': self.report.slug})
-
-
-class DeleteCriteriaView(ReportPageMixin, DeleteView):
-    template_name = "reports/page_conditions/reportpage_criteria_delete.html"
-    model = PageCriteria
-
-    def get_object(self, queryset=None):
-        object = self.report_page.pagecriteria_set.filter(id=self.kwargs.get('criteria_id', None))
-        try:
-            object = object.get()
-        except PageCriteria.DoesNotExist:
-            raise Http404("This criteria is not associated to this page")
-        return object
-
-    def get_success_url(self):
-        return reverse("setup:reports:page_criterias",
-                       kwargs={'report_page_id': self.report_page.id, 'report_slug': self.report.slug})
-
-
-# #######################################################################
-# #################       Print output views     ########################
-# #######################################################################
 
 class PrintPageAsPDFView(ReportPageMixin, PDFTemplateView):
     template_name = "reports/pdf_page.html"

@@ -13,6 +13,8 @@ from .models import Report, ReportPage, PageCriteria
 # Create your views here.
 
 
+# Todo: Check if these views can be redacted. They don't seem to be used in an active manor
+
 class QuestionaireCompletePDFView(LoginRequiredMixin, QuestionaireCompleteView):
     template_name = "report_preview.html"
 
