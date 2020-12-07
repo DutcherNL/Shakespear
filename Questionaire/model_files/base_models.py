@@ -23,6 +23,9 @@ class Question(models.Model):
     TYPE_INT = 1
     TYPE_DOUBLE = 2
     TYPE_CHOICE = 3
+    TYPE_YESNO = 4
+    TYPE_BESTMULTI = 5
+    TYPE_EXTMULTI = 6
 
     # Define the question types
     QUESTION_TYPE_OPTIONS = (
@@ -30,6 +33,9 @@ class Question(models.Model):
         (TYPE_INT, 'Integer question'),
         (TYPE_DOUBLE, 'Double question'),
         (TYPE_CHOICE, 'Choice question'),
+        (TYPE_YESNO, 'Yes-No question'),
+        (TYPE_BESTMULTI, 'Multiple choice question'),
+        (TYPE_EXTMULTI, 'Multiple YESNO question'),
     )
     question_type = models.PositiveIntegerField(choices=QUESTION_TYPE_OPTIONS)
     options = models.TextField(blank=True, null=True, default="{}")

@@ -3,7 +3,8 @@ from django.utils.safestring import mark_safe
 
 
 __all__ = ["CustomRadioSelect", "InformationDisplayWidget", "IgnorableTextInput", "ExternalDataInputLocal",
-           "IgnorableEmailInput", "IgnorableNumberInput", "IgnorableDoubleInput"]
+           "IgnorableEmailInput", "IgnorableNumberInput", "IgnorableDoubleInput", "CustomMultiSelect"]
+
 
 class InformationDisplayWidget(Widget):
     """ A widget that does not do anything except display text in between other widgets """
@@ -117,6 +118,38 @@ class CustomRadioSelect(IgnorableInputMixin, RadioSelect):
 
     def create_option(self, name, value, *args, **kwargs):
         option = super(CustomRadioSelect, self).create_option(name, value, *args, **kwargs)
+        option['image'] = self.images.get(value, None)
+        option['answer_height'] = self.answer_height
+        return option
+
+    def ignore_value_from_datadict(self, data, name, value):
+        """ Determines if the returned result should be ignored """
+        ignore_value = name + self.none_name_appendix
+        return value == ignore_value
+
+
+class CustomMultiSelect(IgnorableInputMixin, CheckboxSelectMultiple):
+    template_name = 'widgets/widget_q_multi.html'
+    answer_height = None
+
+    def __init__(self, *args, images=None, **kwargs):
+        super(CustomMultiSelect, self).__init__(*args, **kwargs)
+        self.images = images or {}
+
+    def get_context(self, name, value, attrs):
+        context = super(CustomMultiSelect, self).get_context(name, value, attrs)
+
+        context['widget']['type'] = self.input_type
+        context['widget']['images'] = self.images
+
+        return context
+
+    def optgroups(self, name, value, attrs=None):
+        print(value)
+        return super(CustomMultiSelect, self).optgroups(name, value, attrs)
+
+    def create_option(self, name, value, *args, **kwargs):
+        option = super(CustomMultiSelect, self).create_option(name, value, *args, **kwargs)
         option['image'] = self.images.get(value, None)
         option['answer_height'] = self.answer_height
         return option

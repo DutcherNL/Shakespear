@@ -1,5 +1,6 @@
-from django.forms import CharField, IntegerField, DecimalField, ChoiceField, Field, ValidationError, EmailField
+from django.forms.fields import *
 from django.core.validators import RegexValidator, MaxValueValidator, MinValueValidator
+from django.core.exceptions import ValidationError
 
 from .widgets_question import *
 from .widgets_question import IgnorableInputMixin
@@ -48,8 +49,14 @@ class QuestionFieldFactory:
             # Double question
             return DecimalQuestionField(question, inquiry, required=required)
         if q_type == Question.TYPE_CHOICE:
-            # Multiple choice question
+            # Single choice question
             return ChoiceQuestionField(question, inquiry, required=required)
+        if q_type == Question.TYPE_YESNO:
+            # Yes / No question
+            return YesNoQuestionField(question, inquiry, required=required)
+        if q_type == Question.TYPE_BESTMULTI:
+            # Multiple choice question
+            return BestChoiceQuestionField(question, inquiry, required=required)
 
         raise ValueError("q_type is beyond expected range")
 
@@ -93,15 +100,23 @@ class QuestionFieldMixin:
 
         if inquiry is not None:
             # If an inquiry is given, get the answer stored for that inquiry
-            answer_obj = InquiryQuestionAnswer.objects.filter(question=question, inquiry=inquiry)
-            if answer_obj.exists():
-                self.initial = answer_obj.first().answer
+            current_answer = self.get_current_answer(inquiry)
+            if current_answer:
+                self.initial = current_answer
             else:
                 # There is no answer, set the widget to empty (used for ignored widgets)
                 self.widget.empty = True
 
         # Store the validators
         self.validators = [*self.validators, *self.construct_validators(self.question.options_dict)]
+
+    def get_current_answer(self, inquiry):
+        """ Returns the initial answer. Can be overwritten in case of multiple answers or complex answer retrieval """
+        answer_obj = InquiryQuestionAnswer.objects.filter(question=self.question, inquiry=inquiry)
+        if answer_obj.exists():
+            return answer_obj.first().answer
+        else:
+            return None
 
     def construct_validators(self, validator_dict):
         """
@@ -213,6 +228,64 @@ class ChoiceQuestionField(IgnorableQuestionFieldMixin, ChoiceField):
         # Set the height of the question
         if 'height' in question_options.keys():
             self.widget.answer_height = question_options['height']
+
+
+class YesNoQuestionField(IgnorableQuestionFieldMixin, ChoiceField):
+    """ A multiple choice question """
+    widget = CustomRadioSelect
+
+    def __init__(self, question, inquiry, *args, **kwargs):
+        super(YesNoQuestionField, self).__init__(question, inquiry, *args, **kwargs)
+
+        choices = []
+
+        # Get all the answer options and place them in a list
+        choices.append((True, 'Ja'))
+        choices.append((False, 'Nee'))
+
+        self.choices = choices
+
+        question_options = self.question.options_dict
+        # Set the height of the question
+        if 'height' in question_options.keys():
+            self.widget.answer_height = question_options['height']
+
+
+class BestChoiceQuestionField(IgnorableQuestionFieldMixin, MultipleChoiceField):
+    """ A multiple choice question """
+    widget = CustomMultiSelect
+
+    def __init__(self, question, inquiry, *args, **kwargs):
+        super(BestChoiceQuestionField, self).__init__(question, inquiry, *args, **kwargs)
+
+        choices = []
+        images = {}
+
+        # Get all the answer options and place them in a list
+        for answer in question.answeroption_set.order_by("value"):
+            choices.append((answer.value, answer.answer))
+            # If answer option has an image, load that image onto the widget
+            if answer.image:
+                images[answer.value] = answer.image
+
+        self.choices = choices
+        self.widget.images = images
+
+        question_options = self.question.options_dict
+        # Set the height of the question
+        if 'height' in question_options.keys():
+            self.widget.answer_height = question_options['height']
+
+    def get_current_answer(self, inquiry):
+        """ Returns the initial answer. Can be overwritten in case of multiple answers or complex answer retrieval """
+        answer_values = super(BestChoiceQuestionField, self).get_current_answer(inquiry)
+
+        # There are multiple selected answers, translate the values from the database to a list of id_nrs
+        if answer_values:
+            # Answer is a string representation of a list, so translate it.
+            a = answer_values.strip('][').replace('\'', '').replace('\"', '').replace(' ', '')
+            return a.split(',')
+        return None
 
 
 class InformationField(Field):

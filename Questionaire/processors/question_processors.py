@@ -3,7 +3,6 @@ from django.db.models import IntegerField as IntegerDBField
 from django.db.models import DecimalField as DecimalDBField
 from django.db.models.functions import Cast
 
-
 """ This file contains code that allows the question to find its related answer """
 
 __all__ = ['get_answer_option_through_question', 'get_answer_option_from_answer']
@@ -31,6 +30,12 @@ def get_answer_option_through_question(question, answer_value):
     if q_type == Question.TYPE_CHOICE:
         # Multiple choice question
         return get_choice_answer_option(question, answer_value)
+    if q_type == Question.TYPE_YESNO:
+        # Yes-No question
+        return get_yesno_answer_option(question, answer_value)
+    if q_type == Question.TYPE_BESTMULTI:
+        # Yes-No question
+        return get_best_from_multi_question(question, answer_value)
 
 
 def get_open_answer_option(question, answer_value):
@@ -78,3 +83,25 @@ def get_choice_answer_option(question, answer_value):
         return None
     else:
         return question.answeroption_set.get(value=int(answer_value))
+
+
+def get_yesno_answer_option(question, answer_value):
+    if answer_value is None or answer_value == '':
+        return None
+    else:
+        if answer_value == "True":
+            # Agreeing should result in True
+            return question.answeroption_set.filter(answer="True").first()
+        else:
+            return question.answeroption_set.filter(answer="False").first()
+
+
+def get_best_from_multi_question(question, answer_value):
+    # from Questionaire.models import Question
+
+    if answer_value is None or answer_value == '':
+        return None
+    else:
+        option_nr = int(answer_value[0]) - 1
+        return question.answeroption_set.order_by("value")[option_nr]
+
