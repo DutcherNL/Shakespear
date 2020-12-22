@@ -1,3 +1,25 @@
-Fix dubbele laag in resultaten (single groups contain single tech for some reason)
 
-3rd step mail request layout + handling (doesnt update properly?)
+
+
+
+Required attribute for questions does not work in actual questionaire view (at least in multiple choice)
+
+Advanced postal code selection for belgium
+
+Reskin to new style and layout
+
+U in NL, Je in Be
+
+Link in de PDF naar de techniek informatiepagina's
+Link module
+
+
+
+- - - Checken op de site zelf - - -
+Radiatorfolie staat driedubbel
+Naisolatie bij toegepast staat isolatie niet voldoende
+Oranje advies op zonneenergie en vloerverwarming
+
+
+
+14 januari is de deadline
