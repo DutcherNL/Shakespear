@@ -1,13 +1,15 @@
 {% extends 'base_with_body.html' %}
+{% load i18n %}
 
 {% block body %}
-    <h1 class="row col-12">Start collectief</h1>
+    <h1 class="row col-12">{% trans "Start collectief" %}</h1>
 
     <form method="post" class="row">
         {% csrf_token %}
         <div class="col-12">
             {% include "snippets/bootstrap_form.html" %}
-            <input type="submit" value="Start" class="btn btn-block btn-primary"/>
+            <input type="submit" value="{% trans "Start" context "start-collectief-confirm-btn" %}"
+                   class="btn btn-block btn-primary"/>
         </div>
     </form>
 {% endblock %}

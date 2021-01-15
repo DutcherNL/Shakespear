@@ -1,23 +1,29 @@
 {% extends 'base_public.html' %}
+{% load i18n %}
 
 {% block body %}
     <h1>Welkom</h1>
-
     <p>
-        Welkom op de Samen Duurzamer Wonen Tool, de online enquete die je helpt naar een zuiniger huis.
+        {% blocktrans trimmed %}
+            Welkom op de Samen Duurzamer Wonen Tool, de online enquete die je helpt naar een zuiniger huis.
+        {% endblocktrans %}
     </p>
     <p>
-        Door middel van een korte vragenlijst proberen wij voor u inzichtelijk te maken welke energie-besparende
-        en duurzame maatregelen voor uw woning mogelijk interessant is.
+        {% blocktrans trimmed %}
+            Door middel van een korte vragenlijst proberen wij voor u inzichtelijk te maken welke energie-besparende
+            en duurzame maatregelen voor uw woning mogelijk interessant is.
+        {% endblocktrans %}
     </p>
     <p>
+        {% blocktrans trimmed %}
         Wilt u uw woning verduurzamen maar weet u niet waar u moet beginnen? Wacht dan niet langer en start onze
         vragenlijst.
+        {% endblocktrans %}
     </p>
     <div class="row">
         <div class="col-12 col-md-6 offset-md-3">
             <a href="{% url 'new_query' %}" class="btn btn-block btn-primary btn-lg">
-                <i class="fas fa-pen"></i> Start nieuwe vragenlijst
+                <i class="fas fa-pen"></i> {% trans "Start nieuwe vragenlijst" %}
             </a>
         </div>
     </div>
@@ -26,7 +32,9 @@
     <div class="row">
         <div class="col-md-6">
             <p>
-                Heeft u hier al eerder een vragenlijst gestart?<br> Ga dan verder waar u gebleven bent
+                {% blocktrans trimmed %}
+                    Heeft u hier al eerder een vragenlijst gestart?<br> Ga dan verder waar u gebleven bent
+                {% endblocktrans %}
             </p>
             <form method="post" action="{% url 'run_continue' %}" class="">
                 {% csrf_token %}

@@ -1,19 +1,22 @@
 {% extends 'initiative_enabler/user_zone/collective_base.html' %}
 {% load static %}
 {% load collective_tags %}
+{% load i18n %}
 
 {% block collective_content %}
         {% if not is_interested %}
-            <h4>Wilt u meedoen?</h4>
+            <h4>{% trans "Wilt u meedoen?" %}</h4>
             <div class="row">
                 <div class="col-sm-8">
-                    Heeft u interesse om mogelijk deel te nemen aan een collectief wanneer deze in uw omgeving word gestart en
-                    wilt u hiervoor uitnodigingen ontvangen?
+                    {% blocktrans trimmed %}
+                        Heeft u interesse om mogelijk deel te nemen aan een collectief wanneer deze in uw omgeving word gestart en
+                        wilt u hiervoor uitnodigingen ontvangen?
+                    {% endblocktrans %}
                 </div>
                 <div class="col-sm-4">
                     <button class="btn btn-success btn-block"
                             type="submit" form="interest_{{ technology.slug }}">
-                        <i class="fas fa-user-check"></i> Ja, houd me op de hoogte
+                        <i class="fas fa-user-check"></i> {% trans "Ja, houd me op de hoogte" %}
                     </button>
                 </div>
             </div>
@@ -22,51 +25,64 @@
 
 
     <div>
-        <h3>Waarom een collectief?</h3>
+        <h3>{% trans "Waarom een collectief?" context "collective-initiate-info" %}</h3>
         <p>
+            {% blocktrans trimmed context "collective-initiate-info"%}
             Sommige taken zijn niet eenvoudig te ondernemen en vergen een expert. Dit kan echter een flinke klus zijn. Een
             gezamenlijk collectief met de buurt kan veel last wegnemen; u regelt het immers samen. Ook kan er over
             de prijs worden onderhandeld waardoor kosten lager uit vallen als er meer huizen meedoen.
+            {% endblocktrans %}
         </p>
-        <h3>Hoe start ik een collectief?</h3>
+        <h3>{% trans "Hoe start ik een collectief?" context "collective-initiate-info" %}</h3>
         <p>
+            {% blocktrans trimmed context "collective-initiate-info"%}
             U kunt zelf al een collectief opstarten met uw buren en andere kennisen uit de buurt. Hiervoor kan het stappenplan
             bovenaan deze pagina helpen. Echter kunnen wij u ook in contact brengen met bewoners in uw nabije omgeving die
             hetzelfde advies hebben gekregen uit deze vragenlijst. Dit werkt als volgt:
+            {% endblocktrans %}
         </p>
         <p>
-            Wanneer iemand een collectief aanmaakt versturen wij uitnodigingen aan iedereen die heeft aangegeven interesse
-            in een gezamenlijk collectief te hebben. Wanneer zij op deze uitnodiging positief reageren worden de
-            contactgegevens van u en de ander uitgewisseld.
+            {% blocktrans trimmed context "collective-initiate-info"%}
+                Wanneer iemand een collectief aanmaakt versturen wij uitnodigingen aan iedereen die heeft aangegeven interesse
+                in een gezamenlijk collectief te hebben. Wanneer zij op deze uitnodiging positief reageren worden de
+                contactgegevens van u en de ander uitgewisseld.
+            {% endblocktrans %}
         </p>
         <div class="d-flex justify-content-around mb-3">
             <img class="img-responsive" src="{% static 'img/send_on_col_creation.png' %}"
                  width="225" height="125"
-                 alt="Stuur uitnodigingen bij creatie collectief">
+                 alt="{% trans "Stuur uitnodigingen bij creatie collectief" context "img-alt" %}">
             <img class="img-responsive" src="{% static 'img/connect_on_approval.png' %}"
                  width="225" height="125"
-                 alt="Stuur uitnodigingen bij creatie collectief">
+                 alt="{% trans "Stuur uitnodigingen bij creatie collectief" context "img-alt" %}"">
         </div>
         <p>
-            Nu u en anderen met elkaar in contact zijn gekomen kunt u hen benaderen via mail, of online chat-programma's
-            zoals Whatsapp, Telegram, Zoom of Discord. U kunt  u natuurlijk altijd uit een collectief terugtrekken
-            voordat er concrete afspraken zijn gemaakt.
+            {% blocktrans trimmed context "collective-initiate-info"%}
+                Nu u en anderen met elkaar in contact zijn gekomen kunt u hen benaderen via mail, of online
+                chat-programma's zoals Whatsapp, Telegram, Zoom of Discord. U kunt nu natuurlijk altijd uit
+                een collectief terugtrekken voordat er concrete afspraken zijn gemaakt.
+            {% endblocktrans %}
         </p>
         <hr>
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header bg-info text-light">
-                        <h3>Start een collectief</h3>
+                        <h3>{% trans "Start een collectief" context "collective-initiate-info"%}</h3>
                     </div>
                     {% if has_collective_requirements_in_order %}
                         <div class="card-body">
                             <p class="card-text">
+                                {% blocktrans trimmed %}
                                 Op dit moment zijn er <b>{{ num_interested }} huishoudens</b> in uw omgeving die interesse hebben in een
                                 gezamenlijk collectief.
+                                {% endblocktrans %}
                             </p>
                             {% if tech_collective.restrictions.all %}
-                                <p>Uw omgeving is eenieder die voldoet aan de volgende voorwaarde:
+                                <p>
+                                    {% blocktrans trimmed %}
+                                        Uw omgeving is eenieder die voldoet aan de volgende voorwaarde:
+                                    {% endblocktrans %}
                                 <br>
                                 {% for name, value in requirement_scopes.items %}
                                     {{ name }}: {{ value }}
@@ -75,23 +91,29 @@
                                 </p>
                             {% endif %}
                             <p>
+                                {% blocktrans trimmed %}
                                 Wilt u het initiatief nemen om een collectief te starten?
+                                {% endblocktrans %}
                             </p>
                             <button class="btn btn-primary btn-lg"
                                     data-toggle="modal" data-target="#start-collectief-1">
-                                <i class="fas fa-users"></i> Start Collectief
+                                <i class="fas fa-users"></i> {% trans "Start Collectief" %}
                             </button>
                         </div>
                     {% else %}
                         <div class="card-body">
                             <p>
                                 {% if is_interested %}
+                                    {% blocktrans trimmed %}
                                     Op dit moment is het onduidelijk waar u woont. U heeft eerder aangegeven waar u woont,
                                     echter heeft u dit antwoord terug getrokken in de vragenlijst.
+                                    {% endblocktrans %}
                                 {% else %}
                                     {# Give the illusion that one needs to be interested first. It is more instinctive for the user to fix the missing location data #}
+                                    {% blocktrans trimmed %}
                                     Om collectieven te kunnen starten dient u eerst interesse te hebben getoond. Dat kunt
                                     u doen door op de knop onderaan deze pagina te doen.
+                                    {% endblocktrans %}
                                 {% endif %}
                             </p>
 
@@ -114,15 +136,17 @@
         <div class="alert alert-success">
             <div class="row">
                 <div class="col-md-8">
-                    <h4>Wij houden u op de hoogte</h4>
+                    <h4>{% trans "Wij houden u op de hoogte" context "collective-info" %} </h4>
                     <div>
+                        {% blocktrans trimmed %}
                         U heeft aangegeven open te staan voor uitnodigingen voor collectieve inkoop in de buurt.
                         Wij informeren u hierover per email.
+                        {% endblocktrans %}
                     </div>
                 </div>
                 <div class="col-md-4">
                     <button type="button" class="btn btn-warning btn-block align-bottom" data-toggle="modal" data-target="#unsubscribe_modal">
-                        <i class="fas fa-user-times"></i> Ik heb geen interesse meer
+                        <i class="fas fa-user-times"></i> {% trans "Ik heb geen interesse meer" context "collective-action" %}
                     </button>
                 </div>
             </div>
@@ -131,36 +155,40 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Afmelden interesse {{ tech_collective }}</h5>
+                        <h5 class="modal-title">{% trans "Afmelden interesse" context "collective-action" %} {{ tech_collective }}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>Wanneer u zich afmeld kunt u geen nieuwe uitnodigingen ontvangen. Uitnodigingen die
-                            u eerder heeft ontvangen of geaccepteerd blijven wel behouden.</p>
+                        <p>{% blocktrans trimmed %}Wanneer u zich afmeld kunt u geen nieuwe uitnodigingen ontvangen. Uitnodigingen die
+                            u eerder heeft ontvangen of geaccepteerd blijven wel behouden.{% endblocktrans %}</p>
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-warning"
                                 type="submit" form="interest_{{ technology.slug }}">
-                            <i class="fas fa-user-check"></i> Ik heb geen interesse meer
+                            <i class="fas fa-user-check"></i> {% trans "Ik heb geen interesse meer" context "collective-action" %}
                         </button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuleren</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            {% trans "Annuleren" context "collective-action" %}
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     {% else %}
-        <h4>Wilt u meedoen?</h4>
+        <h4>{% trans "Wilt u meedoen?" context "collective-action" %}</h4>
         <div class="row">
             <div class="col-sm-8">
+                {% blocktrans trimmed %}
                 Heeft u interesse om mogelijk deel te nemen aan een collectief wanneer deze in uw omgeving word gestart en
                 wilt u hiervoor uitnodigingen ontvangen?
+                {% endblocktrans %}
             </div>
             <div class="col-sm-4">
                 <button class="btn btn-success btn-block"
                         type="submit" form="interest_{{ technology.slug }}">
-                    <i class="fas fa-user-check"></i> Ja, houd me op de hoogte
+                    <i class="fas fa-user-check"></i> {% trans "Ja, houd me op de hoogte" context "collective-action" %}
                 </button>
             </div>
         </div>
@@ -172,7 +200,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLongTitle">
-                        Uw contactgegevens
+                        {% trans "Uw contactgegevens" context "collective-action" %}
                     </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -180,9 +208,11 @@
                 </div>
                 <div class="modal-body">
                     <p>
+                        {% blocktrans trimmed %}
                         Wat top dat u een collectief wilt organiseren. Om u in contact te brengen met anderen hebben
                         we wel uw contactgegevens nodig voor hen die op uw uitnodigingen reageren.
                         Zou u zo vriendelijk willen zijn deze in te vullen?
+                        {% endblocktrans %}
 
                     </p>
                     <form id="personal_data_form"
@@ -196,9 +226,11 @@
                 </div>
                 <div class="modal-footer">
                     <button type=submit class="btn btn-primary" form="personal_data_form">
-                        Verder
+                        {% trans "Verder" context "collective-action" %}
                     </button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Sluiten</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        {% trans "Sluiten" context "collective-action" %}
+                    </button>
                 </div>
             </div>
         </div>
@@ -208,7 +240,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLongTitle">
-                        Uw collectief
+                        {% trans "Uw collectief" context "collective-action" %}
                     </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -216,11 +248,15 @@
                 </div>
                 <div class="modal-body">
                     <p>
+                        {% blocktrans trimmed %}
                         Bij de uitnodiging om deel te nemen sturen wij een bericht van u mee. Laat weten waarom anderen
                         mee moeten doen met uw collectief.
+                        {% endblocktrans %}
                     </p>
                     <p>
+                        {% blocktrans trimmed %}
                         U hoeft hierin niet uw contact gegevens te plaatsen. Deze worden na acceptatie al gedeeld.
+                        {% endblocktrans %}
                     </p>
                     <form id="create_form" method="post" action="{% url "collectives:start_new" collective_id=tech_collective.id %}">
                         {% csrf_token %}
@@ -228,12 +264,16 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-success" form="create_form">Aanmaken en versturen</button>
+                    <button type="submit" class="btn btn-success" form="create_form">
+                        {% trans "Aanmaken en versturen" context "collective-action" %}
+                    </button>
                     <button class="btn btn-primary" data-toggle="modal"
                             data-target="#start-collectief-1" data-dismiss="modal">
-                        Terug
+                        {% trans "Terug" context "collective-action" %}
                     </button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Sluiten</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        {% trans "Sluiten" context "collective-action" %}
+                    </button>
                 </div>
             </div>
         </div>

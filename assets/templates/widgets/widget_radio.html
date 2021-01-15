@@ -1,3 +1,5 @@
+{% load i18n %}
+
 <div data-toggle="buttons">
     <div class="btn-group-horizontal-md btn-group-toggle" >
     {% for group, options, index in widget.optgroups %}
@@ -40,7 +42,7 @@
                    value="{{ widget.none_name }}" id="{{ widget.attrs.id }}"
                     {% if widget.none_selected %} checked {% endif %}>
 
-            Weet ik niet/ wil ik niet delen
+            {% trans "Weet ik niet/ wil ik niet delen" context "leave-question-empty" %}
         </label>
     {% endif %}
 </div>

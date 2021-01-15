@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from mailing.forms import MailForm
 from inquirer_settings.models import PendingMailVerifyer
@@ -128,12 +129,12 @@ class EmailForm(forms.Form):
 class CreateInquirerForm(forms.ModelForm):
     accept_cookies = forms.BooleanField(
         required=True,
-        label="Ik ga akkoord met het gebruik van cookies",
+        label=_("Ik ga akkoord met het gebruik van cookies"),
         widget=SimpleBootstrapCheckBox,
     )
     accept_privacy = forms.BooleanField(
         required=True,
-        label="Ik ga akkoord met het privacy beleid",
+        label=_("Ik ga akkoord met het privacy beleid"),
         widget=SimpleBootstrapCheckBox,
     )
 
@@ -170,7 +171,7 @@ class InquirerLoadForm(forms.Form):
     def clean_code(self):
         """ Clean the code """
         if self.inquirer_model is None:
-            raise forms.ValidationError("Code is incorrect. Inquiry is not known")
+            raise forms.ValidationError(_("Code is incorrect. Inquiry is not known"))
 
         return self.cleaned_data.get('code')
 
@@ -192,11 +193,11 @@ class InquirerLoadForm(forms.Form):
             raise forms.ValidationError("Er is een e-mail adres aan deze vragenlijst gekoppeld. \n"
                                         "Gelieve dit in te vullen zodat wij weten dat u het bent")
 
-        raise forms.ValidationError("Dit is niet het geaccosieerde e-mail adres")
+        raise forms.ValidationError(_("Dit is niet het geaccosieerde e-mail adres"))
 
     def get_inquiry(self):
         if self.inquirer_model is None:
-            raise ValueError("No inquirer model computed yet")
+            raise ValueError(_("No inquirer model computed yet"))
 
         return self.inquirer_model.active_inquiry
 

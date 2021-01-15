@@ -1,7 +1,8 @@
 {% extends 'base_with_body.html' %}
+{% load i18n %}
 
 {% block body %}
-    <h1 class="row col-12">Wijzig uw contactgegevens</h1>
+    <h1 class="row col-12">{% trans "Wijzig uw contactgegevens" context "collective-action" %}</h1>
 
     <form method="post" class="row">
         {% csrf_token %}
@@ -9,7 +10,7 @@
             {% include "snippets/bootstrap_form.html" %}
             <input type="submit" value="Opslaan" class="btn btn-primary"/>
             <a class="btn btn-secondary" href="{{ collective.get_absolute_url }}">
-                Annuleren
+                {% trans "Annuleren" context "collective-action" %}
             </a>
         </div>
     </form>

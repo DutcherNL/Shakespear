@@ -1,31 +1,38 @@
 {% extends 'base_public.html' %}
+{% load i18n %}
 
 {% block body %}
     <form method="post">
         {% csrf_token %}
 
         <div class="row">
-            <h1 class="col-12">Wij vereisen uw email</h1>
+            <h1 class="col-12">{% trans "Wij vereisen uw email" %}</h1>
         </div>
 
         <div class="row">
             <div class="col-12">
                 <p>
-                    Om verder te gaan moeten wij u op de hoogte kunnen houden door middel van e-mail. U heeft uw e-mail
-                    echter nog niet opgegeven. Zou u dit alsnog willen doen?
+                    {% blocktrans trimmed %}
+                        Om verder te gaan moeten wij u op de hoogte kunnen houden door middel van e-mail. U heeft uw e-mail
+                        echter nog niet opgegeven. Zou u dit alsnog willen doen?
+                    {% endblocktrans %}
                 </p>
             </div>
             <div class="col-12">
                 <p>
-                    Uiteraard kunt u ook verder gaan zonder uw e-mail adres achter te laten.
+                    {% blocktrans trimmed %}
+                        Uiteraard kunt u ook verder gaan zonder uw e-mail adres achter te laten.
+                    {% endblocktrans %}
                 </p>
                 <p class="">
                     <small>
+                        {% blocktrans trimmed %}
                         Wij sturen gemiddeld 2 mails sturen in een periode van een jaar. Wanneer u in stap 3 interesse
-                        aantoont in een collectief of een collectief start zult u tevens per mail worden geïnformeerd over
+                        aantoont in een collectief of een collectief start zult u tevens per mail worden ge&iuml;nformeerd over
                         ontwikkelingen.<br>
                         U zult geen mails ontvangen van ons namens derde partijen. Uw mail adres zal nooit gedeeld worden
                         zonder uw expliciete toestemming.
+                        {% endblocktrans %}
                     </small>
                 </p>
             </div>
@@ -38,15 +45,15 @@
         <div class="row">
             <div class="col-6">
                 <a class="btn btn-block btn-secondary" href="{% url "results_display" %}">
-                    Terug
+                    {% trans "Terug" %}
                 </a>
             </div>
             <div class="col-6">
-                <input type="submit" class="btn btn-block btn-success" value="Opslaan en doorgaan">
+                <input type="submit" class="btn btn-block btn-success"
+                       value="{% trans "Opslaan en doorgaan" %}">
             </div>
         </div>
 
     </form>
-
 
 {% endblock %}

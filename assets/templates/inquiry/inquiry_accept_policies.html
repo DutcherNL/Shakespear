@@ -1,31 +1,39 @@
 {% extends 'base_public.html' %}
+{% load i18n %}
 
 
 {% block body %}
-    <h1>Gebruiksovereenkomst</h1>
+    <h1>{% trans "Gebruiksovereenkomst" %}</h1>
 
     <p>
-        Alvorens u kunt beginnen willen we u even toelichten over uw pricacy.
+        {% trans "Alvorens u kunt beginnen willen we u even toelichten over uw pricacy." %}
     </p>
-    <h5>Cookies</h5>
+    <h5>{% trans "Cookies" context "cookies-title-agreement" %}</h5>
     <p>
-        Deze website gebruikt cookies om uw voortgang bij te houden. Deze cookies verlopen automatisch na 1 dag
-        nadat u de website niet heeft bezocht. Zonder cookies kunnen wij niet bijhouden welke enquete u invult.
+        {% blocktrans trimmed %}
+            Deze website gebruikt cookies om uw voortgang bij te houden. Deze cookies verlopen automatisch na 1 dag
+            nadat u de website niet heeft bezocht. Zonder cookies kunnen wij niet bijhouden welke enquete u invult.
+        {% endblocktrans %}
     </p>
     <p>
-        Wij gebruiken cookies enkel en alleen om uw activiteit op deze website bij te houden.
+        {% blocktrans trimmed %}
+            Wij gebruiken cookies enkel en alleen om uw activiteit op deze website bij te houden.
+        {% endblocktrans %}
     </p>
 
-    <h5>Privacy beleid</h5>
+    <h5>{% trans "Privacy beleid"%}</h5>
     <p>
-        Uw privacy is u goed recht. Wij zullen daarom zorgvuldig met uw gegevens omgaan. Zo worden uw gegevens nooit
-        met anderen gedeeld of verhandeld. Tevens kunt u ten alle tijde uw gegevens wissen.
+        {% blocktrans trimmed %}
+            Uw privacy is u goed recht. Wij zullen daarom zorgvuldig met uw gegevens omgaan. Zo worden uw gegevens nooit
+            met anderen gedeeld of verhandeld. Tevens kunt u ten alle tijde uw gegevens wissen.
+        {% endblocktrans  %}
     </p>
     {% if PRIVACY_DOCUMENT_URL %}
     <p>
-        Voor meer informatie, check ons
+
+        {% trans "Voor meer informatie, check ons privacy document" %}
         <a target="_blank" rel="noopener noreferrer" href="{{ PRIVACY_DOCUMENT_URL }}">
-            volledige privacy document
+            hier
         </a>
     </p>
     {% endif %}
@@ -55,7 +63,7 @@
 
         <div class="my-3"></div>
 
-        <input type="submit" class="btn btn-primary btn-lg" value="Start de vragenlijst">
+        <input type="submit" class="btn btn-primary btn-lg" value="{% trans "Start de vragenlijst" %}">
 
     </form>
 

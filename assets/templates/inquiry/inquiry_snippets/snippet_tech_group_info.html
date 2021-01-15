@@ -1,11 +1,14 @@
 {% load score_result_tags %}
+{% load i18n %}
 
 <h3>{{ technology.name }}</h3>
 <p>
     {{ technology.short_text }}
     {% with technology.get_absolute_url as url %}
         {% if url %}
-            <a target="_blank" rel="noopener noreferrer" href="{{ url }}" > (meer informatie) </a>
+            <a target="_blank" rel="noopener noreferrer" href="{{ url }}" >
+                ({% trans "meer informatie" context "redirect-to-tech-page" %})
+            </a>
         {% endif %}
     {% endwith %}
 </p>
@@ -19,7 +22,9 @@
         {% endfor %}
     {% endfor %}
 
-    Er zijn verscheidene maatregelen die mogelijk zijn. Hieronder zetten wij uit welke maatregelen wij aanraden:
+    {% blocktrans trimmed %}
+        Er zijn verscheidene maatregelen die mogelijk zijn. Hieronder zetten wij uit welke maatregelen wij aanraden:
+    {% endblocktrans %}
     {% with technology|create_sub_tech_accordion_name as accordion_id %}
         <div id="{{ accordion_id }}">
             {% for subtech in technology.sub_technologies.all %}
@@ -31,7 +36,7 @@
         </div>
     {% endwith %}
 {% else %}
-    <h4>Ons advies: {{ technology|get_tech_score:inquiry|get_text_base_score }}</h4>
+    <h4>{% trans "Ons advies:" %} {{ technology|get_tech_score:inquiry|get_text_base_score }}</h4>
     {% for tech_score in technology|get_tech_scores:inquiry %}
         {% for note in tech_score|get_score_notes:technology %}
             <p>

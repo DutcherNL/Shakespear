@@ -1,11 +1,13 @@
 {% extends 'base_public.html' %}
 {% load collective_tags %}
-
+{% load i18n %}
 
 {% block body %}
     {% if not advised_techs %}
-        Wij kunnen u momenteel niet verder helpen. Ofwel wij hebben niets kunnen adviseren, ofwel wij hebben geen
-        actieplannen ontwikkeld voor de techneieken die u werd aanbevolen. Ons excuses hiervoor.
+        {% blocktrans trimmed %}
+            Wij kunnen u momenteel niet verder helpen. Ofwel wij hebben niets kunnen adviseren, ofwel wij hebben geen
+            actieplannen ontwikkeld voor de techneieken die u werd aanbevolen. Ons excuses hiervoor.
+        {% endblocktrans %}
     {% else %}
     <div class="row">
         <div class="col-12 col-md-10">
@@ -19,15 +21,17 @@
                 <!-- Shortcut om alle collectieven gelijk te activeren -->
                 <div class="card my-4  text-white bg-primary" style="width: 15rem;">
                     <div class="card-header">
-                        Collectief interesse
+                        {% trans "Collectief interesse" %}
                     </div>
                     <div class="card-body">
                         <h5 class="card-title"></h5>
                         <p class="card-text">
-                            Wilt u worden geïnformeerd van alle collectieven in uw buurt?
+                            {% blocktrans trimmed %}
+                            Wilt u worden ge&iuml;nformeerd van alle collectieven in uw buurt?
+                            {% endblocktrans %}
                         </p>
                         <button type="button" class="btn btn-light btn-block" data-toggle="modal" data-target="#intest_in_all_modal">
-                            Ja, ik heb interesse
+                            {% trans "Ja, ik heb interesse" %}
                         </button>
                     </div>
                 </div>
@@ -36,21 +40,27 @@
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLabel">Interesse in collectieven</h5>
+                                <h5 class="modal-title" id="exampleModalLabel">
+                                    {% trans "Interesse in collectieven" %}
+                                </h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
                             <div class="modal-body">
                                 <p>
+                                    {% blocktrans trimmed %}
                                     Het is mogelijk dat iemand in uw buurt een collectief wil starten voor de aanschaf/
-                                    installatie van één van de aanbevolen technieken. Hierbij zoekt hij/zij anderen om
+                                    installatie van &eacute;&eacute;n van de aanbevolen technieken. Hierbij zoekt hij/zij anderen om
                                     dit samen te regelen en zo eenvoudiger en goedkoper de verbetering toe te passen.
+                                    {% endblocktrans %}
                                 </p>
                                 <p>
-                                    Wilt u geïnformeerd worden wanneer dit gebeurd bij één van de door ons aanbevolen
+                                    {% blocktrans trimmed %}
+                                    Wilt u ge&iuml;nformeerd worden wanneer dit gebeurd bij &eacute;&eacute;n van de door ons aanbevolen
                                     maatregelen? Druk dan op de knop hieronder. U kunt ook, per maatregel aangeven of u
-                                    geïnteresseert bent.
+                                    ge&iuml;nteresseert bent.
+                                    {% endblocktrans %}
                                 </p>
                             </div>
                             <form action="{% url "collectives:interest_in_all" %}" method="post"
@@ -60,9 +70,11 @@
                             </form>
                             <div class="modal-footer">
                                 <button type="submit" class="btn btn-success" form="interest_in_all_form">
-                                    Ja, ik heb interesse
+                                    {% trans "Ja, ik heb interesse" %}
                                 </button>
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Sluiten</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                    {% trans "Sluiten" %}
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -71,7 +83,7 @@
             {% endif %}
             <div class="card my-4" style="width: 15rem;">
                 <div class="card-header">
-                    Navigatie
+                    {% trans "Navigatie" %}
                 </div>
                 <ul class="list-group list-group-flush">
                     {% for technology in advised_techs %}
@@ -96,7 +108,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="exampleModalLongTitle">
-                            Uitnodigingen
+                            {% trans "Uitnodigingen" %}
                         </h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -104,14 +116,18 @@
                     </div>
                     <div class="modal-body">
                         <p>
-                            U heeft <span id="modal-invite-count"></span> open uitnodigingen
+                            {% blocktrans trimmed %}
+                                U heeft <span id="modal-invite-count"></span> open uitnodigingen
+                            {% endblocktrans %}
                         </p>
                         <div id="modal-invite-list">
                             <!-- Content is filled in automatically when this modal is shown -->
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Sluiten</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            {% trans "Sluiten" %}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -123,7 +139,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="exampleModalLongTitle">
-                            Deelgenomen collectieve acties in de buurt
+                            {% trans "Deelgenomen collectieve acties in de buurt" %}
                         </h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -133,7 +149,9 @@
                         <!-- Content is filled in automatically when this modal is shown -->
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Sluiten</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            {% trans "Sluiten" %}
+                        </button>
                     </div>
                 </div>
             </div>

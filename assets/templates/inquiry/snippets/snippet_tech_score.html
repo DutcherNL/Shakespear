@@ -5,5 +5,7 @@
 
     <br>
 {{ tech_score.technology.short_text }}
-<a target="_blank" rel="noopener noreferrer" href="{% url 'tech_details' tech_id=tech_score.technology.id %}" > (meer informatie) </a>
+<a target="_blank" rel="noopener noreferrer" href="{% url 'tech_details' tech_id=tech_score.technology.id %}" >
+    ({% trans "meer informatie" context "redirect-to-tech-page" %} )
+</a>
 </p>

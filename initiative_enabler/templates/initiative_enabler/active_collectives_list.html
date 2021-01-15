@@ -1,12 +1,13 @@
 {% extends 'base_public.html' %}
 {% load collective_tags %}
 {% load static %}
+{% load i18n %}
 
 
 {% block body %}
     <div class="row">
         <div class="col">
-            <h1 class="">Onderneem collectief</h1>
+            <h1 class="">{% trans "Onderneem collectief" %}</h1>
         </div>
     </div>
 
@@ -14,7 +15,8 @@
         <div class="row">
             <div class="col-3">
                 {{ collective.tech_collective.technology }}<br>
-                by {{ collective.inquirer }}
+                {% blocktrans trimmed with collective_creator=collective.inquirer %}
+                    door {{ collective_creator }} {% endblocktrans %}
             </div>
             <div class="col-6">
                 {{ collective.name }}
@@ -22,7 +24,7 @@
             <div class="col-3">
                 <a class="btn btn-outline-primary"
                    href="{% url "collectives:actief_collectief_details" collective_id=collective.id %}">
-                    Bekijk Collectief
+                    {% trans "Bekijk Collectief" %}
                 </a>
             </div>
         </div>

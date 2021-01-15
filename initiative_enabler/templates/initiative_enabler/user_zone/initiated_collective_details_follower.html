@@ -1,6 +1,7 @@
 {% extends 'initiative_enabler/user_zone/collective_base.html' %}
 {% load score_result_tags %}
 {% load collective_tags %}
+{% load i18n %}
 
 {% block collective_content %}
     <div class="row">
@@ -8,31 +9,31 @@
             <div class="card">
                 <div class="card-header">
                     <div class="d-flex align-items-center">
-                        <h4 class="mr-auto"> Initiatiefnemer</h4>
+                        <h4 class="mr-auto"> {% trans "Initiatiefnemer" context "collective-info" %}</h4>
                     </div>
                 </div>
                 <div class="card-body">
                     <table class="card-text" style="border-spacing: 50px;">
                         <tr>
-                            <td>Naam:</td>
+                            <td>{% trans "Naam:" context "collective-info" %}</td>
                             <td style="width: 1em;"></td>
                             <td>{{ collective.name|default_if_none:"-" }}</td>
                         </tr>
                         <tr>
                             <td>
-                                Address:
+                                {% trans "Address:" context "collective-info" %}
                                 <span style="width: 5px;"></span>
                             </td>
                             <td></td>
                             <td>{{ collective.address|default_if_none:"-" }}</td>
                         </tr>
                         <tr>
-                            <td>Tel:</td>
+                            <td>{% trans "Tel:" context "collective-info" %}</td>
                             <td></td>
                             <td>{{ collective.phone_number|default_if_none:"-" }}</td>
                         </tr>
                         <tr>
-                            <td>Email:</td>
+                            <td>{% trans "Email:" context "collective-info" %}</td>
                             <td></td>
                             <td>{{ collective.inquirer.email|default_if_none:" - " }}</td>
                         </tr>
@@ -44,7 +45,7 @@
             <div class="card">
                 <div class="card-header">
                     <div class="d-flex align-items-center">
-                        <h4 class="mr-auto"> Uw gegevens</h4>
+                        <h4 class="mr-auto"> {% trans "Uw gegevens" context "collective-info" %}</h4>
                         <button class="btn btn-primary btn-sm" style="margin-left: 1em"
                                 data-toggle="modal" data-target="#personal-settings">
                             <i class="fas fa-pen"></i>
@@ -55,7 +56,7 @@
                     <table class="card-text" style="border-spacing: 50px;">
                         <tr>
                             <td>
-                                Naam:
+                                {% trans "Naam:" context "collective-info" %}
                             </td>
                             <td style="width: 1em;"></td>
                             <td>
@@ -64,7 +65,7 @@
                         </tr>
                         <tr>
                             <td>
-                                Address:
+                                {% trans "Address:" context "collective-info" %}
                                 <span style="width: 5px;"></span>
                             </td>
                             <td></td>
@@ -74,7 +75,7 @@
                         </tr>
                         <tr>
                             <td>
-                                Tel:
+                                {% trans "Tel:" context "collective-info" %}
                             </td>
                             <td></td>
                             <td>
@@ -83,7 +84,7 @@
                         </tr>
                         <tr>
                             <td>
-                                Email:
+                                {% trans "Email:" context "collective-info" %}
                             </td>
                             <td></td>
                             <td>
@@ -100,7 +101,7 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="exampleModalLongTitle">
-                                Wijzig u gegevens
+                                {% trans "Wijzig u gegevens" context "collective-info" %}
                             </h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
@@ -114,8 +115,12 @@
                             </form>
                         </div>
                         <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary" form="personal-data-form">Opslaan</button>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Sluiten</button>
+                            <button type="submit" class="btn btn-primary" form="personal-data-form">
+                                {% trans "Opslaan" context "collective-info" %}
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                {% trans "Sluiten" context "collective-info" %}
+                            </button>
                         </div>
                     </div>
                 </div>

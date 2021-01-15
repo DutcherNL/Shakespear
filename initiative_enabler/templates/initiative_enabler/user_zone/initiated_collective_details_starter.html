@@ -1,14 +1,17 @@
 {% extends 'initiative_enabler/user_zone/collective_base.html' %}
 {% load score_result_tags %}
 {% load collective_tags %}
+{% load i18n %}
 
 {% block collective_content %}
     <p>
-        Collectief is momenteel
+        {% trans "Collectief is momenteel" context "collective-info" %}
         {% if collective.is_open %}
-            <i class="fas fa-door-open"></i>open om te betreden.
+            <i class="fas fa-door-open"></i>
+            {% trans "open om te betreden." context "collective-info" %}
         {% else %}
-            <i class="fas fa-door-closed"></i>gesloten. Anderen kunnen er niet meer bij.
+            <i class="fas fa-door-closed"></i>
+            {% trans "gesloten. Anderen kunnen er niet meer bij." context "collective-info" %}
         {% endif %}
     </p>
     <hr>
@@ -17,7 +20,7 @@
         <div class="col-md-8 pb-2 pb-md-0">
             {% if tech_collective.restrictions.all %}
                 <div>
-                    <p>Er word gezocht in de volgende omgeving:
+                    <p>{% trans "Er word gezocht in de volgende omgeving:" context "collective-info" %}
                         <br>
                         {% for name, value in collective|get_collective_restrictions_as_strings %}
                             {{ name }}: {{ value }}
@@ -28,14 +31,14 @@
             {% endif %}
             <div>
             {% if collective.is_open %}
-                <h3>Deelnemers</h3>
+                <h3>{% trans "Deelnemers" context "collective-info" %}</h3>
                 <table class="table table-sm">
                     <tbody>
                         <tr>
-                            <td>Uitgenodigd</td>
-                            <td>Nog niet gereageerd</td>
-                            <td>Geaccepteerd</td>
-                            <td>Afgewezen</td>
+                            <td>{% trans "Uitgenodigd" context "collective-status" %}</td>
+                            <td>{% trans "Nog niet gereageerd" context "collective-status" %}</td>
+                            <td>{% trans "Geaccepteerd" context "collective-status" %}</td>
+                            <td>{% trans "Afgewezen" context "collective-status" %}</td>
                         </tr>
                         <tr>
                             <td>{{ collective.collectiversvp_set.count }}</td>
@@ -49,13 +52,20 @@
                                     {% if num_uninvited > 0 %}
                                         <button type="submit" class="btn btn-primary btn-sm" form="send_new_invites_form"
                                                 data-toggle="tooltip" data-placement="bottom"
-                                                title="Er zijn nieuwe mensen in uw omgeving gevonden die mogelijk interesse hebben. Klik om ze uit te nodigen.">
-                                            <i class="fas fa-envelope"></i> Stuur {{ num_uninvited }} nieuwe uitnodiging{{ num_uninvited|pluralize:"en" }}
+                                                title="{% transblock trimmed %}
+                                                Er zijn nieuwe mensen in uw omgeving gevonden die mogelijk interesse hebben. Klik om ze uit te nodigen.
+                                                {% endtransblock %}">
+                                            <i class="fas fa-envelope"></i> {% blocktrans trimmed count number_of_invited_people=num_uninvited %}
+                                                Stuur {{ number_of_invited_people }} nieuwe uitnodiging
+                                                {% plural %}
+                                                Stuur {{ number_of_invited_people }} nieuwe uitnodigingen
+                                            {% endblocktrans %}
                                         </button>
                                     {% else %}
                                         <button type="button" class="btn btn-primary btn-sm disabled"
-                                                data-toggle="tooltip" data-placement="bottom" title="Er is geen nieuwe interesse in uw omgeving">
-                                            <i class="fas fa-envelope"></i> Stuur 0 nieuwe uitnodigingen
+                                                data-toggle="tooltip" data-placement="bottom"
+                                                title="{% trans "Er is geen nieuwe interesse in uw omgeving" context "collective-info" %}">
+                                            <i class="fas fa-envelope"></i> {% trans "Stuur 0 nieuwe uitnodigingen" context "collective-info" %}
                                         </button>
                                     {% endif %}
                                     <form method="post" id="send_new_invites_form"
@@ -67,8 +77,10 @@
                             <td>
                                 <button type="submit" class="btn btn-secondary btn-sm" form="collective-reminder-form"
                                         data-toggle="tooltip" data-placement="bottom"
-                                        title="Herinneringen worden verstuurd aan ieder die de afgelopen 7 dagen een bericht hebben ontvangen.">
-                                    <i class="fas fa-envelope"></i> Stuur herinnering
+                                        title="{% blocktrans trimmed %}
+                                            Herinneringen worden verstuurd aan ieder die de afgelopen 7 dagen een bericht hebben ontvangen.
+                                        {% endblocktrans %}">
+                                    <i class="fas fa-envelope"></i> {% trans "Stuur herinnering" context "collective-info" %}
                                 </button>
                                 <form method="post" id="collective-reminder-form"
                                       action="{% url 'collectives:send_reminders_view' collective_id=collective.id %}">
@@ -82,14 +94,18 @@
                 </table>
 
                 <p>
-                    Heeft u genoeg geïnteresseerden, dan kunt u hieronder de toegang sluiten. De huidige uitnodigingen worden
-                    dan niet meer toegevoegd en mogelijke nieuwe geïnteresseerden kunnen zich niet meer aanmelden.<br>
+                    {% blocktrans trimmed %}
+                    Heeft u genoeg ge&iuml;nteresseerden, dan kunt u hieronder de toegang sluiten. De huidige uitnodigingen worden
+                    dan niet meer toegevoegd en mogelijke nieuwe ge&iuml;nteresseerden kunnen zich niet meer aanmelden.
+                    {% endblocktrans %}
                 </p>
 
 
             {% else %}
                 <p>
+                    {% blocktrans trimmed %}
                     Zoekt u extra buurtgenoten om mee te laten doen? Open dan de aanmeldingen opnieuw.
+                    {% endblocktrans %}
                 </p>
             {% endif %}
             </div>
@@ -99,7 +115,7 @@
                     <div class="btn-group" role="group" aria-label="invitation-actions">
                         <button type="submit" class="btn btn-warning" form="close_collective_form">
                             <input type="checkbox" name="to_state" class="d-none" form="close_collective_form">
-                            <i class="fas fa-door-closed"></i> Sluit toegang
+                            <i class="fas fa-door-closed"></i> {% trans "Sluit toegang" context "collective-info" %}
                         </button>
                     </div>
 
@@ -116,7 +132,7 @@
                         {% csrf_token %}
                         <button type="submit" class="btn btn-warning">
                             <input type="checkbox" name="to_state" checked="True" class="d-none">
-                            <i class="fas fa-door-open"></i> Open toegang
+                            <i class="fas fa-door-open"></i> {% trans "Open toegang" context "collective-info" %}
                         </button>
                     </form>
 
@@ -127,7 +143,7 @@
             <div class="card">
                 <div class="card-header">
                     <div class="d-flex align-items-center">
-                        <h4 class="mr-auto"> Uw gegevens</h4>
+                        <h4 class="mr-auto"> {% trans "Uw gegevens" context "collective-info" %}</h4>
                         <button class="btn btn-primary btn-sm" style="margin-left: 1em"
                                 data-toggle="modal" data-target="#personal-settings">
                             <i class="fas fa-pen"></i>
@@ -138,7 +154,7 @@
                     <table class="card-text" style="border-spacing: 50px;">
                         <tr>
                             <td>
-                                Naam:
+                                {% trans "Naam:" context "collective-info" %}
                             </td>
                             <td style="width: 1em;"></td>
                             <td>
@@ -147,7 +163,7 @@
                         </tr>
                         <tr>
                             <td>
-                                Tel:
+                                {% trans "Tel:" context "collective-info" %}
                             </td>
                             <td></td>
                             <td>
@@ -156,7 +172,7 @@
                         </tr>
                         <tr>
                             <td>
-                                Email:
+                                {% trans "Email:" context "collective-info" %}
                             </td>
                             <td></td>
                             <td>
@@ -173,7 +189,7 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="exampleModalLongTitle">
-                                Wijzig u gegevens
+                                {% trans "Wijzig u gegevens" context "collective-action" %}
                             </h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
@@ -187,8 +203,12 @@
                             </form>
                         </div>
                         <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary" form="personal-data-form">Opslaan</button>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Sluiten</button>
+                            <button type="submit" class="btn btn-primary" form="personal-data-form">
+                                {% trans "Opslaan" context "collective-info" %}
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                {% trans "Sluiten" context "collective-info" %}
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -198,7 +218,7 @@
 
 
     <hr>
-    <h3>Positieve reacties</h3>
+    <h3>{% trans "Positieve reacties" context "collective-info" %}</h3>
     <div class="row">
         <div class="col-12">
             <div class="table-responsive">
@@ -209,16 +229,16 @@
                         <td style="min-width: 10rem">e-mail
                             <div class="btn btn-outline-info btn-sm"
                                  data-toggle="tooltip" data-placement="bottom"
-                                 title="Klik om alle mails te kopiëren naar je klembord"
-                                 success-title="Gekopieerd naar klembord"
-                                 failed_title="Kopiëren mislukt"
+                                 title="{% trans "Klik om alle mails te kopi&euml;ren naar je klembord" context "collective-info" %}"
+                                 success-title="{% trans "Gekopieerd naar klembord" context "collective-info" %}"
+                                 failed_title="{% trans "Kopi&euml;ren mislukt" context "collective-info" %}"
                                  onclick="copyStringToClipboard(this, '{{ collective|get_mail_list }}')"
                             >
                                 <i class="far fa-clipboard"></i>
                             </div>
                         </td>
-                        <td style="min-width: 10rem;">Telefoonnummer</td>
-                        <td style="min-width: 10rem;">Reactie</td>
+                        <td style="min-width: 10rem;">{% trans "Telefoonnummer" context "collective-info" %}</td>
+                        <td style="min-width: 10rem;">{% trans "Reactie" context "collective-info" %}</td>
                     </tr>
                     </thead>
                     <tbody>
@@ -233,7 +253,7 @@
                             </td>
                             <td>
                                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#rsvp-data-{{ agreed_rsvp.id }}">
-                                    Bekijk volle info
+                                    {% trans "Bekijk volle info" context "collective-info" %}
                                 </button>
                             </td>
                         </tr>
@@ -259,7 +279,7 @@
                                     <table class="">
                                         <tr>
                                             <td>
-                                                <b>adres</b>
+                                                <b>{% trans "adres" context "collective-info" %}</b>
                                             </td>
                                             <td>
                                                 {% if agreed_rsvp.phone_number %}
@@ -271,7 +291,7 @@
                                         </tr>
                                         <tr>
                                             <td>
-                                                <b>e-mail</b>
+                                                <b>{% trans "e-mail" context "collective-info" %}</b>
                                             </td>
                                             <td>
                                                 {% if agreed_rsvp.inquirer.email %}
@@ -285,7 +305,7 @@
                                         </tr>
                                         <tr>
                                             <td class="pr-2">
-                                                <b>Telefoonnummer</b>
+                                                <b>{% trans "Telefoonnummer" context "collective-info" %}</b>
                                             </td>
                                             <td>
                                                 {% if agreed_rsvp.phone_number %}
@@ -303,7 +323,9 @@
                                 {{ agreed_rsvp.message|linebreaks }}
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                    {% trans "Close" context "collective-info" %}
+                                </button>
                             </div>
                         </div>
                     </div>

@@ -1,6 +1,7 @@
 {% extends 'base_public.html' %}
 {% load score_result_tags %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}{{ block.super }} - stap 2: resultaten{% endblock %}
 
@@ -19,7 +20,7 @@
             {% if techs_recommanded or techs_varies %}
                 <h3>Wij raden aan...</h3>
                 <p>
-                    Gebasseerd op de antwoorden die u heeft ingevuld kunnen wij het volgende aanraden:
+                    {% trans "Gebasseerd op de antwoorden die u heeft ingevuld kunnen wij het volgende aanraden:" %}
                 </p>
                 {% with accordion_id='accordion_good' %}
                     <div id="{{ accordion_id }}">
@@ -32,23 +33,29 @@
                     </div>
                 {% endwith %}
             {% else %}
-                <h3>Wij raden aan... niets!</h3>
+                <h3>{% trans "Wij raden aan... niets!" %}</h3>
                 <p>
-                    Wij kunnen op dit moment niets aanraden.
+                    {% trans "Wij kunnen op dit moment niets aanraden." %}
                     {% if techs_unknown %}
-                        Wij hebben hiervoor nog te weinig informatie. Mocht u de vragenlijst niet volledig hebben ingevuld,
-                        dan raden wij u aan om de niet beantwoorde vragen ook te beantwoorden waar mogelijk.
+                        {% blocktrans trimmed %}
+                            Wij hebben hiervoor nog te weinig informatie. Mocht u de vragenlijst niet volledig hebben ingevuld,
+                            dan raden wij u aan om de niet beantwoorde vragen ook te beantwoorden waar mogelijk.
+                        {% endblocktrans %}
                         {% if techs_discouraged %}
                             </p><p>
-                            Wat we wel weten van u is dat één of meerdere maatregelen niet nodig zijn.
-                            Dit is bij u al geoptimaliseerd of geeft in uw geval geen toegevoegde waarde.
-                            Deze zijn hieronder toegelicht:
+                            {% blocktrans trimmed %}
+                                Wat we wel weten van u is dat &eacute;&eacute;n of meerdere maatregelen niet nodig zijn.
+                                Dit is bij u al geoptimaliseerd of geeft in uw geval geen toegevoegde waarde.
+                                Deze zijn hieronder toegelicht:
+                            {% endblocktrans %}
                         {% endif %}
                     {% elif techs_discouraged %}
-                        U lijkt alles al op orde te hebben. Uitstekend! Mocht u alsnog twijfelen raden we u aan om een expert bij u in de buurt te raadplegen.
+                        {% blocktrans trimmed %}
+                            U lijkt alles al op orde te hebben. Uitstekend! Mocht u alsnog twijfelen raden we u aan
+                            om een expert bij u in de buurt te raadplegen.
+                        {% endblocktrans %}
                     {% endif %}
                 </p>
-
             {% endif %}
         </div>
 
@@ -56,10 +63,12 @@
         {% if techs_discouraged %}
             {% if techs_recommanded or techs_varies %}
                 <hr class="border-1 p-2">
-                <h3>Wij raden u af...</h3>
+                <h3>{% trans "Wij raden u af..." %}</h3>
                 <p>
+                    {% blocktrans trimmed %}
                     Gebasseerd op de antwoorden die u heeft ingevuld kunnen wij het volgende niet aanraden. U heeft dit al geoptimaliseerd of deze aanpassing heeft geen toegevoegde waarde
                     voor u.
+                    {% endblocktrans %}
                 </p>
             {% endif %}
             {% with 'accordion_bad' as accordion_id %}
@@ -75,10 +84,12 @@
         <div class="col-12">
         {% if techs_unknown %}
             <hr class="border-1">
-            <h3>Wij kunnen u niet verder helpen met...</h3>
+            <h3>{% trans "Wij kunnen u niet verder helpen met..." %}</h3>
             <p>
+                {% blocktrans trimmed %}
                 Wij hebben helaas te weinig informatie om een uitspraak te kunnen doen over de volgende  technologien. Beantwoord
                 zoveel mogelijk vragen of zoek een specialist bij u in de buurt om te weten of dit interessant voor u kan zijn.
+                {% endblocktrans %}
             </p>
 
             {% with 'accordion_unknown' as accordion_id %}
@@ -97,10 +108,14 @@
     <hr>
 
     <div class="">
-        <h2>Download resultaten</h2>
+        <h2>{% trans "Download resultaten" %}</h2>
         {% if applicable_reports %}
             <div>
-                Onderstaande verslag{{ applicable_reports|pluralize:'en' }} kan mogelijk nuttig voor u zijn
+                {% blocktrans trimmed count report_count=applicable_reports|length%}
+                    Onderstaande verslag kan mogelijk nuttig voor u zijn
+                {% plural %}
+                    Onderstaande verslagen kunnen mogelijk nuttig voor u zijn
+                {% endblocktrans %}
             </div>
 
             <div class="p-3">
@@ -113,36 +128,42 @@
 
     <hr>
 
-    <h2>Hoe nu verder</h2>
+    <h2>{% trans "Hoe nu verder"%}</h2>
     <div class="row">
         <div class="col col-md-6">
-            <p class="font-weight-bold">Pas antwoorden aan</p>
+            <p class="font-weight-bold">{% trans "Pas antwoorden aan" %}</p>
             <p>
                 {% if techs_unknown %}
-                    Voor sommige adviezen konden wij geen conclusies trekken. Mogelijk heeft u niet alle vragen ingevuld.
+                    {% blocktrans trimmed %}
+                        Voor sommige adviezen konden wij geen conclusies trekken. Mogelijk heeft u niet alle vragen ingevuld.
+                    {% endblocktrans %}
                 {% endif %}
-                Wilt u uw antwoorden veranderen? Dan kan dat hieronder
+                {% trans "Wilt u uw antwoorden veranderen? Dan kan dat hieronder" %}
             </p>
-            <a href="{% url 'reset_inquiry' %}" class="btn btn-primary">Verander antwoorden</a>
+            <a href="{% url 'reset_inquiry' %}" class="btn btn-primary">{% trans "Verander antwoorden" %}</a>
         </div>
         <div class="col col-md-6">
             {% if techs_recommanded or techs_varies %}
                 <p class="font-weight-bold">Onderneem actie</p>
                 <p>
+                    {% blocktrans trimmed %}
                         Er zijn verscheidene onderdelen in uw woning die u kunt verbeteren. Nu is het tijd om dit aan te
                         pakken. Ga naar stap 3 om adviezen te krijgen hoe de geconstateerde problemen kunnen worden aangepakt.
+                    {% endblocktrans %}
                 </p>
                 {% if ENABLE_STAP_3 %}
                 <a href="{% url 'collectives:take_action' %}" class="btn btn-primary btn-block btn-lg">
-                    <i class="fas fa-arrow-right"></i> Ga door naar stap 3: Onderneem Actie
+                    <i class="fas fa-arrow-right"></i> {% trans "Ga door naar stap 3: Onderneem Actie" %}
                 </a>
                 {% else %}
                     <div class="alert alert-info">
+                        {% blocktrans trimmed %}
                         Wij zijn momenteel de laatste zaken in orde aan het maken. Kom over een paar dagen terug en
                         dan kunnen we u hiermee verder helpen.
+                        {% endblocktrans %}
                     </div>
                     <a class="btn btn-primary btn-block btn-sm disabled" >
-                        <i class="fas fa-arrow-right"></i> Ga door naar stap 3: Onderneem Actie
+                        <i class="fas fa-arrow-right"></i> {% trans "Ga door naar stap 3: Onderneem Actie" %}
                     </a>
                 {% endif %}
             {% endif %}

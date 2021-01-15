@@ -1,4 +1,5 @@
 {% extends 'base_public.html' %}
+{% load i18n %}
 
 {% block body %}
     <form method="post">
@@ -9,29 +10,35 @@
         </div>
         <div class="row ">
             <div class="col-12">
-                Welkom bij de vragenlijst. Uw unieke toegangscode is:
+                {% trans " Welkom bij de vragenlijst. Uw unieke toegangscode is:" %}
             </div>
             <p class="font-weight-bold col-12 h3 mt-0">
                 {{ inquirer.get_inquiry_code }}
             </p>
             <p class="col-12">
+                {% blocktrans trimmed %}
                 Onthoud deze code goed, of schrijf het ergens op. Het stelt u in staat op elk moment terug te komen bij uw antwoorden.
                 U ziet deze code ook rechtsboven staan gedurende uw sessie
+                {% endblocktrans %}
             </p>
         </div>
 
         <div class="row">
             <div class="col-12">
                 <p>
+                    {% blocktrans trimmed %}
                     Wij gebruiken e-mail om contact met u te houden. Voor optimaal gebruik van onze mogelijkheden willen wij u vragen uw e-mail hieronder
                     achter te laten. U kunt dit, als u dat fijn vind, ook leeg laten.
+                    {% endblocktrans %}
                 </p>
                 <p class="">
                     <small>
+                        {% blocktrans trimmed %}
                         Wij sturen u zeer sporadisch een mail om u te ondersteunen. Tenzij u elders anders aangeeft zullen wij
                         na afloop gemiddeld 2 mails sturen in een periode van een jaar.<br>
                         U zult geen mails ontvangen van ons namens derde partijen. Uw mail adres zal nooit gedeeld worden
                         zonder uw expliciete toestemming
+                        {% endblocktrans %}
                     </small>
                 </p>
 
@@ -42,7 +49,7 @@
         </div>
 
         <div class="row">
-            <input type="submit" class="btn btn-block btn-secondary" value="Start">
+            <input type="submit" class="btn btn-block btn-primary" value="{% trans "Start" context "Start vragenlijst" %}">
         </div>
 
     </form>

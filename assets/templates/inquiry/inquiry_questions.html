@@ -19,7 +19,7 @@
             <div class="progress">
                 <div class="progress-bar" role="progressbar" aria-valuenow="{{ progress_percentage }}"
                      aria-valuemin="0" aria-valuemax="100" style="width:{{ progress_percentage }}%">
-                    <span class="sr-only">{{ progress_percentage }}% Complete</span>
+                    <span class="sr-only">{{ progress_percentage }}% {% trans "Complete" context "Vragenlijst voortgang" %}"</span>
                 </div>
             </div>
         </div>
@@ -41,20 +41,19 @@
             <div class="row">
                 <div class="col-6">
                     {% if has_prev_page %}
-                        <input type="submit" name="prev" value="Terug" class="btn btn-block btn-outline-primary"/>
+                        <input type="submit" name="prev" value="{% trans "Terug" %}" class="btn btn-block btn-outline-primary"/>
                     {% endif %}
                 </div>
                 <div class="col-6">
                     {% if has_next_page %}
-                        <input type="submit" name="next" value="Verder" class="btn btn-block btn-primary"/>
+                        <input type="submit" name="next" value="{% trans "Verder" %}" class="btn btn-block btn-primary"/>
                     {% else %}
-                        <input type="submit" name="next" value="Voltooi" class="btn btn-block btn-success"/>
+                        <input type="submit" name="next" value="{% trans "Voltooi" %}" class="btn btn-block btn-success"/>
                     {% endif %}
                 </div>
             </div>
         </div>
     </form>
-
 
     <br>
     {% include "inquiry/snippets/progress_tabs.html" %}

@@ -1,7 +1,12 @@
 {% extends 'base_public.html' %}
+{% load i18n %}
 
 {% block body %}
-    <h1>Collectieve installatie voor {{ tech_collective.technology }}</h1>
+    <h1>
+        {% blocktrans trimmed with tech=tech_collective.technology %}
+            Collectieve installatie voor {{ tech }}
+        {% endblocktrans %}
+    </h1>
     <div class="row">
         <div class="col-6">
             <p><b>{{ tech_collective.technology }}</b></p>
@@ -10,26 +15,32 @@
             </p>
             <a class="btn btn-info" href="{{ tech_collective.technology.get_absolute_url }}"
                target="_blank" rel="noopener noreferrer" >
-                <i class="fas fa-info-circle"></i> Meer informatie
+                <i class="fas fa-info-circle"></i> {% trans "Meer informatie" %}
             </a>
         </div>
         <div class="col-6">
-            <p><b>Instructies</b></p>
+            <p><b>{% trans "Instructies" %}</b></p>
             {% if tech_collective.instructions_file %}
                 <p>
-                    Samen met elkaar kunt u een collectieve inkoop opzetten. Wilt u weten hoe? Download dan hieronder
-                    het overzichtelijke stappenplan.
+                    {% blocktrans trimmed %}
+                        Samen met elkaar kunt u een collectieve inkoop opzetten. Wilt u weten hoe? Download dan hieronder
+                        het overzichtelijke stappenplan.
+                    {% endblocktrans %}
                 </p>
                 <a class="btn btn-info" href="{% url 'collectives:insructions_pdf' collective_id=tech_collective.id %}"
                     target="_blank" rel="noopener noreferrer">
-                    <i class="fas fa-file-download"></i> Download {{ tech_collective.technology }} collectief stappenplan
+                    <i class="fas fa-file-download"></i>
+                    {% blocktrans trimmed with tech_name=tech_collective.technology%}
+                        Download {{ tech_name }} collectief stappenplan
+                    {% endblocktrans %}
                 </a>
                 {% else %}
                 <div class="alert alert-warning">
-
-                    Oops, het lijkt erop dat we momenteel geen instructie document hebben. Wij zullen dit zo spoedig
-                    mogelijk in orde maken.
-                    Kunt u niet zo lang wachten? Stuur dan een mail naar:<br>
+                    {% blocktrans trimmed %}
+                        Oops, het lijkt erop dat we momenteel geen instructie document hebben. Wij zullen dit zo spoedig
+                        mogelijk in orde maken.
+                        Kunt u niet zo lang wachten? Stuur dan een mail naar:
+                    {% endblocktrans %}<br>
                     <a href="mailto:{{ MAIN_CONTACT_EMAIL }}">
                         {{ MAIN_CONTACT_EMAIL }}
                     </a>

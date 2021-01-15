@@ -1,16 +1,19 @@
 {% extends 'base_with_body.html' %}
+{% load i18n %}
 
 {% block body %}
     <div class="row">
         <div class="col">
+            {% blocktrans trimmed %}
             Deze vragenlijst is geassocieerd aan een e-mail adres. Gelieve dit adres in te vullen zodat we weten dat u het bent.
+            {% endblocktrans %}
 
             <form method="post">
                 {% csrf_token %}
                 {% with form as form %}
                     {% include "snippets/bootstrap_form.html" %}
                 {% endwith %}
-                <input type="submit" value="Bevestig" class="btn btn-block btn-primary"/>
+                <input type="submit" value="{% trans "Bevestig" %}" class="btn btn-block btn-primary"/>
             </form>
         </div>
     </div>

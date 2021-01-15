@@ -1,30 +1,37 @@
 {% extends 'base_with_body.html' %}
+{% load i18n %}
 
 {% block body %}
     <form method="post">
         {% csrf_token %}
 
         <div class="row">
-            <h1 class="col-12">Welkom terug</h1>
+            <h1 class="col-12">{% trans "Welkom terug" %}</h1>
         </div>
 
         <div class="row">
             <div class="col-12">
                 <p>
+                    {% blocktrans trimmed %}
                     Wij hebben nog geen e-mail adres van u. Wij zouden deze graag willen gebruiken om contact met u te houden.
                     Ook is dit een extra beveiliging zodat vreemden niet spontaan uw code kunnen raden.
+                    {% endblocktrans %}
                 </p>
                 <p class="">
                     <small>
+                        {% blocktrans trimmed %}
                         Wij sturen u zeer sporadisch een mail om u te ondersteunen. Tenzij u elders anders aangeeft zullen wij
                         na afloop gemiddeld 2 mails sturen in een periode van een jaar.<br>
                         U zult geen mails ontvangen van ons namens derde partijen. Uw mail adres zal nooit gedeeld worden
                         zonder uw expliciete toestemming.
+                        {% endblocktrans %}
                     </small>
                 </p>
             </div>
             <div class="col-12">
+                {% blocktrans trimmed %}
                 Uiteraard kunt u ook verder gaan zonder uw e-mail adres achter te laten.
+                {% endblocktrans %}
             </div>
             <div class="col-12">
                 {% include "snippets/bootstrap_form.html" %}

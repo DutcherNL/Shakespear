@@ -1,16 +1,23 @@
 {% extends 'base_public.html' %}
 {% load collective_tags %}
 {% load static %}
-
+{% load i18n %}
 
 {% block body %}
     <p>
-        Wat top dat u interesse heeft in collectieve acties in uw omgeving. Echter heeft u
-        {{ requirement_forms|pluralize:"enkele vragen, een vraag" }} niet beantwoord die wij gebruiken om te bepalen
-        of een collectieve actie bij u in de buurt plaats vind.
+        {% blocktrans trimmed count form_count=requirement_forms|len %}
+            Wat top dat u interesse heeft in collectieve acties in uw omgeving. Echter heeft u een vraag niet
+            beantwoord die wij gebruiken om te bepalen
+            of een collectieve actie bij u in de buurt plaats vind.
+            {% plural %}
+            Wat top dat u interesse heeft in collectieve acties in uw omgeving. Echter heeft u enkele vragen niet
+            beantwoord die wij gebruiken om te bepalen of een collectieve actie bij u in de buurt plaats vind.
+        {% endblocktrans %}
     </p>
     <p>
+        {% blocktrans trimmed %}
         Gelieve de vragen hieronder te bantwoorden als u op de hoogte gehouden wilt worden
+        {% endblocktrans %}
     </p>
     <form method="post">
         {% csrf_token %}
@@ -34,11 +41,11 @@
         <div class="row">
             <div class="col-3">
                 <a class="btn btn-secondary btn-block" href="{{ back_url }}">
-                    Annuleren
+                    {% trans "Annuleren" context "collective-action" %}
                 </a>
             </div>
             <div class="col-4 offset-5">
-                <input type="submit" value="Ik heb interesse" class="btn btn-primary btn-block"/>
+                <input type="submit" value="{% trans "Ik heb interesse" context "collective-info" %}" class="btn btn-primary btn-block"/>
             </div>
         </div>
 

@@ -1,0 +1,1114 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#: .\Questionaire\forms.py:132
+msgid "Ik ga akkoord met het gebruik van cookies"
+msgstr ""
+
+#: .\Questionaire\forms.py:137
+msgid "Ik ga akkoord met het privacy beleid"
+msgstr ""
+
+#: .\Questionaire\forms.py:174
+msgid "Code is incorrect. Inquiry is not known"
+msgstr ""
+
+#: .\Questionaire\forms.py:196
+msgid "Dit is niet het geaccosieerde e-mail adres"
+msgstr ""
+
+#: .\Questionaire\forms.py:200
+msgid "No inquirer model computed yet"
+msgstr ""
+
+#: .\Questionaire\templates\inquiry\modules\module_question.html:68
+msgid "Oops, deze vraag kan niet geladen worden. Ons excuses"
+msgstr ""
+
+#: .\Shakespeare\settings.py:170
+msgid "Nederlands"
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_accept_policies.html:6
+msgid "Gebruiksovereenkomst"
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_accept_policies.html:9
+msgid "Alvorens u kunt beginnen willen we u even toelichten over uw pricacy."
+msgstr "Alvorens we beginnen willen we jou vertellen hoe we "
+
+#: .\assets\templates\inquiry\inquiry_accept_policies.html:11
+msgctxt "cookies-title-agreement"
+msgid "Cookies"
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_accept_policies.html:13
+msgid ""
+"Deze website gebruikt cookies om uw voortgang bij te houden. Deze cookies "
+"verlopen automatisch na 1 dag nadat u de website niet heeft bezocht. Zonder "
+"cookies kunnen wij niet bijhouden welke enquete u invult."
+msgstr ""
+"Deze website gebruikt cookies om jouw voortgang bij te houden.Deze verlopen "
+"automatisch 24 uur na het laatste bezoek. Zonder cookies werkt dewebsite "
+"niet en zijn daarom dus essentieel."
+
+#: .\assets\templates\inquiry\inquiry_accept_policies.html:19
+msgid ""
+"Wij gebruiken cookies enkel en alleen om uw activiteit op deze website bij "
+"te houden."
+msgstr ""
+"Wij gebruik cookies enkel en alleen om jouw voortgang en activiteit op deze "
+"website bij te houden."
+
+#: .\assets\templates\inquiry\inquiry_accept_policies.html:24
+msgid "Privacy beleid"
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_accept_policies.html:26
+msgid ""
+"Uw privacy is u goed recht. Wij zullen daarom zorgvuldig met uw gegevens "
+"omgaan. Zo worden uw gegevens nooit met anderen gedeeld of verhandeld. "
+"Tevens kunt u ten alle tijde uw gegevens wissen."
+msgstr ""
+"Jouw privacy is van jou. Wij zullen daarom zorguldig omgaan met jouw data. "
+"Nooit zullen wij jou data met anderen delen of verhandelen. Tevens kun je "
+"ten alle tijde aanvragen om al jouw data bij ons te laten verwijderen."
+
+#: .\assets\templates\inquiry\inquiry_accept_policies.html:34
+msgid "Voor meer informatie, check ons privacy document"
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_accept_policies.html:66
+msgid "Start de vragenlijst"
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_complete.html:23
+msgid ""
+"Gebasseerd op de antwoorden die u heeft ingevuld kunnen wij het volgende "
+"aanraden:"
+msgstr ""
+"Gebasserd op de antwoorden die jij hebt ingevuld kunnen wij het volgende "
+"aanraden:"
+
+#: .\assets\templates\inquiry\inquiry_complete.html:36
+msgid "Wij raden aan... niets!"
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_complete.html:38
+msgid "Wij kunnen op dit moment niets aanraden."
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_complete.html:40
+msgid ""
+"Wij hebben hiervoor nog te weinig informatie. Mocht u de vragenlijst niet "
+"volledig hebben ingevuld, dan raden wij u aan om de niet beantwoorde vragen "
+"ook te beantwoorden waar mogelijk."
+msgstr ""
+"Wij hebben hiervoor nog te weinig informatie. Indien jij niet alle vragen "
+"hebt beantwoord raden we je aan om de vragenlijst na te doorlopen en de "
+"openstaande vragen te beantwoorden waar mogelijk."
+
+#: .\assets\templates\inquiry\inquiry_complete.html:46
+msgid ""
+"Wat we wel weten van u is dat &eacute;&eacute;n of meerdere maatregelen niet "
+"nodig zijn. Dit is bij u al geoptimaliseerd of geeft in uw geval geen "
+"toegevoegde waarde. Deze zijn hieronder toegelicht:"
+msgstr ""
+"Wat we wel weten is dat enkele maatregleen niet nodig zijn. Dit is in jou "
+"woning al geoptimaliseerd of heeft geen toegevoegde waarde. Deze zijn "
+"hieronder uitgelicht."
+
+#: .\assets\templates\inquiry\inquiry_complete.html:53
+msgid ""
+"U lijkt alles al op orde te hebben. Uitstekend! Mocht u alsnog twijfelen "
+"raden we u aan om een expert bij u in de buurt te raadplegen."
+msgstr ""
+"Alles lijkt al in orde te zijn. Uitstekend! Mocht je nog twijfelen raden we "
+"je aan om een expert uit uw regio te raadplegen"
+
+#: .\assets\templates\inquiry\inquiry_complete.html:66
+msgid "Wij raden u af..."
+msgstr "Wij raden je af..."
+
+#: .\assets\templates\inquiry\inquiry_complete.html:68
+msgid ""
+"Gebasseerd op de antwoorden die u heeft ingevuld kunnen wij het volgende "
+"niet aanraden. U heeft dit al geoptimaliseerd of deze aanpassing heeft geen "
+"toegevoegde waarde voor u."
+msgstr ""
+"Gebasseerd op de antwoorden die jij hebt ingevuld kunnen wij het volgende "
+"niet aanraden. Dit is al geoptimaliseerd of heeft voor jouw woning geen "
+"toegevoegde waarde."
+
+#: .\assets\templates\inquiry\inquiry_complete.html:87
+msgid "Wij kunnen u niet verder helpen met..."
+msgstr "Wij kunnen je niet verder helpen met..."
+
+#: .\assets\templates\inquiry\inquiry_complete.html:89
+msgid ""
+"Wij hebben helaas te weinig informatie om een uitspraak te kunnen doen over "
+"de volgende  technologien. Beantwoord zoveel mogelijk vragen of zoek een "
+"specialist bij u in de buurt om te weten of dit interessant voor u kan zijn."
+msgstr ""
+"Wij hebben helaas te weinig informatie om een uitspraak te kunnen doen over "
+"de volgende technologien. Beantwoord zoveel mogelijk vragen of zoek een "
+"specialist bij jou in de buurt om te weten of dit interessant voor jou kan "
+"zijn."
+
+#: .\assets\templates\inquiry\inquiry_complete.html:111
+msgid "Download resultaten"
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_complete.html:114
+msgid "Onderstaande verslag kan mogelijk nuttig voor u zijn"
+msgid_plural "Onderstaande verslagen kunnen mogelijk nuttig voor u zijn"
+msgstr[0] "Onderstaande verslag kan mogelijk nuttig voor je zijn"
+msgstr[1] "Onderstaande verslagen kunnen mogelijk nuttig voor je zijn."
+
+#: .\assets\templates\inquiry\inquiry_complete.html:131
+msgid "Hoe nu verder"
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_complete.html:134
+msgid "Pas antwoorden aan"
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_complete.html:137
+msgid ""
+"Voor sommige adviezen konden wij geen conclusies trekken. Mogelijk heeft u "
+"niet alle vragen ingevuld."
+msgstr ""
+"Voor sommige adviezen konden wij geen conclusies trekken. Mogelijk heb jij "
+"niet alle vragen ingevuld."
+
+#: .\assets\templates\inquiry\inquiry_complete.html:141
+msgid "Wilt u uw antwoorden veranderen? Dan kan dat hieronder"
+msgstr "Wil jij je antwoorden veranderen? Dan kan dat hieronder"
+
+#: .\assets\templates\inquiry\inquiry_complete.html:143
+msgid "Verander antwoorden"
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_complete.html:149
+msgid ""
+"Er zijn verscheidene onderdelen in uw woning die u kunt verbeteren. Nu is "
+"het tijd om dit aan te pakken. Ga naar stap 3 om adviezen te krijgen hoe de "
+"geconstateerde problemen kunnen worden aangepakt."
+msgstr ""
+"Er zijn verscheidene onderdelen in uw woning die jouw kunt verbeteren. Nu is "
+"het tijd om dit aan te pakken. Ga naar stap 3 om adviezen te krijgen hoe de "
+"geconstateerde problemen kunnen worden aangepakt."
+
+#: .\assets\templates\inquiry\inquiry_complete.html:156
+#: .\assets\templates\inquiry\inquiry_complete.html:166
+msgid "Ga door naar stap 3: Onderneem Actie"
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_complete.html:160
+msgid ""
+"Wij zijn momenteel de laatste zaken in orde aan het maken. Kom over een paar "
+"dagen terug en dan kunnen we u hiermee verder helpen."
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_continue_with.html:7
+msgid "Vul uw unique code en e-mail in om verder te gaan met een vragenlijst"
+msgstr ""
+"Vul jouw unieke code en e-mail in om verder te gaan met een vragenlijst"
+
+#: .\assets\templates\inquiry\inquiry_continue_with.html:14
+#: .\assets\templates\inquiry\mail_confirmation_page.html:16
+msgid "Bevestig"
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_continue_with_mailrequest.html:9
+msgid "Welkom terug"
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_continue_with_mailrequest.html:15
+msgid ""
+"Wij hebben nog geen e-mail adres van u. Wij zouden deze graag willen "
+"gebruiken om contact met u te houden. Ook is dit een extra beveiliging zodat "
+"vreemden niet spontaan uw code kunnen raden."
+msgstr ""
+"Wij hebben nog geen e-mail adres van jou. Wij zouden deze graag willen "
+"gebruiken om contact met jou te houden. Ook begruiken we dit als extra "
+"beveiliging zodat vreemde niet spontaan jouw code kunnen raden."
+
+#: .\assets\templates\inquiry\inquiry_continue_with_mailrequest.html:22
+msgid ""
+"Wij sturen u zeer sporadisch een mail om u te ondersteunen. Tenzij u elders "
+"anders aangeeft zullen wij na afloop gemiddeld 2 mails sturen in een periode "
+"van een jaar.<br> U zult geen mails ontvangen van ons namens derde partijen. "
+"Uw mail adres zal nooit gedeeld worden zonder uw expliciete toestemming."
+msgstr ""
+"Wij sturen jou zeer sporadisch een mail om jou te ondersteunen. Tenzij je "
+"elders anders aangeeft zullen wij na afloop gemiddeld 2 mails sturen in een "
+"periode van een jaar.<br> Je zult geen mails ontvangen van ons namens derde "
+"partijen. Jouw mail adres zal nooit gedeeld worden zonder uw expliciete "
+"toestemming"
+
+#: .\assets\templates\inquiry\inquiry_continue_with_mailrequest.html:32
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\step_3_email_confirmation.html:23
+msgid ""
+"Uiteraard kunt u ook verder gaan zonder uw e-mail adres achter te laten."
+msgstr ""
+"Uiteraard kan je ook verder gaan zonder uw e-mail adres achter te laten."
+
+#: .\assets\templates\inquiry\inquiry_home.html:7
+msgid ""
+"Welkom op de Samen Duurzamer Wonen Tool, de online enquete die je helpt naar "
+"een zuiniger huis."
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_home.html:12
+msgid ""
+"Door middel van een korte vragenlijst proberen wij voor u inzichtelijk te "
+"maken welke energie-besparende en duurzame maatregelen voor uw woning "
+"mogelijk interessant is."
+msgstr ""
+"Door middel van een korte vragenlijst proberen wij voor jou inzichtelijk te "
+"maken welke energie-besparendeen duurzame maatregelen voor jouw woning "
+"mogelijk interessant zijn."
+
+#: .\assets\templates\inquiry\inquiry_home.html:18
+msgid ""
+"Wilt u uw woning verduurzamen maar weet u niet waar u moet beginnen? Wacht "
+"dan niet langer en start onze vragenlijst."
+msgstr ""
+"Wil jij je woning verduurzamen, maar weet je niet waar je moet beginnen? "
+"Start dan nu met onze vragenlijst."
+
+#: .\assets\templates\inquiry\inquiry_home.html:26
+msgid "Start nieuwe vragenlijst"
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_home.html:35
+msgid ""
+"Heeft u hier al eerder een vragenlijst gestart?<br> Ga dan verder waar u "
+"gebleven bent"
+msgstr ""
+"Heb jij hier al eerder een vragenlijst gestart?<br> Ga dan verder waar je "
+"gebleven bent"
+
+#: .\assets\templates\inquiry\inquiry_questions.html:22
+msgctxt "Vragenlijst voortgang"
+msgid "Complete"
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_questions.html:44
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\step_3_email_confirmation.html:48
+msgid "Terug"
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_questions.html:49
+msgid "Verder"
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_questions.html:51
+msgid "Voltooi"
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_reset.html:5
+msgid ""
+"Als u wilt kunt u uw antwoorden in de vragenlijst veranderen. Om dit te "
+"verwerken dient u echter wel de vragenlijst af te ronden. Alle eerder "
+"ingevulde antwoorden zullen behouden blijven. U heeft dan geen toegang tot "
+"de resultaten of actie-pagina zolang de vragenlijst niet voltooid is"
+msgstr ""
+"Als je wilt kunt je jouw antwoorden in de vragenlijst veranderen. Om dit te "
+"verwerken dien je echter wel de vragenlijst af te ronden. Alle eerder "
+"ingevulde antwoorden zullen behouden blijven. Je hebt dan geen toegang tot "
+"de resultaten of actie-pagina zolang de vragenlijst niet voltooid is"
+
+#: .\assets\templates\inquiry\inquiry_snippets\snippet_tech_group_info.html:10
+#: .\assets\templates\inquiry\inquiry_snippets\subtech_scoring_template.html:11
+#: .\assets\templates\inquiry\snippets\snippet_tech_score.html:9
+msgctxt "redirect-to-tech-page"
+msgid "meer informatie"
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_snippets\snippet_tech_group_info.html:25
+msgid ""
+"Er zijn verscheidene maatregelen die mogelijk zijn. Hieronder zetten wij uit "
+"welke maatregelen wij aanraden:"
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_snippets\snippet_tech_group_info.html:39
+#: .\assets\templates\inquiry\inquiry_snippets\subtech_scoring_template.html:17
+msgid "Ons advies:"
+msgstr ""
+
+#: .\assets\templates\inquiry\inquiry_start.html:13
+msgid " Welkom bij de vragenlijst. Uw unieke toegangscode is:"
+msgstr " Welkom bij de vragenlijst. Jouw unieke toegangscode is:"
+
+#: .\assets\templates\inquiry\inquiry_start.html:19
+msgid ""
+"Onthoud deze code goed, of schrijf het ergens op. Het stelt u in staat op "
+"elk moment terug te komen bij uw antwoorden. U ziet deze code ook "
+"rechtsboven staan gedurende uw sessie"
+msgstr ""
+"Onthoud deze code goed, of schrijf het ergens op. Het stelt jou in staat op "
+"elk moment terug te komen bij jouw antwoorden. Je ziet deze code ook "
+"rechtsboven staan gedurende uw sessie"
+
+#: .\assets\templates\inquiry\inquiry_start.html:29
+msgid ""
+"Wij gebruiken e-mail om contact met u te houden. Voor optimaal gebruik van "
+"onze mogelijkheden willen wij u vragen uw e-mail hieronder achter te laten. "
+"U kunt dit, als u dat fijn vind, ook leeg laten."
+msgstr ""
+"Wij gebruiken e-mail om contact met jou te houden. Voor optimaal gebruik van "
+"onze mogelijkheden willen wij je vragen uw e-mail hieronder achter te laten. "
+"Je kunt dit, als je dat fijn vind, ook leeg laten."
+
+#: .\assets\templates\inquiry\inquiry_start.html:36
+msgid ""
+"Wij sturen u zeer sporadisch een mail om u te ondersteunen. Tenzij u elders "
+"anders aangeeft zullen wij na afloop gemiddeld 2 mails sturen in een periode "
+"van een jaar.<br> U zult geen mails ontvangen van ons namens derde partijen. "
+"Uw mail adres zal nooit gedeeld worden zonder uw expliciete toestemming"
+msgstr ""
+"Wij sturen jou zeer sporadisch een mail om jou te ondersteunen. Tenzij je "
+"elders anders aangeeft zullen wij na afloop gemiddeld 2 mails sturen in een "
+"periode van een jaar.<br> Je zult geen mails ontvangen van ons namens derde "
+"partijen. Jouw mail adres zal nooit gedeeld worden zonder uw expliciete "
+"toestemming"
+
+#: .\assets\templates\inquiry\inquiry_start.html:52
+msgctxt "Start vragenlijst"
+msgid "Start"
+msgstr ""
+
+#: .\assets\templates\inquiry\mail_confirmation_page.html:7
+msgid ""
+"Deze vragenlijst is geassocieerd aan een e-mail adres. Gelieve dit adres in "
+"te vullen zodat we weten dat u het bent."
+msgstr ""
+"Deze vragenlijst is geassocieerd aan een e-mail adres. Gelieve dit adres in "
+"te vullen zodat we weten dat jij het bent."
+
+#: .\assets\templates\inquiry\snippets\progress_tabs.html:8
+msgid "Voorlopig Advies"
+msgstr ""
+
+#: .\assets\templates\snippets\three_steps_bar_snippet.html:19
+#: .\assets\templates\snippets\three_steps_bar_snippet.html:28
+#: .\assets\templates\snippets\three_steps_bar_snippet.html:37
+msgctxt "Step-guide"
+msgid "Stap"
+msgstr ""
+
+#: .\assets\templates\snippets\three_steps_bar_snippet.html:19
+msgctxt "step-1"
+msgid "Vragen"
+msgstr ""
+
+#: .\assets\templates\snippets\three_steps_bar_snippet.html:28
+msgctxt "step-2"
+msgid "Resultaten"
+msgstr ""
+
+#: .\assets\templates\snippets\three_steps_bar_snippet.html:37
+msgctxt "step-2"
+msgid "Actie"
+msgstr ""
+
+#: .\assets\templates\snippets\three_steps_bar_snippet.html:48
+msgid "U heeft momenteel al een actieve sessie. Wilt u deze sessie hervatten?"
+msgstr "Momenteel loopt al een sessie van jou. Wil jij hiermee verder gaan?"
+
+#: .\assets\templates\snippets\three_steps_bar_snippet.html:54
+#, python-format
+msgid "Ga door met %(code)s."
+msgstr ""
+
+#: .\assets\templates\snippets\three_steps_bar_snippet.html:65
+msgid "Uw code"
+msgstr "Jouw code: "
+
+#: .\assets\templates\snippets\three_steps_bar_snippet.html:76
+msgid "Mijn settings"
+msgstr ""
+
+#: .\assets\templates\widgets\widget_radio.html:45
+msgctxt "leave-question-empty"
+msgid "Weet ik niet/ wil ik niet delen"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\active_collectives_list.html:10
+msgid "Onderneem collectief"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\active_collectives_list.html:18
+#, python-format
+msgid "door %(collective_creator)s"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\active_collectives_list.html:27
+msgid "Bekijk Collectief"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\initiate_collective.html:5
+msgid "Start collectief"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\initiate_collective.html:11
+msgctxt "start-collectief-confirm-btn"
+msgid "Start"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_base.html:6
+#, python-format
+msgid "Collectieve installatie voor %(tech)s"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_base.html:18
+msgid "Meer informatie"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_base.html:22
+msgid "Instructies"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_base.html:25
+msgid ""
+"Samen met elkaar kunt u een collectieve inkoop opzetten. Wilt u weten hoe? "
+"Download dan hieronder het overzichtelijke stappenplan."
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_base.html:33
+#, python-format
+msgid "Download %(tech_name)s collectief stappenplan"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_base.html:39
+msgid ""
+"Oops, het lijkt erop dat we momenteel geen instructie document hebben. Wij "
+"zullen dit zo spoedig mogelijk in orde maken. Kunt u niet zo lang wachten? "
+"Stuur dan een mail naar:"
+msgstr ""
+"Oops, het lijkt erop dat we momenteel geen instructie document hebben. Wij "
+"zullen dit zo spoedig mogelijk in orde maken. Kun je niet zo lang wachten? "
+"Stuur dan een mail naar:"
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:8
+msgid "Wilt u meedoen?"
+msgstr "Wil je meedoen?"
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:11
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:183
+msgid ""
+"Heeft u interesse om mogelijk deel te nemen aan een collectief wanneer deze "
+"in uw omgeving word gestart en wilt u hiervoor uitnodigingen ontvangen?"
+msgstr ""
+"Heb je interesse om mogelijk deel te nemen aan een collectief wanneer deze "
+"in jouw omgeving word gestart en wilt u hiervoor uitnodigingen ontvangen?"
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:19
+msgid "Ja, houd me op de hoogte"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:28
+msgctxt "collective-initiate-info"
+msgid "Waarom een collectief?"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:30
+msgctxt "collective-initiate-info"
+msgid ""
+"Sommige taken zijn niet eenvoudig te ondernemen en vergen een expert. Dit "
+"kan echter een flinke klus zijn. Een gezamenlijk collectief met de buurt kan "
+"veel last wegnemen; u regelt het immers samen. Ook kan er over de prijs "
+"worden onderhandeld waardoor kosten lager uit vallen als er meer huizen "
+"meedoen."
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:36
+msgctxt "collective-initiate-info"
+msgid "Hoe start ik een collectief?"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:38
+msgctxt "collective-initiate-info"
+msgid ""
+"U kunt zelf al een collectief opstarten met uw buren en andere kennisen uit "
+"de buurt. Hiervoor kan het stappenplan bovenaan deze pagina helpen. Echter "
+"kunnen wij u ook in contact brengen met bewoners in uw nabije omgeving die "
+"hetzelfde advies hebben gekregen uit deze vragenlijst. Dit werkt als volgt:"
+msgstr ""
+"Je kunt zelf al een collectief opstarten met uw buren en andere kennisen uit "
+"de buurt. Hiervoor kan het stappenplan bovenaan deze pagina helpen. Echter "
+"kunnen wij jou ook in contact brengen met bewoners in jouw nabije omgeving "
+"die hetzelfde advies hebben gekregen uit deze vragenlijst. Dit werkt als "
+"volgt:"
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:45
+msgctxt "collective-initiate-info"
+msgid ""
+"Wanneer iemand een collectief aanmaakt versturen wij uitnodigingen aan "
+"iedereen die heeft aangegeven interesse in een gezamenlijk collectief te "
+"hebben. Wanneer zij op deze uitnodiging positief reageren worden de "
+"contactgegevens van u en de ander uitgewisseld."
+msgstr ""
+"Wanneer iemand een collectief aanmaakt versturen wij uitnodigingen aan "
+"iedereen die heeft aangegeven interesse in een gezamenlijk collectief te "
+"hebben. Wanneer zij op deze uitnodiging positief reageren worden de "
+"contactgegevens van jou en de ander uitgewisseld."
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:54
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:57
+msgctxt "img-alt"
+msgid "Stuur uitnodigingen bij creatie collectief"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:60
+msgctxt "collective-initiate-info"
+msgid ""
+"Nu u en anderen met elkaar in contact zijn gekomen kunt u hen benaderen via "
+"mail, of online chat-programma's zoals Whatsapp, Telegram, Zoom of Discord. "
+"U kunt nu natuurlijk altijd uit een collectief terugtrekken voordat er "
+"concrete afspraken zijn gemaakt."
+msgstr ""
+"Nu jij en anderen met elkaar in contact zijn gekomen kan je hen benaderen "
+"via mail, of online chat-programma's zoals Whatsapp, Telegram, Zoom of "
+"Discord. Je kunt natuurlijk altijd uit een collectief terugtrekken voordat "
+"er concrete afspraken zijn gemaakt."
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:71
+msgctxt "collective-initiate-info"
+msgid "Start een collectief"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:76
+#, python-format
+msgid ""
+"Op dit moment zijn er <b>%(num_interested)s huishoudens</b> in uw omgeving "
+"die interesse hebben in een gezamenlijk collectief."
+msgstr ""
+"Op dit moment zijn er <b>%(num_interested)s huishoudens</b> in jouw omgeving "
+"die interesse hebben in een gezamenlijk collectief."
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:83
+msgid "Uw omgeving is eenieder die voldoet aan de volgende voorwaarde:"
+msgstr "Jouw omgeving is eenieder die voldoet aan de volgende voorwaarde:"
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:94
+msgid "Wilt u het initiatief nemen om een collectief te starten?"
+msgstr "Wil jij het initiatief nemen om een collectief te starten?"
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:100
+msgid "Start Collectief"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:107
+msgid ""
+"Op dit moment is het onduidelijk waar u woont. U heeft eerder aangegeven "
+"waar u woont, echter heeft u dit antwoord terug getrokken in de vragenlijst."
+msgstr ""
+"Op dit moment is het onduidelijk waar jij woont. Je hebt eerder aangegeven "
+"waar jij woont, echter heb je dit antwoord terug getrokken in de vragenlijst."
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:113
+msgid ""
+"Om collectieven te kunnen starten dient u eerst interesse te hebben getoond. "
+"Dat kunt u doen door op de knop onderaan deze pagina te doen."
+msgstr ""
+"Om collectieven te kunnen starten dien je eerst interesse te hebben getoond. "
+"Dat kan je doen door op de knop onderaan deze pagina te doen."
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:139
+msgctxt "collective-info"
+msgid "Wij houden u op de hoogte"
+msgstr "Wij houden je op de hoogte"
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:141
+msgid ""
+"U heeft aangegeven open te staan voor uitnodigingen voor collectieve inkoop "
+"in de buurt. Wij informeren u hierover per email."
+msgstr ""
+"Je hebt aangegeven open te staan voor uitnodigingen voor collectieve inkoop "
+"in de buurt. Wij informeren je hierover per email."
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:149
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:170
+msgctxt "collective-action"
+msgid "Ik heb geen interesse meer"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:158
+msgctxt "collective-action"
+msgid "Afmelden interesse"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:164
+msgid ""
+"Wanneer u zich afmeld kunt u geen nieuwe uitnodigingen ontvangen. "
+"Uitnodigingen die u eerder heeft ontvangen of geaccepteerd blijven wel "
+"behouden."
+msgstr ""
+"Wanneer je jezelf afmeld kan je geen nieuwe uitnodigingen ontvangen. "
+"Uitnodigingen die je eerder hebt ontvangen of geaccepteerd blijven wel "
+"behouden."
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:173
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_adjust_personal_data.html:13
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\interest_all_restrictions_update.html:44
+msgctxt "collective-action"
+msgid "Annuleren"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:180
+msgctxt "collective-action"
+msgid "Wilt u meedoen?"
+msgstr "Wil je meedoen?"
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:191
+msgctxt "collective-action"
+msgid "Ja, houd me op de hoogte"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:203
+msgctxt "collective-action"
+msgid "Uw contactgegevens"
+msgstr "Je contactgegevens"
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:211
+msgid ""
+"Wat top dat u een collectief wilt organiseren. Om u in contact te brengen "
+"met anderen hebben we wel uw contactgegevens nodig voor hen die op uw "
+"uitnodigingen reageren. Zou u zo vriendelijk willen zijn deze in te vullen?"
+msgstr ""
+"Wat top dat je een collectief wilt organiseren. Om jou in contact te brengen "
+"met anderen hebben we wel jouw contactgegevens nodig voor hen die op jouw "
+"uitnodigingen reageren. Zou je zo vriendelijk willen zijn deze in te vullen?"
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:229
+msgctxt "collective-action"
+msgid "Verder"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:232
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:275
+msgctxt "collective-action"
+msgid "Sluiten"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:243
+#, fuzzy
+#| msgid "Uw code"
+msgctxt "collective-action"
+msgid "Uw collectief"
+msgstr "Jouw code: "
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:251
+msgid ""
+"Bij de uitnodiging om deel te nemen sturen wij een bericht van u mee. Laat "
+"weten waarom anderen mee moeten doen met uw collectief."
+msgstr ""
+"Bij de uitnodiging om deel te nemen sturen wij een bericht van jou mee. Laat "
+"weten waarom anderen mee moeten doen met jouw collectief."
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:257
+msgid ""
+"U hoeft hierin niet uw contact gegevens te plaatsen. Deze worden na "
+"acceptatie al gedeeld."
+msgstr ""
+"Je hoeft hierin niet uw contact gegevens te plaatsen. Deze worden na "
+"acceptatie al gedeeld."
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:268
+msgctxt "collective-action"
+msgid "Aanmaken en versturen"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:272
+msgctxt "collective-action"
+msgid "Terug"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_adjust_personal_data.html:5
+msgctxt "collective-action"
+msgid "Wijzig uw contactgegevens"
+msgstr "Wijzig jouw contactgegevens"
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_follower.html:12
+msgctxt "collective-info"
+msgid "Initiatiefnemer"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_follower.html:18
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_follower.html:59
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:157
+msgctxt "collective-info"
+msgid "Naam:"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_follower.html:24
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_follower.html:68
+msgctxt "collective-info"
+msgid "Address:"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_follower.html:31
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_follower.html:78
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:166
+msgctxt "collective-info"
+msgid "Tel:"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_follower.html:36
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_follower.html:87
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:175
+msgctxt "collective-info"
+msgid "Email:"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_follower.html:48
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:146
+msgctxt "collective-info"
+msgid "Uw gegevens"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_follower.html:104
+msgctxt "collective-info"
+msgid "Wijzig u gegevens"
+msgstr "Wijzig jouw gegevens"
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_follower.html:119
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:207
+msgctxt "collective-info"
+msgid "Opslaan"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_follower.html:122
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:210
+msgctxt "collective-info"
+msgid "Sluiten"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:8
+msgctxt "collective-info"
+msgid "Collectief is momenteel"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:11
+msgctxt "collective-info"
+msgid "open om te betreden."
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:14
+msgctxt "collective-info"
+msgid "gesloten. Anderen kunnen er niet meer bij."
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:23
+msgctxt "collective-info"
+msgid "Er word gezocht in de volgende omgeving:"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:34
+msgctxt "collective-info"
+msgid "Deelnemers"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:38
+msgctxt "collective-status"
+msgid "Uitgenodigd"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:39
+msgctxt "collective-status"
+msgid "Nog niet gereageerd"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:40
+msgctxt "collective-status"
+msgid "Geaccepteerd"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:41
+msgctxt "collective-status"
+msgid "Afgewezen"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:58
+#, python-format
+msgid "Stuur %(number_of_invited_people)s nieuwe uitnodiging"
+msgid_plural "Stuur %(number_of_invited_people)s nieuwe uitnodigingen"
+msgstr[0] ""
+msgstr[1] ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:67
+msgctxt "collective-info"
+msgid "Er is geen nieuwe interesse in uw omgeving"
+msgstr "Er is geen nieuwe interesse in jouw omgeving"
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:68
+msgctxt "collective-info"
+msgid "Stuur 0 nieuwe uitnodigingen"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:80
+msgid ""
+"Herinneringen worden verstuurd aan ieder die de afgelopen 7 dagen een "
+"bericht hebben ontvangen."
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:83
+msgctxt "collective-info"
+msgid "Stuur herinnering"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:97
+msgid ""
+"Heeft u genoeg ge&iuml;nteresseerden, dan kunt u hieronder de toegang "
+"sluiten. De huidige uitnodigingen worden dan niet meer toegevoegd en "
+"mogelijke nieuwe ge&iuml;nteresseerden kunnen zich niet meer aanmelden."
+msgstr ""
+"Heb je genoeg ge&iuml;nteresseerden, dan kun je hieronder de toegang "
+"sluiten. De huidige uitnodigingen worden dan niet meer toegevoegd en "
+"mogelijke nieuwe ge&iuml;nteresseerden kunnen zich niet meer aanmelden."
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:106
+msgid ""
+"Zoekt u extra buurtgenoten om mee te laten doen? Open dan de aanmeldingen "
+"opnieuw."
+msgstr ""
+"Zoek je extra buurtgenoten om mee te laten doen? Open dan de aanmeldingen "
+"opnieuw."
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:118
+msgctxt "collective-info"
+msgid "Sluit toegang"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:135
+msgctxt "collective-info"
+msgid "Open toegang"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:192
+msgctxt "collective-action"
+msgid "Wijzig u gegevens"
+msgstr "Wijzig jouw gegevens"
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:221
+msgctxt "collective-info"
+msgid "Positieve reacties"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:232
+msgctxt "collective-info"
+msgid "Klik om alle mails te kopi&euml;ren naar je klembord"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:233
+msgctxt "collective-info"
+msgid "Gekopieerd naar klembord"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:234
+msgctxt "collective-info"
+msgid "Kopi&euml;ren mislukt"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:240
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:308
+msgctxt "collective-info"
+msgid "Telefoonnummer"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:241
+msgctxt "collective-info"
+msgid "Reactie"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:256
+msgctxt "collective-info"
+msgid "Bekijk volle info"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:282
+msgctxt "collective-info"
+msgid "adres"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:294
+msgctxt "collective-info"
+msgid "e-mail"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:327
+msgctxt "collective-info"
+msgid "Close"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\interest_all_restrictions_update.html:8
+msgid ""
+"Wat top dat u interesse heeft in collectieve acties in uw omgeving. Echter "
+"heeft u een vraag niet beantwoord die wij gebruiken om te bepalen of een "
+"collectieve actie bij u in de buurt plaats vind."
+msgid_plural ""
+"Wat top dat u interesse heeft in collectieve acties in uw omgeving. Echter "
+"heeft u enkele vragen niet beantwoord die wij gebruiken om te bepalen of een "
+"collectieve actie bij u in de buurt plaats vind."
+msgstr[0] ""
+"Wat top dat je interesse hebt in collectieve acties in uw omgeving. Echter "
+"heb je een vraag niet beantwoord die wij gebruiken om te bepalen of een "
+"collectieve actie bij jou in de buurt plaats vind."
+msgstr[1] ""
+"Wat top dat je interesse hebt in collectieve acties in uw omgeving. Echter "
+"heb je enkele vragen niet beantwoord die wij gebruiken om te bepalen of een "
+"collectieve actie bij jou in de buurt plaats vind."
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\interest_all_restrictions_update.html:18
+msgid ""
+"Gelieve de vragen hieronder te bantwoorden als u op de hoogte gehouden wilt "
+"worden"
+msgstr ""
+"Gelieve de vragen hieronder te bantwoorden als je op de hoogte gehouden wilt "
+"worden"
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\interest_all_restrictions_update.html:48
+msgctxt "collective-info"
+msgid "Ik heb interesse"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\interest_restrictions_update.html:7
+#, python-format
+msgid "Interesse collectieve acties in %(tech_collective)s"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\interest_restrictions_update.html:9
+#, python-format
+msgid ""
+"U heeft aangegeven om op de hoogte te blijven van collectieve met "
+"%(tech_collective.technology.name)s acties in uw buurt. Echter heeft u een "
+"vraag niet beantwoord welke wij gebruiken om te bepalen of een actie bij u "
+"in de buurt word gehouden. Gelieve deze vraag hieronder alsnog te "
+"beantwoorden opdat wij u kunnen helpen."
+msgid_plural ""
+"U heeft aangegeven om op de hoogte te blijven van collectieve met "
+"%(tech_collective.technology.name)s acties in uw buurt. Echter heeft u "
+"enkele vragen niet beantwoord welke wij gebruiken om te bepalen of een actie "
+"bij u in de buurt word gehouden. Gelieve deze vragen hieronder alsnog te "
+"beantwoorden opdat wij u kunnen helpen."
+msgstr[0] ""
+"Je hebt aangegeven om op de hoogte te blijven van collectieve met "
+"%(tech_collective.technology.name)s acties in jouw buurt. Echter heb je een "
+"vraag niet beantwoord welke wij gebruiken om te bepalen of een actie bij jou "
+"in de buurt word gehouden. Gelieve deze vraag hieronder alsnog te "
+"beantwoorden opdat wij jou kunnen helpen."
+msgstr[1] ""
+"Je hebt aangegeven om op de hoogte te blijven van collectieve met "
+"%(tech_collective.technology.name)s acties in jouw buurt. Echter heb je "
+"enkele vragen niet beantwoord welke wij gebruiken om te bepalen of een actie "
+"bij jou in de buurt word gehouden. Gelieve deze vraag hieronder alsnog te "
+"beantwoorden opdat wij jou kunnen helpen."
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\interest_restrictions_update.html:43
+msgid "Annuleren"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\interest_restrictions_update.html:47
+msgid "Ik heb interesse"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\step_3_email_confirmation.html:9
+msgid "Wij vereisen uw email"
+msgstr "Wij vereisen jouw email"
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\step_3_email_confirmation.html:15
+msgid ""
+"Om verder te gaan moeten wij u op de hoogte kunnen houden door middel van e-"
+"mail. U heeft uw e-mail echter nog niet opgegeven. Zou u dit alsnog willen "
+"doen?"
+msgstr ""
+"Om verder te gaan moeten wij jou op de hoogte kunnen houden door middel van "
+"e-mail. Jij hebt je e-mail echter nog niet opgegeven. Zou je dit alsnog "
+"willen doen?"
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\step_3_email_confirmation.html:29
+msgid ""
+"Wij sturen gemiddeld 2 mails sturen in een periode van een jaar. Wanneer u "
+"in stap 3 interesse aantoont in een collectief of een collectief start zult "
+"u tevens per mail worden ge&iuml;nformeerd over ontwikkelingen.<br> U zult "
+"geen mails ontvangen van ons namens derde partijen. Uw mail adres zal nooit "
+"gedeeld worden zonder uw expliciete toestemming."
+msgstr ""
+"Wij sturen jou zeer sporadisch een mail om jou te ondersteunen. Tenzij je "
+"elders anders aangeeft zullen wij na afloop gemiddeld 2 mails sturen in een "
+"periode van een jaar.<br> Je zult geen mails ontvangen van ons namens derde "
+"partijen. Jouw mail adres zal nooit gedeeld worden zonder uw expliciete "
+"toestemming"
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\step_3_email_confirmation.html:53
+msgid "Opslaan en doorgaan"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\take_action_overview.html:7
+msgid ""
+"Wij kunnen u momenteel niet verder helpen. Ofwel wij hebben niets kunnen "
+"adviseren, ofwel wij hebben geen actieplannen ontwikkeld voor de techneieken "
+"die u werd aanbevolen. Ons excuses hiervoor."
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\take_action_overview.html:24
+msgid "Collectief interesse"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\take_action_overview.html:29
+msgid "Wilt u worden ge&iuml;nformeerd van alle collectieven in uw buurt?"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\take_action_overview.html:34
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\take_action_overview.html:73
+msgid "Ja, ik heb interesse"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\take_action_overview.html:44
+msgid "Interesse in collectieven"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\take_action_overview.html:52
+msgid ""
+"Het is mogelijk dat iemand in uw buurt een collectief wil starten voor de "
+"aanschaf/ installatie van &eacute;&eacute;n van de aanbevolen technieken. "
+"Hierbij zoekt hij/zij anderen om dit samen te regelen en zo eenvoudiger en "
+"goedkoper de verbetering toe te passen."
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\take_action_overview.html:59
+msgid ""
+"Wilt u ge&iuml;nformeerd worden wanneer dit gebeurd bij &eacute;&eacute;n "
+"van de door ons aanbevolen maatregelen? Druk dan op de knop hieronder. U "
+"kunt ook, per maatregel aangeven of u ge&iuml;nteresseert bent."
+msgstr ""
+"Wil je ge&iuml;nformeerd worden wanneer dit gebeurd bij &eacute;&eacute;n "
+"van de door ons aanbevolen maatregelen? Druk dan op de knop hieronder. Je "
+"kunt ook, per maatregel aangeven of je ge&iuml;nteresseert bent."
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\take_action_overview.html:76
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\take_action_overview.html:129
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\take_action_overview.html:153
+msgid "Sluiten"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\take_action_overview.html:86
+msgid "Navigatie"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\take_action_overview.html:111
+msgid "Uitnodigingen"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\take_action_overview.html:119
+msgid "U heeft <span id=\"modal-invite-count\"></span> open uitnodigingen"
+msgstr "Je hebt <span id=\"modal-invite-count\"></span> open uitnodigingen"
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\take_action_overview.html:142
+msgid "Deelgenomen collectieve acties in de buurt"
+msgstr ""
