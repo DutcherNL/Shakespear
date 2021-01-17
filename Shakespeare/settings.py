@@ -164,7 +164,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
 LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale')]
-LANGUAGE_CODE = 'nl-nl'
+LANGUAGE_CODE = 'nl-be'
 
 LANGUAGES = [
     ('nl', _('Nederlands')),
@@ -174,7 +174,7 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
+USE_L10N = False
 
 USE_TZ = True
 
