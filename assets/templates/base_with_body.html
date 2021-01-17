@@ -1,10 +1,16 @@
 {% extends 'base.html' %}
 {% load static %}
-
+{% load django_bootstrap_breadcrumbs  %}
 
 
 {% block body_content %}
     {% include 'snippet_navbar.html' %}
+    {% block breadcrumbs %}
+    {% endblock %}
+
+    {% if user.is_authenticated %}
+        {% render_breadcrumbs %}
+    {% endif %}
     {% if messages %}
         {% include 'snippets/snippet_message_header.html' %}
     {% endif %}

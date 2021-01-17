@@ -1,13 +1,15 @@
-{% load django_bootstrap_breadcrumbs  %}
+
 {% load score_result_tags %}
 
     <nav class="navbar navbar-expand navbar-dark bg-primary my-0 py-0">
         <a href="{% url 'index' %}" class="navbar-brand mr-auto">
             <img class="sdw_image" src="{% static "img/Samen Duurzamer Wonen - wit - 300ppi.png" %}" height="50">
-                <span class="h3 d-none d-lg-inline"
-                      style="line-height: 40px; vertical-align: middle; margin: 0 0 0 10px"> {{ SITE_DISPLAY_NAME }}</span>
+            <!--
+            <span class="h3 d-none d-lg-inline"
+                  style="line-height: 40px; vertical-align: middle; margin: 0 0 0 10px"> {{ SITE_DISPLAY_NAME }}</span>
             <span class="h5 d-none d-md-inline d-lg-none"
                   style="line-height: 40px; vertical-align: middle; margin: 0 0 0 10px"> {{ SITE_DISPLAY_NAME }}</span>
+                  -->
         </a>
         <div class="mr-auto">
             {% block nav-bar-options %}
@@ -17,12 +19,12 @@
 
         {% with justify="d-flex justify-content-between align-items-center" %}
 
-            <span class="navbar-text text-right px-2">
             {% if user.is_authenticated %}
+            <span class="navbar-text text-right px-2">
                 Logged in as: {{ user }}<br>
                 Code: {{ inquirer.get_inquiry_code }}
-            {% endif %}
-                </span>
+
+            </span>
             <div class="navbar-nav">
                 <div class="nav-item dropdown">
                     {# (mb-0 is needed to cancel the margin that gets added by h4) #}
@@ -60,12 +62,6 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
         {% endwith %}
     </nav>
-
-    {% block breadcrumbs %}
-    {% endblock %}
-
-    {% if user.is_authenticated %}
-    {% render_breadcrumbs %}
-    {% endif %}
