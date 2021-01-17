@@ -1,17 +1,13 @@
+Complete
+- Reskin to new style and layout
+- U in NL, Je in Be
 
+TODO:
+- Required attribute for questions does not work in actual questionaire view (at least in multiple choice)
+- Advanced postal code selection for belgium
 
-
-
-Required attribute for questions does not work in actual questionaire view (at least in multiple choice)
-
-Advanced postal code selection for belgium
-
-Reskin to new style and layout
-
-U in NL, Je in Be
-
-Link in de PDF naar de techniek informatiepagina's
-Link module
+- Link in de PDF naar de techniek informatiepagina's
+- Link module
 
 
 
