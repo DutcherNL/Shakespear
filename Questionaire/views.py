@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
+from django.contrib import messages
 
 from .models import Page, Inquiry, Technology, Inquirer, TechGroup
 from .forms import QuestionPageForm, EmailForm, InquirerLoadForm, CreateInquirerForm
@@ -200,7 +201,10 @@ class QPageView(FlexCssMixin, FirstStepMixin, FormView):
 
     def init_base_keys(self):
         self.inquiry = get_object_or_404(Inquiry, id=self.request.session.get('inquiry_id', None))
-        self.page = get_object_or_404(Page, id=self.request.session.get('page_id', None))
+
+        self.page = Page.objects.filter(id=self.request.session.get('page_id', None)).first()
+        if self.page is None:
+            self.page = self.inquiry.current_page
 
     def form_valid(self, form):
         # Form is valid, save it

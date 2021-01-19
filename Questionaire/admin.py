@@ -154,6 +154,9 @@ class AnswerScoringAdmin(ExportCsvMixin, admin.ModelAdmin):
 
     inlines = [AnswerScoreNoteInlines]
 
+    list_display = ('__str__', )
+    list_filter = ('declaration', 'answer_option',)
+
 
 @admin.register(AnswerScoringNote)
 class AnswerNoteAdmin(ExportCsvMixin, admin.ModelAdmin):
