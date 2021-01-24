@@ -15,7 +15,6 @@
     <thead>
     <tr class="font-weight-bold">
         <td style="min-width: 10rem">Name</td>
-        <td style="min-width: 10rem">Settings</td>
         <td style="min-width: 15rem;">Page</td>
     </tr>
     </thead>
@@ -25,24 +24,19 @@
             <td>
                 {{ page.name }}
             </td>
-            <td>
-                <a href="" class="btn btn-primary btn-block">
-                    Settings
-                </a>
-            </td>
 
             <td>
                 {% if page.display_page %}
                     <div class="btn-group w-100" role="group" aria-label="Opties">
-                        <a href="{% url 'setup:inquiry_pages:view_page' page_id=page.id %}" class="btn btn-secondary">
+                        <a href="{% url 'setup:questionaire_pages:pages:view_page' page_id=page.id %}" class="btn btn-secondary">
                             View page
                         </a>
-                        <a href="{% url 'setup:inquiry_pages:edit_page' page_id=page.id %}" class="btn btn-warning">
+                        <a href="{% url 'setup:questionaire_pages:pages:edit_page' page_id=page.id %}" class="btn btn-warning">
                             Edit page
                         </a>
                     </div>
                 {% else %}
-                    <a href="{% url 'setup:create_display_page' page_id=page.id %}" class="btn btn-success btn-block">
+                    <a href="{% url 'setup:questionaire_pages:create_display_page' page_id=page.id %}" class="btn btn-success btn-block">
                         Add page
                     </a>
                 {% endif %}

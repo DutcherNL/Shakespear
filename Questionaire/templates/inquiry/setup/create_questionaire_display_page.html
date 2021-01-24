@@ -4,8 +4,8 @@
 {% block breadcrumbs %}
     {{ block.super }}
     {% breadcrumb "Setup" "setup:home" %}
-    {% breadcrumb "Inquiry pages" "setup:inquiry_list" %}
-    {% breadcrumb "Add display page" "setup:create_display_page" %}
+    {% breadcrumb "Inquiry pages" "setup:questionaire_pages:home" %}
+    {% breadcrumb "Add display page" "setup:questionaire_pages:create_display_page" %}
 {% endblock %}
 
 {% block body %}
@@ -14,7 +14,7 @@
         <div class="row">
             <div class="offset-3 col-9 btn-group ">
                 <input class="btn-primary btn" type="submit" value="Create">
-                <a href="{% url 'setup:tech_list' %}" class="btn btn-secondary">
+                <a href="{% url 'setup:questionaire_pages:home' %}" class="btn btn-secondary">
                     Annuleren
                 </a>
             </div>

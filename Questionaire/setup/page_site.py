@@ -38,7 +38,7 @@ class TechPageSite(PageSite):
 class InquiryPagesSite(PageSite):
     """ A custom site for the page display """
 
-    namespace = 'inquiry_pages'
+    namespace = 'pages'
     use_page_keys = False
     renderer = InquiryPagePreviewRenderer
     breadcrumb_trail_template = "inquiry/setup/snippet_breadcrumb_trail_questionaire_pages.html"

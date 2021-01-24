@@ -21,19 +21,16 @@ class SetupTechs(SetupConfig):
             ])),
         ]
 
-    def get_root_url(self):
-        return reverse('setup:technologies:home')
-
 
 class SetupInquiryPages(SetupConfig):
     name = "Inquiry Pages"
     url_keyword = 'inquiry_pages'
-    namespace = None
+    namespace = 'questionaire_pages'
 
     def get_urls(self):
         """ Builds a list of urls """
         return [
-            path('', views.SetUpQuestionairePageOverview.as_view(), name='inquiry_list'),
+            path('', views.SetUpQuestionairePageOverview.as_view(), name='home'),
             path('<int:page_id>/', include([
                 path('create_display_page/', views.CreateQuestionaireDisplayPageView.as_view(), name='create_display_page'),
                 path('display/', inquiry_pages_site.urls)

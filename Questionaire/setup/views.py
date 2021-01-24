@@ -113,7 +113,7 @@ class CreateQuestionaireDisplayPageView(AccessabilityMixin, FormView):
         return super(CreateQuestionaireDisplayPageView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse('setup:inquiry_pages:edit_page',
+        return reverse('setup:questionaire_pages:pages:edit_page',
                        kwargs={'page_id': self.inquiry_page.id},
                        current_app=self.request.resolver_match.namespace)
 

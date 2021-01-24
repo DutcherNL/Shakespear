@@ -1,12 +1,14 @@
 from importlib import import_module
 
 from django.apps import apps
+from django.urls import reverse
 
 
 class SetupConfig:
     name = None
     url_keyword = None
     namespace = None
+    root_url_name = None
 
     def get_urls(self):
         """ Builds a list of urls """
@@ -21,7 +23,12 @@ class SetupConfig:
         return self.get_root_url()
 
     def get_root_url(self):
-        return None
+        url_pattern = 'setup'
+        if self.namespace:
+            url_pattern += ':'+self.namespace
+        url_pattern += ':home' if self.root_url_name is None else f':{self.root_url_name}'
+
+        return reverse(url_pattern)
 
 
 
