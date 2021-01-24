@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path, include, reverse
 
 from .page_site import tech_page_site, inquiry_pages_site
 from . import views
@@ -8,18 +8,21 @@ from shakespeare_setup.config import SetupConfig
 class SetupTechs(SetupConfig):
     name = "Technologies"
     url_keyword = 'techs'
-    namespace = None
+    namespace = 'technologies'
 
     def get_urls(self):
         """ Builds a list of urls """
         return [
-            path('', views.SetUpTechPageOverview.as_view(), name='tech_list'),
+            path('', views.SetUpTechPageOverview.as_view(), name='home'),
             path('<int:tech_id>/', include([
                 path('settings/', views.UpdateTechnologyView.as_view(), name='tech_update'),
                 path('create_page/', views.CreateTechPageView.as_view(), name='create_page'),
                 path('page/', tech_page_site.urls)
             ])),
         ]
+
+    def get_root_url(self):
+        return reverse('setup:technologies:home')
 
 
 class SetupInquiryPages(SetupConfig):

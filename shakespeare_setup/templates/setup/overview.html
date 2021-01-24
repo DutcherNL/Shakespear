@@ -10,9 +10,13 @@
 
 {% block body %}
     <h1>Pages</h1>
-    <a href="{% url 'setup:tech_list' %}" class="btn btn-primary btn-block">
-        Technology pages
-    </a>
+    {% for config in setup_configs %}
+        <a {% if config.root_url %} %} href="{{ config.root_url }}" {% endif %}
+            class="btn btn-block btn-info">
+            {{ config.name }}
+        </a>
+    {% endfor %}
+
     <a href="{% url 'setup:reports:reports_overview' %}" class="btn btn-block btn-primary">
         Report pages
     </a>

@@ -1,5 +1,6 @@
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from shakespeare_setup.config import get_all_configs
 
 
 class AccessabilityMixin(LoginRequiredMixin):
@@ -10,4 +11,12 @@ class AccessabilityMixin(LoginRequiredMixin):
 
 
 class SetUpOverview(AccessabilityMixin, TemplateView):
-    template_name = "inquiry/setup/overview.html"
+    template_name = "setup/overview.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(SetUpOverview, self).get_context_data(**kwargs)
+
+        context['setup_configs'] = get_all_configs()
+
+
+        return context

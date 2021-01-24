@@ -44,6 +44,11 @@ class UpdateTechnologyView(AccessabilityMixin, UpdateView):
         context['breadcrumb_url_name'] = "create_page"
         return context
 
+    def get_success_url(self):
+        return reverse('setup:technologies:pages:edit_page',
+                       kwargs={'tech_id': self.object.id},
+                       current_app=self.request.resolver_match.namespace)
+
 
 class TechnologyMixin:
     def dispatch(self, request, *args, **kwargs):
@@ -71,7 +76,7 @@ class CreateTechPageView(AccessabilityMixin, TechnologyMixin, FormView):
         return super(CreateTechPageView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse('setup:pages:edit_page',
+        return reverse('setup:technologies:pages:edit_page',
                        kwargs={'tech_id': self.technology.id},
                        current_app=self.request.resolver_match.namespace)
 

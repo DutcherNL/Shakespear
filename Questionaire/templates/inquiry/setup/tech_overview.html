@@ -4,7 +4,7 @@
 {% block breadcrumbs %}
     {{ block.super }}
     {% breadcrumb "Setup" "setup:home" %}
-    {% breadcrumb "Technologies" "setup:tech_list" %}
+    {% breadcrumb "Technologies" "setup:technologies:home" %}
 
 {% endblock %}
 
@@ -26,7 +26,7 @@
                 {{ tech.name }}
             </td>
             <td>
-                <a href="{% url 'setup:tech_update' tech_id=tech.id %}" class="btn btn-primary btn-block">
+                <a href="{% url 'setup:technologies:tech_update' tech_id=tech.id %}" class="btn btn-primary btn-block">
                     Settings
                 </a>
             </td>
@@ -35,16 +35,16 @@
                 {% if tech.information_page %}
                     <div class="btn-group w-100" role="group" aria-label="Opties">
                     {% with tech.information_page as page %}
-                        <a href="{% url 'setup:pages:view_page' tech_id=tech.id %}" class="btn btn-secondary">
+                        <a href="{% url 'setup:technologies:pages:view_page' tech_id=tech.id %}" class="btn btn-secondary">
                             View page
                         </a>
-                        <a href="{% url 'setup:pages:edit_page' tech_id=tech.id %}" class="btn btn-warning">
+                        <a href="{% url 'setup:technologies:pages:edit_page' tech_id=tech.id %}" class="btn btn-warning">
                             Edit page
                         </a>
                     {% endwith %}
                     </div>
                 {% else %}
-                    <a href="{% url 'setup:create_page' tech_id=tech.id %}" class="btn btn-success btn-block">
+                    <a href="{% url 'setup:technologies:create_page' tech_id=tech.id %}" class="btn btn-success btn-block">
                         Add page
                     </a>
                 {% endif %}
