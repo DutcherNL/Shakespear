@@ -21,12 +21,13 @@ from .index import index
 
 from Questionaire.techpages import tech_page_site
 from PageDisplay.sites import page_site
+from shakespeare_setup.urls import get_setup_urls
 
 urlpatterns = [
     path('', index, name='index'),
     path('admin/', admin.site.urls),
     path('Q/', include('Questionaire.urls')),
-    path('setup/', include('Questionaire.setup.urls')),
+    path('setup/', get_setup_urls()),
     path('mails/', include('mailing.urls')),
     path('pages/', include('PageDisplay.urls')),
     path('techs/<slug:slug>/', tech_page_site.urls),
@@ -35,4 +36,8 @@ urlpatterns = [
     path('mijndata/', include('inquirer_settings.urls')),
     path('data_analysis/', include('data_analysis.urls')),
     path('', include('general.urls')),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+

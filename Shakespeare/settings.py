@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
     'general.apps.MyAdminConfig',
     'general.apps.ShakespeareGeneralConfig',
+    'shakespeare_setup',
     'local_data_storage.apps.LocalDataStorageConfig',
     'Questionaire.apps.QuestionaireConfig',
     'PageDisplay.apps.PagedisplayConfig',

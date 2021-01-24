@@ -9,10 +9,9 @@ TODO:
 - Link in de PDF naar de techniek informatiepagina's
 - Link module
 
-
+- Postcode trimming
 
 - - - Checken op de site zelf - - -
-Radiatorfolie staat driedubbel
 Naisolatie bij toegepast staat isolatie niet voldoende
 Oranje advies op zonneenergie en vloerverwarming
 
