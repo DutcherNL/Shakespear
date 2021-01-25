@@ -4,7 +4,7 @@
 {% block breadcrumbs %}
     {{ block.super }}
     {% breadcrumb "Setup" "setup:home" %}
-    {% breadcrumb "General pages" "setup:pages_list" %}
+    {% breadcrumb "General pages" "setup:general:list" %}
 
 {% endblock %}
 
@@ -30,16 +30,16 @@
                         {{ page.in_footer }}
                     </td>
                     <td>
-                        <a href="{% url 'setup:general_page_edit' slug=page.slug %}" class="btn btn-primary btn-block">
+                        <a href="{% url 'setup:general:edit' slug=page.slug %}" class="btn btn-primary btn-block">
                             Settings
                         </a>
                     </td>
                     <td>
                         <div class="btn-group w-100" role="group" aria-label="Opties">
-                            <a href="{% url 'general:general_pages:view_page' slug=page.slug %}" class="btn btn-secondary">
+                            <a href="{% url 'setup:general:pages:view_page' slug=page.slug %}" class="btn btn-secondary">
                                 View page
                             </a>
-                            <a href="{% url 'general:general_pages:edit_page' slug=page.slug %}" class="btn btn-warning">
+                            <a href="{% url 'setup:general:pages:edit_page' slug=page.slug %}" class="btn btn-warning">
                                 Edit page
                             </a>
                         </div>
@@ -52,7 +52,7 @@
             {% endfor %}
             </tbody>
         </table>
-        <a class="btn btn-block btn-primary" href="{% url "setup:general_page_add" %}">Add new page</a>
+        <a class="btn btn-block btn-primary" href="{% url "setup:general:add" %}">Add new page</a>
     </div>
 
 {% endblock %}

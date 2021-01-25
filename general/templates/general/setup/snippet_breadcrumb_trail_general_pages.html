@@ -1,0 +1,4 @@
+{% load django_bootstrap_breadcrumbs  %}
+{% breadcrumb "Setup" "setup:home" %}
+{% breadcrumb "General Pages" "setup:general:list" %}
+{% breadcrumb url_link "setup:gneral:list" slug=url_kwargs.slug %}

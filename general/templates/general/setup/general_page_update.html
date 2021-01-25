@@ -4,7 +4,7 @@
 {% block breadcrumbs %}
     {{ block.super }}
     {% breadcrumb "Setup" "setup:home" %}
-    {% breadcrumb "General pages" "setup:general_pages_list" %}
+    {% breadcrumb "General pages" "setup:general:list" %}
     {% breadcrumb object.name "" %}
     {% breadcrumb "Edit" breadcrumb_url_name %}
 
@@ -16,10 +16,10 @@
         <div class="row">
             <div class="offset-3 col-9 btn-group ">
                 <input class="btn-primary btn" type="submit" value="Update">
-                <a href="{% url 'setup:general_pages_list' %}" class="btn btn-secondary">
+                <a href="{% url 'setup:general:list' %}" class="btn btn-secondary">
                     Annuleren
                 </a>
-                <a href="{% url 'setup:general_page_delete' slug=object.slug %}" class="btn btn-danger">
+                <a href="{% url 'setup:general:delete' slug=object.slug %}" class="btn btn-danger">
                     Delete
                 </a>
             </div>

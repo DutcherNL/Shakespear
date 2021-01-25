@@ -3,20 +3,23 @@ from django.urls import path, include
 
 from shakespeare_setup.config import SetupConfig
 from .views import *
+from .page_site import general_page_site
 
 
 class SetupTechs(SetupConfig):
     name = "General site pages"
     url_keyword = 'general'
-    namespace = None
+    namespace = 'general'
+    root_url_name = 'list'
 
     def get_urls(self):
         """ Builds a list of urls """
         return [
-                path('', GeneralPageListView.as_view(), name='general_pages_list'),
-                path('add/', AddGeneralPageView.as_view(), name='general_page_add'),
+                path('', GeneralPageListView.as_view(), name='list'),
+                path('add/', AddGeneralPageView.as_view(), name='add'),
                 path('<slug:slug>/', include([
-                    path('edit/', UpdateGeneralPageView.as_view(), name='general_page_edit'),
-                    path('delete/', DeleteGeneralPageView.as_view(), name='general_page_delete'),
+                    path('edit/', UpdateGeneralPageView.as_view(), name='edit'),
+                    path('delete/', DeleteGeneralPageView.as_view(), name='delete'),
+                    path('page/', general_page_site.urls),
                 ])),
         ]

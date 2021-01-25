@@ -14,20 +14,20 @@ class AccessabilityMixin(LoginRequiredMixin):
 
 
 class GeneralPageListView(AccessabilityMixin, ListView):
-    template_name = "inquiry/setup/general_page_overview.html"
+    template_name = "general/setup/general_page_overview.html"
     context_object_name = "pages"
     model = BasePageURL
 
 
 class AddGeneralPageView(AccessabilityMixin, CreateView):
     model = BasePageURL
-    success_url = reverse_lazy('setup:general_pages_list')
-    template_name = "inquiry/setup/general_page_add.html"
+    success_url = reverse_lazy('setup:general:list')
+    template_name = "general/setup/general_page_add.html"
     fields = ['name', 'slug', 'description', 'in_footer', 'footer_order']
 
 
 class UpdateGeneralPageView(AccessabilityMixin, UpdateView):
-    template_name = "inquiry/setup/general_page_update.html"
+    template_name = "general/setup/general_page_update.html"
     pk_url_kwarg = "tech_id"
     model = BasePageURL
     fields = ['name', 'slug', 'description', 'in_footer', 'footer_order']
@@ -39,10 +39,10 @@ class UpdateGeneralPageView(AccessabilityMixin, UpdateView):
         return context
 
     def get_success_url(self):
-        return reverse('setup:general_pages_list')
+        return reverse('setup:general:list')
 
 
 class DeleteGeneralPageView(DeleteView):
     model = BasePageURL
-    success_url = reverse_lazy('setup:general_pages_list')
-    template_name = "inquiry/setup/general_page_delete.html"
+    success_url = reverse_lazy('setup:general:list')
+    template_name = "general/setup/general_page_delete.html"
