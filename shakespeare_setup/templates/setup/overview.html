@@ -12,17 +12,11 @@
     <h1>Pages</h1>
     {% for config in setup_configs %}
         <a {% if config.root_url %} %} href="{{ config.root_url }}" {% endif %}
-            class="btn btn-block btn-info">
+            class="btn btn-block btn-warning">
             {{ config.name }}
         </a>
     {% endfor %}
 
-    <a href="{% url 'setup:reports:reports_overview' %}" class="btn btn-block btn-primary">
-        Report pages
-    </a>
-    <a href="{% url 'setup:local_data_storage:data_domain_overview' %}" class="btn btn-block btn-primary">
-        Set local data
-    </a>
     <a href="{% url 'setup:queued_tasks:overview' %}" class="btn btn-block btn-info">
         Queued tasks overview
     </a>
