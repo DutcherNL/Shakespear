@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.contrib import messages
 from general.tests.mixins.test_view_mixins import *
 
-from reports.views_setup import *
+from reports.setup.views import *
 
 
 class ReportViewsMixin:
@@ -35,7 +35,7 @@ class TestReportOverView(ReportViewsMixin, ViewTestMixin, TestCase):
     def test_get_method(self):
         response = self.build_get_response()
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "reports/reports_overview.html")
+        self.assertTemplateUsed(response, "reports/setup/reports_overview.html")
         self.assertInContext(response, 'reports')
 
     def test_class(self):
@@ -51,7 +51,7 @@ class TestAddReportView(ReportViewsMixin, ViewTestMixin, TestCase):
     def test_get_method(self):
         response = self.build_get_response()
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "reports/report_form_add.html")
+        self.assertTemplateUsed(response, "reports/setup/report_form_add.html")
 
     def test_successful_post(self):
         response = self.build_post_response({
@@ -82,7 +82,7 @@ class TestReportInfoView(ViewTestMixin, TestCase):
     def test_get_method(self):
         response = self.build_get_response()
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "reports/report_detail.html")
+        self.assertTemplateUsed(response, "reports/setup/report_detail.html")
 
     def test_class(self):
         self.assertIsSubclass(ReportInfoView, ReportMixin)
@@ -96,7 +96,7 @@ class TestEditReportView(ReportViewsMixin, ViewTestMixin, TestCase):
     def test_get_method(self):
         response = self.build_get_response()
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "reports/report_form.html")
+        self.assertTemplateUsed(response, "reports/setup/report_form.html")
 
         # Report form uses this open attribute in the breadcrumbs for versatility of the form
         self.assertInContext(response, 'crumb_name', instance='Edit general settings')
@@ -133,7 +133,7 @@ class TestEditReportDisplayOptionsView(ReportViewsMixin, ViewTestMixin, TestCase
     def test_get_method(self):
         response = self.build_get_response()
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "reports/report_form.html")
+        self.assertTemplateUsed(response, "reports/setup/report_form.html")
 
         # Report form uses this open attribute in the breadcrumbs for versatility of the form
         self.assertInContext(response, 'crumb_name', instance='Edit display options')
@@ -173,7 +173,7 @@ class TestLayoutListView(ReportViewsMixin, ViewTestMixin, TestCase):
     def test_get_method(self):
         response = self.build_get_response()
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "reports/layouts/layout_overview.html")
+        self.assertTemplateUsed(response, "reports/setup/layouts/layout_overview.html")
         self.assertInContext(response, 'preview_width', instance=10)
         self.assertInContext(response, 'preview_height', instance=10 * 297.2 / 210)
         self.assertInContext(response, 'preview_scale', instance=0.4)
@@ -200,7 +200,7 @@ class TestAddLayoutView(ReportViewsMixin, ViewTestMixin, TestCase):
     def test_get_method(self):
         response = self.build_get_response()
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "reports/layouts/create_layout.html")
+        self.assertTemplateUsed(response, "reports/setup/layouts/create_layout.html")
 
     def test_successful_post(self):
         response = self.build_post_response({
@@ -283,7 +283,7 @@ class TestEditLayoutView(ReportViewsMixin, ViewTestMixin, TestCase):
     def test_get_method(self):
         response = self.build_get_response()
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "reports/layouts/edit_layout.html")
+        self.assertTemplateUsed(response, "reports/setup/layouts/edit_layout.html")
 
     def test_successful_post(self):
         response = self.build_post_response({
@@ -312,7 +312,7 @@ class TestEditLayoutSettingsView(ReportViewsMixin, ViewTestMixin, TestCase):
     def test_get_method(self):
         response = self.build_get_response()
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "reports/layouts/edit_layout_settings.html")
+        self.assertTemplateUsed(response, "reports/setup/layouts/edit_layout_settings.html")
 
     def test_successful_post(self):
         response = self.build_post_response({
@@ -347,7 +347,7 @@ class TestAddSinglePageView(ReportViewsMixin, ViewTestMixin, TestCase):
     def test_get_method(self):
         response = self.build_get_response()
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "reports/reportpage_form_add.html")
+        self.assertTemplateUsed(response, "reports/setup/reportpage_form_add.html")
 
     def test_successful_post(self):
         response = self.build_post_response({
@@ -450,7 +450,7 @@ class TestAddMultiPageView(ReportViewsMixin, ViewTestMixin, TestCase):
     def test_get_method(self):
         response = self.build_get_response()
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "reports/reportpage_form_add.html")
+        self.assertTemplateUsed(response, "reports/setup/reportpage_form_add.html")
 
     def test_successful_post(self):
         response = self.build_post_response({
@@ -547,7 +547,7 @@ class TestCriteriaOverview(ReportViewsMixin, ViewTestMixin, TestCase):
     def test_get_method(self):
         response = self.build_get_response()
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "reports/page_conditions/reportpage_criteria_list.html")
+        self.assertTemplateUsed(response, "reports/setup/page_conditions/reportpage_criteria_list.html")
 
     def test_get_queryset(self):
         # Todo: Add criteria data to dataset

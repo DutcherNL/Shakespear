@@ -9,10 +9,10 @@ from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 from string import Formatter
 
-from .models import *
-from .responses import PDFResponse
-from .renderers import ReportSinglePagePDFRenderer, ReportSinglePageRenderer
-from .forms import *
+from reports.models import *
+from reports.responses import PDFResponse
+from reports.renderers import ReportSinglePagePDFRenderer, ReportSinglePageRenderer
+from reports.forms import *
 
 
 class AccessabilityMixin(LoginRequiredMixin):
@@ -23,7 +23,7 @@ class AccessabilityMixin(LoginRequiredMixin):
 
 
 class ReportsOverview(AccessabilityMixin, ListView):
-    template_name = "reports/reports_overview.html"
+    template_name = "reports/setup/reports_overview.html"
     context_object_name = "reports"
     model = Report
 
@@ -31,7 +31,7 @@ class ReportsOverview(AccessabilityMixin, ListView):
 class AddReportView(AccessabilityMixin, CreateView):
     model = Report
     fields = ['report_name', 'description', 'file_name']
-    template_name = "reports/report_form_add.html"
+    template_name = "reports/setup/report_form_add.html"
 
     def form_valid(self, form):
         result = super(AddReportView, self).form_valid(form)
@@ -59,7 +59,7 @@ class ReportMixin:
 
 
 class ReportInfoView(AccessabilityMixin, ReportMixin, TemplateView):
-    template_name = "reports/report_detail.html"
+    template_name = "reports/setup/report_detail.html"
 
 
 class ReportUpdateView(AccessabilityMixin, UpdateView):
@@ -67,6 +67,7 @@ class ReportUpdateView(AccessabilityMixin, UpdateView):
     fields = ['report_name', 'description', 'promotion_text', 'file_name', 'is_live']
     slug_url_kwarg = "report_slug"
     template_name_field = "report"
+    template_name = "reports/setup/report_form.html"
 
     def get_success_url(self):
         url_kwargs = {
@@ -84,7 +85,7 @@ class ReportUpdateView(AccessabilityMixin, UpdateView):
 class ReportDisplayOptionsUpdateView(AccessabilityMixin, ReportMixin, UpdateView):
     model = ReportDisplayOptions
     fields = "__all__"
-    template_name = "reports/report_form.html"
+    template_name = "reports/setup/report_form.html"
 
     def get_object(self, queryset=None):
         # If the report has no display options, create the display options
@@ -109,7 +110,7 @@ class ReportDisplayOptionsUpdateView(AccessabilityMixin, ReportMixin, UpdateView
 
 
 class ReportLayoutListView(AccessabilityMixin, ReportMixin, ListView):
-    template_name = "reports/layouts/layout_overview.html"
+    template_name = "reports/setup/layouts/layout_overview.html"
     context_object_name = "layouts"
 
     def get_queryset(self):
@@ -131,7 +132,7 @@ class ReportLayoutListView(AccessabilityMixin, ReportMixin, ListView):
 class ReportAddLayoutView(AccessabilityMixin, ReportMixin, CreateView):
     model = PageLayout
     fields = ['name', 'description', 'template', 'margins']
-    template_name = "reports/layouts/create_layout.html"
+    template_name = "reports/setup/layouts/create_layout.html"
 
     def get_form(self, form_class=None):
         form = super(ReportAddLayoutView, self).get_form(form_class=form_class)
@@ -178,7 +179,7 @@ class PreviewLayoutMixin:
 
 class ReportChangeLayoutSettingsView(AccessabilityMixin, ReportMixin, LayoutMixin, PreviewLayoutMixin, UpdateView):
     fields = ['name', 'description']
-    template_name = "reports/layouts/edit_layout_settings.html"
+    template_name = "reports/setup/layouts/edit_layout_settings.html"
 
     def get_object(self, queryset=None):
         return self.layout
@@ -188,7 +189,7 @@ class ReportChangeLayoutSettingsView(AccessabilityMixin, ReportMixin, LayoutMixi
 
 
 class ReportChangeLayoutView(AccessabilityMixin, ReportMixin, LayoutMixin, PreviewLayoutMixin, FormView):
-    template_name = "reports/layouts/edit_layout.html"
+    template_name = "reports/setup/layouts/edit_layout.html"
     form_class = AlterLayoutForm
 
     def get_form_kwargs(self):
@@ -214,7 +215,7 @@ class ReportChangeLayoutView(AccessabilityMixin, ReportMixin, LayoutMixin, Previ
 class CreateReportPageView(AccessabilityMixin, ReportMixin, CreateView):
     model = ReportPage
     fields = ['name', 'description', 'layout']
-    template_name = "reports/reportpage_form_add.html"
+    template_name = "reports/setup/reportpage_form_add.html"
 
     def get_success_url(self):
         url_kwargs = {
@@ -304,7 +305,7 @@ class ReportPageMixin(AccessabilityMixin, ReportMixin, ReportPageMixinPrep):
 
 # Todo: redact these views, they are part of the sitedisplay options now
 class ReportPageInfoView(ReportPageMixin, TemplateView):
-    template_name = "reports/reportpage_detail.html"
+    template_name = "reports/setup/reportpage_detail.html"
 
 
 class ReportPageUpdateView(AccessabilityMixin, ReportMixin, UpdateView):
@@ -328,14 +329,14 @@ class ReportPageUpdateView(AccessabilityMixin, ReportMixin, UpdateView):
 
 class ReportPageCriteriaOverview(ReportPageMixin, ListView):
     paginate_by = 100
-    template_name = "reports/page_conditions/reportpage_criteria_list.html"
+    template_name = "reports/setup/page_conditions/reportpage_criteria_list.html"
 
     def get_queryset(self):
         return self.report_page.pagecriteria_set.order_by('page_id')
 
 
 class CreateTechCriteriaView(ReportPageMixin, CreateView):
-    template_name = "reports/page_conditions/reportpage_criteria_create.html"
+    template_name = "reports/setup/page_conditions/reportpage_criteria_create.html"
     model = TechnologyPageCriteria
     fields = ['technology', 'score']
 
@@ -350,7 +351,7 @@ class CreateTechCriteriaView(ReportPageMixin, CreateView):
 
 
 class EditCriteriaView(ReportPageMixin, UpdateView):
-    template_name = "reports/page_conditions/reportpage_criteria_edit.html"
+    template_name = "reports/setup/page_conditions/reportpage_criteria_edit.html"
     model = TechnologyPageCriteria
     fields = ['technology', 'score']
 
@@ -368,7 +369,7 @@ class EditCriteriaView(ReportPageMixin, UpdateView):
 
 
 class DeleteCriteriaView(ReportPageMixin, DeleteView):
-    template_name = "reports/page_conditions/reportpage_criteria_delete.html"
+    template_name = "reports/setup/page_conditions/reportpage_criteria_delete.html"
     model = PageCriteria
 
     def get_object(self, queryset=None):

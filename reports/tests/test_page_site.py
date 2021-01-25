@@ -6,7 +6,7 @@ from general.tests.mixins.test_view_mixins import *
 from PageDisplay.sites import PageSite
 from PageDisplay.views import PageInfoView
 from reports.models import *
-from reports.sites import report_site
+from reports.setup.sites import report_site
 from reports.forms import SelectPageLayoutForm
 
 

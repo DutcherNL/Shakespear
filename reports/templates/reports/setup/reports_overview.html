@@ -24,7 +24,7 @@
             {% for report in reports %}
                 <tr>
                     <td>
-                        {{ report.name }}
+                        {{ report.report_name }}
                     </td>
                     <td>
                         <a href="{% url 'setup:reports:details' report_slug=report.slug %}"

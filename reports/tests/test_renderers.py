@@ -6,8 +6,6 @@ from PageDisplay.renderers import BasePageRenderer
 
 from reports import renderers
 from reports.models import *
-from reports.sites import report_site
-from reports.forms import SelectPageLayoutForm
 
 
 class TestPageRendererMixin:

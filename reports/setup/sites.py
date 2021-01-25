@@ -13,7 +13,7 @@ class ReportDesignSite(PageSite):
 
     use_page_keys = False
     template_engine = "Default_Template"
-    breadcrumb_trail_template = "reports/page_display/snippet_report_breadcrumbs.html"
+    breadcrumb_trail_template = "reports/setup/snippets/snippet_report_breadcrumbs.html"
     site_context_fields = ['report_page']
 
     can_be_deleted = True
