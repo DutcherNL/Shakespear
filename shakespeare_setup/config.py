@@ -10,6 +10,16 @@ class SetupConfig:
     namespace = None
     root_url_name = None
 
+    button = {
+        'class': 'btn-primary',
+        'image': None,
+    }
+
+    def __init__(self):
+        # Set the button default values in case a new dict was defined
+        for key, value in SetupConfig.button.items():
+            self.button.setdefault(key, value)
+
     def get_urls(self):
         """ Builds a list of urls """
         raise NotImplementedError

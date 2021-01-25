@@ -11,6 +11,11 @@ class SetupTechs(SetupConfig):
     namespace = 'local_data_storage'
     root_url_name = 'data_domain_overview'
 
+    button = {
+        'class': 'btn-primary',
+        'image': "img/local_data_storage/local-data-storage-icon.svg",
+    }
+
     def get_urls(self):
         """ Builds a list of urls """
         return [

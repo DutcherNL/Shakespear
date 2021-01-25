@@ -12,6 +12,10 @@ class SetupTechs(SetupConfig):
     namespace = 'reports'
     root_url_name = 'reports_overview'
 
+    button = {
+        'image': 'img/reports/setup/report-icon.svg'
+    }
+
     def get_urls(self):
         """ Builds a list of urls """
         return [

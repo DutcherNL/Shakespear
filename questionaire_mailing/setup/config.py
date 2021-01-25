@@ -12,6 +12,10 @@ class SetupMails(SetupConfig):
     namespace = 'mailings'
     root_url_name = 'overview'
 
+    button = {
+        'image': 'img/questionaire_mailing/setup/timed-mail.svg'
+    }
+
     def get_urls(self):
         """ Builds a list of urls """
         return [

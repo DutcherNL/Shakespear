@@ -10,6 +10,10 @@ class SetupTechs(SetupConfig):
     url_keyword = 'techs'
     namespace = 'technologies'
 
+    button = {
+        'image': 'img/questionaire/setup/atom-icon.svg',
+    }
+
     def get_urls(self):
         """ Builds a list of urls """
         return [
@@ -26,6 +30,10 @@ class SetupInquiryPages(SetupConfig):
     name = "Inquiry Pages"
     url_keyword = 'inquiry_pages'
     namespace = 'questionaire_pages'
+
+    button = {
+        'image': 'img/questionaire/setup/tablet-icon.svg',
+    }
 
     def get_urls(self):
         """ Builds a list of urls """

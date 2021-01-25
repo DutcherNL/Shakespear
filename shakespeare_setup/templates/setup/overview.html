@@ -1,6 +1,7 @@
 {% extends 'base_with_body.html' %}
-
+{% load static %}
 {% load django_bootstrap_breadcrumbs  %}
+
 {% block breadcrumbs %}
     {{ block.super }}
     {% breadcrumb "Setup" "setup:home" %}
@@ -10,14 +11,24 @@
 
 {% block body %}
     <h1>Pages</h1>
+    <div class="row">
     {% for config in setup_configs %}
+        <div class="col-12 col-md-6 col-lg-4">
         <a {% if config.root_url %} %} href="{{ config.root_url }}" {% endif %}
-            class="btn btn-block btn-warning">
-            {{ config.name }}
+            class="btn btn-block {{ config.button.class }} my-2">
+            <div class="row align-middle">
+                {% if config.button.image %}
+                    <span class="col-auto">
+                        <img src="{% static config.button.image %}"
+                        height="50"/>
+                    </span>
+                {% endif %}
+                <div class="col d-flex align-items-center">
+                    {{ config.name }}
+                </div>
+            </div>
         </a>
+        </div>
     {% endfor %}
-
-    <a href="{% url 'setup:queued_tasks:overview' %}" class="btn btn-block btn-info">
-        Queued tasks overview
-    </a>
+    </div>
 {% endblock %}

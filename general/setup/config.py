@@ -12,6 +12,10 @@ class SetupTechs(SetupConfig):
     namespace = 'general'
     root_url_name = 'list'
 
+    button = {
+        'image': "img/general/setup/gen-pages-icon.png"
+    }
+
     def get_urls(self):
         """ Builds a list of urls """
         return [
