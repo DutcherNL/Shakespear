@@ -11,6 +11,7 @@ class SetupMails(SetupConfig):
     url_keyword = 'mailing'
     namespace = 'mailings'
     root_url_name = 'overview'
+    access_required_permissions = ['questionaire_mailing.change_mailtask']
 
     button = {
         'image': 'img/questionaire_mailing/setup/timed-mail.svg'

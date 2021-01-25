@@ -9,6 +9,7 @@ class SetupTechs(SetupConfig):
     name = "Technologies"
     url_keyword = 'techs'
     namespace = 'technologies'
+    access_required_permissions = ['Questionaire.change_technology']
 
     button = {
         'image': 'img/questionaire/setup/atom-icon.svg',
@@ -30,6 +31,7 @@ class SetupInquiryPages(SetupConfig):
     name = "Inquiry Pages"
     url_keyword = 'inquiry_pages'
     namespace = 'questionaire_pages'
+    access_required_permissions = ['Questionaire.change_page']
 
     button = {
         'image': 'img/questionaire/setup/tablet-icon.svg',

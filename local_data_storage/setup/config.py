@@ -10,6 +10,7 @@ class SetupTechs(SetupConfig):
     url_keyword = 'data-storage'
     namespace = 'local_data_storage'
     root_url_name = 'data_domain_overview'
+    access_required_permissions = ['local_data_storage.change_datatable']
 
     button = {
         'class': 'btn-primary',

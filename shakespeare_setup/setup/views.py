@@ -16,7 +16,7 @@ class SetUpOverview(AccessabilityMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SetUpOverview, self).get_context_data(**kwargs)
 
-        context['setup_configs'] = get_all_configs()
+        context['setup_configs'] = get_all_configs(request=self.request)
 
 
         return context

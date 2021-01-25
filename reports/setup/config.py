@@ -11,6 +11,7 @@ class SetupTechs(SetupConfig):
     url_keyword = 'reports'
     namespace = 'reports'
     root_url_name = 'reports_overview'
+    access_required_permissions = ['reports.change_report']
 
     button = {
         'image': 'img/reports/setup/report-icon.svg'
