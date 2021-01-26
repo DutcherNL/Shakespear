@@ -1,6 +1,6 @@
 from django.views.generic import View, TemplateView, ListView, FormView, DetailView
 from django.views.generic.edit import UpdateView, DeleteView, CreateView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect, HttpResponseForbidden
@@ -10,6 +10,13 @@ from local_data_storage.forms import DataUploadForm, FilterDataForm, DataQueuePr
 from queued_tasks.models import QueuedCSVDataProcessingTask
 
 from tools import pagination
+
+
+"""
+    Note for all following view objects. These are called in the setup config, which automatically have
+    a basic check to ensure it is a logged in user with the correct permission.
+    Thus only some local additional permissions are required on some views
+"""
 
 
 class AccessabilityMixin(LoginRequiredMixin):
@@ -150,8 +157,9 @@ class DataTableActiveView(AccessabilityMixin, DataTableMixin, FilterDataMixin, L
         return self.filter_form.filter(queryset)
 
 
-class MigrateView(DataTableMixin, TemplateView):
+class MigrateView(PermissionRequiredMixin, DataTableMixin, TemplateView):
     template_name = "local_data_storage/data_table_migrate.html"
+    permission_required = 'local_data_storage.migrate_datatable'
 
     def post(self, request, *args, **kwargs):
         if not self.data_table.is_active:

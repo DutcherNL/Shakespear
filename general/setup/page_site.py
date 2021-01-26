@@ -11,6 +11,7 @@ class GeneralSetupPageSite(PageSite):
     use_page_keys = False
     breadcrumb_trail_template = "general/setup/snippet_breadcrumb_trail_general_pages.html"
     site_context_fields = ['url_link']
+    edit_requires_permissions = ['Questionaire.change_basepageurl']
 
     @staticmethod
     def init_view_params(view_obj, **kwargs):

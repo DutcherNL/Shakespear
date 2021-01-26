@@ -13,6 +13,8 @@ class MailSite(PageSite):
     breadcrumb_trail_template = "questionaire_mailing/snippet_breadcrumb_trail_mailings.html"
     site_context_fields = ['mail_task', 'inquirer']
     include_modules = ['TextModule', 'TitleModule', 'InquirerCodeModule', 'MailConfirmationLink']
+    view_requires_permissions = ['questionaire_mailing.change_mailtask']
+    edit_requires_permissions = ['questionaire_mailing.change_mailtask']
 
     @staticmethod
     def init_view_params(view_obj, **kwargs):

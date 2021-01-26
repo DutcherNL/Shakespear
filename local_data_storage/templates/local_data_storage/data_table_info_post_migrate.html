@@ -34,9 +34,11 @@
                class="btn btn-secondary"> Import CSV
             </a>
         </div>
-        <a href="{% url "setup:local_data_storage:data_table_migrate" table_slug=data_table.slug %}" class="btn btn-danger">
-            Migrate
-        </a>
+        {% if perms.local_data_storage.migrate_datatable %}
+            <a href="{% url "setup:local_data_storage:data_table_migrate" table_slug=data_table.slug %}" class="btn btn-danger">
+                Migrate
+            </a>
+        {% endif %}
     </div>
 
     <div class="table-responsive">

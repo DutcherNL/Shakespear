@@ -21,6 +21,9 @@ class DataTable(models.Model):
 
     is_active = models.BooleanField(default=False)
 
+    class Meta:
+        permissions = (("migrate_datatable", "User can migrate datatables"),)
+
     @property
     def db_key_column_name(self):
         if self.is_active:

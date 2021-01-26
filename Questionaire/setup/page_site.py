@@ -16,6 +16,7 @@ class TechPageSite(PageSite):
     use_page_keys = False
     breadcrumb_trail_template = "inquiry/setup/snippet_breadcrumb_trail_technologies.html"
     site_context_fields = ['technology']
+    edit_requires_permissions = ['Questionaire.change_technology']
 
     @staticmethod
     def init_view_params(view_obj, **kwargs):
@@ -44,6 +45,7 @@ class InquiryPagesSite(PageSite):
     breadcrumb_trail_template = "inquiry/setup/snippet_breadcrumb_trail_questionaire_pages.html"
     site_context_fields = ['inquiry_page']
     include_modules = ['TextModule', 'TitleModule', 'QuestionModule', 'DownloadFileModule',]
+    edit_requires_permissions = ['Questionaire.change_page']
 
     @staticmethod
     def init_view_params(view_obj, **kwargs):

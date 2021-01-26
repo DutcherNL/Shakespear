@@ -51,9 +51,7 @@ class SetupConfig:
     def _check_permissions(self, request):
         """ Check if the given users has all required permissions """
         for perm in self.access_required_permissions:
-            print(f'check perm for {perm}')
             if not request.user.has_perm(perm):
-                print('not present')
                 return False
         return True
 
