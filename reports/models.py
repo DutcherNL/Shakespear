@@ -76,8 +76,6 @@ class PageLayout(models.Model):
 
         if not self.template:
             file_name = f'{self.slug}_template.html'
-            file_path = settings.MEDIA_ROOT + upload_layout_path(self, file_name)
-
             self.template.save(file_name, ContentFile(''))
 
         super(PageLayout, self).save(**kwargs)

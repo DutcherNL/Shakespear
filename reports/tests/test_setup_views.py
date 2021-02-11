@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.contrib import messages
 from general.tests.mixins.test_view_mixins import *
 
+from . import override_media_folder
 from reports.setup.views import *
 
 
@@ -166,6 +167,7 @@ class TestEditReportDisplayOptionsView(ReportViewsMixin, ViewTestMixin, TestCase
 # #######################################################################
 
 
+@override_media_folder()
 class TestLayoutListView(ReportViewsMixin, ViewTestMixin, TestCase):
     default_url_name = "layout_overview"
     default_url_kwargs = {'report_slug': "test-basic-report"}
@@ -193,6 +195,7 @@ class TestLayoutListView(ReportViewsMixin, ViewTestMixin, TestCase):
         self.assertIsSubclass(ReportLayoutListView, ListView)
 
 
+@override_media_folder()
 class TestAddLayoutView(ReportViewsMixin, ViewTestMixin, TestCase):
     default_url_name = "add_layout"
     default_url_kwargs = {'report_slug': "test-basic-report"}
@@ -230,6 +233,7 @@ class TestAddLayoutView(ReportViewsMixin, ViewTestMixin, TestCase):
         self.assertEqual(ReportAddLayoutView.model, PageLayout)
 
 
+@override_media_folder()
 class TestLayoutMixin(ViewMixinTestMixin, TestCase):
     fixtures = ['test_report.json']
     view_mixin_class = [ReportMixin, LayoutMixin]
@@ -253,6 +257,7 @@ class TestLayoutMixin(ViewMixinTestMixin, TestCase):
             raise AssertionError("LayoutMixin did not fail when layout ")
 
 
+@override_media_folder()
 class TestPreviewLayoutMixin(ViewMixinTestMixin, TestCase):
     fixtures = ['test_report.json']
     view_mixin_class = [ReportMixin, LayoutMixin, PreviewLayoutMixin]
@@ -276,6 +281,7 @@ class TestPreviewLayoutMixin(ViewMixinTestMixin, TestCase):
         self.assertEqual(context_data['measurements']['size'], report_display_options.paper_proportions)
 
 
+@override_media_folder()
 class TestEditLayoutView(ReportViewsMixin, ViewTestMixin, TestCase):
     default_url_name = "edit_layout"
     default_url_kwargs = {'report_slug': "test-basic-report", 'layout': 1}
@@ -305,6 +311,7 @@ class TestEditLayoutView(ReportViewsMixin, ViewTestMixin, TestCase):
         self.assertEqual(ReportChangeLayoutView.form_class, AlterLayoutForm)
 
 
+@override_media_folder()
 class TestEditLayoutSettingsView(ReportViewsMixin, ViewTestMixin, TestCase):
     default_url_name = "edit_layout_settings"
     default_url_kwargs = {'report_slug': "test-basic-report", 'layout': 1}

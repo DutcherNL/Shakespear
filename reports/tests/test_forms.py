@@ -1,7 +1,6 @@
 from django.test import TestCase
-from django.core.exceptions import ValidationError
 
-from . import create_overwrite_media_folder_decorator
+from . import override_media_folder
 from reports.models import *
 from reports.forms import *
 
@@ -164,9 +163,11 @@ class TestMovePageOrderForm(FormValidityMixin, TestCase):
         }, 'is_last_page')
 
 
+@override_media_folder()
 class TestAlterLayoutForm(FormValidityMixin, TestCase):
     fixtures = ['test_report.json']
     form_class = AlterLayoutForm
+    # Note, this class tests with id=1 instance of PageLayout
 
     def get_form_kwargs(self, **kwargs):
         return super(TestAlterLayoutForm, self).get_form_kwargs(
@@ -177,7 +178,7 @@ class TestAlterLayoutForm(FormValidityMixin, TestCase):
     def test_initial_template_contents(self):
         self.assertHasField('contents')
         form = self.build_form(None)
-        self.assertEqual(form.fields['contents'].initial, "<div>Plain header</div>")
+        self.assertEqual(form.fields['contents'].initial, "<h1>New layout</h1>")
 
     def test_margins(self):
         self.assertHasField('margins')

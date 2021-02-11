@@ -5,11 +5,8 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from . import create_overwrite_media_folder_decorator
+from . import override_media_folder
 from reports.models import *
-
-
-override_media_folder = create_overwrite_media_folder_decorator('reports')
 
 
 class ModelTestCaseMixin:
@@ -105,7 +102,7 @@ class TestPageLayoutModel(ModelTestCaseMixin, TestCase):
 
     def test_template_content(self):
         layout = PageLayout.objects.get(id=1)
-        self.assertEqual(layout.template_content, "<div>Plain header</div>")
+        self.assertEqual(layout.template_content, "<p>This is a header</p>")
 
     def test_file_extension(self):
         """ Tests allowed file extensions """
@@ -187,7 +184,7 @@ class TestReportPageSingleModel(ModelTestCaseMixin, TestCase):
 
     def test_queryset_manager(self):
         """ Test that only single-pages are returned """
-        self.assertEqual(ReportPageSingle.objects.count(), 4)
+        self.assertEqual(ReportPageSingle.objects.count(), 5)
 
     def test_get_num_plotted_pages(self):
         self.assertEqual(ReportPageSingle.objects.first().get_num_plotted_pages(None), 1)

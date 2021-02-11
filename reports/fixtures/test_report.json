@@ -229,7 +229,7 @@
          "name": "Simple layout",
          "slug": "simple-layout",
          "description": "Simple layout description",
-         "template": "reports/1/layout_templates/simple-layout_template.html",
+         "template": "simple_layout.html",
          "margins": "20mm 20mm 20mm 20mm"
       }
    },
@@ -241,7 +241,7 @@
          "name": "Front page",
          "slug": "front-page",
          "description": null,
-         "template": "reports/2/layout_templates/front-page_template.html",
+         "template": "front-page_template.html",
          "margins": "20mm 20mm 20mm 20mm"
       }
    },

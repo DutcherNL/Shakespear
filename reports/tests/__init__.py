@@ -34,3 +34,7 @@ def create_overwrite_media_folder_decorator(module_name):
             cls.tearDownClass = tearDownClass
             return cls
     return UseTestMediaRootMixin
+
+
+# The decorator to overwrite the media folder to the test reports
+override_media_folder = create_overwrite_media_folder_decorator('reports')
