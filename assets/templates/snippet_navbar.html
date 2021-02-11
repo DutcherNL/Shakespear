@@ -1,4 +1,4 @@
-
+{% load i18n %}
 {% load score_result_tags %}
 
     <nav class="navbar navbar-expand navbar-dark bg-primary my-0 py-0">
@@ -21,7 +21,7 @@
 
             {% if user.is_authenticated %}
             <span class="navbar-text text-right px-2">
-                Logged in as: {{ user }}<br>
+                {% trans "Logged in as" %}: {{ user }}<br>
                 Code: {{ inquirer.get_inquiry_code }}
 
             </span>
@@ -34,30 +34,30 @@
                     <div class="dropdown-menu dropdown-menu-right">
                         <a class="dropdown-item"
                            href="{% url 'setup:home' %}">
-                            Setup
+                            <i class="fas fa-cog"></i> {% trans "Setup" %}
                         </a>
                         {% if perms.auth.can_access_data_analysis_pages %}
                             <a class="dropdown-item"
                                href="{% url 'data_analysis:overview' %}">
-                                Data analysis
+                                <i class="fas fa-chart-pie"></i> {% trans "Data analysis" %}
                             </a>
                         {% endif %}
                         {% if perms.auth.can_access_entry_analysis %}
                             <a class="dropdown-item"
                                href="{% url 'analysis_overview' %}">
-                                Entry Analysis
+                                <i class="fas fa-address-book"></i> {% trans "Entry Analysis" %}
                             </a>
                         {% endif %}
                         {% if user.is_staff %}
                             <a class="dropdown-item"
                                href="{% url 'admin:index' %}">
-                                Admin Panel
+                                <i class="fas fa-archive"></i> {% trans "Admin Panel" %}
                             </a>
                         {% endif %}
                         <hr>
                         <a class="dropdown-item"
                            href="{% url 'general:logout' %}">
-                            Log Out
+                            <i class="fas fa-sign-out-alt"></i> {% trans "Log Out" %}
                         </a>
                     </div>
                 </div>

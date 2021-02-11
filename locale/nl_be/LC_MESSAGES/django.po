@@ -27,7 +27,7 @@ msgstr ""
 msgid "Oops, deze vraag kan niet geladen worden. Ons excuses"
 msgstr ""
 
-#: .\Shakespeare\settings.py:170
+#: .\Shakespeare\settings.py:176
 msgid "Nederlands"
 msgstr ""
 
@@ -292,25 +292,25 @@ msgstr ""
 "Heb jij hier al eerder een vragenlijst gestart?<br> Ga dan verder waar je "
 "gebleven bent"
 
-#: .\assets\templates\inquiry\inquiry_questions.html:22
+#: .\assets\templates\inquiry\inquiry_questions.html:23
 msgctxt "Vragenlijst voortgang"
 msgid "Complete"
 msgstr ""
 
-#: .\assets\templates\inquiry\inquiry_questions.html:44
+#: .\assets\templates\inquiry\inquiry_questions.html:45
 #: .\initiative_enabler\templates\initiative_enabler\user_zone\step_3_email_confirmation.html:48
 msgid "Terug"
 msgstr ""
 
-#: .\assets\templates\inquiry\inquiry_questions.html:49
+#: .\assets\templates\inquiry\inquiry_questions.html:50
 msgid "Verder"
 msgstr ""
 
-#: .\assets\templates\inquiry\inquiry_questions.html:51
+#: .\assets\templates\inquiry\inquiry_questions.html:52
 msgid "Voltooi"
 msgstr ""
 
-#: .\assets\templates\inquiry\inquiry_reset.html:5
+#: .\assets\templates\inquiry\inquiry_reset.html:6
 msgid ""
 "Als u wilt kunt u uw antwoorden in de vragenlijst veranderen. Om dit te "
 "verwerken dient u echter wel de vragenlijst af te ronden. Alle eerder "
@@ -393,6 +393,30 @@ msgstr ""
 #: .\assets\templates\inquiry\snippets\progress_tabs.html:8
 msgid "Voorlopig Advies"
 msgstr ""
+
+#: .\assets\templates\snippet_navbar.html:24
+msgid "Logged in as"
+msgstr "Ingelogd als"
+
+#: .\assets\templates\snippet_navbar.html:37
+msgid "Setup"
+msgstr ""
+
+#: .\assets\templates\snippet_navbar.html:42
+msgid "Data analysis"
+msgstr "Analyse deelnemers"
+
+#: .\assets\templates\snippet_navbar.html:48
+msgid "Entry Analysis"
+msgstr ""
+
+#: .\assets\templates\snippet_navbar.html:54
+msgid "Admin Panel"
+msgstr "Admin paneel"
+
+#: .\assets\templates\snippet_navbar.html:60
+msgid "Log Out"
+msgstr "Uitloggen"
 
 #: .\assets\templates\snippets\three_steps_bar_snippet.html:19
 #: .\assets\templates\snippets\three_steps_bar_snippet.html:28
