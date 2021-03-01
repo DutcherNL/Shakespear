@@ -2,6 +2,7 @@
 from django.db.models import IntegerField as IntegerDBField
 from django.db.models import DecimalField as DecimalDBField
 from django.db.models.functions import Cast
+from django.db.models import ObjectDoesNotExist
 
 """ This file contains code that allows the question to find its related answer """
 
@@ -102,6 +103,18 @@ def get_best_from_multi_question(question, answer_value):
     if answer_value is None or answer_value == '':
         return None
     else:
+        # Check for a custom order
+        priority_list = question.options_dict.get('mc_priority', None)
+        if priority_list:
+            for prio_value in priority_list.split(','):
+                if prio_value in answer_value:
+                    try:
+                        return question.answeroption_set.get(value=prio_value)
+                    except ObjectDoesNotExist:
+                        pass
+
+        # There is no order, or the answer was not in the priority list
+        # so the standard order of the questions is what drives the answer
         option_nr = int(answer_value[0]) - 1
         return question.answeroption_set.order_by("value")[option_nr]
 
