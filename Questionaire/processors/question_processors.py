@@ -100,7 +100,7 @@ def get_yesno_answer_option(question, answer_value):
 def get_best_from_multi_question(question, answer_value):
     # from Questionaire.models import Question
 
-    if answer_value is None or answer_value == '':
+    if answer_value is None or answer_value == []:
         return None
     else:
         # Check for a custom order

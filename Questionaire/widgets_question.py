@@ -144,10 +144,6 @@ class CustomMultiSelect(IgnorableInputMixin, CheckboxSelectMultiple):
 
         return context
 
-    def optgroups(self, name, value, attrs=None):
-        print(value)
-        return super(CustomMultiSelect, self).optgroups(name, value, attrs)
-
     def create_option(self, name, value, *args, **kwargs):
         option = super(CustomMultiSelect, self).create_option(name, value, *args, **kwargs)
         option['image'] = self.images.get(value, None)
@@ -157,7 +153,7 @@ class CustomMultiSelect(IgnorableInputMixin, CheckboxSelectMultiple):
     def ignore_value_from_datadict(self, data, name, value):
         """ Determines if the returned result should be ignored """
         ignore_value = name + self.none_name_appendix
-        return value == ignore_value
+        return ignore_value in value
 
 
 class ExternalDataInput(Widget):
