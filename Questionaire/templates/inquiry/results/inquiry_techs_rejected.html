@@ -1,0 +1,39 @@
+{% extends 'base_public.html' %}
+{% load score_result_tags %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - stap 2: resultaten{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-12">
+            <h3>{% trans "Wij raden af..." %}</h3>
+
+
+            {% if techs_discouraged %}
+                <p>
+                    {% blocktrans trimmed  %}
+                        Hieronder staan alle technologiën die wij u niet aanbevelen. Gebasseerd op uw antwoorden in de
+                        vragenlijst denken wij dat deze maatregelen voor u niet relevant zijn.
+                    {% endblocktrans %}
+                </p>
+                {% for technology in techs_discouraged %}
+                    {% include "inquiry/results/snippet_tech_result_display.html" %}
+                {% endfor %}
+            {% else %}
+                <p>
+                {% blocktrans trimmed  %}
+                    Uit de vraglijst zijn geen technologiën naar voren gekomen die wij u afraden.
+                {% endblocktrans %}
+                </p>
+            {% endif %}
+        </div>
+        <div class="col-12">
+            <a class="btn btn-primary btn-lg" href="{% url "results_display" %}">
+                <i class="fas fa-chevron-left"></i> {% trans "Terug naar overzicht" %}
+            </a>
+        </div>
+    </div>
+{% endblock %}
+

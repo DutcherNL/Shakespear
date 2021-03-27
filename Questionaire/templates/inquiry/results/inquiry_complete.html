@@ -1,0 +1,210 @@
+{% extends 'base_public.html' %}
+{% load score_result_tags %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - stap 2: resultaten{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col">
+            <h1>Resultaten</h1>
+            <p class="">
+                {% blocktrans trimmed %}
+                    U heeft de vragenlijst voltooid en kunt hieronder uw resultaten bekijken.
+                    Als u tevreden hierover bent kunt u doorgaan naar stap 3 waar u en anderen in uw omgeving elkaar
+                    kunnen vinden om samen collectief bepaalde maatregelen te ondernemen.
+                {% endblocktrans %}
+            </p>
+        </div>
+        <div class="col-12">
+            <div class="row">
+            <a href="{% url 'collectives:take_action' %}" class="btn btn-secondary ml-auto col-auto mr-3">
+                <i class="fas fa-arrow-right"></i> {% trans "Ga door naar stap 3" %}
+            </a>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="row">
+        <div class="col-12 col-md-6">
+            {% if techs_recommanded or techs_varies %}
+                <h3>Wij raden aan...</h3>
+                <p>
+                    {% trans "Gebasseerd op de antwoorden die u heeft ingevuld kunnen wij het volgende aanraden:" %}
+                </p>
+                    {% for technology in techs_recommanded %}
+                        <div class="row ml-0 border-left border-success">
+                            {% if technology.icon %}
+                                <img class="" src="{{ technology.icon.url }}" width="50" height="50">
+                            {% endif %}
+                            <div class="col py-3"> {{ technology.name }}</div>
+                        </div>
+                    {% endfor %}
+
+                    <a class="btn btn-info" href="{% url "results_advised" %}">
+                        <i class="fas fa-info"></i> {% trans "Meer informatie over dit advies" %}
+                    </a>
+            {% else %}
+                <h3>{% trans "Wij raden aan... niets!" %}</h3>
+                <p>
+                    {% trans "Wij kunnen op dit moment niets aanraden." %}
+                    {% if techs_unknown %}
+                        {% blocktrans trimmed %}
+                            Wij hebben hiervoor nog te weinig informatie. Mocht u de vragenlijst niet volledig hebben ingevuld,
+                            dan raden wij u aan om de niet beantwoorde vragen ook te beantwoorden waar mogelijk.
+                        {% endblocktrans %}
+                    {% elif techs_discouraged %}
+                        {% blocktrans trimmed %}
+                            U lijkt alles al op orde te hebben. Uitstekend! Mocht u alsnog twijfelen raden we u aan
+                            om een expert bij u in de buurt te raadplegen.
+                        {% endblocktrans %}
+                    {% endif %}
+                </p>
+            {% endif %}
+        </div>
+        <hr class="border-1 p-2 d-md-none">
+        <div class="col-12 col-md-6">
+            <h3>{% trans "Wij raden af..." %}</h3>
+            {% if techs_discouraged %}
+                <p>
+                    {% blocktrans trimmed %}
+                    Gebasseerd op de antwoorden die u heeft ingevuld kunnen wij het volgende niet aanraden. U heeft dit al geoptimaliseerd of deze aanpassing heeft geen toegevoegde waarde
+                    voor u.
+                    {% endblocktrans %}
+                </p>
+                {% for technology in techs_discouraged %}
+                    <div class="row ml-0 border-left border-danger">
+                        {% if technology.icon %}
+                            <img class="" src="{{ technology.icon.url }}" width="50" height="50">
+                        {% endif %}
+                        <div class="col py-3"> {{ technology.name }}</div>
+                    </div>
+                {% endfor %}
+
+                <a class="btn btn-info" href="{% url "results_not_advised" %}">
+                    <i class="fas fa-info"></i> {% trans "Meer informatie over dit advies" %}
+                </a>
+            {% else %}
+                <p>
+                {% blocktrans trimmed %}
+                    Er zijn geen technologiën die wij op dit moment kunnen afraden.
+                {% endblocktrans %}
+                </p>
+            {% endif %}
+        </div>
+        <hr class="border-1 p-2 d-md-none">
+        <div class="col-12 col-md-6">
+            <hr class="border-1 d-none d-md-flex">
+            {% if techs_unknown %}
+                <h3>{% trans "Adviezen zijn niet volledig" %}</h3>
+                <p>
+                    {% blocktrans trimmed %}
+                        Wij hebben helaas te weinig informatie om een uitspraak te kunnen doen over de enkele andere technologien.
+                        Beantwoord zoveel mogelijk vragen of zoek een specialist bij u in de buurt om te weten of één van
+                        deze maatregelen interessant voor u kan zijn.
+                    {% endblocktrans %}
+                </p>
+                <div class="row">
+                    {% for technology in techs_unknown %}
+                        <div class="col-12 col-lg-6">
+                            <div class="row ml-0 border-left border-secondary">
+                                {% if technology.icon %}
+                                    <img class="" src="{{ technology.icon.url }}" width="50" height="50">
+                                {% endif %}
+                                <div class="col py-3"> {{ technology.name }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <h3>{% trans "Adviezen zijn niet altijd volledig" %}</h3>
+                <p>
+                    {% blocktrans trimmed %}
+                        Maar in dit geval wel. Voor alle technieken die wij behandelen konden we een advies opstellen.
+                    {% endblocktrans %}
+                </p>
+            {% endif %}
+        </div>
+
+        <div class="col-12 col-md-6">
+            <hr class="border-1 d-none d-md-flex">
+            <h2>{% trans "Download verslagen" %}</h2>
+            {% if applicable_reports %}
+                <div>
+                    {% blocktrans trimmed count report_count=applicable_reports|length%}
+                        Onderstaande verslag kan mogelijk nuttig voor u zijn
+                    {% plural %}
+                        Onderstaande verslagen kunnen mogelijk nuttig voor u zijn
+                    {% endblocktrans %}
+                </div>
+
+                <hr class="my-2">
+                <div class="">
+                    {% for report in applicable_reports %}
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="font-weight-bold">
+                                    {{ report.report_name }}
+                                </div>
+                            </div>
+                            {% if report.promotion_text %}
+                                <div class="col-12">
+                                    {{ report.promotion_text }}
+                                </div>
+                            {% endif %}
+
+                            <div class="col-12">
+                                <a href="{% url "setup:reports:pdf" report_slug=report.slug %}"
+                                   class="btn btn-info">
+                                    <i class="fas fa-file-download"></i> Download {{ report.report_name }}
+                                </a>
+                            </div>
+                        </div>
+                        <hr class="my-2">
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <hr>
+
+    <h2>{% trans "Hoe nu verder"%}</h2>
+    <div class="row">
+        <div class="col col-md-6">
+            <p class="font-weight-bold">{% trans "Pas antwoorden aan" %}</p>
+            <p>
+                {% if techs_unknown %}
+                    {% blocktrans trimmed %}
+                        Voor sommige adviezen konden wij geen conclusies trekken. Mogelijk heeft u niet alle vragen ingevuld.
+                    {% endblocktrans %}
+                {% endif %}
+                {% trans "Wilt u uw antwoorden veranderen? Dan kan dat hieronder" %}
+            </p>
+            <a href="{% url 'reset_inquiry' %}" class="btn btn-primary">
+                <i class="fas fa-undo-alt"></i> {% trans "Verander antwoorden" %}
+            </a>
+        </div>
+        <div class="col col-md-6">
+            {% if techs_recommanded or techs_varies %}
+                <p class="font-weight-bold">Onderneem actie</p>
+                <p>
+                    {% blocktrans trimmed %}
+                        Er zijn verscheidene onderdelen in uw woning die u kunt verbeteren. Nu is het tijd om dit aan te
+                        pakken. Ga naar stap 3 om adviezen te krijgen hoe de geconstateerde problemen kunnen worden aangepakt.
+                    {% endblocktrans %}
+                </p>
+                <a href="{% url 'collectives:take_action' %}" class="btn btn-primary btn-block btn-lg">
+                    <i class="fas fa-arrow-right"></i> {% trans "Ga door naar stap 3: Onderneem Actie" %}
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="py-5"></div>
+{% endblock %}
+

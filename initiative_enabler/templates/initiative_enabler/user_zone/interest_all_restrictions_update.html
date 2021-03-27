@@ -4,8 +4,9 @@
 {% load i18n %}
 
 {% block body %}
+    <h1>{% trans "Meer informatie nodig" %}</h1>
     <p>
-        {% blocktrans trimmed count form_count=requirement_forms|len %}
+        {% blocktrans trimmed count form_count=requirement_forms|length %}
             Wat top dat u interesse heeft in collectieve acties in uw omgeving. Echter heeft u een vraag niet
             beantwoord die wij gebruiken om te bepalen
             of een collectieve actie bij u in de buurt plaats vind.

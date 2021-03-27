@@ -1,0 +1,37 @@
+{% load score_result_tags %}
+{% load i18n %}
+
+<div class="card mb-4">
+    <div class="card-header py-0 {{ extra_header_class }}" id="{{ tech_id }}">
+        <h5 class="mb-0">
+            <div class="row">
+                {% if technology.icon %}
+                    <img class="" src="{{ technology.icon.url }}" width="50" height="50">
+                {% endif %}
+                <div class="col py-3"> {{ technology.name }}</div>
+            </div>
+        </h5>
+    </div>
+    <div class="card-body">
+        <p>
+            {{ technology.short_text }}
+            {% with technology.get_absolute_url as url %}
+                {% if url %}
+                    <a target="_blank" rel="noopener noreferrer" href="{{ url }}" >
+                        ({% trans "meer informatie" context "redirect-to-tech-page" %})
+                    </a>
+                {% endif %}
+            {% endwith %}
+        </p>
+        <hr>
+        <h5>Onze constateringen</h5>
+        {% for tech_score in technology|get_tech_scores:inquiry %}
+            {% for note in tech_score|get_score_notes:technology %}
+                <p>
+                    {{ note|get_prepped_text:inquiry }}
+                </p>
+            {% endfor %}
+        {% endfor %}
+    </div>
+</div>
+

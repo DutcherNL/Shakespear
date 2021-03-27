@@ -1,0 +1,31 @@
+{% extends 'base_public.html' %}
+{% load i18n %}
+
+{% block body %}
+    <h1>Antwoorden aanpassen</h1>
+
+    <p>
+        {% blocktrans trimmed %}
+            Het is mogelijk uw antwoorden aan te passen. Hiervoor dient u echter opnieuw de vragenlijst te doorlopen.
+            Uw huidig ingevoerde antwoorden blijven bewaard en zullen bij de vragen al zijn ingevuld. Uw huidige
+            adviezen zullen echter verloren gaan. Bij afronding van de vragenlijst zal uiteraard een nieuw advies
+            gepresenteerd worden.
+        {% endblocktrans %}
+    </p>
+    <p>
+        {% blocktrans trimmed %}
+            Zolang de vragenlijst niet voltooid is heeft u geen toegang tot de resultatenpagina (stap 2) noch
+            interesses aanpassen in stap 3. Zodra u de vragenlijst afrond zult u hier uiteraard weer toegang tot hebben.
+        {% endblocktrans %}
+    </p>
+
+    <form method="post" class="">
+        {% csrf_token %}
+        <a class="btn btn-secondary" href="{% url "results_display" %}">
+            <i class="fas fa-chevron-left"></i> {% trans "Terug naar overzicht" %}
+        </a>
+        <button type="submit" name="next" class="btn btn-primary">
+            <i class="fas fa-undo-alt"></i> {% trans "Verander antwoorden" %}
+        </button>
+    </form>
+{% endblock %}

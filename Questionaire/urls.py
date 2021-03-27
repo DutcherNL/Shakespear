@@ -17,6 +17,8 @@ urlpatterns = [
 
         path('results/', include([
             path('', views.QuestionaireCompleteView.as_view(), name='results_display'),
+            path('advised/', views.QuestionaireAdvisedView.as_view(), name='results_advised'),
+            path('not-advised/', views.QuestionaireRejectedView.as_view(), name='results_not_advised'),
             path('pdf/', include('reports.urls')),
         ])),
     ])),

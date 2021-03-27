@@ -1,0 +1,38 @@
+{% extends 'base_public.html' %}
+{% load score_result_tags %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - stap 2: resultaten{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-12">
+            <h3>{% trans "Wij raden aan..." %}</h3>
+
+
+            {% if techs_recommanded %}
+                <p>
+                    {% blocktrans trimmed  %}
+                        Hieronder staan alle technologiën die wij aanbevelen gebasseerd op de antwoorden uit de vragenlijst.
+                    {% endblocktrans %}
+                </p>
+                {% for technology in techs_recommanded %}
+                    {% include "inquiry/results/snippet_tech_result_display.html" %}
+                {% endfor %}
+            {% else %}
+                <p>
+                {% blocktrans trimmed  %}
+                    Uit de vraglijst zijn geen technologiën naar voren gekomen die mogelijk voor u interessant zijn.
+                {% endblocktrans %}
+                </p>
+            {% endif %}
+        </div>
+        <div class="col-12">
+            <a class="btn btn-primary btn-lg" href="{% url "results_display" %}">
+                <i class="fas fa-chevron-left"></i> {% trans "Terug naar overzicht" %}
+            </a>
+        </div>
+    </div>
+{% endblock %}
+

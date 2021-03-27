@@ -323,11 +323,25 @@ class LogInInquiry(GetInquirerView):
     template_name = "inquiry/inquiry_continue_with.html"
 
 
-class QuestionaireCompleteView(StepDisplayMixin, BaseTemplateView):
-    """ A view that displays the inquiry results """
-    template_name = 'inquiry/inquiry_complete.html'
+
+
+
+
+class JumpToCurrentView(RedirectView):
+
+    def get_redirect_url(self):
+        inquirer = get_object_or_404(Inquirer, id=self.request.session.get('inquirer_id', None))
+
+        return get_continue_url(self.request, inquirer)
+
+
+#################################################
+##########  ##########
+#################################################
+
+class StepTwoMixin(StepDisplayMixin):
     step = 2
-    enable_step_3 = True  # step should be enabled when step 2 is
+    enable_step_3 = True
 
     def init_base_keys(self):
         self.inquirer = get_object_or_404(Inquirer, id=self.request.session.get('inquirer_id', None))
@@ -335,12 +349,22 @@ class QuestionaireCompleteView(StepDisplayMixin, BaseTemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.init_base_keys()
-        return super(QuestionaireCompleteView, self).dispatch(request, *args, **kwargs)
+        return super(StepTwoMixin, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(StepTwoMixin, self).get_context_data(**kwargs)
+        context['inquiry'] = self.inquiry
+        return context
+
+
+class QuestionaireCompleteView(StepTwoMixin, BaseTemplateView):
+    """ A view that displays the inquiry results """
+    template_name = 'inquiry/results/inquiry_complete.html'
+    enable_step_3 = True  # step should be enabled when step 2 is
 
     def get_context_data(self, **kwargs):
         context = super(QuestionaireCompleteView, self).get_context_data(**kwargs)
 
-        context['inquiry'] = self.inquiry
         context['techs'] = Technology.objects.filter(display_in_step_2_list=True)
 
         # Create lists of various technology states
@@ -378,16 +402,56 @@ class QuestionaireCompleteView(StepDisplayMixin, BaseTemplateView):
         return Report.objects.filter(is_live=True)
 
 
-class ResetQueryView(FirstStepMixin, BaseTemplateView):
+class QuestionaireAdvisedView(StepTwoMixin, BaseTemplateView):
+    template_name = 'inquiry/results/inquiry_techs_advised.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(QuestionaireAdvisedView, self).get_context_data(**kwargs)
+
+        techs_recommanded = []
+
+        for tech in Technology.objects.filter(display_in_step_2_list=True):
+            if hasattr(tech, 'techgroup'):
+                tech = tech.techgroup
+
+            tech.score = tech.get_score(self.inquiry)
+            if tech.score == Technology.TECH_SUCCESS:
+                techs_recommanded.append(tech)
+
+        context['techs_recommanded'] = techs_recommanded
+
+        return context
+
+
+class QuestionaireRejectedView(StepTwoMixin, BaseTemplateView):
+    template_name = 'inquiry/results/inquiry_techs_rejected.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(QuestionaireRejectedView, self).get_context_data(**kwargs)
+
+        techs_discouraged = []
+
+        for tech in Technology.objects.filter(display_in_step_2_list=True):
+            if hasattr(tech, 'techgroup'):
+                tech = tech.techgroup
+
+            tech.score = tech.get_score(self.inquiry)
+            if tech.score == Technology.TECH_FAIL:
+                techs_discouraged.append(tech)
+
+        context['techs_discouraged'] = techs_discouraged
+
+        return context
+
+
+class ResetQueryView(StepTwoMixin, BaseTemplateView):
     """ This class proposes ans handles the event that an inquiery needs to be reset.
 
     Reset is that all scores are returned to their base values and the first page is the active page.
     Answeres are however maintained.
 
     """
-    template_name = "inquiry/inquiry_reset.html"
-    enable_step_2 = True
-    enable_step_3 = True
+    template_name = "inquiry/results/inquiry_reset.html"
 
     def post(self, request, *args, **kwargs):
         inquiry = get_object_or_404(Inquiry, id=self.request.session.get('inquiry_id', None))
@@ -395,16 +459,4 @@ class ResetQueryView(FirstStepMixin, BaseTemplateView):
         self.request.session['page_id'] = inquiry.current_page.id
 
         return HttpResponseRedirect(reverse('run_query'))
-
-
-class JumpToCurrentView(RedirectView):
-
-    def get_redirect_url(self):
-        inquirer = get_object_or_404(Inquirer, id=self.request.session.get('inquirer_id', None))
-
-        return get_continue_url(self.request, inquirer)
-
-
-
-
 
