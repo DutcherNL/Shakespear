@@ -191,7 +191,7 @@
         </div>
         <div class="col col-md-6">
             {% if techs_recommanded or techs_varies %}
-                <p class="font-weight-bold">Onderneem actie</p>
+                <p class="font-weight-bold">Onderneem collectief</p>
                 <p>
                     {% blocktrans trimmed %}
                         Er zijn verscheidene onderdelen in uw woning die u kunt verbeteren. Nu is het tijd om dit aan te
@@ -199,7 +199,7 @@
                     {% endblocktrans %}
                 </p>
                 <a href="{% url 'collectives:take_action' %}" class="btn btn-primary btn-block btn-lg">
-                    <i class="fas fa-arrow-right"></i> {% trans "Ga door naar stap 3: Onderneem Actie" %}
+                    <i class="fas fa-arrow-right"></i> {% trans "Ga door naar stap 3: Onderneem collectief" %}
                 </a>
             {% endif %}
         </div>

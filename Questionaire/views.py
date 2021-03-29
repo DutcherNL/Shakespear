@@ -323,10 +323,6 @@ class LogInInquiry(GetInquirerView):
     template_name = "inquiry/inquiry_continue_with.html"
 
 
-
-
-
-
 class JumpToCurrentView(RedirectView):
 
     def get_redirect_url(self):
@@ -335,9 +331,10 @@ class JumpToCurrentView(RedirectView):
         return get_continue_url(self.request, inquirer)
 
 
-#################################################
-##########  ##########
-#################################################
+# ###############################################
+# #########        RESULT VIEWS        ##########
+# ###############################################
+
 
 class StepTwoMixin(StepDisplayMixin):
     step = 2
