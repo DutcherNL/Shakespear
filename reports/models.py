@@ -25,6 +25,7 @@ class Report(models.Model):
     description = models.TextField(default="", blank=True, null=True)
     promotion_text = models.TextField(blank=True, null=True, verbose_name="Text displayed near download option")
     is_live = models.BooleanField(default=False)
+    display_order = models.PositiveIntegerField(default=1)
     last_edited = models.DateTimeField(auto_now=True)
     pages = models.ManyToManyField(to="ReportPage", through="ReportPageLink")
 

@@ -396,7 +396,7 @@ class QuestionaireCompleteView(StepTwoMixin, BaseTemplateView):
         return context
 
     def get_applicable_reports(self):
-        return Report.objects.filter(is_live=True)
+        return Report.objects.filter(is_live=True).order_by('display_order')
 
 
 class QuestionaireAdvisedView(StepTwoMixin, BaseTemplateView):
