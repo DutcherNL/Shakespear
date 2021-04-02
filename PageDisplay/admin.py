@@ -36,7 +36,10 @@ class ModuleAdmin(admin.ModelAdmin):
         return obj.get_child().__str__()
 
 
-admin.site.register(Page)
+@admin.register(Page)
+class PageAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'last_edited')
+
 admin.site.register(TitleModule)
 admin.site.register(TextModule)
 admin.site.register(ImageModule)

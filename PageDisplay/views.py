@@ -361,6 +361,8 @@ class PageAddModuleView(PageEditMixin, TemplateView):
                 module_form.save()
                 self.site.on_module_creation(self.page, module_form.instance)
                 position_form.save(module_form.instance)
+                # Update page timestamp
+                self.page.save(update_fields=['last_edited'])
                 return HttpResponseRedirect(reverse_ns(self.request, 'edit_page', kwargs=self.url_kwargs(self)))
 
             context['module_form'] = module_form
@@ -397,7 +399,11 @@ class ModuleEditMixin:
 
 class ModuleEditBase(ModuleEditMixin, PageEditMixin):
     """ The general overlap for all module edit views """
-    pass
+
+    def form_valid(self, form):
+        # Update the page timestamp
+        self.page.save(update_fields=['last_edited'])
+        return super(ModuleEditBase, self).form_valid(form)
 
 
 class PageAlterModuleView(ModuleEditBase, UpdateView):
@@ -450,6 +456,8 @@ class PageDeleteModuleView(ModuleEditBase, DeleteView):
         return self.selected_module
 
     def delete(self, *args, **kwargs):
+        # Update the page timestamp
+        self.page.save()
         self.site.on_module_deletion(self.page, self.get_object())
         return super(PageDeleteModuleView, self).delete(*args, **kwargs)
 
