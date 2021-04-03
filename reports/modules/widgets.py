@@ -19,7 +19,7 @@ class ImagePDFWidget(ImageWidget):
 
 
 class TechScoreFromIterableWidget(TechScoreWidget):
-    use_from_context = ['iterable_content', ]
+    use_from_context = ['iterable_content', 'inquiry']
 
     def get_context_data(self, request=None, **kwargs):
         context = super(TechScoreFromIterableWidget, self).get_context_data(request)

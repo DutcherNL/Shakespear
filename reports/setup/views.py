@@ -10,7 +10,7 @@ from django.urls import reverse
 from string import Formatter
 
 from reports.models import *
-from reports.responses import PDFResponse
+from reports.responses import SingleUsePDFResponse, StoredPDFResponse
 from reports.renderers import ReportSinglePagePDFRenderer, ReportSinglePageRenderer
 from reports.forms import *
 
@@ -394,7 +394,7 @@ class PDFTemplateView(TemplateResponseMixin, ContextMixin, View):
     """A view that adjusts the templatemixin to display the template in PDF form.
     It overrides all code from TemplateView class, thus does not inherit from it directly """
     template_engine = "PDFTemplates"
-    response_class = PDFResponse
+    response_class = SingleUsePDFResponse
     file_name = 'test_file'
     page_renderer_class = ReportSinglePagePDFRenderer
 
@@ -475,12 +475,18 @@ class PrintPageAsHTMLView(ReportPageMixin, TemplateView):
 class PrintReportAsPDFView(ReportMixin, PDFTemplateView):
     template_name = "reports/pdf_report.html"
     file_name = 'Example_report_{report.id}'
+    response_class = StoredPDFResponse
 
     def get_context_data(self):
         context = super(PrintReportAsPDFView, self).get_context_data()
         context['template_engine'] = self.template_engine
         context['pages'] = self.report.get_pages()
         return context
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        # Send along the file name of the file
+        return self.render_to_response(context, report=self.report)
 
 
 class PrintReportAsHTMLView(AccessabilityMixin, ReportMixin, TemplateView):

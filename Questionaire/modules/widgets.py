@@ -47,10 +47,11 @@ class QuestionWidget(BaseModuleWidget):
 
 class TechScoreWidget(BaseModuleWidget):
     template_name = "inquiry/modules/module_tech_score.html"
+    use_from_context = ['inquiry']
 
-    def get_context_data(self, request=None, **kwargs):
+    def get_context_data(self, request=None, inquiry=None, **kwargs):
         context = super(TechScoreWidget, self).get_context_data(request)
         context['technology'] = self.model.technology
-        context['inquiry'] = get_inquiry_from_request(request)
+        context['inquiry'] = inquiry or get_inquiry_from_request(request)
 
         return context

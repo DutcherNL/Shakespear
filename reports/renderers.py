@@ -3,6 +3,7 @@ from reports.modules.widgets import *
 
 
 from reports.utils import TechListReportPageRetrieval
+from Questionaire.utils import get_inquiry_from_request
 
 
 __all__ = ['ReportSinglePageRenderer', 'ReportSinglePagePDFRenderer', 'ReportMultiPageRenderer', 'ReportMultiPagePDFRenderer']
@@ -70,7 +71,8 @@ class ReportMultiPageRenderer(ReportRenderingMixin, BasePageRenderer):
 
     def get_elements(self, request):
         iterable_pages = []
-        elements = TechListReportPageRetrieval.get_iterable(request=request, mode=self.page.multi_type)
+        inquiry = get_inquiry_from_request(request)
+        elements = TechListReportPageRetrieval.get_iterable(inquiry=inquiry, mode=self.page.multi_type)
         num_elements = len(elements)
         for t in range(int(num_elements/self.page.elements_per_page)):
             iterable_pages.append(

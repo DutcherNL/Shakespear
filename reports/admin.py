@@ -1,11 +1,11 @@
 from django.contrib import admin
 
-from .models import PageCriteria
 from .models import *
 
 # Register your models here.
 
 admin.site.register(Report)
+admin.site.register(RenderedReport)
 admin.site.register(ReportPage)
 admin.site.register(ReportPageMultiGenerated)
 admin.site.register(PageCriteria)

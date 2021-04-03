@@ -10,7 +10,10 @@ register = template.Library()
 @register.simple_tag(takes_context=True)
 def render_report(context, report):
     context_dict = context.flatten()
-    inquiry = get_inquiry_from_request(context['request'])
+    if 'inquiry' in context_dict.keys():
+        inquiry = context_dict['inquiry']
+    else:
+        inquiry = get_inquiry_from_request(context['request'])
 
     page_num = 1
     rendered_html = ''
@@ -22,6 +25,6 @@ def render_report(context, report):
                 meets_criteria = False
         if meets_criteria:
             rendered_html += page.render(**context_dict, report_page=page, p_num=page_num)
-            page_num += page.get_as_child().get_num_plotted_pages(context['request'])
+            page_num += page.get_as_child().get_num_plotted_pages(inquiry)
 
     return mark_safe(rendered_html)

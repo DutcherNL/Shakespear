@@ -23,9 +23,8 @@ class TechListReportPageRetrieval:
     TECHS_UNKNOWN = 13
 
     @classmethod
-    def get_applicable_techs(cls, request, score_mode):
+    def get_applicable_techs(cls, inquiry, score_mode):
         """ Returns the applicable technologies for the given score_mode """
-        inquiry = get_inquiry_from_request(request)
         if inquiry is None:
             return Technology.objects.none()
 
@@ -42,14 +41,14 @@ class TechListReportPageRetrieval:
         return techs
 
     @classmethod
-    def get_iterable(cls, request, mode):
+    def get_iterable(cls, inquiry, mode):
         if mode == 0:
             return Technology.objects.filter(display_in_step_2_list=True)[0:8]
         if mode == cls.TECHS_ADVISED:
-            return cls.get_applicable_techs(request, Technology.TECH_SUCCESS)
+            return cls.get_applicable_techs(inquiry, Technology.TECH_SUCCESS)
         elif mode == cls.TECHS_DENIED:
-            return cls.get_applicable_techs(request, Technology.TECH_FAIL)
+            return cls.get_applicable_techs(inquiry, Technology.TECH_FAIL)
         elif mode == cls.TECHS_UNKNOWN:
-            return cls.get_applicable_techs(request, Technology.TECH_UNKNOWN)
+            return cls.get_applicable_techs(inquiry, Technology.TECH_UNKNOWN)
         else:
             raise KeyError("mode was not defined")

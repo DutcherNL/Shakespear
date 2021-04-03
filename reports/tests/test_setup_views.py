@@ -106,8 +106,11 @@ class TestEditReportView(ReportViewsMixin, ViewTestMixin, TestCase):
         response = self.build_post_response({
             'report_name': 'new-report-name',
             'description': 'some description',
-            'file_name': 'some-file-name'
+            'file_name': 'some-file-name',
+            'display_order': 1,
         }, follow=True)
+
+        print(response)
 
         try:
             Report.objects.get(report_name='new-report-name')

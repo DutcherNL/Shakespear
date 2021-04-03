@@ -2,11 +2,13 @@ import math
 
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
+from django.core.files.storage import FileSystemStorage
 from django.db import models
 from django.utils.text import slugify
 from django.conf import settings
 
-from Questionaire.models import Technology
+
+from Questionaire.models import Technology, Inquiry
 from PageDisplay.models import Page
 
 # Import the modules and containers
@@ -15,7 +17,7 @@ from .utils import TechListReportPageRetrieval
 
 
 __all__ = ["Report", "ReportPage", "ReportDisplayOptions", "PageLayout", "ReportPageSingle", "ReportPageMultiGenerated",
-           "ReportPageLink", "PageCriteria", "TechnologyPageCriteria"]
+           "ReportPageLink", "PageCriteria", "TechnologyPageCriteria", "RenderedReport"]
 
 
 class Report(models.Model):
@@ -38,6 +40,16 @@ class Report(models.Model):
         return self.pages.order_by(
             'reportpagelink__page_number'
         ).all()
+
+
+report_storage = FileSystemStorage(location=settings.REPORT_ROOT)
+
+
+class RenderedReport(models.Model):
+    created_on = models.DateTimeField(auto_now_add=True)
+    report = models.ForeignKey(Report, on_delete=models.CASCADE)
+    inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE, null=True, blank=True)
+    file = models.FileField(storage=report_storage, null=True)  # Null indicates that the report is being created
 
 
 def upload_layout_path(instance, filename):
@@ -164,7 +176,7 @@ class ReportPage(Page):
         """ Tests whether this page is valid for the given inquiry """
         return True
 
-    def get_num_plotted_pages(self, request):
+    def get_num_plotted_pages(self, inquiry):
         return 1
 
 
@@ -197,8 +209,9 @@ class ReportPageMultiGenerated(ReportPage):
     class Meta:
         proxy = True
 
-    def get_num_plotted_pages(self, request):
-        elements = TechListReportPageRetrieval.get_iterable(request=request, mode=self.multi_type)
+    def get_num_plotted_pages(self, inquiry):
+
+        elements = TechListReportPageRetrieval.get_iterable(inquiry=inquiry, mode=self.multi_type)
         num_plotted = int(math.ceil(len(elements)/self.elements_per_page))
         return num_plotted
 
