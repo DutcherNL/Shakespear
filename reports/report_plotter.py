@@ -2,7 +2,6 @@ import os
 import pdfkit
 
 from django.conf import settings
-from django.core.files import File
 from django.utils import timezone
 from django.template.loader import get_template
 

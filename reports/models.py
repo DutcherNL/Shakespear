@@ -1,4 +1,5 @@
 import math
+import os
 
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
@@ -29,6 +30,7 @@ class Report(models.Model):
     is_live = models.BooleanField(default=False)
     display_order = models.PositiveIntegerField(default=1)
     last_edited = models.DateTimeField(auto_now=True)
+    is_static = models.BooleanField(default=False, help_text="Whether the report is custom for each inquiry")
     pages = models.ManyToManyField(to="ReportPage", through="ReportPageLink")
 
     def save(self, **kwargs):
@@ -50,6 +52,11 @@ class RenderedReport(models.Model):
     report = models.ForeignKey(Report, on_delete=models.CASCADE)
     inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE, null=True, blank=True)
     file = models.FileField(storage=report_storage, null=True)  # Null indicates that the report is being created
+
+    def delete(self, **kwargs):
+        # delete the file
+        self.file.delete(False)
+        return super(RenderedReport, self).delete(**kwargs)
 
 
 def upload_layout_path(instance, filename):
