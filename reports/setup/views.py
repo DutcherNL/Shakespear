@@ -10,7 +10,7 @@ from django.urls import reverse
 from string import Formatter
 
 from reports.models import *
-from reports.responses import SingleUsePDFResponse, StoredPDFResponse
+from reports.responses import SingleUsePDFResponse, CreatedPDFResponse
 from reports.renderers import ReportSinglePagePDFRenderer, ReportSinglePageRenderer
 from reports.forms import *
 
@@ -475,7 +475,7 @@ class PrintPageAsHTMLView(ReportPageMixin, TemplateView):
 class PrintReportAsPDFView(ReportMixin, PDFTemplateView):
     template_name = "reports/pdf_report.html"
     file_name = 'Example_report_{report.id}'
-    response_class = StoredPDFResponse
+    response_class = CreatedPDFResponse
 
     def get_context_data(self):
         context = super(PrintReportAsPDFView, self).get_context_data()

@@ -218,7 +218,7 @@ class InquirerAdmin(admin.ModelAdmin):
 
 @admin.register(Inquiry)
 class InquiryAdmin(admin.ModelAdmin):
-    list_display = ('get_owner', 'current_page', 'is_complete', 'last_visited')
+    list_display = ('get_owner', 'current_page', 'is_complete', 'last_visited', 'completed_on')
     list_filter = ('is_complete', 'created_on')
 
 

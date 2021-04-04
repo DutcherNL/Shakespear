@@ -19,7 +19,7 @@ urlpatterns = [
             path('', views.QuestionaireCompleteView.as_view(), name='results_display'),
             path('advised/', views.QuestionaireAdvisedView.as_view(), name='results_advised'),
             path('not-advised/', views.QuestionaireRejectedView.as_view(), name='results_not_advised'),
-            path('pdf/', include('reports.urls')),
+            path('report/<slug:report_slug>/', views.DownloadReport.as_view(), name='download_pdf')
         ])),
     ])),
     path('analysis/', include([

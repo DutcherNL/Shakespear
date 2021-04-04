@@ -48,14 +48,27 @@ class SingleUsePDFResponse(FileResponse):
         pdfkit.from_string(html_layout, filepath, options=base_options)
 
 
-class StoredPDFResponse(FileResponse):
+class CreatedPDFResponse(FileResponse):
     def __init__(self, request=None, report=None, **response_kwargs):
         plotter = ReportPlotter(report=report)
         inquiry = get_inquiry_from_request(request)
 
-        local_file_path = plotter.plot_report(inquiry)
+        created_report = plotter.plot_report(inquiry)
 
-        super(StoredPDFResponse, self).__init__(open(local_file_path, 'rb'))
+        super(CreatedPDFResponse, self).__init__(open(created_report.file.path, 'rb'))
 
         self['Content-Type'] = 'application/pdf'
-        self['Content-Disposition'] = 'attachment; filename={filename}'.format(filename=f'{report.file_name}.pdf')
+        self['Content-Disposition'] = 'attachment; filename={filename}'.format(filename=f'{report.file_name}')
+
+
+class StoredPDFResponse(FileResponse):
+    def __init__(self, created_report=None, **response_kwargs):
+        # from reports.models import RenderedReport
+        # created_report = RenderedReport.objects.get()
+
+        super(StoredPDFResponse, self).__init__(open(created_report.file.path, 'rb'), **response_kwargs)
+
+        self['Content-Type'] = 'application/pdf'
+        self['Content-Disposition'] = 'attachment; filename={filename}'.format(
+            filename=f'{created_report.report.file_name}'
+        )

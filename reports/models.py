@@ -58,6 +58,12 @@ class RenderedReport(models.Model):
         self.file.delete(False)
         return super(RenderedReport, self).delete(**kwargs)
 
+    def build_file(self):
+        """ Build the file this represents"""
+        from reports.report_plotter import ReportPlotter
+        plotter = ReportPlotter(report=self.report)
+        plotter.plot_report(inquiry=self.inquiry, plotted_report=self)
+
 
 def upload_layout_path(instance, filename):
     # Throws these files in their seperate report folder

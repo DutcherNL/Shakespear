@@ -1,3 +1,4 @@
+from django.views import View
 from django.views.generic import TemplateView, CreateView, FormView, RedirectView
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
@@ -10,7 +11,9 @@ from .forms import QuestionPageForm, EmailForm, InquirerLoadForm, CreateInquirer
 
 from general.views import StepDisplayMixin
 from PageDisplay.views import PageInfoView
-from reports.models import Report
+from reports.models import Report, RenderedReport
+from reports.responses import StoredPDFResponse
+from reports.report_plotter import ReportPlotter
 from questionaire_mailing.models import TriggeredMailTask
 
 # Create your views here.
@@ -457,3 +460,52 @@ class ResetQueryView(StepTwoMixin, BaseTemplateView):
 
         return HttpResponseRedirect(reverse('run_query'))
 
+
+class DownloadReport(StepTwoMixin, BaseTemplateView):
+    download_response_class = StoredPDFResponse
+
+    def dispatch(self, request, *args, **kwargs):
+        self.report = get_object_or_404(Report, slug=self.kwargs.get('report_slug', None))
+        return super(DownloadReport, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        """ Get the report from the database and return it in the related response class """
+        if self.report.is_static:
+            rendered_report = self.get_rendered_static_report()
+        else:
+            rendered_report = self.get_rendered_user_report()
+
+        return self.download_response_class(
+            created_report=rendered_report
+        )
+
+    def get_rendered_static_report(self):
+        """ Get the static report instance, construct it if neccesary """
+        rendered_report = RenderedReport.objects.filter(
+            report=self.report,
+            created_on__gte=self.report.last_edited
+        ).order_by(
+            'created_on'
+        ).first()
+
+        if rendered_report is None:
+            # The file is not yet build, so build the file.
+            rendered_report = ReportPlotter(report=self.report).plot_report(inquiry=None)
+
+        return rendered_report
+
+    def get_rendered_user_report(self):
+        """ Create or get a plot of the user-specefied report """
+        rendered_report = RenderedReport.objects.filter(
+            report=self.report,
+            inquiry=self.inquiry,
+            created_on__gte=self.inquiry.completed_on
+        ).order_by(
+            'created_on'
+        ).first()
+
+        if rendered_report is None:
+            # The file is not yet build, so build the file.
+            rendered_report = ReportPlotter(report=self.report).plot_report(inquiry=self.inquiry)
+
+        return rendered_report

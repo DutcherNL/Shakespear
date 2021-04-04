@@ -1,9 +1,12 @@
-from django.urls import path, include
-
+from django.urls import path, include, register_converter
 
 from shakespeare_setup.config import SetupConfig
-from . import views
-from .sites import report_site
+from reports.url_converters import PageLayoutConverter
+from reports.setup import views
+from reports.setup.sites import report_site
+
+
+register_converter(PageLayoutConverter, 'layout')
 
 
 class SetupTechs(SetupConfig):

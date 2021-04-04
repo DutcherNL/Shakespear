@@ -157,8 +157,8 @@
                             {% endif %}
 
                             <div class="col-12">
-                                <a href="{% url "setup:reports:pdf" report_slug=report.slug %}"
-                                   class="btn btn-info">
+                                <a href="{% url "download_pdf" report_slug=report.slug %}"
+                                   class="btn btn-info" target="_blank" rel="noopener noreferrer">
                                     <i class="fas fa-file-download"></i> Download {{ report.report_name }}
                                 </a>
                             </div>

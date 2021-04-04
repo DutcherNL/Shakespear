@@ -24,14 +24,15 @@ class ReportPlotter:
         if using:
             self.template_engine = using
 
-    def plot_report(self, inquiry=None, file_name=None):
+    def plot_report(self, inquiry=None, file_name=None, plotted_report=None):
         """ Plots the report to a file and strores a reference in the database """
 
         # Create the plotting file
-        plotted_report = RenderedReport.objects.create(
-            report=self.report,
-            inquiry=inquiry,
-        )
+        if plotted_report is None:
+            plotted_report = RenderedReport.objects.create(
+                report=self.report,
+                inquiry=inquiry,
+            )
 
         # Create the HTML content which is to be plotted to the PDF
         html_content = self.plot_report_as_html(self.get_context_data(inquiry=inquiry))
@@ -51,7 +52,7 @@ class ReportPlotter:
         plotted_report.file.name = local_file_name
         plotted_report.save()
 
-        return local_file_path
+        return plotted_report
 
     def plot_report_as_html(self, context):
         """ Plots the report in HTML format ready for PDF translation """
