@@ -17,6 +17,7 @@
                 <td style="min-width: 10rem">Name</td>
                 <td style="min-width: 10rem">Link</td>
                 <td style="min-width: 10rem;">Is Live</td>
+                <td style="min-width: 10rem;">Static</td>
                 <td style="min-width: 10rem;">Last edited</td>
             </tr>
             </thead>
@@ -35,6 +36,9 @@
 
                     <td>
                         {{ report.is_live }}
+                    </td>
+                    <td style="">
+                        {{ report.is_static }}
                     </td>
                     <td>
                         {{ report.last_edited }}

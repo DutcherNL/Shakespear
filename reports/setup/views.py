@@ -64,7 +64,7 @@ class ReportInfoView(AccessabilityMixin, ReportMixin, TemplateView):
 
 class ReportUpdateView(AccessabilityMixin, UpdateView):
     model = Report
-    fields = ['report_name', 'description', 'promotion_text', 'file_name', 'is_live', 'display_order']
+    fields = ['report_name', 'description', 'promotion_text', 'file_name', 'is_live', 'display_order', 'is_static']
     slug_url_kwarg = "report_slug"
     template_name_field = "report"
     template_name = "reports/setup/report_form.html"
