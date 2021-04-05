@@ -263,6 +263,9 @@ class VerticalContainerModule(OrderedContainerModule):
     widget = module_widgets.VerticalContainerWidget
     _type_id = 10
 
+    def __str__(self):
+        return f"Vert Cont Module {self.id}; {self.module_link.count()} links"
+
 
 class BasicModuleMixin:
     """ A Mixin that overrides the _render method to limit the arguments in the widget render method """
