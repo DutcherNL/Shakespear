@@ -63,15 +63,14 @@ class ReportMultiPageRenderer(ReportRenderingMixin, BasePageRenderer):
     def get_context_data(self, **kwargs):
         kwargs = super(ReportMultiPageRenderer, self).get_context_data(**kwargs)
         kwargs.update({
-            'iterable_pages': self.get_elements(kwargs.get('request')),
+            'iterable_pages': self.get_elements(kwargs.get('inquiry')),
             'iterable_element_height': 100/self.page.elements_per_page,
         })
 
         return kwargs
 
-    def get_elements(self, request):
+    def get_elements(self, inquiry):
         iterable_pages = []
-        inquiry = get_inquiry_from_request(request)
         elements = TechListReportPageRetrieval.get_iterable(inquiry=inquiry, mode=self.page.multi_type)
         num_elements = len(elements)
         for t in range(int(num_elements/self.page.elements_per_page)):

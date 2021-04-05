@@ -23,7 +23,7 @@ class TechScoreFromIterableWidget(TechScoreWidget):
     use_from_context = ['iterable_content', 'inquiry']
 
     def get_context_data(self, request=None, **kwargs):
-        context = super(TechScoreFromIterableWidget, self).get_context_data(request)
+        context = super(TechScoreFromIterableWidget, self).get_context_data(request, **kwargs)
         context['technology'] = Technology.objects.get(id=kwargs.get('iterable_content').id)
         return context
 

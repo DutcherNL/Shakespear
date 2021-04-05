@@ -10,10 +10,7 @@ register = template.Library()
 @register.simple_tag(takes_context=True)
 def render_report(context, report):
     context_dict = context.flatten()
-    if 'inquiry' in context_dict.keys():
-        inquiry = context_dict['inquiry']
-    else:
-        inquiry = get_inquiry_from_request(context['request'])
+    inquiry = context_dict['inquiry']
 
     page_num = 1
     rendered_html = ''

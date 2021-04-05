@@ -223,7 +223,6 @@ class ReportPageMultiGenerated(ReportPage):
         proxy = True
 
     def get_num_plotted_pages(self, inquiry):
-
         elements = TechListReportPageRetrieval.get_iterable(inquiry=inquiry, mode=self.multi_type)
         num_plotted = int(math.ceil(len(elements)/self.elements_per_page))
         return num_plotted
