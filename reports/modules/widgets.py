@@ -19,6 +19,7 @@ class ImagePDFWidget(ImageWidget):
 
 
 class TechScoreFromIterableWidget(TechScoreWidget):
+    template_name = "modules/module_tech_score_forPDF_preview.html"
     use_from_context = ['iterable_content', 'inquiry']
 
     def get_context_data(self, request=None, **kwargs):

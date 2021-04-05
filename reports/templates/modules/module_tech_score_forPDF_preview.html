@@ -4,11 +4,13 @@
     <div class="card-header py-0 {{ widget.extra_header_class }}" id="{{ widget.tech_id }}">
         <h5 class="mb-0">
             <div class="row">
-                <div class="col">
+                <div class="col-auto pr-0" style="line-height: 2em;">
                     {% if widget.technology.icon %}
                         <span style="color: #FFFFFF; margin-left: -1em; opacity: 0;">.</span>
                         <img class="" src="{{ widget.technology.icon.url }}" width="50" height="50">
                     {% endif %}
+                </div>
+                <div class="col h3 mb-0" style="line-height: 2em;">
                     {{ widget.technology.name }}
                 </div>
 
@@ -24,7 +26,6 @@
     {% if widget.module.display_description or widget.module.display_sub_technologies or widget.module.display_notes %}
         <div class="p-2">
             {% if widget.module.display_description %}
-                <h3>{{ widget.technology.name }}</h3>
                 <p>
                     {{ widget.technology.short_text }}
                 </p>
@@ -55,7 +56,7 @@
                 {% endwith %}
             {% else %}
                 {% if widget.module.display_notes %}
-                    <h4>Ons advies: {{ widget.technology|get_tech_score:widget.inquiry|get_text_base_score }}</h4>
+                    <h5>Ons advies: {{ widget.technology|get_tech_score:widget.inquiry|get_text_base_score }}</h5>
                     {% for tech_score in widget.technology|get_tech_scores:widget.inquiry %}
                         {% for note in tech_score|get_score_notes:widget.technology %}
                             <p>
