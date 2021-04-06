@@ -62,8 +62,14 @@ class ReportMultiPageRenderer(ReportRenderingMixin, BasePageRenderer):
 
     def get_context_data(self, **kwargs):
         kwargs = super(ReportMultiPageRenderer, self).get_context_data(**kwargs)
+        inquiry = kwargs.get('inquiry', None)
+        if inquiry is None:
+            # Right now in Setup the page is rendered without an injection of inquiry
+            # So this is a hot fix until a better place to inject inquiry is created.
+            inquiry = get_inquiry_from_request(kwargs.get('request', None))
         kwargs.update({
-            'iterable_pages': self.get_elements(kwargs.get('inquiry')),
+            'inquiry': inquiry,
+            'iterable_pages': self.get_elements(inquiry),
             'iterable_element_height': 100/self.page.elements_per_page,
         })
 
@@ -73,6 +79,7 @@ class ReportMultiPageRenderer(ReportRenderingMixin, BasePageRenderer):
         iterable_pages = []
         elements = TechListReportPageRetrieval.get_iterable(inquiry=inquiry, mode=self.page.multi_type)
         num_elements = len(elements)
+        print(f" --- {num_elements}")
         for t in range(int(num_elements/self.page.elements_per_page)):
             iterable_pages.append(
                 elements[t:t+self.page.elements_per_page]
