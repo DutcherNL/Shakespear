@@ -452,6 +452,8 @@ class ResetQueryView(StepTwoMixin, BaseTemplateView):
 
     """
     template_name = "inquiry/results/inquiry_reset.html"
+    step = 1
+    enable_step_2 = True
 
     def post(self, request, *args, **kwargs):
         inquiry = get_object_or_404(Inquiry, id=self.request.session.get('inquiry_id', None))
