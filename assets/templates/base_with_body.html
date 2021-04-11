@@ -1,10 +1,114 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
+{% load score_result_tags %}
 {% load django_bootstrap_breadcrumbs  %}
 
 
 {% block body_content %}
-    {% include 'snippet_navbar.html' %}
+    {% block nav-bar %}
+        <nav class="navbar navbar-expand navbar-dark bg-primary my-0 py-0">
+            <a href="{% url 'index' %}" class="navbar-brand mr-auto">
+                <img class="sdw_image" src="{% static "img/Samen Duurzamer Wonen - wit - 300ppi.png" %}" height="50">
+            </a>
+            <div class="mr-auto">
+                {% block nav-bar-options %}
+
+                {% endblock %}
+            </div>
+
+            {% with justify="d-flex justify-content-between align-items-center" %}
+                <div class="navbar-nav">
+                    {% if inquirer or user.is_authenticated %}
+                        <div class="nav-item dropdown">
+                            {# (mb-0 is needed to cancel the margin that gets added by h4) #}
+                            <a class="nav-link dropdown-toggle  mb-0" href="#" data-toggle="dropdown">
+                                <span class="d-inline-block">
+                                    <span class="d-flex">
+
+                                    {% if user.is_authenticated %}
+                                        <div class="text-right px-2 py-0">
+                                            {% trans "Logged in as" %}: {{ user }}<br>
+                                            Code: {{ inquirer.get_inquiry_code }}
+                                        </div>
+                                    {% else %}
+                                        <div class="text-right font-weight-bold p-2">
+                                            {{ inquirer.get_inquiry_code }}
+                                        </div>
+                                    {% endif %}
+
+                                        <div class="h4 mb-0 nav-link border-light border rounded">
+                                            <i class="far fa-user"></i>
+                                        </div>
+
+                                    </span>
+                                </span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                {% if inquirer %}
+                                    <a class="dropdown-item"
+                                       href="{% url 'inquirer_settings:home' %}">
+                                        <i class="fas fa-cog"></i> {% trans "Mijn instellingen" %}
+                                    </a>
+                                    {% if not inquirer.active_inquiry.is_complete %}
+                                        <a class="dropdown-item"
+                                           href="{% url 'run_query' %}">
+                                            <i class="far fa-clipboard"></i> {% trans "Mijn vragenlijst" %}
+                                        </a>
+                                    {% else %}
+                                        <a class="dropdown-item"
+                                           href="{% url 'results_display' %}">
+                                            <i class="far fa-chart-bar"></i> {% trans "Mijn resultaten" %}
+                                        </a>
+                                        <a class="dropdown-item"
+                                           href="{% url "collectives:take_action" %}">
+                                            <i class="fas fa-people-carry"></i> {% trans "Mijn collectiven" %}
+                                        </a>
+                                    {% endif %}
+                                {% endif %}
+
+                                {% if user.is_authenticated %}
+                                    <hr>
+                                    <h6 class="dropdown-header">{% trans "Beheer" %}</h6>
+                                    <a class="dropdown-item"
+                                       href="{% url 'setup:home' %}">
+                                        <i class="fas fa-cog"></i> {% trans "Setup" %}
+                                    </a>
+                                    {% if perms.auth.can_access_data_analysis_pages %}
+                                        <a class="dropdown-item"
+                                           href="{% url 'data_analysis:overview' %}">
+                                            <i class="fas fa-chart-pie"></i> {% trans "Data analysis" %}
+                                        </a>
+                                    {% endif %}
+                                    {% if perms.auth.can_access_entry_analysis %}
+                                        <a class="dropdown-item"
+                                           href="{% url 'analysis_overview' %}">
+                                            <i class="fas fa-address-book"></i> {% trans "Entry Analysis" %}
+                                        </a>
+                                    {% endif %}
+                                    {% if user.is_staff %}
+                                        <a class="dropdown-item"
+                                           href="{% url 'admin:index' %}">
+                                            <i class="fas fa-archive"></i> {% trans "Admin Panel" %}
+                                        </a>
+                                    {% endif %}
+                                    <hr>
+                                    <a class="dropdown-item"
+                                       href="{% url 'general:logout' %}">
+                                        <i class="fas fa-sign-out-alt"></i> {% trans "Log Out" %}
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+            {% endwith %}
+        </nav>
+    {% endblock nav-bar %}
+
+
+
     {% block breadcrumbs %}
     {% endblock %}
 

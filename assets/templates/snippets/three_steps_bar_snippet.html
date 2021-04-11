@@ -1,27 +1,24 @@
 {% load score_result_tags %}
 {% load i18n %}
 
-{% if request|get_current_inquirer_id %}
+{% if inquirer %}
     <div class="d-flex justify-content-between">
-        <div class="col-2 d-md-flex d-none" style="">
-
-        </div>
-        <div class="p-3 col-12 col-md-8" style="">
+        <div class="p-3 col-12" style="">
             {% if progress_step %}
                 <div class="w-100 d-flex justify-content-center">
                     <div class="btn-group" role="group" aria-label="Stepbuttons">
                         <a class="btn
-                                {% if progress_step == 1 %} btn-info
+                                {% if progress_step == 1 %} btn-light
                                 {% elif progress_step < 1 %}btn-outline-secondary disabled
-                                {% else %}btn-outline-info{% endif %}"
+                                {% else %}btn-outline-light{% endif %}"
                            href="{% if not progress_step == 1 %}{% url "reset_inquiry" %}{% endif %}">
                             <div class="px-1 px-sm-1 px-md-3 px-lg-5">
                                 {% trans "Stap" context "Step-guide" %} 1: {% trans "Vragen" context "step-1" %}
                             </div>
                         </a>
                         <a class="btn
-                                {% if progress_step == 2 %} btn-info
-                                {% elif enable_step_2 %}btn-outline-info
+                                {% if progress_step == 2 %} btn-light
+                                {% elif enable_step_2 %}btn-outline-light
                                 {% else %}btn-outline-secondary disabled{% endif %}"
                            href="{% url "results_display" %}">
                             <div class="px-0 px-sm-1 px-md-3 px-lg-5">
@@ -29,8 +26,8 @@
                             </div>
                         </a>
                         <a class="btn
-                                {% if progress_step == 3 %} btn-info
-                                {% elif enable_step_3 %}btn-outline-info
+                                {% if progress_step == 3 %} btn-light
+                                {% elif enable_step_3 %}btn-outline-light
                                 {% else %}btn-outline-secondary disabled{% endif %}"
                            href="{% url "collectives:take_action" %}">
                             <div class="px-0 px-sm-1 px-md-3 px-lg-5">
@@ -41,43 +38,19 @@
                 </div>
             {% else %}
                 <div class="d-flex justify-content-center">
-                    <div>
-                        {% if top_header_continue_message %}
-                            {{ top_header_continue_message }}
-                        {% else %}
-                            {% blocktrans trimmed %}
-                                U heeft momenteel al een actieve sessie. Wilt u deze sessie hervatten?
-                            {% endblocktrans %}
-                        {% endif %}
-                        <a href="{% url 'jump_to_current' %}" class="btn btn-primary ml-3">
+                    <div class="text-light">
+
+                        <a href="{% url 'jump_to_current' %}" class="btn btn-light ml-3">
                             <i class="fas fa-arrow-right"></i>
-                            {% blocktrans trimmed with code=inquirer.get_inquiry_code %}
-                                Ga door met {{ code }}.
-                            {% endblocktrans %}
+                            {% if not inquirer.active_inquiry.is_complete %}
+                                {% trans "Ga verder met de vragenlijst" %}
+                            {% else %}
+                                {% trans "Ga naar Mijn Resultaten" %}
+                            {% endif %}
                         </a>
                     </div>
                 </div>
             {% endif %}
-        </div>
-        <div class="col-2 d-md-flex d-none p-2">
-            <div class="d-flex w-100 justify-content-end">
-                <div>
-                    {% trans "Uw code" %}:<br>
-                    <span class=" font-weight-bolder">{{ inquirer.get_inquiry_code }}</span>
-                </div>
-                <div class="nav-item dropdown">
-                    {# (mb-0 is needed to cancel the margin that gets added by h4) #}
-                    <a class="nav-link dropdown-toggle mb-0" href="#" data-toggle="dropdown">
-                        <i class="fas fa-cog"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right">
-                        <a class="dropdown-item"
-                           href="{% url 'inquirer_settings:home' %}">
-                            {% trans "Mijn settings" %}
-                        </a>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 {% endif %}

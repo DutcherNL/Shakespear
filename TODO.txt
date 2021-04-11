@@ -1,20 +1,80 @@
-Complete
-- Reskin to new style and layout
-- U in NL, Je in Be
 
-TODO:
-- Required attribute for questions does not work in actual questionaire view (at least in multiple choice)
-- Advanced postal code selection for belgium
-
-- Link in de PDF naar de techniek informatiepagina's
-- Link module
-
-- Postcode trimming
-
-- - - Checken op de site zelf - - -
-Naisolatie bij toegepast staat isolatie niet voldoende
-Oranje advies op zonneenergie en vloerverwarming
+•  Code vergeten en kunnen opvragen —> ruis onderdrukken (pas na alles, geen prioriteit)
+    STATUS: QUEUED
 
 
 
-14 januari is de deadline
+NL/BE WELKOMSTPAGINA
+
+
+
+///// Klaar en geimplementeerd:
+> ORDER DOWNLOAD
+Gebruik Edit Report Options > Display Order. laagste getal staat bovenaan
+
+> VERBETERDE LAYOUT VERSLAGEN
+Nieuwe layout aangemaakt, toegevoegd bij verslagen.
+
+> NIEUWE INDELING RESULTATENPAGINA
+Hopelijk duidelijker te lezen nu.
+
+> OPTIMALISATIE DOWNLOADS VAN BESTANDEN
+Nieuwe functionaliteit voor verslagen: is_static
+Dit stelt dat een verslag niet op maat gemaakt is en daardoor de laatste kopie kan lezen
+Tevens worden PDF bestanden op de server getracked en regelmatig verwijdered (momenteel 3 dagen na aanmaken voor
+op maat gemaakte bestanden)
+
+///// Klaar eind komend weekend
+> NIEUW ONTWERP HEADER
+> NIEUW ONTWERP FOOTER
+Nog geen bevredigend ontwerp gevonden.
+
+> NL/BE ONTVANGST PAGINA
+
+// Hopelijk klaar volgend weekend als huidig idee werkt
+> POSTOCDE INVOER VEREENVOUDIGING (spatie automatisch, hoofdletters automatisch)
+
+
+////// Deze maand
+> HERSTRUCTURERING PAGEDISPLAY MODULE
+Ik weet dat dit niet interessnat klinkt want dit is herindeling onder de kap, maar dit moet echt zsm gebeuren eigenlijk.
+
+
+> VERBETERING GEBRUIKERSPAGINA
+Betere controle voor gebruikers over eigen data. Toevoeging accountverwijdering.
+Mogelijk klaar eerste week mei. Afhankelijk van mijn mentale vermogen.
+
+-----------------------
+
+PAGEDISPLAY MODULE REWRITE
+STATUS: WIP
+NOTE: Tijd ingestoken, maar met onverwachte hurdles. Kost meer tijd dan gedacht.
+
+GEBRUIKERSPAGINA
+STATUS: QUEUED
+NOTE: Is aanwezig. Niet duidelijk. Eerste stap is herontwerp header en footer
+
+Herontwerp HEADER
+STATUS: WIP
+NOTE: Word nog gepuzzeld aan optimaal ontwerp. Hopelijk deze week klaar.
+
+HERONTWERP FOOTER
+STATUS: QUEUED
+NOTE: Lage prio. Maar waarschijnlijk qua taak zo overeenkomstig met herontwerp header dat ik na die taak gelijk dit doe.
+
+IMPROVEMENTS COLLECTIEVEN IN DE REGIO
+STATUS: QUEUED
+NOTE: betreft betere controle.
+
+VERBETERING TOEGANGSBEVEILIGING
+STATUS: LOW PRIORITY
+NOTE: Bevat code vergeten en mogelijkheid voor eigen wachtwoorden aanmaken.
+
+SOCIAL MEDIA
+STATUS: POSTPONED INDEFINITELY
+NOTE: Meningen over SM zijn wisselend mbt privacy.
+
+WACHTPAGINA DOWNLOAD ADVIEZEN
+STATUS: QUEUED
+NOTE: Dit betreft een pagina terwijl de pdf word aangemaakt.
+

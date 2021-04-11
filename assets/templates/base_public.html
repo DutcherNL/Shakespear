@@ -1,10 +1,10 @@
 {% extends 'base_with_body.html' %}
 {% load footer_tags %}
+{% load i18n %}
 
-{% block outside-container-content-top %}
+{% block nav-bar-options %}
     {# Display the step progress #}
     {% include "snippets/three_steps_bar_snippet.html" %}
-    <hr>
 {% endblock %}
 
 {% block body-containerless %}
@@ -18,46 +18,86 @@
     <div class="py-4"></div>
     <div class="bg-dark text-light d-flex" style="">
         <div class="container my-3">
-            <div class="row">
-                <div class="col-md-8">
-                    <p>Wij worden mede mogelijk gemaakt door:</p>
-                    <div class="row">
-                        <div class="col-sm-4" style="height: 120px;">
-                            <div style="width: 100%; height: 100%;
-                                    background-size: contain; background-repeat: no-repeat; background-position: center top;
-                                    background-image: url({% static "img/sponsors/interreg_Vlaanderen-Nederland_PANTONE.png" %});">
-
-                            </div>
-                        </div>
-                        <div class="col-sm-4" style="height: 60px;">
-                            <div style="width: 100%; height: 100%;
-                                    background-size: contain; background-repeat: no-repeat; background-position: center top;
-                                    background-image: url({% static "img/sponsors/tuelogo.png" %});">
-                            </div>
-                        </div>
-                        <div class="col-sm-4" style="height: 60px;">
-                            <div style="width: 100%; height: 100%;
-                                    background-size: contain; background-repeat: no-repeat; background-position: center top;
-                                    background-image: url({% static "img/sponsors/Provincie Noord-brabant.jpg" %});">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-light" style="position:relative; width: 2px; height: 120px; border-radius: 1px; margin: -2px;">
-                </div>
-
-                <div class="col-md-4">
-                    <div class="list-group">
-                        {% general_pages is_part_of_footer=True as general_pages %}
-                        {% for page in general_pages %}
-                            <a class="list-group-item list-group-item-dark"
-                               href="{{ page.get_absolute_url }}">
-                                {{ page.name }}
-                            </a>
-                        {% endfor %}
-                    </div>
+            <div class="row justify-content-center">
+                <div class="col-auto h5">
+                    Samen Duurzamer Wonen
                 </div>
             </div>
+            <div class="row">
+                <div class="col-12 col-md-4">
+                    <p><small>
+                        {% blocktrans trimmed %}
+                            Samen Duurzamer Wonen is onderdeel van het ENLEB project, een Vlaams/Nederlands
+                            samenwerkingsverband met als doel mensen aan te sporen in het verduurzamen van de woning.
+                            <br>
+                            Het ENLEB project is gesubsidieerd door Interreg Nederland-Vlaanderen en de provincie
+                            Noord-Brabant.
+                        {% endblocktrans %}
+                    </small></p>
+                    <a href=""><small>
+                    {% trans "Klik hier voor meer informatie over ons en het ENLEB project." %}
+                    </small></a>
+                </div>
+
+                <div class="col-12 d-md-none" style="height: 0.5em;"></div>
+                <div class="col-12 col-md-8">
+                    <div class="row">
+                        <div class="col-12 col-lg-9">
+                            <div style="width: 100%; height: 100%;
+                                    background-size: contain; background-repeat: no-repeat; background-position: center top;
+                                    background-image: url({% static "img/sponsors/interreg_HQish.png" %});">
+                                <div class="d-none d-lg-flex" style="height: 9em; width: 0em;"></div>
+                                <div class="d-none d-md-flex d-lg-none" style="height: 9em; width: 0em;"></div>
+                                <div class="d-flex d-md-none" style="height: 7em; width: 0em;"></div>
+                            </div>
+                        </div>
+                        <div class="col-6 d-flex d-lg-none">
+                            <div style="width: 70%; height: 100%;
+                                    background-size: contain; background-repeat: no-repeat; background-position: center center;
+                                    background-image: url({% static "img/sponsors/Provincie Noord-brabant.jpg" %}); margin: auto;">
+                            </div>
+                        </div>
+
+                        <div class="col-6 col-lg-3">
+                            <div style="width: 80%; height: 80%;
+                                    background-size: contain; background-repeat: no-repeat; background-position: center;
+                                    background-image: url({% static "img/sponsors/ENLEB.png" %}); margin: auto;">
+                                <div class="d-none d-lg-flex" style="height: 9em; width: 0em;"></div>
+                                <div class="d-none d-md-flex d-lg-none" style="height: 8em; width: 0em;"></div>
+                                <div class="d-flex d-sm-none" style="height: 4em; width: 0em;"></div>
+                                <div class="d-none d-sm-flex d-md-none" style="height: 8em; width: 0em;"></div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 d-none d-lg-flex">
+                            <div style="width: 60%; height: 100%;
+                                    background-size: contain; background-repeat: no-repeat; background-position: center top;
+                                    background-image: url({% static "img/sponsors/Provincie Noord-brabant.jpg" %});">
+                                <div class="" style="height: 5em; width: 0em;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <hr class="border-light">
+            <div class="row justify-content-center">
+                <div class="col-auto">
+                    {% general_pages is_part_of_footer=True as general_pages %}
+                    {% for page in general_pages %}
+                        <i>
+                        <a class="px-2 text-light"
+                           href="{{ page.get_absolute_url }}">
+                            {{ page.name }}
+                        </a></i>
+                        {% if not forloop.last %}
+                        -
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            <div style="height: 4em;"></div>
         </div>
     </div>
 {% endblock %}
