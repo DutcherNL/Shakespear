@@ -1,0 +1,190 @@
+{% extends 'base_public.html' %}
+{% load i18n %}
+
+{% block body %}
+    <h2>{% trans "Wat is ENLEB" %}</h2>
+
+    <div class="row">
+        <div class="col-12 col-sm-9">
+            {% blocktrans trimmed %}
+                <p>
+                    EnergieNeutraal LEvensloopbestendig Bouwen, ook wel afgekort als ENLEB, is een in 2017 opgezet
+                    samenwerkingsverband van verscheidene bedrijven in Nederland en Vlaanderen om woningeigenaar en de
+                    bouwsector bij elkaar te brengen zodat energie-efficiëntie, energieopwekking en innovatie een gezamenlijke
+                    doelstelling wordt. Hiermee proberen wij, samen met onze partners, bij te dragen aan de verduurzaming van
+                    de maatschappij om zo de klimaatdoelen van de komende jaren mogelijk te maken.
+                </p>
+                <p>
+                    Binnen het ENLEB project zijn verscheiden ontwikkelingen en onderzoeken verricht verdeeld over 9 wijken
+                    in Vlaanderen en Nederland. Hiermee zijn inzichten verkregen over het opzetten van een co-creatieproces.
+                    In het co-creatieproces gingen onze partners aan de slag met bedrijven en burgers om bewustwording en
+                    eigenaarschap te creëren en om tot technische oplossingen te komen vanuit de innovatieve kracht van de
+                    bedrijven. Verder zijn er ook diverse demonstraties en pilots uitgevoerd worden rond technologische
+                    product- en procesinnovaties: o.a. het uitrusten van een woning met DC-technologie, het
+                    ontwikkelen van een mobiele DC-unit, gebruik van zeolietverwarming, integratie van alle kanalen en
+                    leidingen in de bouwkundige schil.
+                </p>
+                <p>
+                    De verkregen informatie en inzichten zijn gebruikt bij het onwikkelen van de Samen Duurzamer Wonen Tool.
+                    Het moest een bruikbaar instrument worden in klare taal waarmee bewoners en organisaties aan de slag
+                    kunnen om hun woningen te verduurzamen. In de tool moesten zowel technische als financiële aspecten
+                    aan bod waarbij aandacht wordt besteed aan de hoogst mogelijke meerwaarde voor verduurzaming in de
+                    opeenvolging van investeringen (kosten-optimale investeringen).
+                </p>
+            {% endblocktrans %}
+        </div>
+        <div class="col-12 col-sm-3 order-first order-sm-last">
+            <div class="d-none d-sm-flex w-100">
+                <img src="{% static "img/sponsors/ENLEB.png" %}" class="img-fluid">
+            </div>
+            <div class="d-flex d-sm-none w-25">
+                <img src="{% static "img/sponsors/ENLEB.png" %}" class="img-fluid">
+            </div>
+        </div>
+    </div>
+    <hr>
+    <h2>{% trans "Financiëring" %}</h2>
+    <div class="row">
+        <div class="col-12 col-md-8">
+            <p>
+                {% blocktrans %}
+                    De ontwikkeling van deze tool was niet mogelijk zonder de financiëring van Interreg en de provincie
+                    Noord-Brabant
+                {% endblocktrans %}
+            </p>
+                <img src="{% static "img/sponsors/Interreg_HQish.png" %}" class="img-fluid">
+            <div class="w-50">
+                <img src="{% static "img/sponsors/Provincie Noord-brabant.jpg" %}" class="img-fluid">
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <table class="w-100">
+                <tr>
+                    <td>
+                        EU (EFRO)
+                    </td>
+                    <td>
+                        &euro; 724.402
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Noord-Brabant:
+                    </td>
+                    <td>
+                        &euro; 86.523
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Overig:
+                    </td>
+                    <td>
+                        &euro; 82.200
+                    </td>
+                </tr>
+                <tr style="height: 1em;"></tr>
+                <tr>
+                    <td>
+                        Totaal publiek:
+                    </td>
+                    <td>
+                        &euro; 893.125
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Totaal privaat:
+                    </td>
+                    <td>
+                        &euro; 555.679
+                    </td>
+                </tr>
+                <tr style="height: 1em;"></tr>
+                <tr>
+                    <td>
+                        Totale subsidiabele kosten:
+                    </td>
+                    <td>
+                        &euro; 1.448.804
+                    </td>
+                </tr>
+            </table>
+            <small>
+                <a href="https://www.stimulus.nl/interreg-va/avada_portfolio/enleb/">
+                    Bron: Stimulus.nl
+                </a>
+            </small>
+        </div>
+    </div>
+
+    <hr>
+    <h2>Partners van ENLEB</h2>
+    Wij danken alle partners in het project.
+    <div class="row">
+        <div class="col-4 col-md-3 col-lg-2 p-2" style="height: auto;">
+            <div class="w-100 img-thumbnail h-100 d-flex flex-wrap align-items-center">
+                <img src="{% static "img/sponsors/partner_avans.png" %}" class="img-fluid m-auto">
+            </div>
+        </div>
+        <div class="col-4 col-md-3 col-lg-2 p-2" style="height: auto;">
+            <div class="w-100 img-thumbnail h-100 d-flex flex-wrap align-items-center">
+                <img src="{% static "img/sponsors/partner_hellas.png" %}" class="img-fluid m-auto">
+            </div>
+        </div>
+        <div class="col-4 col-md-3 col-lg-2 p-2" style="height: auto;">
+            <div class="w-100 img-thumbnail h-100 d-flex flex-wrap align-items-center">
+                <img src="{% static "img/sponsors/partner_kampc.png" %}" class="img-fluid m-auto">
+            </div>
+        </div>
+        <div class="col-4 col-md-3 col-lg-2 p-2" style="height: auto;">
+            <div class="w-100 img-thumbnail h-100 d-flex flex-wrap align-items-center">
+                <img src="{% static "img/sponsors/partner_mu.png" %}" class="img-fluid m-auto">
+            </div>
+        </div>
+        <div class="col-4 col-md-3 col-lg-2 p-2" style="height: auto;">
+            <div class="w-100 img-thumbnail h-100 d-flex flex-wrap align-items-center">
+                <img src="{% static "img/sponsors/partner_thomasmore.png" %}" class="img-fluid m-auto">
+            </div>
+        </div>
+        <div class="col-4 col-md-3 col-lg-2 p-2" style="height: auto;">
+            <div class="w-100 img-thumbnail h-100 d-flex flex-wrap align-items-center">
+                <img src="{% static "img/sponsors/partner_tiorc.png" %}" class="img-fluid m-auto">
+            </div>
+        </div>
+        <div class="col-4 col-md-3 col-lg-2 p-2" style="height: auto;">
+            <div class="w-100 img-thumbnail h-100 d-flex flex-wrap align-items-center">
+                <img src="{% static "img/sponsors/partner_tue.png" %}" class="img-fluid m-auto">
+            </div>
+        </div>
+        <div class="col-4 col-md-3 col-lg-2 p-2" style="height: auto;">
+            <div class="w-100 img-thumbnail h-100 d-flex flex-wrap align-items-center">
+                <img src="{% static "img/sponsors/partner_ucl.png" %}" class="img-fluid m-auto">
+            </div>
+        </div>
+        <div class="col-4 col-md-3 col-lg-2 p-2" style="height: auto;">
+            <div class="w-100 img-thumbnail h-100 d-flex flex-wrap align-items-center">
+                <img src="{% static "img/sponsors/partner_zonnigekempen.png" %}" class="img-fluid m-auto">
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <h2>Ontwikkeling</h2>
+    <p>
+        De onderliggende code en alle vragen en teksten zijn ontwikkeld door de Technische Universiteit Eindhoven
+        over een tijdstpanne van 2 jaar.
+    </p>
+    <p>
+        Beheer van de server wordt uitgevoerd door Kamp C.
+    </p>
+    <p>
+        Copyright 2021 ENLEB
+    </p>
+
+
+
+
+
+{% endblock %}

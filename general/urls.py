@@ -12,4 +12,5 @@ urlpatterns = [
 
     ])),
     path('<slug:slug>/', page_site.urls),
+    path('partners', views.PartnerInfoPage.as_view(), name='partner_page')
 ]

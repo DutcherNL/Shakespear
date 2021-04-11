@@ -27,3 +27,7 @@ class StepDisplayMixin:
         context['enable_step_2'] = self.enable_step_2 or self.step >= 2
         context['enable_step_3'] = self.enable_step_3 or self.step >= 3
         return context
+
+
+class PartnerInfoPage(TemplateView):
+    template_name = "general/sdw_info_pagina.html"
