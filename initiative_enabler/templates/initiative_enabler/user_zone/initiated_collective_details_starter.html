@@ -52,9 +52,9 @@
                                     {% if num_uninvited > 0 %}
                                         <button type="submit" class="btn btn-primary btn-sm" form="send_new_invites_form"
                                                 data-toggle="tooltip" data-placement="bottom"
-                                                title="{% transblock trimmed %}
+                                                title="{% blocktrans trimmed %}
                                                 Er zijn nieuwe mensen in uw omgeving gevonden die mogelijk interesse hebben. Klik om ze uit te nodigen.
-                                                {% endtransblock %}">
+                                                {% endblocktrans %}">
                                             <i class="fas fa-envelope"></i> {% blocktrans trimmed count number_of_invited_people=num_uninvited %}
                                                 Stuur {{ number_of_invited_people }} nieuwe uitnodiging
                                                 {% plural %}
