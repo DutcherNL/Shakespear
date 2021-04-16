@@ -160,18 +160,32 @@ class InquirerLoadForm(forms.Form):
 
     @property
     def inquirer_model(self):
+        return self._get_inquirer_model(catch_exception=True)
+
+    def _get_inquirer_model(self, catch_exception=True):
         try:
             code = self.cleaned_data.get('code')
             if code is None:
                 return None
             return Inquirer.get_inquiry_model_from_code(code)
-        except Inquirer.DoesNotExist:
-            return None
+        except Inquirer.DoesNotExist as e:
+            if catch_exception:
+                return None
+            raise e
+        except ValueError as e:
+            if catch_exception:
+                return None
+            raise e
 
     def clean_code(self):
         """ Clean the code """
-        if self.inquirer_model is None:
+        try:
+            if self._get_inquirer_model(catch_exception=False) is None:
+                raise forms.ValidationError(_("Code is incorrect. Inquiry is not known"))
+        except Inquirer.DoesNotExist:
             raise forms.ValidationError(_("Code is incorrect. Inquiry is not known"))
+        except ValueError:
+            raise forms.ValidationError(_('The given code was not valid. Ensure it is 6 letters'))
 
         return self.cleaned_data.get('code')
 
@@ -190,10 +204,10 @@ class InquirerLoadForm(forms.Form):
             return email
 
         if email == "":
-            raise forms.ValidationError("Er is een e-mail adres aan deze vragenlijst gekoppeld. \n"
-                                        "Gelieve dit in te vullen zodat wij weten dat u het bent")
+            raise forms.ValidationError(_("Er is een e-mail adres aan deze vragenlijst gekoppeld. \n"
+                                        "Gelieve dit in te vullen zodat wij weten dat u het bent"))
 
-        raise forms.ValidationError(_("Dit is niet het geaccosieerde e-mail adres"))
+        raise forms.ValidationError(_("Dit is niet het geassocieerde e-mail adres"))
 
     def get_inquiry(self):
         if self.inquirer_model is None:
