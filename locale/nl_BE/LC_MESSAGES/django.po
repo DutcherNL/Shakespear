@@ -11,15 +11,31 @@ msgstr ""
 msgid "Ik ga akkoord met het privacy beleid"
 msgstr ""
 
-#: .\Questionaire\forms.py:174
+#: .\Questionaire\forms.py:184 .\Questionaire\forms.py:186
 msgid "Code is incorrect. Inquiry is not known"
 msgstr ""
 
-#: .\Questionaire\forms.py:196
-msgid "Dit is niet het geaccosieerde e-mail adres"
+#: .\Questionaire\forms.py:188
+msgid "The given code was not valid. Ensure it is 6 letters"
+msgstr "Deze code was niet geldig. Geldige codes bestaan uit 6 letters."
+
+#: .\Questionaire\forms.py:207
+#, fuzzy
+#| msgid ""
+#| "Deze vragenlijst is geassocieerd aan een e-mail adres. Gelieve dit adres "
+#| "in te vullen zodat we weten dat u het bent."
+msgid ""
+"Er is een e-mail adres aan deze vragenlijst gekoppeld. \n"
+"Gelieve dit in te vullen zodat wij weten dat u het bent"
+msgstr ""
+"Deze vragenlijst is geassocieerd aan een e-mail adres. Gelieve dit adres in "
+"te vullen zodat we weten dat jij het bent."
+
+#: .\Questionaire\forms.py:210
+msgid "Dit is niet het geassocieerde e-mail adres"
 msgstr ""
 
-#: .\Questionaire\forms.py:200
+#: .\Questionaire\forms.py:214
 msgid "No inquirer model computed yet"
 msgstr ""
 
@@ -27,9 +43,292 @@ msgstr ""
 msgid "Oops, deze vraag kan niet geladen worden. Ons excuses"
 msgstr ""
 
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:13
+msgid ""
+"U heeft de vragenlijst voltooid en kunt hieronder uw resultaten bekijken. "
+"Als u tevreden hierover bent kunt u doorgaan naar stap 3 waar u en anderen "
+"in uw omgeving elkaar kunnen vinden om samen collectief bepaalde maatregelen "
+"te ondernemen."
+msgstr ""
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:23
+msgid "Ga door naar stap 3"
+msgstr ""
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:36
+msgid ""
+"Gebasseerd op de antwoorden die u heeft ingevuld kunnen wij het volgende "
+"aanraden:"
+msgstr ""
+"Gebasserd op de antwoorden die jij hebt ingevuld kunnen wij het volgende "
+"aanraden:"
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:48
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:88
+msgid "Meer informatie over dit advies"
+msgstr ""
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:51
+msgid "Wij raden aan... niets!"
+msgstr ""
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:53
+msgid "Wij kunnen op dit moment niets aanraden."
+msgstr ""
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:55
+msgid ""
+"Wij hebben hiervoor nog te weinig informatie. Mocht u de vragenlijst niet "
+"volledig hebben ingevuld, dan raden wij u aan om de niet beantwoorde vragen "
+"ook te beantwoorden waar mogelijk."
+msgstr ""
+"Wij hebben hiervoor nog te weinig informatie. Indien jij niet alle vragen "
+"hebt beantwoord raden we je aan om de vragenlijst na te doorlopen en de "
+"openstaande vragen te beantwoorden waar mogelijk."
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:60
+msgid ""
+"U lijkt alles al op orde te hebben. Uitstekend! Mocht u alsnog twijfelen "
+"raden we u aan om een expert bij u in de buurt te raadplegen."
+msgstr ""
+"Alles lijkt al in orde te zijn. Uitstekend! Mocht je nog twijfelen raden we "
+"je aan om een expert uit uw regio te raadplegen"
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:70
+#: .\Questionaire\templates\inquiry\results\inquiry_techs_rejected.html:11
+#, fuzzy
+#| msgid "Wij raden u af..."
+msgid "Wij raden af..."
+msgstr "Wij raden je af..."
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:73
+msgid ""
+"Gebasseerd op de antwoorden die u heeft ingevuld kunnen wij het volgende "
+"niet aanraden. U heeft dit al geoptimaliseerd of deze aanpassing heeft geen "
+"toegevoegde waarde voor u."
+msgstr ""
+"Gebasseerd op de antwoorden die jij hebt ingevuld kunnen wij het volgende "
+"niet aanraden. Dit is al geoptimaliseerd of heeft voor jouw woning geen "
+"toegevoegde waarde."
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:92
+msgid "Er zijn geen technologi&euml;n die wij op dit moment kunnen afraden."
+msgstr ""
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:102
+msgid "Adviezen zijn niet volledig"
+msgstr ""
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:104
+#, fuzzy
+#| msgid ""
+#| "Wij hebben helaas te weinig informatie om een uitspraak te kunnen doen "
+#| "over de volgende  technologien. Beantwoord zoveel mogelijk vragen of zoek "
+#| "een specialist bij u in de buurt om te weten of dit interessant voor u "
+#| "kan zijn."
+msgid ""
+"Wij hebben helaas te weinig informatie om een uitspraak te kunnen doen over "
+"de enkele andere technologien. Beantwoord zoveel mogelijk vragen of zoek een "
+"specialist bij u in de buurt om te weten of &eacute;&eacute;n van deze "
+"maatregelen interessant voor u kan zijn."
+msgstr ""
+"Wij hebben helaas te weinig informatie om een uitspraak te kunnen doen over "
+"de volgende technologien. Beantwoord zoveel mogelijk vragen of zoek een "
+"specialist bij jou in de buurt om te weten of dit interessant voor jou kan "
+"zijn."
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:123
+msgid "Adviezen zijn niet altijd volledig"
+msgstr ""
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:125
+msgid ""
+"Maar in dit geval wel. Voor alle technieken die wij behandelen konden we een "
+"advies opstellen."
+msgstr ""
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:134
+msgid "Download verslagen"
+msgstr ""
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:137
+msgid "Onderstaande verslag kan mogelijk nuttig voor u zijn"
+msgid_plural "Onderstaande verslagen kunnen mogelijk nuttig voor u zijn"
+msgstr[0] "Onderstaande verslag kan mogelijk nuttig voor je zijn"
+msgstr[1] "Onderstaande verslagen kunnen mogelijk nuttig voor je zijn."
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:176
+msgid "Hoe nu verder"
+msgstr ""
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:179
+msgid "Pas antwoorden aan"
+msgstr ""
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:182
+msgid ""
+"Voor sommige adviezen konden wij geen conclusies trekken. Mogelijk heeft u "
+"niet alle vragen ingevuld."
+msgstr ""
+"Voor sommige adviezen konden wij geen conclusies trekken. Mogelijk heb jij "
+"niet alle vragen ingevuld."
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:186
+msgid "Wilt u uw antwoorden veranderen? Dan kan dat hieronder"
+msgstr "Wil jij je antwoorden veranderen? Dan kan dat hieronder"
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:189
+#: .\Questionaire\templates\inquiry\results\inquiry_reset.html:28
+msgid "Verander antwoorden"
+msgstr ""
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:196
+msgid ""
+"Er zijn verscheidene onderdelen in uw woning die u kunt verbeteren. Nu is "
+"het tijd om dit aan te pakken. Ga naar stap 3 om adviezen te krijgen hoe de "
+"geconstateerde problemen kunnen worden aangepakt."
+msgstr ""
+"Er zijn verscheidene onderdelen in uw woning die jouw kunt verbeteren. Nu is "
+"het tijd om dit aan te pakken. Ga naar stap 3 om adviezen te krijgen hoe de "
+"geconstateerde problemen kunnen worden aangepakt."
+
+#: .\Questionaire\templates\inquiry\results\inquiry_complete.html:202
+msgid "Ga door naar stap 3: Onderneem collectief"
+msgstr ""
+
+#: .\Questionaire\templates\inquiry\results\inquiry_reset.html:8
+msgid ""
+"Het is mogelijk uw antwoorden aan te passen. Hiervoor dient u echter opnieuw "
+"de vragenlijst te doorlopen. Uw huidig ingevoerde antwoorden blijven bewaard "
+"en zullen bij de vragen al zijn ingevuld. Uw huidige adviezen zullen echter "
+"verloren gaan. Bij afronding van de vragenlijst zal uiteraard een nieuw "
+"advies gepresenteerd worden."
+msgstr ""
+
+#: .\Questionaire\templates\inquiry\results\inquiry_reset.html:16
+msgid ""
+"Zolang de vragenlijst niet voltooid is heeft u geen toegang tot de "
+"resultatenpagina (stap 2) noch interesses aanpassen in stap 3. Zodra u de "
+"vragenlijst afrond zult u hier uiteraard weer toegang tot hebben."
+msgstr ""
+
+#: .\Questionaire\templates\inquiry\results\inquiry_reset.html:25
+#: .\Questionaire\templates\inquiry\results\inquiry_techs_advised.html:33
+#: .\Questionaire\templates\inquiry\results\inquiry_techs_rejected.html:34
+msgid "Terug naar overzicht"
+msgstr ""
+
+#: .\Questionaire\templates\inquiry\results\inquiry_techs_advised.html:11
+#, fuzzy
+#| msgid "Wij raden u af..."
+msgid "Wij raden aan..."
+msgstr "Wij raden je af..."
+
+#: .\Questionaire\templates\inquiry\results\inquiry_techs_advised.html:16
+msgid ""
+"Hieronder staan alle technologi&euml;n die wij aanbevelen gebasseerd op de "
+"antwoorden uit de vragenlijst."
+msgstr ""
+
+#: .\Questionaire\templates\inquiry\results\inquiry_techs_advised.html:25
+msgid ""
+"Uit de vraglijst zijn geen technologi&euml;n naar voren gekomen die mogelijk "
+"voor u interessant zijn."
+msgstr ""
+
+#: .\Questionaire\templates\inquiry\results\inquiry_techs_rejected.html:16
+msgid ""
+"Hieronder staan alle technologi&euml;n die wij u niet aanbevelen. Gebasseerd "
+"op uw antwoorden in de vragenlijst denken wij dat deze maatregelen voor u "
+"niet relevant zijn."
+msgstr ""
+
+#: .\Questionaire\templates\inquiry\results\inquiry_techs_rejected.html:26
+msgid ""
+"Uit de vraglijst zijn geen technologi&euml;n naar voren gekomen die wij u "
+"afraden."
+msgstr ""
+
+#: .\Questionaire\templates\inquiry\results\snippet_tech_result_display.html:21
+#: .\assets\templates\inquiry\inquiry_snippets\snippet_tech_group_info.html:10
+#: .\assets\templates\inquiry\inquiry_snippets\subtech_scoring_template.html:11
+#: .\assets\templates\inquiry\snippets\snippet_tech_score.html:9
+msgctxt "redirect-to-tech-page"
+msgid "meer informatie"
+msgstr ""
+
 #: .\Shakespeare\settings.py:176
 msgid "Nederlands"
 msgstr ""
+
+#: .\assets\templates\base_public.html:29
+msgid ""
+"Samen Duurzamer Wonen is onderdeel van het ENLEB project, een Vlaams/"
+"Nederlands samenwerkingsverband met als doel mensen aan te sporen in het "
+"verduurzamen van de woning. <br> Het ENLEB project is gesubsidieerd door "
+"Interreg Nederland-Vlaanderen en de provincie Noord-Brabant."
+msgstr ""
+
+#: .\assets\templates\base_public.html:38
+msgid "Klik hier voor meer informatie over ons en het ENLEB project."
+msgstr ""
+
+#: .\assets\templates\base_with_body.html:31
+#: .\assets\templates\snippet_navbar.html:23
+msgid "Logged in as"
+msgstr "Ingelogd als"
+
+#: .\assets\templates\base_with_body.html:51
+#: .\assets\templates\snippet_navbar.html:42
+msgid "Mijn instellingen"
+msgstr ""
+
+#: .\assets\templates\base_with_body.html:56
+#: .\assets\templates\snippet_navbar.html:47
+msgid "Mijn vragenlijst"
+msgstr ""
+
+#: .\assets\templates\base_with_body.html:61
+#: .\assets\templates\snippet_navbar.html:52
+msgid "Mijn resultaten"
+msgstr ""
+
+#: .\assets\templates\base_with_body.html:65
+#: .\assets\templates\snippet_navbar.html:56
+#, fuzzy
+#| msgid "Uw code"
+msgid "Mijn collectiven"
+msgstr "Jouw code: "
+
+#: .\assets\templates\base_with_body.html:72
+#: .\assets\templates\snippet_navbar.html:62
+msgid "Beheer"
+msgstr ""
+
+#: .\assets\templates\base_with_body.html:75
+#: .\assets\templates\snippet_navbar.html:65
+msgid "Setup"
+msgstr ""
+
+#: .\assets\templates\base_with_body.html:80
+#: .\assets\templates\snippet_navbar.html:70
+msgid "Data analysis"
+msgstr "Analyse deelnemers"
+
+#: .\assets\templates\base_with_body.html:86
+#: .\assets\templates\snippet_navbar.html:76
+msgid "Entry Analysis"
+msgstr ""
+
+#: .\assets\templates\base_with_body.html:92
+#: .\assets\templates\snippet_navbar.html:82
+msgid "Admin Panel"
+msgstr "Admin paneel"
+
+#: .\assets\templates\base_with_body.html:98
+#: .\assets\templates\snippet_navbar.html:88
+msgid "Log Out"
+msgstr "Uitloggen"
 
 #: .\assets\templates\inquiry\inquiry_accept_policies.html:6
 msgid "Gebruiksovereenkomst"
@@ -82,134 +381,6 @@ msgstr ""
 
 #: .\assets\templates\inquiry\inquiry_accept_policies.html:66
 msgid "Start de vragenlijst"
-msgstr ""
-
-#: .\assets\templates\inquiry\inquiry_complete.html:23
-msgid ""
-"Gebasseerd op de antwoorden die u heeft ingevuld kunnen wij het volgende "
-"aanraden:"
-msgstr ""
-"Gebasserd op de antwoorden die jij hebt ingevuld kunnen wij het volgende "
-"aanraden:"
-
-#: .\assets\templates\inquiry\inquiry_complete.html:36
-msgid "Wij raden aan... niets!"
-msgstr ""
-
-#: .\assets\templates\inquiry\inquiry_complete.html:38
-msgid "Wij kunnen op dit moment niets aanraden."
-msgstr ""
-
-#: .\assets\templates\inquiry\inquiry_complete.html:40
-msgid ""
-"Wij hebben hiervoor nog te weinig informatie. Mocht u de vragenlijst niet "
-"volledig hebben ingevuld, dan raden wij u aan om de niet beantwoorde vragen "
-"ook te beantwoorden waar mogelijk."
-msgstr ""
-"Wij hebben hiervoor nog te weinig informatie. Indien jij niet alle vragen "
-"hebt beantwoord raden we je aan om de vragenlijst na te doorlopen en de "
-"openstaande vragen te beantwoorden waar mogelijk."
-
-#: .\assets\templates\inquiry\inquiry_complete.html:46
-msgid ""
-"Wat we wel weten van u is dat &eacute;&eacute;n of meerdere maatregelen niet "
-"nodig zijn. Dit is bij u al geoptimaliseerd of geeft in uw geval geen "
-"toegevoegde waarde. Deze zijn hieronder toegelicht:"
-msgstr ""
-"Wat we wel weten is dat enkele maatregleen niet nodig zijn. Dit is in jou "
-"woning al geoptimaliseerd of heeft geen toegevoegde waarde. Deze zijn "
-"hieronder uitgelicht."
-
-#: .\assets\templates\inquiry\inquiry_complete.html:53
-msgid ""
-"U lijkt alles al op orde te hebben. Uitstekend! Mocht u alsnog twijfelen "
-"raden we u aan om een expert bij u in de buurt te raadplegen."
-msgstr ""
-"Alles lijkt al in orde te zijn. Uitstekend! Mocht je nog twijfelen raden we "
-"je aan om een expert uit uw regio te raadplegen"
-
-#: .\assets\templates\inquiry\inquiry_complete.html:66
-msgid "Wij raden u af..."
-msgstr "Wij raden je af..."
-
-#: .\assets\templates\inquiry\inquiry_complete.html:68
-msgid ""
-"Gebasseerd op de antwoorden die u heeft ingevuld kunnen wij het volgende "
-"niet aanraden. U heeft dit al geoptimaliseerd of deze aanpassing heeft geen "
-"toegevoegde waarde voor u."
-msgstr ""
-"Gebasseerd op de antwoorden die jij hebt ingevuld kunnen wij het volgende "
-"niet aanraden. Dit is al geoptimaliseerd of heeft voor jouw woning geen "
-"toegevoegde waarde."
-
-#: .\assets\templates\inquiry\inquiry_complete.html:87
-msgid "Wij kunnen u niet verder helpen met..."
-msgstr "Wij kunnen je niet verder helpen met..."
-
-#: .\assets\templates\inquiry\inquiry_complete.html:89
-msgid ""
-"Wij hebben helaas te weinig informatie om een uitspraak te kunnen doen over "
-"de volgende  technologien. Beantwoord zoveel mogelijk vragen of zoek een "
-"specialist bij u in de buurt om te weten of dit interessant voor u kan zijn."
-msgstr ""
-"Wij hebben helaas te weinig informatie om een uitspraak te kunnen doen over "
-"de volgende technologien. Beantwoord zoveel mogelijk vragen of zoek een "
-"specialist bij jou in de buurt om te weten of dit interessant voor jou kan "
-"zijn."
-
-#: .\assets\templates\inquiry\inquiry_complete.html:111
-msgid "Download resultaten"
-msgstr ""
-
-#: .\assets\templates\inquiry\inquiry_complete.html:114
-msgid "Onderstaande verslag kan mogelijk nuttig voor u zijn"
-msgid_plural "Onderstaande verslagen kunnen mogelijk nuttig voor u zijn"
-msgstr[0] "Onderstaande verslag kan mogelijk nuttig voor je zijn"
-msgstr[1] "Onderstaande verslagen kunnen mogelijk nuttig voor je zijn."
-
-#: .\assets\templates\inquiry\inquiry_complete.html:131
-msgid "Hoe nu verder"
-msgstr ""
-
-#: .\assets\templates\inquiry\inquiry_complete.html:134
-msgid "Pas antwoorden aan"
-msgstr ""
-
-#: .\assets\templates\inquiry\inquiry_complete.html:137
-msgid ""
-"Voor sommige adviezen konden wij geen conclusies trekken. Mogelijk heeft u "
-"niet alle vragen ingevuld."
-msgstr ""
-"Voor sommige adviezen konden wij geen conclusies trekken. Mogelijk heb jij "
-"niet alle vragen ingevuld."
-
-#: .\assets\templates\inquiry\inquiry_complete.html:141
-msgid "Wilt u uw antwoorden veranderen? Dan kan dat hieronder"
-msgstr "Wil jij je antwoorden veranderen? Dan kan dat hieronder"
-
-#: .\assets\templates\inquiry\inquiry_complete.html:143
-msgid "Verander antwoorden"
-msgstr ""
-
-#: .\assets\templates\inquiry\inquiry_complete.html:149
-msgid ""
-"Er zijn verscheidene onderdelen in uw woning die u kunt verbeteren. Nu is "
-"het tijd om dit aan te pakken. Ga naar stap 3 om adviezen te krijgen hoe de "
-"geconstateerde problemen kunnen worden aangepakt."
-msgstr ""
-"Er zijn verscheidene onderdelen in uw woning die jouw kunt verbeteren. Nu is "
-"het tijd om dit aan te pakken. Ga naar stap 3 om adviezen te krijgen hoe de "
-"geconstateerde problemen kunnen worden aangepakt."
-
-#: .\assets\templates\inquiry\inquiry_complete.html:156
-#: .\assets\templates\inquiry\inquiry_complete.html:166
-msgid "Ga door naar stap 3: Onderneem Actie"
-msgstr ""
-
-#: .\assets\templates\inquiry\inquiry_complete.html:160
-msgid ""
-"Wij zijn momenteel de laatste zaken in orde aan het maken. Kom over een paar "
-"dagen terug en dan kunnen we u hiermee verder helpen."
 msgstr ""
 
 #: .\assets\templates\inquiry\inquiry_continue_with.html:7
@@ -292,41 +463,22 @@ msgstr ""
 "Heb jij hier al eerder een vragenlijst gestart?<br> Ga dan verder waar je "
 "gebleven bent"
 
-#: .\assets\templates\inquiry\inquiry_questions.html:23
+#: .\assets\templates\inquiry\inquiry_questions.html:20
 msgctxt "Vragenlijst voortgang"
 msgid "Complete"
 msgstr ""
 
-#: .\assets\templates\inquiry\inquiry_questions.html:45
+#: .\assets\templates\inquiry\inquiry_questions.html:42
 #: .\initiative_enabler\templates\initiative_enabler\user_zone\step_3_email_confirmation.html:48
 msgid "Terug"
 msgstr ""
 
-#: .\assets\templates\inquiry\inquiry_questions.html:50
+#: .\assets\templates\inquiry\inquiry_questions.html:47
 msgid "Verder"
 msgstr ""
 
-#: .\assets\templates\inquiry\inquiry_questions.html:52
+#: .\assets\templates\inquiry\inquiry_questions.html:49
 msgid "Voltooi"
-msgstr ""
-
-#: .\assets\templates\inquiry\inquiry_reset.html:6
-msgid ""
-"Als u wilt kunt u uw antwoorden in de vragenlijst veranderen. Om dit te "
-"verwerken dient u echter wel de vragenlijst af te ronden. Alle eerder "
-"ingevulde antwoorden zullen behouden blijven. U heeft dan geen toegang tot "
-"de resultaten of actie-pagina zolang de vragenlijst niet voltooid is"
-msgstr ""
-"Als je wilt kunt je jouw antwoorden in de vragenlijst veranderen. Om dit te "
-"verwerken dien je echter wel de vragenlijst af te ronden. Alle eerder "
-"ingevulde antwoorden zullen behouden blijven. Je hebt dan geen toegang tot "
-"de resultaten of actie-pagina zolang de vragenlijst niet voltooid is"
-
-#: .\assets\templates\inquiry\inquiry_snippets\snippet_tech_group_info.html:10
-#: .\assets\templates\inquiry\inquiry_snippets\subtech_scoring_template.html:11
-#: .\assets\templates\inquiry\snippets\snippet_tech_score.html:9
-msgctxt "redirect-to-tech-page"
-msgid "meer informatie"
 msgstr ""
 
 #: .\assets\templates\inquiry\inquiry_snippets\snippet_tech_group_info.html:25
@@ -394,72 +546,86 @@ msgstr ""
 msgid "Voorlopig Advies"
 msgstr ""
 
-#: .\assets\templates\snippet_navbar.html:24
-msgid "Logged in as"
-msgstr "Ingelogd als"
-
-#: .\assets\templates\snippet_navbar.html:37
-msgid "Setup"
-msgstr ""
-
-#: .\assets\templates\snippet_navbar.html:42
-msgid "Data analysis"
-msgstr "Analyse deelnemers"
-
-#: .\assets\templates\snippet_navbar.html:48
-msgid "Entry Analysis"
-msgstr ""
-
-#: .\assets\templates\snippet_navbar.html:54
-msgid "Admin Panel"
-msgstr "Admin paneel"
-
-#: .\assets\templates\snippet_navbar.html:60
-msgid "Log Out"
-msgstr "Uitloggen"
-
-#: .\assets\templates\snippets\three_steps_bar_snippet.html:19
-#: .\assets\templates\snippets\three_steps_bar_snippet.html:28
-#: .\assets\templates\snippets\three_steps_bar_snippet.html:37
+#: .\assets\templates\snippets\three_steps_bar_snippet.html:16
+#: .\assets\templates\snippets\three_steps_bar_snippet.html:25
+#: .\assets\templates\snippets\three_steps_bar_snippet.html:34
 msgctxt "Step-guide"
 msgid "Stap"
 msgstr ""
 
-#: .\assets\templates\snippets\three_steps_bar_snippet.html:19
+#: .\assets\templates\snippets\three_steps_bar_snippet.html:16
 msgctxt "step-1"
 msgid "Vragen"
 msgstr ""
 
-#: .\assets\templates\snippets\three_steps_bar_snippet.html:28
+#: .\assets\templates\snippets\three_steps_bar_snippet.html:25
 msgctxt "step-2"
 msgid "Resultaten"
 msgstr ""
 
-#: .\assets\templates\snippets\three_steps_bar_snippet.html:37
+#: .\assets\templates\snippets\three_steps_bar_snippet.html:34
+#, fuzzy
+#| msgid "Uw code"
 msgctxt "step-2"
-msgid "Actie"
+msgid "Collectieven"
+msgstr "Jouw code: "
+
+#: .\assets\templates\snippets\three_steps_bar_snippet.html:46
+msgid "Ga verder met de vragenlijst"
 msgstr ""
 
 #: .\assets\templates\snippets\three_steps_bar_snippet.html:48
-msgid "U heeft momenteel al een actieve sessie. Wilt u deze sessie hervatten?"
-msgstr "Momenteel loopt al een sessie van jou. Wil jij hiermee verder gaan?"
-
-#: .\assets\templates\snippets\three_steps_bar_snippet.html:54
-#, python-format
-msgid "Ga door met %(code)s."
-msgstr ""
-
-#: .\assets\templates\snippets\three_steps_bar_snippet.html:65
-msgid "Uw code"
-msgstr "Jouw code: "
-
-#: .\assets\templates\snippets\three_steps_bar_snippet.html:76
-msgid "Mijn settings"
+msgid "Ga naar Mijn Resultaten"
 msgstr ""
 
 #: .\assets\templates\widgets\widget_radio.html:45
 msgctxt "leave-question-empty"
 msgid "Weet ik niet/ wil ik niet delen"
+msgstr ""
+
+#: .\general\templates\general\sdw_info_pagina.html:5
+msgid "Wat is ENLEB"
+msgstr ""
+
+#: .\general\templates\general\sdw_info_pagina.html:9
+msgid ""
+"<p> EnergieNeutraal LEvensloopbestendig Bouwen, ook wel afgekort als ENLEB, "
+"is een in 2017 opgezet samenwerkingsverband van verscheidene bedrijven in "
+"Nederland en Vlaanderen om woningeigenaar en de bouwsector bij elkaar te "
+"brengen zodat energie-effici&euml;ntie, energieopwekking en innovatie een "
+"gezamenlijke doelstelling wordt. Hiermee proberen wij, samen met onze "
+"partners, bij te dragen aan de verduurzaming van de maatschappij om zo de "
+"klimaatdoelen van de komende jaren mogelijk te maken. </p> <p> Binnen het "
+"ENLEB project zijn verscheiden ontwikkelingen en onderzoeken verricht "
+"verdeeld over 9 wijken in Vlaanderen en Nederland. Hiermee zijn inzichten "
+"verkregen over het opzetten van een co-creatieproces. In het co-"
+"creatieproces gingen onze partners aan de slag met bedrijven en burgers om "
+"bewustwording en eigenaarschap te cre&euml;ren en om tot technische "
+"oplossingen te komen vanuit de innovatieve kracht van de bedrijven. Verder "
+"zijn er ook diverse demonstraties en pilots uitgevoerd worden rond "
+"technologische product- en procesinnovaties: o.a. het uitrusten van een "
+"woning met DC-technologie, het ontwikkelen van een mobiele DC-unit, gebruik "
+"van zeolietverwarming, integratie van alle kanalen en leidingen in de "
+"bouwkundige schil. </p> <p> De verkregen informatie en inzichten zijn "
+"gebruikt bij het onwikkelen van de Samen Duurzamer Wonen Tool. Het moest een "
+"bruikbaar instrument worden in klare taal waarmee bewoners en organisaties "
+"aan de slag kunnen om hun woningen te verduurzamen. In de tool moesten zowel "
+"technische als financi&euml;le aspecten aan bod waarbij aandacht wordt "
+"besteed aan de hoogst mogelijke meerwaarde voor verduurzaming in de "
+"opeenvolging van investeringen (kosten-optimale investeringen). </p>"
+msgstr ""
+
+#: .\general\templates\general\sdw_info_pagina.html:46
+msgid "Financi&euml;ring"
+msgstr ""
+
+#: .\general\templates\general\sdw_info_pagina.html:50
+msgid ""
+"\n"
+"                    De ontwikkeling van deze tool was niet mogelijk zonder "
+"de financi&euml;ring van Interreg en de provincie\n"
+"                    Noord-Brabant\n"
+"                "
 msgstr ""
 
 #: .\initiative_enabler\templates\initiative_enabler\active_collectives_list.html:10
@@ -679,7 +845,7 @@ msgstr ""
 
 #: .\initiative_enabler\templates\initiative_enabler\user_zone\collective_uninitiated_page.html:173
 #: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_adjust_personal_data.html:13
-#: .\initiative_enabler\templates\initiative_enabler\user_zone\interest_all_restrictions_update.html:44
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\interest_all_restrictions_update.html:45
 msgctxt "collective-action"
 msgid "Annuleren"
 msgstr ""
@@ -858,6 +1024,12 @@ msgctxt "collective-status"
 msgid "Afgewezen"
 msgstr ""
 
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:55
+msgid ""
+"Er zijn nieuwe mensen in uw omgeving gevonden die mogelijk interesse hebben. "
+"Klik om ze uit te nodigen."
+msgstr ""
+
 #: .\initiative_enabler\templates\initiative_enabler\user_zone\initiated_collective_details_starter.html:58
 #, python-format
 msgid "Stuur %(number_of_invited_people)s nieuwe uitnodiging"
@@ -970,7 +1142,11 @@ msgctxt "collective-info"
 msgid "Close"
 msgstr ""
 
-#: .\initiative_enabler\templates\initiative_enabler\user_zone\interest_all_restrictions_update.html:8
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\interest_all_restrictions_update.html:7
+msgid "Meer informatie nodig"
+msgstr ""
+
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\interest_all_restrictions_update.html:9
 msgid ""
 "Wat top dat u interesse heeft in collectieve acties in uw omgeving. Echter "
 "heeft u een vraag niet beantwoord die wij gebruiken om te bepalen of een "
@@ -988,7 +1164,7 @@ msgstr[1] ""
 "heb je enkele vragen niet beantwoord die wij gebruiken om te bepalen of een "
 "collectieve actie bij jou in de buurt plaats vind."
 
-#: .\initiative_enabler\templates\initiative_enabler\user_zone\interest_all_restrictions_update.html:18
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\interest_all_restrictions_update.html:19
 msgid ""
 "Gelieve de vragen hieronder te bantwoorden als u op de hoogte gehouden wilt "
 "worden"
@@ -996,7 +1172,7 @@ msgstr ""
 "Gelieve de vragen hieronder te bantwoorden als je op de hoogte gehouden wilt "
 "worden"
 
-#: .\initiative_enabler\templates\initiative_enabler\user_zone\interest_all_restrictions_update.html:48
+#: .\initiative_enabler\templates\initiative_enabler\user_zone\interest_all_restrictions_update.html:49
 msgctxt "collective-info"
 msgid "Ik heb interesse"
 msgstr ""
@@ -1136,3 +1312,33 @@ msgstr "Je hebt <span id=\"modal-invite-count\"></span> open uitnodigingen"
 #: .\initiative_enabler\templates\initiative_enabler\user_zone\take_action_overview.html:142
 msgid "Deelgenomen collectieve acties in de buurt"
 msgstr ""
+
+#~ msgid ""
+#~ "Wat we wel weten van u is dat &eacute;&eacute;n of meerdere maatregelen "
+#~ "niet nodig zijn. Dit is bij u al geoptimaliseerd of geeft in uw geval "
+#~ "geen toegevoegde waarde. Deze zijn hieronder toegelicht:"
+#~ msgstr ""
+#~ "Wat we wel weten is dat enkele maatregleen niet nodig zijn. Dit is in jou "
+#~ "woning al geoptimaliseerd of heeft geen toegevoegde waarde. Deze zijn "
+#~ "hieronder uitgelicht."
+
+#~ msgid "Wij kunnen u niet verder helpen met..."
+#~ msgstr "Wij kunnen je niet verder helpen met..."
+
+#~ msgid ""
+#~ "Als u wilt kunt u uw antwoorden in de vragenlijst veranderen. Om dit te "
+#~ "verwerken dient u echter wel de vragenlijst af te ronden. Alle eerder "
+#~ "ingevulde antwoorden zullen behouden blijven. U heeft dan geen toegang "
+#~ "tot de resultaten of actie-pagina zolang de vragenlijst niet voltooid is"
+#~ msgstr ""
+#~ "Als je wilt kunt je jouw antwoorden in de vragenlijst veranderen. Om dit "
+#~ "te verwerken dien je echter wel de vragenlijst af te ronden. Alle eerder "
+#~ "ingevulde antwoorden zullen behouden blijven. Je hebt dan geen toegang "
+#~ "tot de resultaten of actie-pagina zolang de vragenlijst niet voltooid is"
+
+#~ msgid ""
+#~ "U heeft momenteel al een actieve sessie. Wilt u deze sessie hervatten?"
+#~ msgstr "Momenteel loopt al een sessie van jou. Wil jij hiermee verder gaan?"
+
+#~ msgid "Uw code"
+#~ msgstr "Jouw code: "
