@@ -93,6 +93,7 @@ class InquirerAnswersView(InquiryMixin, SettingsViewMixin, FormView):
     template_name = "inquirer_settings/answers_overview.html"
     form_class = RemoveInquiryDataForm
     section_name = 'answers'
+    success_url = reverse_lazy("inquirer_settings:answers")
 
     def get_form_kwargs(self):
         kwargs = super(InquirerAnswersView, self).get_form_kwargs()
