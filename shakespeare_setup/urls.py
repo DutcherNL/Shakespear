@@ -4,6 +4,7 @@ from django.apps import apps
 from django.urls import path, include
 
 from shakespeare_setup.config import get_all_configs
+from shakespeare_setup.views import SetUpOverview
 
 
 def get_setup_urls():
@@ -14,7 +15,9 @@ def get_setup_urls():
 
     :return:
     """
-    urls = []
+    urls = [
+        path('', SetUpOverview.as_view(), name='home'),
+    ]
 
     for app in apps.get_app_configs():
         setup_urls_name = f'{app.name}.setup'
