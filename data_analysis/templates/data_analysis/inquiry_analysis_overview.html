@@ -1,0 +1,63 @@
+{% extends 'base_with_body.html' %}
+{% load i18n %}
+
+{% block body %}
+    <h1>{% trans "Vragenlijsten" %}</h1>
+    {% blocktrans trimmed %}
+        <p>
+            Onderstaand staan de vragenlijsten die zijn gestart door dit account. Deze functionaliteit is in het verleden
+            gebruikt om onderdelen van de site te testen.
+        </p>
+        <p>
+
+        </p>
+    {% endblocktrans %}
+
+    <div class="row">
+        <div class="col-12 table-responsive">
+            <table class="table table-hover">
+                {# Table header #}
+                <thead>
+                <tr class="">
+                    <td style="min-width: 15rem">code</td>
+                    <td style="min-width: 15rem">E-mail</td>
+                    <td style="min-width: 15rem">Pagina</td>
+                    <td style="min-width: 15rem" colspan="2">Acties</td>
+                </tr>
+                </thead>
+
+                <tbody>
+                {# Table rows #}
+                {% for inquiry in object_list %}
+                    <tr>
+                        <td>
+                            {{ inquiry.inquirer.get_inquiry_code }}
+                        </td>
+                        <td>
+                            {{ inquiry.inquirer.email }}
+                        </td>
+                        <td>
+                            {{ inquiry.current_page }}
+                        </td>
+                        <td>
+                            <a href="{% url 'data_analysis:analysis_detail' pk=inquiry.pk %}"
+                               class="btn btn-block btn-info">Bekijk details </a>
+                        </td>
+                        <td>
+                            {% if inquirer == inquiry.inquirer %}
+                                <div class="btn btn-success btn-block disabled">Actief</div>
+                            {% else %}
+                                <form method="post" action="{% url 'data_analysis:analysis_activate' pk=inquiry.pk %}">
+                                    {% csrf_token %}
+                                    <input type="submit" class="btn btn-block btn-info" value="Activeer">
+                                </form>
+
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

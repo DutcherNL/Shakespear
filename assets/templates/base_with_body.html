@@ -82,7 +82,7 @@
                                     {% endif %}
                                     {% if perms.auth.can_access_entry_analysis %}
                                         <a class="dropdown-item"
-                                           href="{% url 'analysis_overview' %}">
+                                           href="{% url 'data_analysis:analysis_overview' %}">
                                             <i class="fas fa-address-book"></i> {% trans "Entry Analysis" %}
                                         </a>
                                     {% endif %}

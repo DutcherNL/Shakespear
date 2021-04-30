@@ -3,6 +3,7 @@ from datetime import datetime
 
 from Questionaire.models import Inquiry, Question
 from .models import QuestionFilter
+from general.mixins.form_mixins import NoFormDataMixin
 
 
 __all__ = ['InquiryCreatedFilterForm', 'InquiryLastVisitedFilterForm', 'InquiryUserExcludeFilterForm',
@@ -240,3 +241,23 @@ class FilterInquiryByQuestionForm(FilterInquiriesMixin, FilterFormBase):
         return super(FilterInquiryByQuestionForm, cls).can_filter(**init_kwargs)
 
 
+class ActivateInquirerForm(NoFormDataMixin, Form):
+    success_message = "Sessie succesvol geactiveerd"
+
+    def __init__(self, *args, current_user=None, inquirer=None, **kwargs):
+        self.current_user = current_user
+        self.inquirer = inquirer
+        super(ActivateInquirerForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        if self.current_user is None:
+            raise ValidationError("Huidige gebruiker intern onbekend")
+        if self.inquirer is None:
+            raise ValidationError("Inquirer is onbekend")
+        if self.current_user != self.inquirer.user:
+            raise ValidationError("Gebruiker behoorde niet tot deze vragenlijst")
+
+        return self.cleaned_data
+
+    def activate_for_session(self, request):
+        request.session['inquirer_id'] = self.inquirer.id

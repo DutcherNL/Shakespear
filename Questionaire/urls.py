@@ -1,6 +1,6 @@
 from django.urls import path, include
 
-from . import views, views_analysis
+from . import views
 
 urlpatterns = [
     path('main/', views.QuesetionHomeScreenView.as_view(), name='index_screen'),
@@ -20,13 +20,6 @@ urlpatterns = [
             path('advised/', views.QuestionaireAdvisedView.as_view(), name='results_advised'),
             path('not-advised/', views.QuestionaireRejectedView.as_view(), name='results_not_advised'),
             path('report/<slug:report_slug>/', views.DownloadReport.as_view(), name='download_pdf')
-        ])),
-    ])),
-    path('analysis/', include([
-        path('', views_analysis.AnalysisListView.as_view(), name='analysis_overview'),
-        path('<int:pk>/', include([
-            path('', views_analysis.InquiryAnalysis.as_view(), name='analysis_detail'),
-            path('mail/', views_analysis.ConstructMailForInquiryView.as_view(), name='analysis_mailing'),
         ])),
     ])),
 ]
