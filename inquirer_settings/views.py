@@ -3,7 +3,7 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 
-from general.mixins import InquiryMixin
+from general.mixins.view_mixins import InquiryMixin
 from initiative_enabler.models import TechCollective
 from inquirer_settings.forms import *
 from inquirer_settings.models import PendingMailVerifyer

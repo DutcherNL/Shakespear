@@ -3,6 +3,7 @@ from urllib.parse import urlparse, urlunparse
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponseRedirect, QueryDict, Http404
 from django.utils.http import is_safe_url
+from django.contrib import messages
 
 from Questionaire.models import Inquirer
 
@@ -107,3 +108,26 @@ class InquiryMixin:
         context['inquirer'] = self.inquirer
         return context
 
+
+class QuickEditMixin:
+    """ A mixin for form editing views that should not display the form on a seperate page.
+    I.e. for quick adjustments elsewhere. Useful for one-click events. Process will be displayed through a succesmessage
+     or the first error defined in the form """
+
+    def get(self, request, *args, **kwargs):
+        """ Redirects get requests as they can not occur """
+        message = "De pagina die u probeert te bezoeken bevat geen inhoud."
+        messages.add_message(request, messages.INFO, message)
+        return HttpResponseRedirect(self.default_get_redirect_url())
+
+    def default_get_redirect_url(self):
+        return self.get_success_url()
+
+    def form_valid(self, form):
+        response = form.save()
+        messages.add_message(self.request, *response)
+        return super(QuickEditMixin, self).form_valid(form)
+
+    def form_invalid(self, form):
+        messages.add_message(self.request, *form.get_as_error_message())
+        return HttpResponseRedirect(self.default_get_redirect_url())
