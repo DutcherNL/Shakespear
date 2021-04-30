@@ -315,7 +315,7 @@ class GetInquirerView(FlexCssMixin, FormView):
 
     def form_valid(self, form):
         self.inquirer = form.inquirer_model
-        self.request.session['inquirer_id'] = self.inquirer.id
+        form.activate_for_session(self.request)
         return super(GetInquirerView, self).form_valid(form)
 
     def get_success_url(self):

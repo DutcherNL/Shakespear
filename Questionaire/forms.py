@@ -215,6 +215,9 @@ class InquirerLoadForm(forms.Form):
 
         return self.inquirer_model.active_inquiry
 
+    def activate_for_session(self, request):
+        request.session['inquirer_id'] = self.inquirer.id
+
 
 class InquiryMailForm(MailForm):
 
