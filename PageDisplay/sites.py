@@ -154,7 +154,7 @@ class PageSite:
             # Check all persmissions
             for permission in self.edit_requires_permissions:
                 if not request.user.has_perm(permission):
-                    raise False
+                    return False
         return True
 
     @staticmethod

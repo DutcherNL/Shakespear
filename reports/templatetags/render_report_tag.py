@@ -1,8 +1,6 @@
 from django import template
 from django.utils.safestring import mark_safe
 
-from Questionaire.utils import get_inquiry_from_request
-
 
 register = template.Library()
 
@@ -10,7 +8,7 @@ register = template.Library()
 @register.simple_tag(takes_context=True)
 def render_report(context, report):
     context_dict = context.flatten()
-    inquiry = context_dict['inquiry']
+    inquiry = context_dict.get('inquiry', None)
 
     page_num = 1
     rendered_html = ''
