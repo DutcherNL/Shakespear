@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 
 from .widgets_question import *
 from .widgets_question import IgnorableInputMixin
-from .models import ExternalQuestionSource, InquiryQuestionAnswer, Question
+from .models import ExternalQuestionSource, InquiryQuestionAnswer, Question, AnswerOption
 from .processors.question_processors import get_answer_option_through_question
 
 
@@ -240,10 +240,22 @@ class YesNoQuestionField(IgnorableQuestionFieldMixin, ChoiceField):
         choices = []
 
         # Get all the answer options and place them in a list
-        choices.append((True, 'Ja'))
-        choices.append((False, 'Nee'))
+        choices.append(('True', 'Ja'))
+        choices.append(('False', 'Nee'))
 
         self.choices = choices
+
+        def get_answer_image(answer_str):
+            try:
+                answer = question.answeroption_set.get(answer=answer_str)
+                return answer.image
+            except AnswerOption.DoesNotExist:
+                pass
+
+        self.widget.images = {
+            'True': get_answer_image("True"),
+            'False': get_answer_image("False"),
+        }
 
         question_options = self.question.options_dict
         # Set the height of the question

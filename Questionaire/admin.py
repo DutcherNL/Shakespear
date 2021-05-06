@@ -63,7 +63,7 @@ class AnswerOptionAdmin(ExportCsvMixin, admin.ModelAdmin):
 
     inlines = [AnswerScoringInlines]
 
-    list_display = ('__str__', 'question', 'answer',)
+    list_display = ('__str__', 'question', 'answer', 'context_code')
     list_filter = ('question', AnswerScoringFilter)
 
 
@@ -195,38 +195,35 @@ class PageAdmin(admin.ModelAdmin):
         return obj.questions.count()
 
 
-@admin.register(ScoringDeclaration)
-class ScoreDeclarationMixin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ('name', 'display_name', 'score_start_value',)
-
-
-@admin.register(TechScoreLink)
-class TechScoreLinkAdmin(ExportCsvMixin, admin.ModelAdmin):
-    list_display = ('score_declaration', 'technology', 'score_threshold_approve', 'score_threshold_deny')
-
-
 @admin.register(ExternalQuestionSource)
 class ExternalQuestionAdmin(admin.ModelAdmin):
     list_display = ('question', 'local_table', 'local_attribute', 'code_source')
 
 
-@admin.register(Inquirer)
-class InquirerAdmin(admin.ModelAdmin):
-    list_display = ('get_email', 'created_on',)
-    list_filter = ('created_on',)
-
-
-@admin.register(Inquiry)
-class InquiryAdmin(admin.ModelAdmin):
-    list_display = ('get_owner', 'current_page', 'is_complete', 'last_visited', 'completed_on')
-    list_filter = ('is_complete', 'created_on')
-
-
 if settings.SHOW_DEBUG_CLASSES:
     admin.site.register(Score)
+
+    @admin.register(Inquirer)
+    class InquirerAdmin(admin.ModelAdmin):
+        list_display = ('get_email', 'created_on',)
+        list_filter = ('created_on',)
+
+
+    @admin.register(Inquiry)
+    class InquiryAdmin(admin.ModelAdmin):
+        list_display = ('get_owner', 'current_page', 'is_complete', 'last_visited', 'completed_on')
+        list_filter = ('is_complete', 'created_on')
 
     @admin.register(InquiryQuestionAnswer)
     class TechCollectiveInterestAdmin(admin.ModelAdmin):
         list_display = ('inquiry', 'question', 'answer')
         list_filter = ('question',)
 
+    @admin.register(ScoringDeclaration)
+    class ScoreDeclarationMixin(ExportCsvMixin, admin.ModelAdmin):
+        list_display = ('name', 'display_name', 'score_start_value',)
+
+
+    @admin.register(TechScoreLink)
+    class TechScoreLinkAdmin(ExportCsvMixin, admin.ModelAdmin):
+        list_display = ('score_declaration', 'technology', 'score_threshold_approve', 'score_threshold_deny')
