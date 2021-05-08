@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.conf import settings
 
 from .models import *
 
@@ -52,8 +53,9 @@ admin.site.register(RestrictionRangeAdjustment)
 admin.site.register(RestrictionValue)
 admin.site.register(TechImprovement)
 
-admin.site.register(CollectiveQuestionRestriction)
-admin.site.register(InitiatedCollective)
-admin.site.register(CollectiveRSVP)
-admin.site.register(CollectiveApprovalResponse)
-admin.site.register(CollectiveDeniedResponse)
+if settings.SHOW_DEBUG_CLASSES:
+    admin.site.register(CollectiveQuestionRestriction)
+    admin.site.register(InitiatedCollective)
+    admin.site.register(CollectiveRSVP)
+    admin.site.register(CollectiveApprovalResponse)
+    admin.site.register(CollectiveDeniedResponse)

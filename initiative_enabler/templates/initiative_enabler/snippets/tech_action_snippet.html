@@ -19,17 +19,19 @@
                    target="_blank" rel="noopener noreferrer">
                     <i class="fas fa-info"></i> Meer informatie
                 </a>
-                {% if technology.techimprovement.instructions_file %}
-                    <a class="btn btn-info btn-block"
-                            href="{% url 'collectives:instructions_pdf' tech_id=technology.id %}"
-                            target="_blank" rel="noopener noreferrer">
-                        <i class="fas fa-file-download"></i> Download instructies verbetering
-                    </a>
-                {% else %}
-                    <div class="alert alert-danger mt-1" role="alert">
-                        Oops, het lijkt erop dat wij de instructies voor verbeteringen hebben misplaatst. Wij zullen in
-                        de nabije toekomst dit erbij zetten.
-                    </div>
+                {% if technology.techimprovement %}
+                    {% if technology.techimprovement.has_instuctions_file %}
+                        <a class="btn btn-info btn-block"
+                                href="{% url 'collectives:instructions_pdf' tech_id=technology.id %}"
+                                target="_blank" rel="noopener noreferrer">
+                            <i class="fas fa-file-download"></i> Download instructies verbetering
+                        </a>
+                    {% else %}
+                        <div class="alert alert-danger mt-1" role="alert">
+                            Oops, het lijkt erop dat wij de instructies voor verbeteringen hebben misplaatst. Wij zullen in
+                            de nabije toekomst dit erbij zetten.
+                        </div>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>

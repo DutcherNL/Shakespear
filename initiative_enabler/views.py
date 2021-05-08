@@ -14,6 +14,7 @@ from Questionaire.models import *
 from Questionaire.forms import EmailForm
 from initiative_enabler.models import *
 from initiative_enabler.forms import *
+from reports.responses import StoredOrCreatePDFRespose
 
 
 """
@@ -177,17 +178,58 @@ def collective_instructions_pdf(request, collective_id=None):
     raise Http404("Instructies konden niet gevonden worden.")
 
 
+class DownloadImprovementInstructions(InquiryMixin, TemplateView):
+    """ View that returns the PDF file for the instuctions to improve a tech or a 404 error"""
+
+    def dispatch(self, request, *args, **kwargs):
+        self.technology = get_object_or_404(Technology, id=self.kwargs['tech_id'])
+
+        return super(DownloadImprovementInstructions, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        """ Get the report from the database and return it in the related response class """
+        try:
+            if self.technology.techimprovement.instructions_report:
+                return StoredOrCreatePDFRespose(
+                    report=self.technology.techimprovement.instructions_report,
+                    inquiry=self.inquiry,
+                )
+
+            if self.technology.techcollective.instructions_file:
+                try:
+                    filepath = self.technology.techimprovement.instructions_file.path
+                    filename = self.technology.techimprovement.instructions_file_name
+                    if filename is None or filename == "":
+                        filename = self.technology.techimprovement.instructions_file.name
+
+                    response = FileResponse(open(filepath, 'rb'))
+                    response['Content-Type'] = 'application/pdf'
+                    response['Content-Disposition'] = f'attachment; filename={filename}'
+                    return response
+                except FileNotFoundError:
+                    pass
+        except TechCollective.DoesNotExist:
+            pass
+
+        raise Http404("Instructies konden niet gevonden worden.")
+
+
 def tech_instructions_pdf(request, tech_id=None):
     """ View for rendering the PDF with instructions """
     technology = get_object_or_404(Technology, id=tech_id)
     try:
-        if technology.techimprovement.instructions_file:
+        if technology.techcollective.instructions_file:
             try:
                 filepath = technology.techimprovement.instructions_file.path
-                return FileResponse(open(filepath, 'rb'), content_type='application/pdf')
+                filename = technology.techimprovement.instructions_file_name
+
+                response = FileResponse(open(filepath, 'rb'))
+                response['Content-Type'] = 'application/pdf'
+                response['Content-Disposition'] = f'attachment; filename={filename}'
+                return response
             except FileNotFoundError:
                 pass
-    except TechImprovement.DoesNotExist:
+    except TechCollective.DoesNotExist:
         pass
 
     raise Http404("Instructies konden niet gevonden worden.")
@@ -218,11 +260,11 @@ class TakeActionOverview(InquiryMixin, CheckEmailMixin, ThirdStepDisplayMixin, T
         """
         advised_techs = []
 
-        for tech_improvement in TechImprovement.objects.filter(is_active=True, technology__display_in_step_3_list=True):
+        for tech_collective in TechCollective.objects.filter(technology__display_in_step_3_list=True):
 
-            tech_score = tech_improvement.technology.get_score(self.inquiry)
+            tech_score = tech_collective.technology.get_score(self.inquiry)
             if tech_score == Technology.TECH_SUCCESS or tech_score == Technology.TECH_VARIES:
-                advised_techs.append(tech_improvement.technology)
+                advised_techs.append(tech_collective.technology)
 
         return advised_techs
 

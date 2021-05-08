@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 
 from initiative_enabler.postalcode_processors import get_range
 from Questionaire.models import Inquiry, Inquirer, InquiryQuestionAnswer, Score, Technology, Question
+from reports.models import Report
 
 
 __all__ = ['TechImprovement', 'TechCollective', 'InitiatedCollective', 'CollectiveRSVP', 'CollectiveApprovalResponse',
@@ -18,14 +19,27 @@ __all__ = ['TechImprovement', 'TechCollective', 'InitiatedCollective', 'Collecti
 
 
 class TechImprovement(models.Model):
-    """ Controls the display of improvement instructions and the likes of a technologies """
+    """ Cotais some basic information regardig how to improve the technology in ones home. """
     technology = models.OneToOneField(Technology, on_delete=models.CASCADE)
     instructions_file = models.FileField(blank=True, null=True,
                    validators=[FileExtensionValidator(['pdf'])])
+    instructions_file_name = models.CharField(max_length=32, blank=True, null=True)
+    instructions_report = models.ForeignKey(Report, on_delete=models.SET_NULL, blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.technology.__str__()
+
+    def save(self, **kwargs):
+        if self.instructions_file:
+            if self.instructions_file_name is None or self.instructions_file_name == "":
+                self.instructions_file_name = self.instructions_file.file.name
+
+        return super(TechImprovement, self).save(**kwargs)
+
+    @property
+    def has_instuctions_file(self):
+        return self.instructions_file or self.instructions_report
 
 
 class TechCollective(models.Model):

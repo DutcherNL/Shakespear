@@ -137,14 +137,14 @@ class TestActionOverviewView(TestCase):
         TechScoreLink.objects.create(
             score_declaration=ScoringDeclaration.objects.create(name="tech_1_score"),
             technology=Technology.objects.create(name="ignore_this_tech"))
-        TechImprovement.objects.create(technology=Technology.objects.get(name="ignore_this_tech"))
+        TechCollective.objects.create(technology=Technology.objects.get(name="ignore_this_tech"))
 
         # Test that there are no valid advised tech improvements
         advised_techs = self.view.get_advised_techs()
         self.assertEqual(len(advised_techs), 0)
 
         # Do use this tech
-        TechImprovement.objects.create(technology=self.t1)
+        TechCollective.objects.create(technology=self.t1)
         advised_techs = self.view.get_advised_techs()
         self.assertEqual(len(advised_techs), 1)
         self.assertEqual(advised_techs[0], self.t1)
