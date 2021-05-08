@@ -1,19 +1,17 @@
-from django.views import View
-from django.views.generic import TemplateView, CreateView, FormView, RedirectView
+from django.views.generic import TemplateView, FormView, RedirectView
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
 
-from .models import Page, Inquiry, Technology, Inquirer, TechGroup
+from .models import Page, Inquiry, Technology, Inquirer
 from .forms import QuestionPageForm, EmailForm, InquirerLoadForm, CreateInquirerForm
 
 from general.views import StepDisplayMixin
 from PageDisplay.views import PageInfoView
-from reports.models import Report, RenderedReport
-from reports.responses import StoredPDFResponse
-from reports.report_plotter import ReportPlotter
+from reports.models import Report
+from reports.responses import StoredOrCreatePDFRespose
 from questionaire_mailing.models import TriggeredMailTask
 
 # Create your views here.
@@ -464,50 +462,18 @@ class ResetQueryView(StepTwoMixin, BaseTemplateView):
 
 
 class DownloadReport(StepTwoMixin, BaseTemplateView):
-    download_response_class = StoredPDFResponse
+    download_response_class = StoredOrCreatePDFRespose
 
     def dispatch(self, request, *args, **kwargs):
         self.report = get_object_or_404(Report, slug=self.kwargs.get('report_slug', None))
+        if not self.report.is_live:
+            return Http404("Report kon niet worden gevonden")
         return super(DownloadReport, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         """ Get the report from the database and return it in the related response class """
-        if self.report.is_static:
-            rendered_report = self.get_rendered_static_report()
-        else:
-            rendered_report = self.get_rendered_user_report()
 
         return self.download_response_class(
-            created_report=rendered_report
-        )
-
-    def get_rendered_static_report(self):
-        """ Get the static report instance, construct it if neccesary """
-        rendered_report = RenderedReport.objects.filter(
-            report=self.report,
-            created_on__gte=self.report.last_edited
-        ).order_by(
-            'created_on'
-        ).first()
-
-        if rendered_report is None:
-            # The file is not yet build, so build the file.
-            rendered_report = ReportPlotter(report=self.report).plot_report(inquiry=None)
-
-        return rendered_report
-
-    def get_rendered_user_report(self):
-        """ Create or get a plot of the user-specefied report """
-        rendered_report = RenderedReport.objects.filter(
             report=self.report,
             inquiry=self.inquiry,
-            created_on__gte=self.inquiry.completed_on
-        ).order_by(
-            'created_on'
-        ).first()
-
-        if rendered_report is None:
-            # The file is not yet build, so build the file.
-            rendered_report = ReportPlotter(report=self.report).plot_report(inquiry=self.inquiry)
-
-        return rendered_report
+        )

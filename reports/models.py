@@ -43,6 +43,9 @@ class Report(models.Model):
             'reportpagelink__page_number'
         ).all()
 
+    def __str__(self):
+        return self.report_name
+
 
 report_storage = FileSystemStorage(location=settings.REPORT_ROOT)
 
