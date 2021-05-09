@@ -46,6 +46,15 @@ class Report(models.Model):
     def __str__(self):
         return self.report_name
 
+    @property
+    def list_other_uses(self):
+        other_uses_list = []
+        if self.techimprovement_set.exists():
+            other_uses_list.extend(self.techimprovement_set.all())
+        if self.techcollective_set.exists():
+            other_uses_list.extend(self.techcollective_set.all())
+        return other_uses_list
+
 
 report_storage = FileSystemStorage(location=settings.REPORT_ROOT)
 

@@ -25,10 +25,9 @@ class TechImprovement(models.Model):
                    validators=[FileExtensionValidator(['pdf'])])
     instructions_file_name = models.CharField(max_length=32, blank=True, null=True)
     instructions_report = models.ForeignKey(Report, on_delete=models.SET_NULL, blank=True, null=True)
-    is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.technology.__str__()
+        return f"Tech Improvement guide for {self.technology}"
 
     def save(self, **kwargs):
         if self.instructions_file:
@@ -38,7 +37,7 @@ class TechImprovement(models.Model):
         return super(TechImprovement, self).save(**kwargs)
 
     @property
-    def has_instuctions_file(self):
+    def has_instructions_file(self):
         return self.instructions_file or self.instructions_report
 
 
@@ -48,6 +47,7 @@ class TechCollective(models.Model):
     description = models.CharField(max_length=512)
     instructions_file = models.FileField(blank=True, null=True,
                                          validators=[FileExtensionValidator(['pdf'])])
+    instructions_report = models.ForeignKey(Report, on_delete=models.SET_NULL, blank=True, null=True)
 
     restrictions = models.ManyToManyField('CollectiveRestriction', through='RestrictionLink', blank=True)
 
@@ -106,7 +106,11 @@ class TechCollective(models.Model):
         return inquirers
 
     def __str__(self):
-        return str(self.technology)
+        return f"Collective instructions for {self.technology}"
+
+    @property
+    def has_instructions_file(self):
+        return self.instructions_file or self.instructions_report
 
 
 class InquirerDoesNotContainRestrictionValue(Exception):

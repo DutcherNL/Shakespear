@@ -20,7 +20,7 @@
                     <i class="fas fa-info"></i> Meer informatie
                 </a>
                 {% if technology.techimprovement %}
-                    {% if technology.techimprovement.has_instuctions_file %}
+                    {% if technology.techimprovement.has_instructions_file %}
                         <a class="btn btn-info btn-block"
                                 href="{% url 'collectives:instructions_pdf' tech_id=technology.id %}"
                                 target="_blank" rel="noopener noreferrer">

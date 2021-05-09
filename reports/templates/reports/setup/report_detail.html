@@ -22,6 +22,22 @@
                     {{ report.description }}
                 </div>
             </div>
+            {% if report.list_other_uses %}
+                <div class="row">
+                    <div class="col-md-3">
+                        Also used as:
+                    </div>
+                    <div class="col-md-9">
+                        <div class="row">
+                            {% for use in report.list_other_uses %}
+                                <div class="col-12">
+                                    {{ use }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
             <div class="row">
                 <div class="col">
                     <a href="{% url "setup:reports:edit_report" report_slug=report.slug %}" class="btn btn-primary">

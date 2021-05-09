@@ -6,7 +6,7 @@ from .models import *
 
 @admin.register(TechCollective)
 class TechCollectiveAdmin(admin.ModelAdmin):
-    fields = ('technology', 'description', 'instructions_file')
+    fields = ('technology', 'description', 'instructions_file', 'instructions_report')
     list_display = ('__str__', 'technology', 'has_restrictions')
 
     class RestrictionLinkInlines(admin.TabularInline):

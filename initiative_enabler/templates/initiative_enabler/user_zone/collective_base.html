@@ -20,14 +20,14 @@
         </div>
         <div class="col-6">
             <p><b>{% trans "Instructies" %}</b></p>
-            {% if tech_collective.instructions_file %}
+            {% if tech_collective.has_instructions_file %}
                 <p>
                     {% blocktrans trimmed %}
                         Samen met elkaar kunt u een collectieve inkoop opzetten. Wilt u weten hoe? Download dan hieronder
                         het overzichtelijke stappenplan.
                     {% endblocktrans %}
                 </p>
-                <a class="btn btn-info" href="{% url 'collectives:insructions_pdf' collective_id=tech_collective.id %}"
+                <a class="btn btn-info" href="{% url 'collectives:instructions_pdf' collective_id=tech_collective.id %}"
                     target="_blank" rel="noopener noreferrer">
                     <i class="fas fa-file-download"></i>
                     {% blocktrans trimmed with tech_name=tech_collective.technology%}

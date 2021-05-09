@@ -208,31 +208,42 @@ class DownloadImprovementInstructions(InquiryMixin, TemplateView):
                     return response
                 except FileNotFoundError:
                     pass
-        except TechCollective.DoesNotExist:
+        except TechImprovement .DoesNotExist:
             pass
 
         raise Http404("Instructies konden niet gevonden worden.")
 
 
-def tech_instructions_pdf(request, tech_id=None):
-    """ View for rendering the PDF with instructions """
-    technology = get_object_or_404(Technology, id=tech_id)
-    try:
-        if technology.techcollective.instructions_file:
-            try:
-                filepath = technology.techimprovement.instructions_file.path
-                filename = technology.techimprovement.instructions_file_name
+class DownloadCollectiveInstructions(InquiryMixin, TemplateView):
+    """ View that returns the PDF file for the instuctions to improve a tech or a 404 error"""
 
-                response = FileResponse(open(filepath, 'rb'))
-                response['Content-Type'] = 'application/pdf'
-                response['Content-Disposition'] = f'attachment; filename={filename}'
-                return response
-            except FileNotFoundError:
-                pass
-    except TechCollective.DoesNotExist:
-        pass
+    def dispatch(self, request, *args, **kwargs):
+        self.tech_collective = get_object_or_404(TechCollective, id=self.kwargs['collective_id'])
 
-    raise Http404("Instructies konden niet gevonden worden.")
+        return super(DownloadCollectiveInstructions, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        """ Get the report from the database and return it in the related response class """
+        try:
+            if self.tech_collective.instructions_report:
+                return StoredOrCreatePDFRespose(
+                    report=self.tech_collective.instructions_report,
+                    inquiry=self.inquiry,
+                )
+
+            if self.tech_collective.instructions_file:
+                try:
+                    filepath = self.tech_collective.instructions_file.path
+
+                    response = FileResponse(open(filepath, 'rb'))
+                    response['Content-Type'] = 'application/pdf'
+                    return response
+                except FileNotFoundError:
+                    pass
+        except TechCollective.DoesNotExist:
+            pass
+
+        raise Http404("Instructies konden niet gevonden worden.")
 
 
 class EmailConfirmPage(InquiryMixin, RedirectThroughUriOnSuccess, ThirdStepDisplayMixin, FormView):
