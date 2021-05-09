@@ -11,6 +11,20 @@
     {% else %}
     <div class="row">
         <div class="col-12 col-md-10">
+            <div class="row">
+                <div class="col-12">
+                    <h1>{% trans "Onderneem actie" %}</h1>
+                    {% blocktrans trimmed %}
+                        Het is nu tijd om actie te ondernemen. Gebasseerd op uw resultaten adviseren we naar één van onderstaande
+                        maatregelen te kijken en gezamenlijk met anderen in uw omgeving dit samen aan te pakken.
+                    {% endblocktrans %}
+                </div>
+
+                <div class="col-12 my-3">
+                    <hr>
+                </div>
+            </div>
+
             {% for technology in advised_techs %}
                 {% include 'initiative_enabler/snippets/tech_action_snippet.html' %}
             {% endfor %}
