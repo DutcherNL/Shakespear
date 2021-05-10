@@ -11,6 +11,7 @@ urlpatterns = [
         path('logout/', views.LogOutView.as_view(), name='logout'),
 
     ])),
-    path('<slug:slug>/', page_site.urls),
-    path('partners', views.PartnerInfoPage.as_view(), name='partner_page')
+    path('partners/', views.PartnerInfoPage.as_view(), name='partner_page'),
+    path('end_session/', views.EndQuestionaireSession.as_view(), name='end_inquier_session'),
+    path('<slug:slug>/', page_site.urls), # keep this at the end
 ]

@@ -1,5 +1,6 @@
 from django.views.generic import TemplateView, ListView, FormView, View
 from django.contrib.auth import views as account_views
+from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 
 
@@ -31,3 +32,13 @@ class StepDisplayMixin:
 
 class PartnerInfoPage(TemplateView):
     template_name = "general/sdw_info_pagina.html"
+
+
+class EndQuestionaireSession(View):
+
+    def get(self, request, **kwargs):
+        self.end_session(request)
+        return HttpResponseRedirect(reverse('index_screen'))
+
+    def end_session(self, request):
+        request.session['inquirer_id'] = None
