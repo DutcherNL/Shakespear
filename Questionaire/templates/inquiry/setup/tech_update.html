@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block body %}
-    <form method="post">{% csrf_token %}
+    <form method="post" enctype="multipart/form-data">{% csrf_token %}
         {% include "snippets/bootstrap_form.html" %}
         <div class="row">
             <div class="offset-3 col-9 btn-group ">
