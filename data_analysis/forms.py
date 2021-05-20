@@ -2,17 +2,24 @@ from django.forms import Form, ValidationError, fields, widgets
 from datetime import datetime
 
 from Questionaire.models import Inquiry, Question
+from initiative_enabler.models import TechCollectiveInterest, RestrictionValue
 from .models import QuestionFilter
 from general.mixins.form_mixins import NoFormDataMixin
 
 
 __all__ = ['InquiryCreatedFilterForm', 'InquiryLastVisitedFilterForm', 'InquiryUserExcludeFilterForm',
-           'FilterInquiryByQuestionForm']
+           'FilterInquiryByQuestionForm',
+           'FilterInterestByInquirerCreationDateForm', 'FilterInterestByRestrictionForm']
 
 
 class FilterFormBase(Form):
     """ A base form that can be used as mixin to for forms that should filter data based on a specific attribute """
     description = None
+
+    @property
+    def name(self):
+        """ Returns the name of this form, can be customised to adjust for specific instances """
+        return self.__class__.__name__
 
     def has_filter_data(self):
         """ Returns whether this filter has data it filters on """
@@ -28,6 +35,14 @@ class FilterFormBase(Form):
 
     def filter(self, data):
         return data
+
+    def get_filtered_queryset(self, queryset=None):
+        if queryset is None:
+            queryset = self.model.objects.all()
+        if self.has_filter_data():
+            return self.filter(queryset)
+        else:
+            return queryset
 
     @classmethod
     def can_filter(cls, **init_kwargs):
@@ -81,34 +96,12 @@ class DateRangeFilterForm(FilterFormBase):
             data = data.filter(**{
                 filter_name: end_date
             })
-
         return data
-
-    def has_filter_data(self):
-        """ Returns whether this filter has data it filters on """
-        if not self.is_valid():
-            # If a form is not valid, it should by definition not be filtered
-            return False
-
-        for key, value in self.cleaned_data.items():
-            # Check if it had any relevant data, if not, there are no values i.e. nothing to filter on.
-            if value:
-                # A special addition to check that end date is not beyond today i.e. nothing to filter on
-                if key == 'end_date':
-                    continue
-                return True
-        return False
 
 
 class FilterInquiriesMixin:
     """ Returns a queryset of inquiries based on the given filter """
-    def get_filtered_inquiries(self, inquiries=None):
-        if inquiries is None:
-            inquiries = Inquiry.objects.all()
-        if self.has_filter_data():
-            return self.filter(inquiries)
-        else:
-            return inquiries
+    model = Inquiry
 
 
 class InquiryCreatedFilterForm(FilterInquiriesMixin, DateRangeFilterForm):
@@ -241,6 +234,67 @@ class FilterInquiryByQuestionForm(FilterInquiriesMixin, FilterFormBase):
         return super(FilterInquiryByQuestionForm, cls).can_filter(**init_kwargs)
 
 
+class FilterTechInterestMixin:
+    """ Returns a queryset of inquirer objects based on the given filter """
+    model = TechCollectiveInterest
+
+
+class FilterInterestByInquirerCreationDateForm(FilterTechInterestMixin, DateRangeFilterForm):
+    filter_attribute_name = "inquirer__created_on"
+    prefix = "inquirer_created_on"
+    description = "Filter inquirer creation date"
+
+
+class FilterInterestByRestrictionForm(FilterTechInterestMixin, FilterFormBase):
+    """ Filters Interest instances by restriciton value"""
+    description = "Filter by required value"
+    restriction_field_names = []
+
+    def __init__(self, *args, collective=None, **kwargs):
+        assert collective is not None
+
+        self.collective = collective
+        super(FilterInterestByRestrictionForm, self).__init__(*args, **kwargs)
+
+        for restriction in collective.restrictions.all():
+            field_name = str(restriction.public_name)
+            field = fields.CharField(required=False, max_length=32)
+
+            self.restriction_field_names.append(field_name)
+            self.fields[field_name] = field
+
+    def filter(self, data):
+        data = super(FilterInterestByRestrictionForm, self).filter(data)
+
+        for field_name in self.restriction_field_names:
+            filter_by_value = self.cleaned_data[field_name]
+            if filter_by_value:
+                restriction_values = RestrictionValue.objects.filter(restriction__public_name=field_name)
+
+                # If it contains a comma, use it as a seperator and query with _in
+                if ',' in filter_by_value:
+                    filter_by_value = filter_by_value.split(',')
+
+                    filter_by_value = [i.strip() for i in filter_by_value]
+
+                    restriction_values = restriction_values.filter(
+                        value__in=filter_by_value,
+                    )
+                else:
+                    restriction_values = restriction_values.filter(
+                        value__icontains=filter_by_value,
+                    )
+
+                data = data.filter(restriction_scopes__in=restriction_values)
+
+        return data
+
+
+# ############################################
+# #######   OTHER NON-FILTER FORMS   #########
+# ############################################
+
+
 class ActivateInquirerForm(NoFormDataMixin, Form):
     success_message = "Sessie succesvol geactiveerd"
 
@@ -254,8 +308,9 @@ class ActivateInquirerForm(NoFormDataMixin, Form):
             raise ValidationError("Huidige gebruiker intern onbekend")
         if self.inquirer is None:
             raise ValidationError("Inquirer is onbekend")
-        if self.current_user != self.inquirer.user:
-            raise ValidationError("Gebruiker behoorde niet tot deze vragenlijst")
+        # if self.current_user != self.inquirer.user:
+        #     raise ValidationError("Gebruiker behoorde niet tot deze vragenlijst")
+        # Todo: Uncomment
 
         return self.cleaned_data
 

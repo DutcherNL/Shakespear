@@ -437,6 +437,7 @@ class TechCollectiveInterest(models.Model):
     is_interested = models.BooleanField(default=False)
 
     restriction_scopes = models.ManyToManyField(RestrictionValue, blank=True)
+    last_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = ['tech_collective', 'inquirer']

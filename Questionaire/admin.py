@@ -213,6 +213,8 @@ if settings.SHOW_DEBUG_CLASSES:
     class InquiryAdmin(admin.ModelAdmin):
         list_display = ('get_owner', 'current_page', 'is_complete', 'last_visited', 'completed_on')
         list_filter = ('is_complete', 'created_on')
+        fields = ('current_page', 'is_complete', 'last_visited')
+        readonly_fields = ('last_visited',)
 
     @admin.register(InquiryQuestionAnswer)
     class TechCollectiveInterestAdmin(admin.ModelAdmin):

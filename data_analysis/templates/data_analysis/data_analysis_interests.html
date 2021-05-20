@@ -1,0 +1,32 @@
+{% extends 'data_analysis/data_analysis_base.html' %}
+{% load django_bootstrap_breadcrumbs  %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Collectives" "data_analysis:initiative_interests" %}
+{% endblock %}
+
+{% block charts %}
+    <table>
+        <tr>
+            <th>Technology</th>
+            <th>Num interested</th>
+            <th>Ids</th>
+        </tr>
+        {% for interest in interests %}
+            <tr>
+                <td>{{ interest.technology}}</td>
+                <td>{{ interest.count }}</td>
+                <td>
+                    <a href="{% url "data_analysis:initiative_interests" tech_slug=interest.technology.slug %}"
+                    class="btn btn-info">
+                        Meer details
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+
+
+{% endblock %}

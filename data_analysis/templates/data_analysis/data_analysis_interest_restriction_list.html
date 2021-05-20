@@ -1,0 +1,57 @@
+{% extends 'data_analysis/data_analysis_base.html' %}
+{% load i18n %}
+{% load collective_analysis_tags %}
+{% load django_bootstrap_breadcrumbs  %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Collectives" "data_analysis:initiative_interests" %}
+    {% breadcrumb technology "data_analysis:initiative_interests" tech_slug=technology.slug %}
+    {% breadcrumb restriction.public_name "data_analysis:initiative_interests" tech_slug=technology.slug %}
+{% endblock %}
+
+
+{% block charts %}
+    <div class="row">
+        <div class="col">
+            <h1>{{ technology }}</h1>
+            <table class="table table-responsive table-responsive-sm">
+                <thead>
+                    <tr>
+                        <td>{{ restriction.public_name }}</td>
+                        <td>Aantal</td>
+                        <td>Aantal afgelopen {{ recent_dayscount }} dagen</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in restriction_list %}
+                        <tr>
+                            <td>
+                                {{ item.value }}
+                            </td>
+                            <td>
+                                <span class="p-2">{{ item.total_interested }}</span>
+                                <a href="" class="btn btn-warning btn-sm disabled">{% trans "Contacteer geïnteresserden via mail" %}</a>
+                            </td>
+                            <td>
+                                <span class="p-2">{{ item.total_recent }}</span>
+                                <a href="" class="btn btn-warning btn-sm disabled">{% trans "Contacteer geïnteresserden via mail" %}</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% include "snippets/paginator.html" with data_objects=tasks %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <a href="" class="btn btn-warning disabled">{% trans "Contacteer geïnteresserden via mail" %}</a>
+        </div>
+    </div>
+
+
+
+
+{% endblock %}

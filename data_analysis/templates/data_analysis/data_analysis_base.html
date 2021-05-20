@@ -1,9 +1,17 @@
 {% extends 'base_with_body.html' %}
+{% load django_bootstrap_breadcrumbs  %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Data analyse" "data_analysis:overview" %}
+{% endblock %}
+
 
 {% block body %}
     <div class="btn-group" role="group" aria-label="Basic example">
         <a class="btn btn-outline-info" href="{% url 'data_analysis:overview' %}">Inquiry stats</a>
         <a class="btn btn-outline-info" href="{% url 'data_analysis:techs' %}">Technology stats</a>
+        <a class="btn btn-outline-info" href="{% url 'data_analysis:initiative_interests' %}">Initiative Interests</a>
     </div>
     <hr>
     <form method="get">
@@ -19,13 +27,16 @@
         </div>
 
         <input type="submit" value="Filter" class="btn btn-primary">
-        <a href="{{ request.path }}" class="btn btn-secondary">Clear</a>
-        <a href="{% url 'data_analysis:json_progress' %}?{{ query_line }}"
-           class="btn btn-info" target="_blank">Json Page</a>
+        <a href="{{ request.path }}" class="btn btn-secondary">Clear filters</a>
+        {% for button in other_buttons %}
+            <a href="{{ button.url }}" class="btn btn-info">
+                {{ button.text }}
+            </a>
+        {% endfor %}
     </form>
 
     <hr>
-    {% if inquiries and inquiries.count < MIN_INQUIRY_REQ %}
+    {% if queryset and queryset.count < MIN_INQUIRY_REQ %}
         <div class="alert alert-danger" role="alert">
             Het aantal resultaten is minder dan {{ MIN_INQUIRY_REQ }}. Voor privacy veiligheid worden deze resultaten
             niet weergeven.
