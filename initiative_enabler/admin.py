@@ -32,28 +32,15 @@ if settings.SHOW_DEBUG_CLASSES:
     class TechCollectiveInterestAdmin(admin.ModelAdmin):
         fields = ('inquirer', 'tech_collective', 'is_interested', 'restriction_scopes')
 
-        list_display = ('tech_collective', 'inquirer', 'is_interested', 'last_updated',)
+        list_display = ('tech_collective', 'inquirer', 'is_interested', 'last_updated', 'restriction_values')
         list_filter = ('tech_collective',)
 
-        # class RestrictionsInlines(admin.TabularInline):
-        #     model = TechCollectiveInterest.restriction_scopes.through
-        #     fields = ('restriction', 'value')
-        #     readonly_fields = ('restriction', 'value')
-        #     extra = 0
-        #
-        #     def has_add_permission(self, request, obj):
-        #         # This should only display info, not allow changing
-        #         return False
-        #
-        #     def restriction(self, instance):
-        #         return instance.restrictionvalue.restriction.name
-        #     restriction.short_description = 'restriction name'
-        #
-        #     def value(self, instance):
-        #         return instance.restrictionvalue.value
-        #     value.short_description = 'local value'
-        #
-        # inlines = [RestrictionsInlines]
+        def restriction_values(self, interest):
+            res = []
+            for value in interest.restriction_scopes.all():
+                res.append(value)
+
+            return res
 
     @admin.register(RestrictionValue)
     class TechCollectiveInterestAdmin(admin.ModelAdmin):

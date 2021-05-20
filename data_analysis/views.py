@@ -210,7 +210,7 @@ class InterestRestrictionListView(AccessRestrictionMixin, FilterDataMixin, TechC
 
     # Listable attribute
     context_object_name = "restriction_list"
-    paginate_by = 3
+    paginate_by = 20
     ordering = 'value'
 
     def dispatch(self, request, *args, **kwargs):
