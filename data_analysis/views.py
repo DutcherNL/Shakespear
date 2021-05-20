@@ -225,19 +225,24 @@ class InterestRestrictionListView(AccessRestrictionMixin, FilterDataMixin, TechC
             techcollectiveinterest__in=queryset,
         )
         # Annotate the amount of interests known for each value
-        restriction_value_list = restriction_value_list.annotate(
-            total_known=Count('techcollectiveinterest')).annotate(
-            total_interested=Count('techcollectiveinterest', filter=Q(techcollectiveinterest__is_interested=True)))
+        restriction_value_list = restriction_value_list. \
+            annotate(total_known=Count('techcollectiveinterest', filter=
+                Q(techcollectiveinterest__tech_collective=self.collective))). \
+            annotate(total_interested=Count('techcollectiveinterest', filter=(
+                    Q(techcollectiveinterest__is_interested=True) &
+                    Q(techcollectiveinterest__tech_collective=self.collective)
+        )))
 
         # Annotate the recent positive replies
         thresholddate = timezone.now() - timedelta(days=self.recent_days_count)
         restriction_value_list = restriction_value_list. \
             annotate(total_recent=Count(
-                'techcollectiveinterest',
-                filter=(
-                        Q(techcollectiveinterest__last_updated__gte=thresholddate) &
-                        Q(techcollectiveinterest__is_interested=True)
-                )))
+            'techcollectiveinterest',
+            filter=(
+                    Q(techcollectiveinterest__last_updated__gte=thresholddate) &
+                    Q(techcollectiveinterest__is_interested=True) &
+                    Q(techcollectiveinterest__tech_collective=self.collective)
+            )))
         return restriction_value_list.order_by('value')
 
     def get_context_data(self, **kwargs):
