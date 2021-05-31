@@ -416,7 +416,7 @@ class AdjustAllTechCollectiveInterestView(InquiryMixin, CheckRequirementsMixin, 
 
     def get_restrictions(self):
         advised_collectives = EnableAllTechCollectiveInterestForm.get_advised_collectives(self.inquiry)
-        restrictions = CollectiveRestriction.objects.filter(techcollective__in=advised_collectives)
+        restrictions = CollectiveRestriction.objects.filter(techcollective__in=advised_collectives).distinct()
         return restrictions
 
 

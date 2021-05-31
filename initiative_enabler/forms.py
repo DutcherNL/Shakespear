@@ -484,11 +484,13 @@ class EnableAllTechCollectiveInterestForm(NoFormDataMixin, Form):
                 interest.is_interested = True
                 interest.save()
             except TechCollectiveInterest.DoesNotExist:
-                TechCollectiveInterest.objects.create(
+                interest = TechCollectiveInterest.objects.create(
                     inquirer=self.inquirer,
                     tech_collective=collective,
                     is_interested=True,
                 )
+
+            interest.set_restriction_values()
         return super(EnableAllTechCollectiveInterestForm, self).save()
 
     @staticmethod
