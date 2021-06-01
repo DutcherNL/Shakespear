@@ -1,7 +1,8 @@
 from django.forms import Form, ValidationError, fields, widgets
 from datetime import datetime
 
-from Questionaire.models import Inquiry, Question
+from Questionaire.models import Inquiry, Question, Inquirer
+from mailing.forms import MailForm
 from initiative_enabler.models import TechCollectiveInterest, RestrictionValue
 from .models import QuestionFilter
 from general.mixins.form_mixins import NoFormDataMixin
@@ -9,7 +10,8 @@ from general.mixins.form_mixins import NoFormDataMixin
 
 __all__ = ['InquiryCreatedFilterForm', 'InquiryLastVisitedFilterForm', 'InquiryUserExcludeFilterForm',
            'FilterInquiryByQuestionForm',
-           'FilterInterestByInquirerCreationDateForm', 'FilterInterestByRestrictionForm']
+           'FilterInterestByInquirerCreationDateForm', 'FilterInterestByRestrictionForm',
+           'InquirerMailForm']
 
 
 class FilterFormBase(Form):
@@ -316,3 +318,20 @@ class ActivateInquirerForm(NoFormDataMixin, Form):
 
     def activate_for_session(self, request):
         request.session['inquirer_id'] = self.inquirer.id
+
+
+class InquirerMailForm(MailForm):
+    ignore_to_field = True
+
+    def __init__(self, *args, inquirers=None, **kwargs):
+        super(InquirerMailForm, self).__init__(*args, **kwargs)
+        self.fields['to'].disabled = True
+        self.inquirers = inquirers
+
+    def get_to_adresses(self):
+        emails = []
+        for inquirer in self.inquirers:
+            # Guaranteed that email adresses are validated
+            if inquirer.email_validated:
+                emails.append(inquirer.email)
+        return emails

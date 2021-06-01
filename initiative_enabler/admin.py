@@ -49,7 +49,11 @@ if settings.SHOW_DEBUG_CLASSES:
         list_display = ('__str__', 'restriction', 'value',)
         list_filter = ('restriction',)
 
-    admin.site.register(InitiatedCollective)
+
+    @admin.register(InitiatedCollective)
+    class InitiatedCollectiveAdmin(admin.ModelAdmin):
+        list_display = ('tech_collective', 'inquirer', 'is_open', 'is_active')
+
     admin.site.register(CollectiveRSVP)
     admin.site.register(CollectiveApprovalResponse)
     admin.site.register(CollectiveDeniedResponse)

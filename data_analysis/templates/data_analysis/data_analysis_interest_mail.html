@@ -1,0 +1,28 @@
+{% extends 'data_analysis/data_analysis_base.html' %}
+{% load django_bootstrap_breadcrumbs  %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Data analyse" "data_analysis:overview" %}
+    {% breadcrumb "Collectives" "data_analysis:initiative_interests" %}
+    {% breadcrumb technology "data_analysis:initiative_interests" tech_slug=technology.slug %}
+    {% breadcrumb "Send mail" "data_analysis:send_mail" tech_slug=technology.slug %}
+{% endblock %}
+
+
+{% block charts %}
+    <h1>Send mail</h1>
+    <form method="post" class="row">
+        {% csrf_token %}
+        <div class="col-12">
+            {% include "snippets/bootstrap_form.html" %}
+        </div>
+        <div class="col-12">
+            <div class="row">
+                <div class="offset-3 col-9">
+                    <input type="submit" name="send" value="Send" class="btn btn-block btn-outline-primary"/>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}

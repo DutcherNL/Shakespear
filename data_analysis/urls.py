@@ -14,7 +14,13 @@ urlpatterns = [
         path('<slug:tech_slug>/', include([
                 path('', views.InterestDetailView.as_view(), name='initiative_interests'),
                 path('<int:restriction_id>/', views.InterestRestrictionListView.as_view(), name='initiative_interests'),
+                path('mail/', views.SendMailToInterestedView.as_view(), name='send_mail')
             ])),
+    ])),
+    path('collective/', include([
+        path('<slug:tech_slug>/', include([
+            path('', views.CollectiveDetailView.as_view(), name='collective'),
+        ]))
     ])),
 
     path('json/', include([

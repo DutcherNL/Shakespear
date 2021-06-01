@@ -457,3 +457,6 @@ class TechCollectiveInterest(models.Model):
             else:
                 for value_instance in data:
                     self.restriction_scopes.add(value_instance)
+
+    def __str__(self):
+        return f"TechCollectiveInterest {self.tech_collective.technology.name}: {self.inquirer.id} {self.is_interested}"

@@ -31,7 +31,7 @@
                 {% for inquiry in object_list %}
                     <tr>
                         <td>
-                            {{ inquiry.inquirer.get_inquiry_code }}
+                            {{ inquiry.inquirer.get_inquiry_code }} / {{ inquiry.id }}
                         </td>
                         <td>
                             {{ inquiry.inquirer.email }}

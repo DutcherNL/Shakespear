@@ -1,0 +1,58 @@
+{% extends 'data_analysis/data_analysis_base.html' %}
+{% load i18n %}
+{% load collective_analysis_tags %}
+{% load django_bootstrap_breadcrumbs  %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% breadcrumb "Collectives" "data_analysis:initiative_interests" %}
+    {% breadcrumb technology "data_analysis:initiative_interests" tech_slug=technology.slug %}
+{% endblock %}
+
+{% block charts %}
+
+    <h1>{{ technology }}</h1>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+            <tr>
+                <td>Gestart door</td>
+                <td>Datum</td>
+                <td>Geaccepteerd</td>
+                {% for restriction in tech_collective.restrictions.all %}
+                    <td>{{ restriction.public_name }}</td>
+                {% endfor %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in initiated_collectives %}
+                <tr>
+                    <td>
+                        {{ item.name }}
+                    </td>
+                    <td>
+                        {{ item.created_on }}
+                    </td>
+                    <td>
+                        {{ item.collectiveapprovalresponse_set.count }}/{{ item.collectiversvp_set.count }}
+                    </td>
+                    {% for restriction in tech_collective.restrictions.all %}
+                        <td>
+                            {% for restriction_value in item|get_restriction_values:restriction %}
+                                {{ restriction_value }}{% if not forloop.last %},{% endif %}
+                            {% endfor %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% include "snippets/paginator.html" with data_objects=tasks %}
+    </div>
+
+
+
+
+
+{% endblock %}

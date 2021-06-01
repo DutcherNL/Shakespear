@@ -31,11 +31,17 @@
                             </td>
                             <td>
                                 <span class="p-2">{{ item.total_interested }}</span>
-                                <a href="" class="btn btn-warning btn-sm disabled">{% trans "Contacteer geïnteresserden via mail" %}</a>
+                                <a href="{% url "data_analysis:send_mail" tech_slug=technology.slug %}?{% updated_querystring restriction.public_name item.value %}"
+                                   class="btn btn-warning btn-sm">
+                                    {% trans "Contacteer geïnteresserden via mail" %}
+                                </a>
                             </td>
                             <td>
                                 <span class="p-2">{{ item.total_recent }}</span>
-                                <a href="" class="btn btn-warning btn-sm disabled">{% trans "Contacteer geïnteresserden via mail" %}</a>
+                                <a href="{% url "data_analysis:send_mail" tech_slug=technology.slug %}?{{ request.GET.urlencode }}"
+                                   class="btn btn-warning btn-sm">
+                                    {% trans "Contacteer geïnteresserden via mail" %}
+                                </a>
                             </td>
                         </tr>
                     {% endfor %}
