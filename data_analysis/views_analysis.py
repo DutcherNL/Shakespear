@@ -30,7 +30,7 @@ class AnalysisListView(AccessRestrictionMixin, FlexCssMixin, ListView):
 
     def get_queryset(self):
         queryset = super(AnalysisListView, self).get_queryset()
-        queryset = queryset.filter(inquirer__user=self.request.user)
+        # queryset = queryset.filter(inquirer__user=self.request.user)
         return queryset
 
 

@@ -25,6 +25,9 @@ admin.site.register(RestrictionRangeAdjustment)
 admin.site.register(TechImprovement)
 admin.site.register(CollectiveQuestionRestriction)
 
+admin.site.register(RestrictionModifierDataTable)
+admin.site.register(RestrictionModifierRange)
+
 
 if settings.SHOW_DEBUG_CLASSES:
 

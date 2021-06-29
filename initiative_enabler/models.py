@@ -1,6 +1,6 @@
 import re
 import datetime
-from django.db import models, IntegrityError
+from django.db import models
 from django.utils.crypto import get_random_string
 from django.shortcuts import reverse
 from django.utils import timezone
@@ -8,6 +8,7 @@ from django.core.validators import FileExtensionValidator
 from django.core.exceptions import ValidationError
 
 from initiative_enabler.postalcode_processors import get_range
+from local_data_storage.models import DataTable, DataColumn
 from Questionaire.models import Inquiry, Inquirer, InquiryQuestionAnswer, Score, Technology, Question
 from reports.models import Report
 
@@ -15,7 +16,8 @@ from reports.models import Report
 __all__ = ['TechImprovement', 'TechCollective', 'InitiatedCollective', 'CollectiveRSVP', 'CollectiveApprovalResponse',
            'CollectiveDeniedResponse', 'CollectiveRSVPInterest', 'TechCollectiveInterest',
            'CollectiveRestriction', 'CollectiveQuestionRestriction', 'RestrictionValue',
-           'InquirerDoesNotContainRestrictionValue', 'RestrictionRangeAdjustment']
+           'InquirerDoesNotContainRestrictionValue', 'RestrictionRangeAdjustment',
+           'RestrictionModifierDataTable', 'RestrictionModifierRange']
 
 
 class TechImprovement(models.Model):
@@ -170,6 +172,7 @@ class RestrictionRangeAdjustment(models.Model):
 class RestrictionLink(models.Model):
     collective = models.ForeignKey('TechCollective', on_delete=models.CASCADE)
     restriction = models.ForeignKey('CollectiveRestriction', on_delete=models.CASCADE)
+    modifier = models.ForeignKey('RestrictionModifierBase', on_delete=models.SET_NULL, null=True, blank=True)
     range_adjustment = models.ForeignKey(RestrictionRangeAdjustment, on_delete=models.SET_NULL, null=True, blank=True)
 
     def get_collective_scope(self, inquirer, as_display_string=False):
@@ -177,6 +180,13 @@ class RestrictionLink(models.Model):
         value = self.restriction.get_as_child().get_collective_restriction_value(inquirer)
         if value is None:
             raise InquirerDoesNotContainRestrictionValue(self)
+
+        if self.modifier:
+            if self.modifier.get_as_child().can_modify(value):
+                if as_display_string:
+                    return [self.modifier.get_modified_as_string(value)]
+                else:
+                    return self.modifier.get_modified_values(value)
 
         if self.range_adjustment:
             if as_display_string:
@@ -199,6 +209,139 @@ class RestrictionLink(models.Model):
     @property
     def public_name(self):
         return self.restriction.public_name
+
+
+class RestrictionModifierBase(models.Model):
+    """ Base class for modifiers to adjuts the range of a restriction """
+
+    def get_as_child(self):
+        """ Returns the child object of this class"""
+        # Loop over all children
+        for child in self.__class__.__subclasses__():
+            # If the child object exists
+            if child.objects.filter(id=self.id).exists():
+                return child.objects.get(id=self.id).get_as_child()
+        return self
+
+    def can_modify(self, input_value):
+        raise NotImplementedError
+
+    def get_modified_values(self, input_value):
+        return self.get_as_child()._get_modified_values(input_value)
+
+    def _get_modified_values(self, input_value):
+        raise NotImplementedError()
+
+    def get_modified_as_string(self, input_value):
+        """ Returns the range a readable string to trim communication size """
+        return self.get_as_child()._get_modified_as_string(input_value)
+
+    def _get_modified_as_string(self, input_value):
+        raise NotImplementedError()
+
+
+class RestrictionModifierDataTable(RestrictionModifierBase):
+    data_table = models.ForeignKey(DataTable, on_delete=models.CASCADE)
+    data_column = models.ForeignKey(DataColumn, on_delete=models.PROTECT, related_name='restriction_modifier_data_set')
+    text_column = models.ForeignKey(DataColumn, on_delete=models.PROTECT, related_name='restriction_modifier_text_set', null=True, blank=True)
+
+    def can_modify(self, input_value):
+        print(f"INPUT {input_value}")
+        data = self.retrieve_entry_value(input_value, self.data_column)
+        if data is None:
+            # There is no data stored for this input_value so return false
+            return False
+
+        return True
+
+    def _get_modified_values(self, input_value):
+        """ Retrieves, if present, the defined value from the datatable"""
+        range_values = self.retrieve_entry_value(input_value, self.data_column)
+
+        if range_values:
+            range_values = range_values.split(',')
+            range_values = [i.strip() for i in range_values]
+            return range_values
+        else:
+            return input_value
+
+    def retrieve_entry_value(self, input_value, data_column):
+        """ Retrieves the data from the datatable with the given input value and the data of the defined column.
+         Returns None if no entry was found. """
+        if not self.data_table.is_active:
+            # if table is not active, return the value of input_value
+            return None
+
+        range_entry = self.data_table.get_data_table_entries().filter(
+            **{
+                self.data_table.db_key_column_name: input_value
+            }
+        ).first()
+
+        if range_entry is None:
+            return None
+
+        return getattr(range_entry, data_column.db_column_name, None)
+
+    def _get_modified_as_string(self, input_value):
+        readable_range = None
+        if self.text_column:
+            readable_range = self.retrieve_entry_value(input_value, self.text_column)
+        if readable_range is None or readable_range == "":
+            readable_range = self.retrieve_entry_value(input_value, self.data_column)
+        return str(readable_range)
+
+
+class RestrictionModifierRange(RestrictionModifierBase):
+    """ Modifies the restriction in accordance to a computed range of values """
+    min = models.CharField(max_length=24, default=1000)
+    range = models.IntegerField(default=1)
+    max = models.CharField(max_length=24, default=9999)
+    type_choices = (
+        ('NUM', 'Normal numeric number'),
+        ('CMX', 'Complex value consisting of numbers and letters')
+    )
+    type = models.CharField(max_length=3, choices=type_choices, default='NUM')
+
+    def can_modify(self, input_value):
+        # Check if the value is within the scope
+        if input_value < self.min or input_value > self.max:
+            return False
+        else:
+            return True
+
+    def _get_modified_values(self, input_value):
+        if self.type == 'NUM':
+            base_int = int(input_value)
+            return list(range(
+                max(int(self.min), base_int - self.range),
+                min(int(self.max), base_int + self.range)
+            ))
+        elif self.type == 'CMX':
+            return get_range(input_value, self.range, min_value=self.min, max_value=self.max)
+
+    def clean(self):
+        if self.type == 'num':
+            # The type is a number, ensure the min and max are too
+            try:
+                float(self.min)
+            except ValueError:
+                raise ValidationError({'min': 'Minimum value must be a numeric entry.'})
+            try:
+                float(self.max)
+            except ValueError:
+                raise ValidationError({'max': 'Minimum value must be a numeric entry.'})
+
+    def _get_modified_as_string(self, input_value):
+        if self.type == 'NUM':
+            base_int = int(input_value)
+            return f"{max(int(self.min), base_int - self.range)} t/m {min(int(self.max), base_int + self.range)}"
+        elif self.type == 'CMX':
+            values = get_range(input_value, self.range, min_value=self.min, max_value=self.max)
+            return f"{values[0]} t/m {values[len(values)-1]}"
+
+    def __str__(self):
+        return f"Range {self.type}: {self.range}"
 
 
 class CollectiveRestriction(models.Model):
