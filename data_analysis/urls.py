@@ -23,6 +23,10 @@ urlpatterns = [
         ]))
     ])),
 
+    path('csv/', include([
+        path('tech_result/', views.TechDataCSVView.as_view(), name='csv_techs'),
+    ])),
+
     path('json/', include([
         path('inquiry_creation/', json_charts.InquiryCreationChart.as_view(), name='json_creation'),
         path('inquiry_progress/', json_charts.InquiryProgressChart.as_view(), name='json_progress'),

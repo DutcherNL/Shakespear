@@ -3,10 +3,10 @@ from functools import update_wrapper
 
 from django.http import HttpResponse
 from django.db.models import ForeignKey
-from django.db import OperationalError
 from django.forms import forms
 from django.urls import path
 from django.shortcuts import render
+from django.views import View
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.contrib.auth.models import Permission
 from django.contrib.auth import get_permission_codename
@@ -17,7 +17,7 @@ class CsvImportForm(forms.Form):
     csv_file = forms.FileField()
 
 
-class ExportCsvMixin:
+class ExportCsvInAdminMixin:
     """ A mixin on a model admin that allows for exporting and importing CSV files """
 
     change_list_template = "admin/change_list_with_csv_options.html"
@@ -241,3 +241,45 @@ class ExportCsvMixin:
         return response
 
     export_as_csv.short_description = "Export Selected in csv file"
+
+
+class CSVView(View):
+    http_method_names = ['get']
+    filename = None
+    header_fields = None
+
+    def get(self, request, *args, **kwargs):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename={self.get_filename()}'
+        writer = csv.writer(response)
+
+        # Define the header
+        writer.writerow(self.get_header())
+
+        # Write the data
+        for data in self.get_csv_data():
+            writer.writerow(data)
+
+        return response
+
+    def get_filename(self):
+        """ Returns the filename of the file as defined in 'self.filename' """
+        if self.filename is None:
+            raise KeyError("Filename for csv is not defined")
+        filename = self.filename
+        if not self.filename.endswith('.csv'):
+            filename += '.csv'
+
+    def get_header(self):
+        """ Returns the header as defined in 'header_fields' or a custom design if method is overwritten"""
+        if self.header_fields is None:
+            raise KeyError(f"{self.__class__.__name__} has no attribute for 'header_fields' defined. "
+                           f"Define this attribute or overwrite the get_header method.")
+        if not hasattr(self.header_fields, '__iter__'):
+            raise KeyError(f"{self.__class__.__name__} returns a non-iterable instance for 'header_fields'. Ensure it "
+                           f"is iterable by having it as a list or tuple.")
+        return self.header_fields
+
+    def get_csv_data(self):
+        """ Returns an iterable of iterables with all the values of the fields supposed to go in the CSV file"""
+        raise NotImplementedError(f"{self.__class__.__name__} has 'get_csv_data' not yet defined")

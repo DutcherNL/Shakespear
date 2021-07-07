@@ -3,9 +3,10 @@ from django.views.generic import View
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
-from Questionaire.models import Inquiry, Page, Technology, TechScoreLink
+from Questionaire.models import Inquiry, Page, Technology
 from .forms import *
 from .views import AccessRestrictionMixin
+from .utils import get_total_tech_scores
 from . import MIN_INQUIRY_REQ
 
 
@@ -338,7 +339,7 @@ class TechProgressChart(AccessRestrictionMixin, FilterInquiriesMixin, JsonChartV
         if self.has_filtered:
             data.append(
                 ChartData(
-                    self.compute_single_chart_run(technology, inquiries=inquiries),
+                    get_total_tech_scores(technology, inquiries=inquiries),
                     label="All",
                     backgroundColor=['#339933', '#999999', '#993333']
                 )
@@ -347,44 +348,11 @@ class TechProgressChart(AccessRestrictionMixin, FilterInquiriesMixin, JsonChartV
         # Add the normal basic data
         data.append(
             ChartData(
-                self.compute_single_chart_run(technology),
+                get_total_tech_scores(technology),
                 label="All",
                 backgroundColor=['#339933', '#999999', '#993333']
             )
         )
         return data
 
-    @staticmethod
-    def compute_single_chart_run(technology, inquiries=None, new=False):
-        if inquiries is None:
-            # It could be that inquiries is an empty dataset, that is fine.
-            inquiries = Inquiry.objects.all()
 
-        num_inquiries = inquiries.count()
-        approved_inquiries = inquiries
-        denied_inquiries = inquiries
-        score_links = technology.techscorelink_set.all()
-
-        if score_links.count() == 0:
-            if technology.get_as_techgroup is not None:
-                # In case this is a tech group. Treat it by checking its sub technologies
-                subtechs = technology.get_as_techgroup.sub_technologies.all()
-                score_links = TechScoreLink.objects.filter(technology__in=subtechs)
-            else:
-                # There are no links and no tech groups. So nothing can be displayed
-                return [0, 0, 0]
-
-        for link in score_links:
-            approved_inquiries = approved_inquiries.filter(
-                score__declaration=link.score_declaration,
-                score__score__gte=link.score_threshold_approve
-            )
-            denied_inquiries = denied_inquiries.filter(
-                score__declaration=link.score_declaration,
-                score__score__lte=link.score_threshold_deny
-            )
-
-        num_approved = approved_inquiries.count()
-        num_denied = denied_inquiries.count()
-        num_unknown = num_inquiries - num_approved - num_denied
-        return [num_approved, num_unknown, num_denied]

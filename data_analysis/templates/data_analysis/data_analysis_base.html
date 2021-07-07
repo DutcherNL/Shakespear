@@ -29,17 +29,18 @@
         <input type="submit" value="Filter" class="btn btn-primary">
         <a href="{{ request.path }}" class="btn btn-secondary">Clear filters</a>
         {% for button in other_buttons %}
-            <a href="{{ button.url }}" class="btn btn-info">
-                {{ button.text }}
+            <a href="{{ button.url }}" class="btn btn-info
+                {% if button.check_min_requirement and not valid_amount %} disabled {% endif %}">
+                {{ button.icon }} {{ button.text }}
             </a>
         {% endfor %}
     </form>
 
     <hr>
-    {% if queryset and queryset.count < MIN_INQUIRY_REQ %}
+    {% if not valid_amount %}
         <div class="alert alert-danger" role="alert">
-            Het aantal resultaten is minder dan {{ MIN_INQUIRY_REQ }}. Voor privacy veiligheid worden deze resultaten
-            niet weergeven.
+            Het aantal resultaten ({{ queryset.count }}) is minder dan {{ MIN_INQUIRY_REQ }}. Voor privacy veiligheid
+            worden deze resultaten niet weergeven.
         </div>
     {% endif %}
     {% block charts %}

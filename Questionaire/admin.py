@@ -3,13 +3,13 @@ from django.conf import settings
 from django.db.models import ProtectedError
 
 from .models import *
-from tools.csv_translations import ExportCsvMixin
+from tools.csv_translations import ExportCsvInAdminMixin
 
 # Register your models here.
 
 
 @admin.register(Question)
-class QuestionAdmin(ExportCsvMixin, admin.ModelAdmin):
+class QuestionAdmin(ExportCsvInAdminMixin, admin.ModelAdmin):
     class QuestionAnwerOptionsInlines(admin.TabularInline):
         model = AnswerOption
         extra = 0
@@ -54,7 +54,7 @@ class AnswerScoringFilter(admin.SimpleListFilter):
 
 
 @admin.register(AnswerOption)
-class AnswerOptionAdmin(ExportCsvMixin, admin.ModelAdmin):
+class AnswerOptionAdmin(ExportCsvInAdminMixin, admin.ModelAdmin):
     exclude_csv_fields = ['image']
 
     class AnswerScoringInlines(admin.TabularInline):
@@ -68,7 +68,7 @@ class AnswerOptionAdmin(ExportCsvMixin, admin.ModelAdmin):
 
 
 @admin.register(Technology)
-class TechnologyAdmin(ExportCsvMixin, admin.ModelAdmin):
+class TechnologyAdmin(ExportCsvInAdminMixin, admin.ModelAdmin):
     exclude_csv_fields = ['icon', 'information_page']
 
     class TechScoreLinkInlines(admin.TabularInline):
@@ -143,7 +143,7 @@ class TechGroupAdmin(admin.ModelAdmin):
 
 
 @admin.register(AnswerScoring)
-class AnswerScoringAdmin(ExportCsvMixin, admin.ModelAdmin):
+class AnswerScoringAdmin(ExportCsvInAdminMixin, admin.ModelAdmin):
     exclude_csv_fields = ['answer_option']
     add_csv_fields = ['answer_option__question__name', 'answer_option__answer']
 
@@ -159,7 +159,7 @@ class AnswerScoringAdmin(ExportCsvMixin, admin.ModelAdmin):
 
 
 @admin.register(AnswerScoringNote)
-class AnswerNoteAdmin(ExportCsvMixin, admin.ModelAdmin):
+class AnswerNoteAdmin(ExportCsvInAdminMixin, admin.ModelAdmin):
     exclude_csv_fields = ['scoring']
     add_csv_fields = ['scoring__answer_option__question__name',
                       'scoring__answer_option__answer',
@@ -222,10 +222,10 @@ if settings.SHOW_DEBUG_CLASSES:
         list_filter = ('question',)
 
     @admin.register(ScoringDeclaration)
-    class ScoreDeclarationMixin(ExportCsvMixin, admin.ModelAdmin):
+    class ScoreDeclarationMixin(ExportCsvInAdminMixin, admin.ModelAdmin):
         list_display = ('name', 'display_name', 'score_start_value',)
 
 
     @admin.register(TechScoreLink)
-    class TechScoreLinkAdmin(ExportCsvMixin, admin.ModelAdmin):
+    class TechScoreLinkAdmin(ExportCsvInAdminMixin, admin.ModelAdmin):
         list_display = ('score_declaration', 'technology', 'score_threshold_approve', 'score_threshold_deny')

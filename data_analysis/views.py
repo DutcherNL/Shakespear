@@ -9,6 +9,8 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.http import Http404
+from django.utils.translation import gettext_lazy as _
+from django.utils.safestring import mark_safe
 
 
 from Questionaire.models import Technology, Inquirer, Inquiry
@@ -17,6 +19,8 @@ from initiative_enabler.models import TechCollective, InitiatedCollective, \
 from .forms import *
 from .models import QuestionFilter
 from . import MIN_INQUIRY_REQ
+from .utils import get_total_tech_scores
+from tools.csv_translations import CSVView
 
 from mailing.views import ConstructMailView
 
@@ -38,6 +42,8 @@ class FilterDataMixin:
 
         context['queryset'] = self.get_queryset(forms=forms.values())
         context['MIN_INQUIRY_REQ'] = self.minimum_results_required
+
+        context['valid_amount'] = not context['queryset'].count() < context['MIN_INQUIRY_REQ']
 
         # The get query parameters in url query format to be used when calling graph data
         context['query_line'] = urllib.parse.urlencode(self.request.GET)
@@ -96,8 +102,16 @@ class TechDataView(AccessRestrictionMixin, FilterDataMixin, TemplateView):
                            FilterInquiryByQuestionForm, InquiryUserExcludeFilterForm]
 
     def get_context_data(self, **kwargs):
+        buttons = [{
+            'icon': mark_safe('<i class="fas fa-file-csv"></i>'),
+            'text': _('Download as CSV'),
+            'url': reverse("data_analysis:csv_techs")+'?'+urllib.parse.urlencode(self.request.GET),
+            'check_min_requirement': True,
+        }]
+
         return super(TechDataView, self).get_context_data(
             techs=Technology.objects.all(),
+            other_buttons=buttons,
             **kwargs
         )
 
@@ -108,6 +122,35 @@ class TechDataView(AccessRestrictionMixin, FilterDataMixin, TemplateView):
                 'filter_models': QuestionFilter.objects.filter(use_for_tech_analysis=True)
             })
         return kwargs
+
+
+class TechDataCSVView(AccessRestrictionMixin, FilterDataMixin, CSVView):
+    filter_form_classes = [InquiryLastVisitedFilterForm,
+                           FilterInquiryByQuestionForm, InquiryUserExcludeFilterForm]
+
+    filename = "data_statistics"
+    header_fields = ['technology', "Advised", "No advise", "Not recommanded"]
+
+    def get_csv_data(self):
+        inquiries = self.get_queryset()
+
+        class TechDataScoreIter:
+            def __init__(self, inquiries=None):
+                self.inquiries = inquiries or Inquiry.objects.all()
+
+            def __iter__(self):
+                self.technology_iter = Technology.objects.all().__iter__()
+                return self
+
+            def __next__(self):
+                technology = next(self.technology_iter)
+
+                results = [technology.name, *get_total_tech_scores(technology, self.inquiries)]
+
+                return results
+
+        return TechDataScoreIter(inquiries)
+
 
 
 class InterestsView(AccessRestrictionMixin, FilterDataMixin, TemplateView):
