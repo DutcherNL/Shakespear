@@ -8,6 +8,7 @@ class MailForm(forms.Form):
     to = forms.EmailField()
     subject = forms.CharField(max_length=128)
     text = forms.CharField(widget=forms.Textarea)
+    use_bcc = False
 
     # Ingore the to-field in cleaning. This way the field can be used for symbolised targets
     ignore_to_field = False
@@ -30,7 +31,8 @@ class MailForm(forms.Form):
             send_templated_mail(subject,
                                 template_name=template_name,
                                 context_data=context,
-                                recipient=to)
+                                recipient=to,
+                                use_bcc=self.use_bcc)
         else:
             raise forms.ValidationError("Form not valid yet")
 

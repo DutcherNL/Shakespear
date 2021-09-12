@@ -23,7 +23,7 @@ def _get_mail_templates(full_template_name):
         return None
 
 
-def send_templated_mail(subject=None, template_name=None, context_data={}, recipient=None, **kwargs):
+def send_templated_mail(subject=None, template_name=None, context_data={}, recipient=None, use_bcc=False, **kwargs):
     """
     Sends a templated e-mail to the recipient
     :param subject: The subject of the mail
@@ -48,12 +48,18 @@ def send_templated_mail(subject=None, template_name=None, context_data={}, recip
         to = recipient.email
         context_data['user'] = recipient
 
+    if use_bcc:
+        kwargs['to'] = []
+        kwargs['bcc'] = to
+    else:
+        kwargs['to'] = to
+
     # Render and send the e-mail
     _render_and_send_mail(subject=subject,
                           txt_template=_get_mail_templates(template_name+".txt"),
                           html_template=_get_mail_templates(template_name+".html"),
                           context_data=context_data,
-                          to=[to], **kwargs)
+                          **kwargs)
 
 
 def send_templated_mass_mail(subject=None, template_name=None, context_data={}, recipients=None, **kwargs):

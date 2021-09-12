@@ -322,6 +322,7 @@ class ActivateInquirerForm(NoFormDataMixin, Form):
 
 class InquirerMailForm(MailForm):
     ignore_to_field = True
+    use_bcc = True
 
     def __init__(self, *args, inquirers=None, **kwargs):
         super(InquirerMailForm, self).__init__(*args, **kwargs)

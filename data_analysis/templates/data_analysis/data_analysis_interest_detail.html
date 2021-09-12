@@ -50,7 +50,8 @@
 
     <div class="row">
         <div class="col">
-            <a href="" class="btn btn-warning disabled">{% trans "Contacteer geïnteresserden via mail" %}</a>
+            <a href="{% url "data_analysis:send_mail" tech_slug=technology.slug  %}"
+               class="btn btn-warning">{% trans "Contacteer geïnteresserden via mail" %}</a>
         </div>
     </div>
 
