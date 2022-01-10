@@ -102,42 +102,43 @@ class EmailForm(Form):
 
 
 class PendingMailForm(Form):
-    code = CharField()
-    email = CharField()
+    code = CharField(required=True)
+    email = CharField(required=True)
 
     def clean(self):
         cleaned_data = super(PendingMailForm, self).clean()
 
-        try:
-            self.instance = PendingMailVerifyer.objects.get(code=cleaned_data['code'])
-        except PendingMailVerifyer.DoesNotExist:
-            raise ValidationError(
-                'Gegevens van email validatie komen niet overeen.',
-                code='invalid',
-                params={},
-            )
+        if cleaned_data.get('code', None):
+            try:
+                self.instance = PendingMailVerifyer.objects.get(code=cleaned_data['code'])
+            except PendingMailVerifyer.DoesNotExist:
+                raise ValidationError(
+                    'Gegevens van email validatie komen niet overeen.',
+                    code='invalid',
+                    params={},
+                )
 
-        if self.instance.email != cleaned_data['email']:
-            raise ValidationError(
-                'Gegevens van email validatie komen niet overeen.',
-                code='invalid',
-                params={},
-            )
+            if self.instance.email != cleaned_data['email']:
+                raise ValidationError(
+                    'Gegevens van email validatie komen niet overeen.',
+                    code='invalid',
+                    params={},
+                )
 
-        if self.instance.is_verified:
-            raise ValidationError(
-                'Mail is al gevalideerd',
-                code='already_validated',
-                params={},
-            )
+            if self.instance.is_verified:
+                raise ValidationError(
+                    'Mail is al gevalideerd',
+                    code='already_validated',
+                    params={},
+                )
 
-        if not self.instance.active:
-            raise ValidationError(
-                'Deze email verificatie link is niet meer actief. Mogelijk dat de gebruiker het e-mail adres heeft '
-                'aangepast.',
-                code='not_active',
-                params={},
-            )
+            if not self.instance.active:
+                raise ValidationError(
+                    'Deze email verificatie link is niet meer actief. Mogelijk dat de gebruiker het e-mail adres heeft '
+                    'aangepast.',
+                    code='not_active',
+                    params={},
+                )
 
     def verify(self):
         self.instance.verify()
